@@ -1,9 +1,10 @@
 # pyMetaheuristic
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Cross Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Firefly Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grey Wolf Optmizer**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Anealling**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
+A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Cross Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Firefly Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grey Wolf Optmizer**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Anealling**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
 
 Try it in **Colab**:
 
 - Adaptive Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1PbIjDVGAU75Dgxn6I3bpoWovvYA4RYks?usp=sharing))
+- Ant Lion Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/11GWyd-o11nzwjafF37YDbReAJyjV4Zhp?usp=sharing))
 - Artificial Bee Colony Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1IBouxcnhbNLfCoCV5ueNCq0FZBd9E2gu?usp=sharing))
 - Bat Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1vbUWQ3T8B1XhPrewaFUW9uvCMGmzajk1?usp=sharing))
 - Cross Entropy Method ([ Colab Demo ](https://colab.research.google.com/drive/1tI1YbjbAV_O9TdXWYfu8aAlvadC7Crm_?usp=sharing))
