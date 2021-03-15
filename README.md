@@ -17,7 +17,7 @@ Try it in **Colab**:
 - Grey Wolf Optmizer ([ Colab Demo ](https://colab.research.google.com/drive/1EQqLtVs9ghQ9Cu-aFRh13hu5ZdgOf9sc?usp=sharing))
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing))
-- Multiverse Optimizer ([ Colab Demo ](https://drive.google.com/file/d/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi/view?usp=sharing))
+- Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing))
 - Particle Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1bWAmKTkNKSiSQPUcRdokLQYuhQBOhckZ?usp=sharing))
 - Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1DCi4aiO_ORlRq9MetZcxHyKAywMuFkRO?usp=sharing))
 - Salp Swarm Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Qhkn2NPO5Gavc6ZHW79n_DjmEFeDvOBq?usp=sharing))
