@@ -151,29 +151,3 @@ def ant_lion_optimizer(colony_size = 5, min_values = [-5,-5], max_values = [5,5]
         count = count + 1 
     print(elite)    
     return elite
-
-######################## Part 1 - Usage ####################################
-    
-# Function to be Minimized (Easom).  Solution ->  f(x) = -1; xi = 3.14
-def easom(variables_values = [0, 0]):
-    return -math.cos(variables_values[0])*math.cos(variables_values[1])*math.exp(-(variables_values[0] - math.pi)**2 - (variables_values[1] - math.pi)**2)
-
-alo = ant_lion_optimizer(colony_size = 50, min_values = [-1,-1], max_values = [7,7], iterations = 200, target_function = easom)
-
-# Function to be Minimized (Six Hump Camel Back). Solution ->  f(x1, x2) = -1.0316; x1 = 0.0898, x2 = -0.7126 or x1 = -0.0898, x2 = 0.7126
-def six_hump_camel_back(variables_values = [0, 0]):
-    func_value = 4*variables_values[0]**2 - 2.1*variables_values[0]**4 + (1/3)*variables_values[0]**6 + variables_values[0]*variables_values[1] - 4*variables_values[1]**2 + 4*variables_values[1]**4
-    return func_value
-
-alo = ant_lion_optimizer(colony_size = 50, min_values = [-5,-5], max_values = [5,5], iterations = 100, target_function = six_hump_camel_back)
-
-# Function to be Minimized (Rosenbrocks Valley). Solution ->  f(x) = 0; xi = 1
-def rosenbrocks_valley(variables_values = [0,0]):
-    func_value = 0
-    last_x = variables_values[0]
-    for i in range(1, len(variables_values)):
-        func_value = func_value + (100 * math.pow((variables_values[i] - math.pow(last_x, 2)), 2)) + math.pow(1 - last_x, 2)
-    return func_value
-
-alo = ant_lion_optimizer(colony_size = 100, min_values = [-5,-5], max_values = [5,5], iterations = 2500, target_function = rosenbrocks_valley)
-
