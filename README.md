@@ -13,7 +13,7 @@ Try it in **Colab**:
 - Dispersive Flies Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1Y6eULdzLMnM2QpApdvABotxwG01BusmE?usp=sharing))
 - Firefly Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1vjUDRdRKPAGo6fTXAsvF9INJiF-wb6Pe?usp=sharing))
 - Flower Pollination Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1U7gTgWwBPOWGyEQGX38nSBnBzb3WWAM1?usp=sharing))
-- Genetic Algorithm ([ Colab Demo ](https://drive.google.com/file/d/1zY4N9Sf6odAd1hn8Z3SSww403aj2BHhh/view?usp=sharing))
+- Genetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1zY4N9Sf6odAd1hn8Z3SSww403aj2BHhh?usp=sharing))
 - Grey Wolf Optmizer ([ Colab Demo ](https://colab.research.google.com/drive/1EQqLtVs9ghQ9Cu-aFRh13hu5ZdgOf9sc?usp=sharing))
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing))
