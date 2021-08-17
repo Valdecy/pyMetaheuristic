@@ -130,6 +130,5 @@ def harris_hawks_optimization(hawks = 5, min_values = [-5,-5], max_values = [5,5
         count      = count + 1           
     return position_r
 
-######################## Part 1 - Usage ####################################
-
+############################################################################
 
