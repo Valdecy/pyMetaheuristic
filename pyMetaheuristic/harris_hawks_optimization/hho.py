@@ -7,13 +7,12 @@
 # Lesson: Harris Hawks Optimization
 
 # Citation: 
-# PEREIRA, V. (2018). Project: Metaheuristic-Grey_Wolf_Optimizer, File: Python-MH-Grey Wolf Optimizer.py, GitHub repository: <https://github.com/Valdecy/Metaheuristic-Grey_Wolf_Optimizer>
+# PEREIRA, V. (2021). Project: Metaheuristic-Grey_Wolf_Optimizer, File: Python-MH- Harris Hawks Optimization.py, GitHub repository: <https://github.com/Valdecy>
 
 ############################################################################
 
 # Required Libraries
 import numpy  as np
-import math
 import random
 import os
 
@@ -133,19 +132,4 @@ def harris_hawks_optimization(hawks = 5, min_values = [-5,-5], max_values = [5,5
 
 ######################## Part 1 - Usage ####################################
 
-# Function to be Minimized (Six Hump Camel Back). Solution ->  f(x1, x2) = -1.0316; x1 = 0.0898, x2 = -0.7126 or x1 = -0.0898, x2 = 0.7126
-def six_hump_camel_back(variables_values = [0, 0]):
-    func_value = 4*variables_values[0]**2 - 2.1*variables_values[0]**4 + (1/3)*variables_values[0]**6 + variables_values[0]*variables_values[1] - 4*variables_values[1]**2 + 4*variables_values[1]**4
-    return func_value
 
-hho = harris_hawks_optimization(hawks = 15, min_values = [-5,-5], max_values = [5,5], iterations = 100, target_function = six_hump_camel_back)
-
-# Function to be Minimized (Rosenbrocks Valley). Solution ->  f(x) = 0; xi = 1
-def rosenbrocks_valley(variables_values = [0,0]):
-    func_value = 0
-    last_x = variables_values[0]
-    for i in range(1, len(variables_values)):
-        func_value = func_value + (100 * math.pow((variables_values[i] - math.pow(last_x, 2)), 2)) + math.pow(1 - last_x, 2)
-    return func_value
-
-hho = harris_hawks_optimization(hawks = 100, min_values = [-5,-5], max_values = [5,5], iterations = 100, target_function = rosenbrocks_valley)
