@@ -64,25 +64,25 @@ def update_hawks_position(position_h, position_r, e_r_factor, min_values = [-5,-
             idx    = random.choice(list(range(0, position_h.shape[1])))
             hawk   = position_h[idx, :]
             if (rand_1 < 0.5):
-                a = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-                b = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                a                  = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                b                  = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
                 position_h[i, :-1] = hawk[:-1] - a * abs(hawk[:-1] - 2 * b * position_h[i, :-1])
             elif (rand_1 >= 0.5):
-                c = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-                d = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                c                  = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                d                  = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
                 position_h[i, :-1] = (position_r[:-1] - position_h[i, :-1].mean(0)) - c * (np.asarray(max_values) - np.asarray(min_values)) * d + np.asarray(min_values)
         elif abs(escaping_energy) < 1:
             rand_2 = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
             if (rand_2 >= 0.5 and abs(escaping_energy) < 0.5):  # Hard Besiege
                 position_h[i, :-1] = (position_r[:-1]) - escaping_energy * abs(position_r[:-1] - position_h[i, :-1])
             if (rand_2 >= 0.5 and abs(escaping_energy) >= 0.5):  # Soft Besiege 
-                e = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-                jump_strength = 2 * (1 - e)  
+                e                  = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                jump_strength      = 2 * (1 - e)  
                 position_h[i, :-1] = (position_r[:-1] - position_h[i, :-1]) - escaping_energy * abs(jump_strength * position_r[:-1] - position_h[i, :-1])
             if (rand_2 < 0.5 and abs(escaping_energy) >= 0.5):  # Soft Besiege 
-                f = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                f             = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
                 jump_strength = 2 * (1 - f)
-                x1 = position_r[:-1] - escaping_energy * abs(jump_strength * position_r[:-1] - position_h[i, :-1])
+                x1            = position_r[:-1] - escaping_energy * abs(jump_strength * position_r[:-1] - position_h[i, :-1])
                 for j in range (0, len(min_values)):                                 
                     x1[j] = np.clip(x1[j], min_values[j], max_values[j])
                 t_x1 = target_function(x1)
@@ -98,9 +98,9 @@ def update_hawks_position(position_h, position_r, e_r_factor, min_values = [-5,-
                         position_h[i, :-1] = np.copy(x2)
                         position_h[i,  -1] = t_x2
             if (rand_2 < 0.5 and abs(escaping_energy) < 0.5):  # Hard besiege 
-                g = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+                g             = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
                 jump_strength = 2 * (1 -g)
-                x1 = position_r[:-1] - escaping_energy * abs(jump_strength * position_r[:-1] - position_h[i, :-1].mean(0))
+                x1            = position_r[:-1] - escaping_energy * abs(jump_strength * position_r[:-1] - position_h[i, :-1].mean(0))
                 for j in range (0, len(min_values)):                                 
                     x1[j] = np.clip(x1[j], min_values[j], max_values[j])
                 t_x1 = target_function(x1)
