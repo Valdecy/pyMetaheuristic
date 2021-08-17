@@ -1,5 +1,5 @@
 # pyMetaheuristic
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Cross Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Firefly Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grey Wolf Optmizer**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Anealling**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
+A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Cross Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Firefly Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grey Wolf Optmizer**, **Harris Hawks Optimization**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Anealling**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
 
 Try it in **Colab**:
 
@@ -15,6 +15,7 @@ Try it in **Colab**:
 - Flower Pollination Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1U7gTgWwBPOWGyEQGX38nSBnBzb3WWAM1?usp=sharing))
 - Genetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1zY4N9Sf6odAd1hn8Z3SSww403aj2BHhh?usp=sharing))
 - Grey Wolf Optmizer ([ Colab Demo ](https://colab.research.google.com/drive/1EQqLtVs9ghQ9Cu-aFRh13hu5ZdgOf9sc?usp=sharing))
+- Harris Hawks Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1swYF7A0I67zX7NxXRJ1d1k1apeMWX2ix?usp=sharing))
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing))
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing))
