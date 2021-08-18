@@ -131,7 +131,7 @@ def update_ants(population, antlions, count, iterations, min_values = [-5,-5], m
             e_random_walk[count] = (((e_random_walk[count] - min_e)*(maximum_d_e[0,j] - minimum_c_e[0,j]))/(max_e - min_e)) + minimum_c_e[0,j]    
             population[i,j] = np.clip((x_random_walk[count] + e_random_walk[count])/2, min_values[j], max_values[j])
         population[i,-1] = target_function(population[i,0:population.shape[1]-1])
-        return population, antlions
+    return population, antlions
 
 # ALO Function
 def ant_lion_optimizer(colony_size = 5, min_values = [-5,-5], max_values = [5,5], iterations = 50, target_function = target_function):    
