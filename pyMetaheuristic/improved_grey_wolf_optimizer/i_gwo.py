@@ -132,3 +132,21 @@ def improve_position(position, updt_position, min_values = [-5,-5], max_values =
     return improve_position
 
 ############################################################################
+
+# iGWO Function
+def improved_grey_wolf_optimizer(pack_size = 5, min_values = [-5,-5], max_values = [5,5], iterations = 50, target_function = target_function):    
+    count    = 0
+    alpha    = alpha_position(dimension = len(min_values), target_function = target_function)
+    beta     = beta_position(dimension  = len(min_values), target_function = target_function)
+    delta    = delta_position(dimension = len(min_values), target_function = target_function)
+    position = initial_position(pack_size = pack_size, min_values = min_values, max_values = max_values, target_function = target_function)
+    while (count <= iterations):      
+        print('Iteration = ', count, ' f(x) = ', alpha[0][-1])      
+        a_linear_component = 2 - count*(2/iterations)
+        alpha, beta, delta = update_pack(position, alpha, beta, delta)
+        updt_position      = update_position(position, alpha, beta, delta, a_linear_component, min_values, max_values, target_function)      
+        position           = improve_position(position, updt_position, min_values, max_values, target_function)
+        count              = count + 1         
+    return alpha
+
+############################################################################
