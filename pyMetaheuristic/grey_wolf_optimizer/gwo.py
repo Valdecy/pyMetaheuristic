@@ -106,6 +106,5 @@ def grey_wolf_optimizer(pack_size = 5, min_values = [-5,-5], max_values = [5,5],
         a_linear_component = 2 - count*(2/iterations)
         alpha, beta, delta = update_pack(position, alpha, beta, delta)
         position           = update_position(position, alpha, beta, delta, a_linear_component = a_linear_component, min_values = min_values, max_values = max_values, target_function = target_function)       
-        count              = count + 1       
-    print(alpha[-1])    
+        count              = count + 1          
     return alpha
