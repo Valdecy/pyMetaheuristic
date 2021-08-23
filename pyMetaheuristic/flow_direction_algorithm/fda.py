@@ -96,11 +96,8 @@ def flow_direction_algorithm(size = 5, beta = 8, min_values = [-5,-5], max_value
     position_a = initial_position(size, min_values, max_values, target_function)
     position_b = initial_position(size*beta, min_values, max_values, target_function)
     elite_a    = np.copy(position_a[position_a[:,-1].argsort()][0,:])
-    elite_b    = np.copy(position_b[position_b[:,-1].argsort()][0,:])
-    if (elite_a[-1] < elite_b[-1]):
-        elite = np.copy(elite_a)
-    else:
-        elite = np.copy(elite_b)
+    elite_b    = np.copy(elite_a)
+    elite      = np.copy(elite_a)
     while (count <= iterations):      
         print('Iteration = ', count,  ' f(x) = ', elite[-1])
         r1          = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
