@@ -1,4 +1,5 @@
 # pyMetaheuristic
+
 A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
 
 Try it in **Colab**:
