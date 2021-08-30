@@ -23,7 +23,7 @@ Try it in **Colab**:
 - Harris Hawks Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1swYF7A0I67zX7NxXRJ1d1k1apeMWX2ix?usp=sharing))
 - Improved Grey Wolf Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Ggu6bd6-FQkLMIrfJynF54b7JBUJaw8Z?usp=sharing))
 - Improved Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nvuz7VEqUfUqNzEm1h2_hGhieSH3vgHY?usp=sharing))
-- Jaya ([ Colab Demo ](https://colab.research.google.com/drive/1B-1I3izW0R41_gSGjU26OGHSmy5BY4Tr?usp=sharing)
+- Jaya ([ Colab Demo ](https://colab.research.google.com/drive/1B-1I3izW0R41_gSGjU26OGHSmy5BY4Tr?usp=sharing))
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing))
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing))
