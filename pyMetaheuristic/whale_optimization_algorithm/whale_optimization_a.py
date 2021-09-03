@@ -84,6 +84,5 @@ def whale_optimization_algorithm(hunting_party = 5, spiral_param = 1,  min_value
         b_linear_component = -1 + count*(-1/iterations)
         leader             = update_leader(position, leader)
         position           = update_position(position, leader, a_linear_component = a_linear_component, b_linear_component = b_linear_component,  spiral_param = spiral_param, min_values = min_values, max_values = max_values, target_function = target_function)
-        count = count + 1 
-    print(leader)    
+        count = count + 1   
     return leader
