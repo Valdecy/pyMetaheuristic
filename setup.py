@@ -9,7 +9,6 @@ setup(
     url='https://github.com/Valdecy/pyMetaheuristic',
     packages=find_packages(),
     install_requires=[
-        'matplotlib',
         'numpy',
         'scipy'
     ],
