@@ -18,7 +18,7 @@ pip install pyMetaheuristic
 # Import PSO
 from pyMetaheuristic.algorithm import particle_swarm_optimization
 
-# Import Test Fucntion. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price
+# Import Test Function. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price
 from pyMetaheuristic.test_function import easom
 
 # OR Define your Own Custom Function
