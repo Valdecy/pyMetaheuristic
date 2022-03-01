@@ -8,7 +8,8 @@ def easom(variables_values = [0, 0]):
     
 # Function: Six Hump Camel Back. Solution ->  f(x1, x2) = -1.0316; (x1,x2) = (0.0898, -0.7126) or (-0.0898, 0.7126)
 def six_hump_camel_back(variables_values = [0, 0]):
-    func_value = 4*variables_values[0]**2 - 2.1*variables_values[0]**4 + (1/3)*variables_values[0]**6 + variables_values[0]*variables_values[1] - 4*variables_values[1]**2 + 4*variables_values[1]**4
+    x1, x2     = variables_values
+    func_value = 4*x1**2 - 2.1*x1**4 + (1/3)*x1**6 + x1*x2 - 4*x2**2 + 4*x2**4
     return func_value
 
 # Function: De Jong 1. Solution ->  f(xi) = 0; xi = 0
