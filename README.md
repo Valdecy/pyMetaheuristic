@@ -1,5 +1,40 @@
 # pyMetaheuristic
 
+## Usage
+
+1. Install
+```bash
+python setup.py install
+```
+
+2. Import
+
+```py3
+from pyMetaheuristic.algorithm import particle_swarm_optimization
+from pyMetaheuristic.test_function import easom
+
+
+parameters = {
+    "swarm_size": 250,
+    "min_values": (-5, -5),
+    "max_values": (5, 5),
+    "iterations": 500,
+    "decay": 0,
+    "w": 0.9,
+    "c1": 2,
+    "c2": 2
+}
+
+
+opt = particle_swarm_optimization(target_function=easom, **parameters)
+print(opt)
+```
+
+
+3. Enjoy!
+
+## Introduction
+
 A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
 
 Try it in **Colab**:
