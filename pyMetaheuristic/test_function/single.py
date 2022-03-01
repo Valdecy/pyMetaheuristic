@@ -1,6 +1,6 @@
 import numpy as np
 
-# Function: EASOM. Solution ->  f(x1, x2) = -1; x1, x2 = 3.14
+# Function: EASOM. Solution ->  f(x1, x2) = -1; (x1, x2) = (3.14, 3.14)
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
     func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - pi) ** 2)
@@ -40,7 +40,7 @@ def rastrigin(variables_values = [0, 0]):
         func_value = func_value + (variables_values[i]**2) -10*np.cos(2*np.pi*variables_values[i])
     return func_value
 
-# Function: Branin RCOS. Solution ->  f(xi) = 0.397887; (x1,x2)=(-3.14, 12.275) or (3.14, 2.275) or (9.42478, 2.475)
+# Function: Branin RCOS. Solution ->  f(xi) = 0.397887; (x1, x2) = (-3.14, 12.275) or (3.14, 2.275) or (9.42478, 2.475)
 def branin_rcos(variables_values = [0, 0]):
     x1, x2     = variables_values
     a          = 1
@@ -52,7 +52,7 @@ def branin_rcos(variables_values = [0, 0]):
     func_value = a*(x2 - b*x1**2 + c*x1 - d)**2 + e*(1 - f)*np.cos(x1) + e
     return func_value
     
-# Function: Goldstein-Price. Solution ->  f(x1, x2) = -1; x1, x2 = 3.14
+# Function: Goldstein-Price. Solution ->  f(x1, x2) = 3; (x1, x2) = (0, -1)
 def goldstein_price(variables_values = [0, 0]):
     x1, x2     = variables_values
     func_value = (1 + ((x1 + x2 +1)**2)*(19 - 14*x1 + 3*x1**2 - 14*x2 + 6*x1*x2 + 3*x2**2))*(30 + ((2*x1 - 3*x2)**2)*(18 - 32*x1 + 12*x1**2 + 48*x2 - 36*x1*x2 + 27*x2**2))
