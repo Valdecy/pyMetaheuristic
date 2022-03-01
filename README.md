@@ -25,7 +25,7 @@ from pyMetaheuristic.test_function import easom
 import numpy as np
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - pi) ** 2)
+    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
     return func_value
 
 # Run PSO
