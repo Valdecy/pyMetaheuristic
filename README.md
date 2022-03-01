@@ -18,13 +18,15 @@ pip install pyMetaheuristic
 # Import PSO
 from pyMetaheuristic.algorithm import particle_swarm_optimization
 
-# Import Test Fucntion (W.I.P.)
+# Import Test Fucntion. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price
 from pyMetaheuristic.test_function import easom
 
-# OR define your own custom function
-import math
+# OR Define your Own Custom Function
+import numpy as np
 def easom(variables_values = [0, 0]):
-    return -math.cos(variables_values[0])*math.cos(variables_values[1])*math.exp(-(variables_values[0] - math.pi)**2 - (variables_values[1] - math.pi)**2)
+    x1, x2     = variables_values
+    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - pi) ** 2)
+    return func_value
 
 # Run PSO
 parameters = {
@@ -80,8 +82,3 @@ Try it in **Colab**:
 - Simulated Annealing ([ Colab Demo ](https://colab.research.google.com/drive/1W6X_kCSGOKEDWIJ-ar25kgWIQAc4U1mA?usp=sharing))
 - Sine Cosine Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1WjbCiks_E2s1qw9l9OkZ4mRQPQuWWYzs?usp=sharing))
 - Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nt52dS0AsXm7RHVIt3K0DAaC1i8zKUUC?usp=sharing))
-
-# Acknowledgement 
-This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
-
-* Raiser (01.MARCH.2022) - https://github.com/mpraiser
