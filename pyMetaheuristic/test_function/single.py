@@ -1,9 +1,10 @@
+import math
 import numpy as np
 
 # Function: EASOM. Solution ->  f(x1, x2) = -1; (x1, x2) = (3.14, 3.14)
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - pi) ** 2)
+    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
     return func_value
     
 # Function: Six Hump Camel Back. Solution ->  f(x1, x2) = -1.0316; (x1,x2) = (0.0898, -0.7126) or (-0.0898, 0.7126)
