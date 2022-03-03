@@ -28,3 +28,4 @@ from .ssa import salp_swarm_algorithm
 from .sa import simulated_annealing
 from .sine_cosine_a import sine_cosine_algorithm
 from .whale_optimization_a import whale_optimization_algorithm
+from .jso import jso, artificial_jellyfish_search_optimizer
