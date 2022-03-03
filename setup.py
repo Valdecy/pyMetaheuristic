@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='pyMetaheuristic',
-    version='1.0.4',
+    version='1.0.5',
     license='GNU',
     author='Valdecy Pereira',
     author_email='valdecy.pereira@gmail.com',
