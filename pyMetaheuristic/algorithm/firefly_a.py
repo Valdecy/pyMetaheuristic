@@ -62,7 +62,7 @@ def update_position(position, x, y, alpha_0 = 0.2, beta_0 = 1, gama = 1, firefly
 ############################################################################
 
 # FA Function
-def firefly_algorithm(swarm_size = 3, min_values = [-5,-5], max_values = [5,5], generations = 50, alpha_0 = 0.2, beta_0 = 1, gama = 1, target_function = target_function):
+def firefly_algorithm(swarm_size = 3, min_values = [-5,-5], max_values = [5,5], generations = 50, alpha_0 = 0.2, beta_0 = 1, gama = 1, target_function = target_function, verbose = True):
     count    = 0    
     position = initial_fireflies(swarm_size = swarm_size, min_values = min_values, max_values = max_values, target_function = target_function)
     while (count <= generations):
