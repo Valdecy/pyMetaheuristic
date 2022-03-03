@@ -70,8 +70,8 @@ def update_position(position, velocity, min_values = [-5,-5], max_values = [5,5]
 
 # PSO Function
 def particle_swarm_optimization(swarm_size = 3, min_values = [-5,-5], max_values = [5,5], iterations = 50, decay = 0, w = 0.9, c1 = 2, c2 = 2, target_function = target_function, verbose = True):    
-    count    = 0
-    position = initial_position(swarm_size = swarm_size, min_values = min_values, max_values = max_values, target_function = target_function)
+    count         = 0
+    position      = initial_position(swarm_size = swarm_size, min_values = min_values, max_values = max_values, target_function = target_function)
     init_velocity = initial_velocity(position, min_values = min_values, max_values = max_values)
     i_b_matrix    = np.copy(position)
     best_global   = np.copy(position[position[:,-1].argsort()][0,:])
@@ -89,7 +89,7 @@ def particle_swarm_optimization(swarm_size = 3, min_values = [-5,-5], max_values
             c1 = (1-c1)*(count/iterations) + c1
             c2 = (1-c2)*(count/iterations) + c2
         init_velocity = velocity_vector(position, init_velocity, i_b_matrix, best_global, w = w, c1 = c1, c2 = c2)
-        count = count + 1     
+        count         = count + 1     
     return best_global
 
 ############################################################################
