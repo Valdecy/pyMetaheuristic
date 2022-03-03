@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
+A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**,**Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
 
 ## Usage
 
@@ -18,10 +18,10 @@ pip install pyMetaheuristic
 # Import PSO
 from pyMetaheuristic.algorithm import particle_swarm_optimization
 
-# Import Test Function. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price
+# Import a Test Function. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price, styblinski_tang
 from pyMetaheuristic.test_function import easom
 
-# OR Define your Own Custom Function
+# OR Define your Own Custom Function. The function input should be a list of values, each value represents a dimenstion (x1, x2, ...xn) of the problem
 import numpy as np
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
@@ -73,6 +73,7 @@ Try it in **Colab**:
 - Improved Grey Wolf Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Ggu6bd6-FQkLMIrfJynF54b7JBUJaw8Z?usp=sharing))
 - Improved Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nvuz7VEqUfUqNzEm1h2_hGhieSH3vgHY?usp=sharing))
 - Jaya ([ Colab Demo ](https://colab.research.google.com/drive/1B-1I3izW0R41_gSGjU26OGHSmy5BY4Tr?usp=sharing))
+- Jellyfish Search Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1yKkUozjzzia9W1sa8XJRNhZzFWCkcGl1?usp=sharing))
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing))
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing))
