@@ -82,3 +82,8 @@ Try it in **Colab**:
 - Simulated Annealing ([ Colab Demo ](https://colab.research.google.com/drive/1W6X_kCSGOKEDWIJ-ar25kgWIQAc4U1mA?usp=sharing))
 - Sine Cosine Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1WjbCiks_E2s1qw9l9OkZ4mRQPQuWWYzs?usp=sharing))
 - Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nt52dS0AsXm7RHVIt3K0DAaC1i8zKUUC?usp=sharing))
+
+# Acknowledgement 
+This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
+
+* Raiser (01.MARCH.2022) - https://github.com/mpraiser
