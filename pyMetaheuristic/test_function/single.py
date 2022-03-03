@@ -24,7 +24,8 @@ def rosenbrocks_valley(variables_values = [0,0]):
     func_value = 0
     last_x     = variables_values[0]
     for i in range(1, len(variables_values)):
-        func_value = func_value + (100 * ((variables_values[i] - (last_x)**2)**2)) + (1 - last_x**2)
+        func_value = func_value + 100*((variables_values[i] - (last_x)**2)**2) + (1 - last_x)**2
+        last_x     = variables_values[i]
     return func_value
     
 # Function: Axis Parallel Hyper-Ellipsoid. Solution ->  f(xi) = 0; xi = 0
