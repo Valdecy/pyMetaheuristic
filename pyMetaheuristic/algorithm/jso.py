@@ -1,7 +1,7 @@
 ############################################################################
 
 # Created by: Raiser /// Prof. Valdecy Pereira, D.Sc.
-#  University of Chinese Academy of Sciences (China) /// UFF - Universidade Federal Fluminense (Brazil)
+# University of Chinese Academy of Sciences (China) /// UFF - Universidade Federal Fluminense (Brazil)
 # email:  github.com/mpraiser /// valdecy.pereira@gmail.com
 # Metaheuristic: Jellyfish Search Optimizer
 
