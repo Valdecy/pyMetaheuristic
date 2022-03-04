@@ -7,7 +7,8 @@
 
 # Raiser /// PEREIRA, V. (2022). GitHub repository: https://github.com/Valdecy/pyMetaheuristic
 
-# Paper: CHOU, J.S.;  TRUONG, D.N.  (2020). A novel metaheuristic optimizer inspired by behavior of jellyfish in ocean. Applied Mathematics and Computation. Vol. 389, Iss. 125535. doi: https://doi.org/10.1016/j.amc.2020.125535
+# Paper: CHOU, J.S.;  TRUONG, D.N.  (2020). A novel metaheuristic optimizer inspired by behavior of jellyfish in ocean. Applied Mathematics and Computation. 
+# Vol. 389, Iss. 125535. doi: https://doi.org/10.1016/j.amc.2020.125535
 
 ############################################################################
 
