@@ -42,7 +42,7 @@ def build_distance_matrix(position):
    return np.sqrt(np.einsum('ijk,ijk->ij',  b - a,  b - a)).squeeze()
 
 # Function: Update Position
-def update_position(position, best_position, min_values, max_values, C, F, L):
+def update_position(position, best_position, min_values, max_values, C, F, L, target_function):
     sum_grass       = 0
     distance_matrix = build_distance_matrix(position)
     distance_matrix = 2*(distance_matrix - np.min(distance_matrix))/(np.ptp(distance_matrix)+0.00000001) + 1
@@ -69,7 +69,7 @@ def grasshopper_optimization_algorithm(grasshoppers = 5, min_values = [-5,-5], m
         if (verbose == True):
             print('Iteration = ', count,  ' f(x) = ', best_position[0, -1])
         C        = c_max - count*( (c_max - c_min)/iterations)
-        position = update_position(position, best_position, min_values, max_values, C, F, L)
+        position = update_position(position, best_position, min_values, max_values, C, F, L, target_function = target_function)
         if (np.amin(position[:,-1]) < best_position[0,-1]):
             best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))  
             solutions.append(position)
