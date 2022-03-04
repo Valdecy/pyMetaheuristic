@@ -79,6 +79,7 @@ def update_jellyfishes_position(position, best_position, beta, gamma, c_t, min_v
 # Function: Jellyfish Search Optimizer
 def jellyfish_search_optimizer(jellyfishes = 5, min_values = [-5,-5], max_values = [5,5], eta = 4, beta = 3, gamma = 0.1, c_0 = 0.5, iterations = 50, target_function = target_function, verbose = True):
     count         = 0
+    eta           = np.clip(eta, 3.57, 4)
     position      = initial_position(jellyfishes, min_values, max_values, eta, target_function)
     best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))   
     while (count <= iterations): 
