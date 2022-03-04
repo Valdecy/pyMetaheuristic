@@ -23,6 +23,7 @@ import numpy as np
     # GoldsteiniPrice 
     # Rastrigin 
     # Rosenbrocks Valley (De Jong 2)
+    # Schaffer F6
     # Six Hump Camel Back
     # Styblinski-Tang
 
@@ -80,6 +81,13 @@ def rosenbrocks_valley(variables_values = [0,0]):
     for i in range(1, len(variables_values)):
         func_value = func_value + 100*((variables_values[i] - (last_x)**2)**2) + (1 - last_x)**2
         last_x     = variables_values[i]
+    return func_value
+
+# Function: Schaffer F6. Solution ->  f(xi) = 0; (x1, x2) = (0, 0)
+def schaffer(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    x          = np.square(x1) + np.square(x2)
+    func_value = 0.5 + (np.square(np.sin(x)) - 0.5) / np.square(1 + 0.001 * x)
     return func_value
     
 # Function: Six Hump Camel Back. Solution ->  f(x1, x2) = -1.0316; (x1, x2) = (0.0898, -0.7126) or (-0.0898, 0.7126)
