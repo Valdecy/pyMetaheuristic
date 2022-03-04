@@ -88,7 +88,7 @@ def six_hump_camel_back(variables_values = [0, 0]):
     func_value = 4*x1**2 - 2.1*x1**4 + (1/3)*x1**6 + x1*x2 - 4*x2**2 + 4*x2**4
     return func_value
     
-# Function: Styblinski Tang. Solution ->  f(xi) = -39.16599*number_of_variables; xi = -2.903534
+# Function: Styblinski-Tang. Solution ->  f(xi) = -39.16599*number_of_variables; xi = -2.903534
 def styblinski_tang(variables_values = [0, 0]):
     func_value = 0
     for i in range(0, len(variables_values)):
