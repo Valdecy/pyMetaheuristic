@@ -85,12 +85,12 @@ def jellyfish_search_optimizer(jellyfishes = 5, min_values = [-5,-5], max_values
     while (count <= iterations): 
         if (verbose == True):
             print('Iteration = ', count,  ' f(x) = ', best_position[0, -1])
-        rand          = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-        c_t           = abs( (1 - count/iterations) * (2*rand - 1) )
-        position      = update_jellyfishes_position(position, best_position, beta, gamma, c_t, min_values, max_values, target_function)
+        rand     = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+        c_t      = abs( (1 - count/iterations) * (2*rand - 1) )
+        position = update_jellyfishes_position(position, best_position, beta, gamma, c_t, min_values, max_values, target_function)
         if (np.amin(position[:,-1]) < best_position[0,-1]):
             best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))  
-        count         = count + 1
+        count    = count + 1
     return best_position
 
 ############################################################################
