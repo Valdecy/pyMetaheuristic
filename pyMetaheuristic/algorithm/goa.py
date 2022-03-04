@@ -63,8 +63,6 @@ def grasshopper_optimization_algorithm(grasshoppers = 5, min_values = [-5,-5], m
     count         = 0
     position      = initial_position(grasshoppers, min_values, max_values, target_function)
     best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))   
-    solutions     = []
-    solutions.append(position)
     while (count <= iterations): 
         if (verbose == True):
             print('Iteration = ', count,  ' f(x) = ', best_position[0, -1])
@@ -72,7 +70,6 @@ def grasshopper_optimization_algorithm(grasshoppers = 5, min_values = [-5,-5], m
         position = update_position(position, best_position, min_values, max_values, C, F, L, target_function = target_function)
         if (np.amin(position[:,-1]) < best_position[0,-1]):
             best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))  
-            solutions.append(position)
         count    = count + 1
     return best_position, solutions
 
