@@ -18,10 +18,11 @@ pip install pyMetaheuristic
 # Import PSO
 from pyMetaheuristic.algorithm import particle_swarm_optimization
 
-# Import a Test Function. Available Test Functions: easom, six_hump_camel_back, de_jong_1, rosenbrocks_valley, axis_parallel_hyper_ellipsoid, rastrigin, branin_rcos, goldstein_price, styblinski_tang
+# Import a Test Function. Available Test Functions: https://bit.ly/3KyluPp
 from pyMetaheuristic.test_function import easom
 
-# OR Define your Own Custom Function. The function input should be a list of values, each value represents a dimenstion (x1, x2, ...xn) of the problem
+# OR Define your Own Custom Function. The function input should be a list of values, 
+# each value represents a dimenstion (x1, x2, ...xn) of the problem.
 import numpy as np
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
