@@ -18,7 +18,7 @@ pip install pyMetaheuristic
 # Import PSO
 from pyMetaheuristic.algorithm import particle_swarm_optimization
 
-# Import a Test Function. Available Test Functions: ([ https://bit.ly/3KyluPp ](https://bit.ly/3KyluPp))
+# Import a Test Function. Available Test Functions: https://bit.ly/3KyluPp
 from pyMetaheuristic.test_function import easom
 
 # OR Define your Own Custom Function. The function input should be a list of values, 
