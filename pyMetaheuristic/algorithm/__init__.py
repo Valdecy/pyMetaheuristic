@@ -13,6 +13,7 @@ from .firefly_a import firefly_algorithm
 from .fda import flow_direction_algorithm
 from .fpa import flower_pollination_algorithm
 from .ga import genetic_algorithm
+from .goa import grasshopper_optimization_algorithm
 from .gsa import gravitational_search_algorithm
 from .gwo import grey_wolf_optimizer
 from .hho import harris_hawks_optimization
