@@ -16,18 +16,39 @@ import numpy as np
 
 # Available Test Functions:
 
+    # Ackley
     # Axis Parallel Hyper-Ellipsoid
+    # Beale
+    # Booth
     # Branin RCOS 
-    # De Jong 1
+    # Bukin F6 
+    # Cross in Tray
+    # De Jong F1
+    # Drop Wave
     # Easom
-    # GoldsteiniPrice 
+    # Eggholder
+    # Goldstein-Price 
+    # Himmelblau
+    # Hölder Table
+    # Matyas
+    # McCormick
+    # Lévi F13
     # Rastrigin 
-    # Rosenbrocks Valley (De Jong 2)
+    # Rosenbrocks Valley (De Jong F2)
+    # Schaffer F2
+    # Schaffer F4
     # Schaffer F6
     # Six Hump Camel Back
     # Styblinski-Tang
+    # Three Hump Camel Back
 
 ############################################################################
+
+# Function: Ackley. Solution ->  f(x1, x2) = 0; (x1, x2) = (0, 0)
+def ackley(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = -20*np.exp(-0.2*np.square(0.5*(x1**2 + x2**2))) - np.exp(0.5*(np.cos(2*np.pi*x1) +np.cos(2*np.pi*x2) ) + np.exp(1) + 20)
+    return func_value
 
 # Function: Axis Parallel Hyper-Ellipsoid. Solution ->  f(xi) = 0; xi = 0
 def axis_parallel_hyper_ellipsoid(variables_values = [0, 0]):
@@ -35,7 +56,19 @@ def axis_parallel_hyper_ellipsoid(variables_values = [0, 0]):
     for i in range(0, len(variables_values)):
         func_value = func_value + i*variables_values[i]**2
     return func_value
-
+    
+# Function: Beale. Solution ->  f(x1, x2) = 0; (x1, x2) = (3, 0.5)
+def beale(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = (1.5 - x1 + x1*x2)**2 + (2.25 - x1 + x1*(x2**2))**2 + (2.625 - x1 + x1*(x2**3))**2
+    return func_value
+    
+# Function: Booth. Solution ->  f(x1, x2) = 0; (x1, x2) = (1, 3)
+def booth(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = (x1 + 2*x2 - 7)**2 + (2*x1 + x2 - 5)**2
+    return func_value
+    
 # Function: Branin RCOS. Solution ->  f(xi) = 0.397887; (x1, x2) = (-3.14, 12.275) or (3.14, 2.275) or (9.42478, 2.475)
 def branin_rcos(variables_values = [0, 0]):
     x1, x2     = variables_values
@@ -47,18 +80,42 @@ def branin_rcos(variables_values = [0, 0]):
     f          = 1/(8*np.pi)
     func_value = a*(x2 - b*x1**2 + c*x1 - d)**2 + e*(1 - f)*np.cos(x1) + e
     return func_value
- 
-# Function: De Jong 1. Solution ->  f(xi) = 0; xi = 0
+    
+# Function: Bukin F6. Solution ->  f(x1, x2) = 0; (x1, x2) = (-10, 1)
+def bukin_6(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = 100*np.square(abs(x2 - 0.01*(x1**2))) + 0.01*abs(x1 + 10)
+    return func_value
+
+# Function: Cross in Tray. Solution ->  f(x1, x2) = -2.06261; (x1, x2) = (1.34941, 1.34941) or (-1.34941, 1.34941) or (1.34941, -1.34941) or (-1.34941, -1.34941)
+def cross_in_tray(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = -0.0001*( abs(np.sin(x1)*np.sin(x2)*np.exp(abs(100 - (np.square(x1**2 + x2**2))/np.pi )) ) + 1 )**0.1
+    return func_value
+    
+# Function: De Jong F1. Solution ->  f(xi) = 0; xi = 0
 def de_jong_1(variables_values = [0, 0]):
     func_value = 0
     for i in range(0, len(variables_values)):
         func_value = func_value + variables_values[i]**2
     return func_value
-    
+
+# Function: Drop Wave. Solution ->  f(x1, x2) = -1; (x1, x2) = (0, 0)
+def drop_wave(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = - (1 + np.cos(12*np.square(x1**2 + x2**2))) / (0.5*(x1**2 + x2**2) + 2)
+    return func_value
+   
 # Function: EASOM. Solution ->  f(x1, x2) = -1; (x1, x2) = (3.14, 3.14)
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
+    func_value = -np.cos(x1)*np.cos(x2)*np.exp(-(x1 - np.pi)**2 - (x2 - np.pi)**2)
+    return func_value
+    
+# Function: Eggholder. Solution ->  f(x1, x2) = -959.6407; (x1, x2) = (512, 404.2319)
+def eggholder(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = - (x2 + 47)*np.sin(np.square(abs( (x1/2) + x2 + 47))) - x1*np.sin(np.square(abs( x1 - (x2 + 47))))
     return func_value
  
 # Function: Goldstein-Price. Solution ->  f(x1, x2) = 3; (x1, x2) = (0, -1)
@@ -67,6 +124,36 @@ def goldstein_price(variables_values = [0, 0]):
     func_value = (1 + ((x1 + x2 +1)**2)*(19 - 14*x1 + 3*x1**2 - 14*x2 + 6*x1*x2 + 3*x2**2))*(30 + ((2*x1 - 3*x2)**2)*(18 - 32*x1 + 12*x1**2 + 48*x2 - 36*x1*x2 + 27*x2**2))
     return func_value
   
+# Function: Himmelblau. Solution ->  f(x1, x2) = 0; (x1, x2) = (3, 2) or (-2.805118, 3.131312) or (-3.779310, -3.283186) or (3.584428 ,-1.848126)
+def himmelblau(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = (x1**2 + x2 - 11)**2 + (x1 + x2**2 - 7)**2
+    return func_value
+    
+# Function: Hölder Table. Solution ->  f(x1, x2) = -19.2085; (x1, x2) = (8.05502, 9.66459) or (-8.05502, 9.66459) or (8.05502, -9.66459) or (-8.05502, -9.66459)
+def holder_table(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = -abs(np.sin(x1)*np.cos(x2)*np.exp(abs(1 - np.square(x1**2 + x2**2)/np.pi)))
+    return func_value
+    
+# Function: Matyas. Solution ->  f(x1, x2) = 0; (x1, x2) = (0, 0)
+def matyas(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = 0.26*( x1**2 + x2**2 ) - 0.48*x1*x2
+    return func_value
+
+# Function: McCormick. Solution ->  f(x1, x2) = -1.9133; (x1, x2) = (-0.54719, -1.54719)
+def mccormick(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = np.sin(x1 + x2) + (x1 - x2)**2 - 1.5*x1 + 2.5*x2 + 1
+    return func_value
+    
+# Function: Lévi F13. Solution ->  f(x1, x2) = 0; (x1, x2) = (1, 1)
+def levi_13(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = np.sin(np.sin(3*np.pi*x1)) + ((x1 - 1)**2)*(1 +np.sin(np.sin(3*np.pi*x2))) + ((x2 - 1)**2)*(1 +np.sin(np.sin(2*np.pi*x2)))
+    return func_value
+    
 # Function: Rastrigin. Solution ->  f(xi) = 0; xi = 0
 def rastrigin(variables_values = [0, 0]):
     func_value = 10*len(variables_values)
@@ -74,7 +161,7 @@ def rastrigin(variables_values = [0, 0]):
         func_value = func_value + (variables_values[i]**2) -10*np.cos(2*np.pi*variables_values[i])
     return func_value
 
-# Function: Rosenbrocks Valley (De Jong 2). Solution ->  f(xi) = 0; xi = 1
+# Function: Rosenbrocks Valley (De Jong F2). Solution ->  f(xi) = 0; xi = 1
 def rosenbrocks_valley(variables_values = [0,0]):
     func_value = 0
     last_x     = variables_values[0]
@@ -83,8 +170,20 @@ def rosenbrocks_valley(variables_values = [0,0]):
         last_x     = variables_values[i]
     return func_value
 
-# Function: Schaffer F6. Solution ->  f(xi) = 0; (x1, x2) = (0, 0)
-def schaffer(variables_values = [0, 0]):
+# Function: Schaffer F2. Solution ->  f(x1, x2) = 0; (x1, x2) = (0, 0)
+def schaffer_2(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = 0.5 + (np.sin(np.sin(x1**2 - x2**2)) -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
+    return func_value
+    
+# Function: Schaffer F4. Solution ->  f(x1, x2) = 0.292579; (x1, x2) = (0, 1.25313) or (0, -1.25313) or (1.25313, 0) or (-1.25313, 0)
+def schaffer_4(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = 0.5 + (np.cos(np.cos(x1**2 - x2**2)) -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
+    return func_value
+    
+# Function: Schaffer F6. Solution ->  f(x1, x2) = 0; (x1, x2) = (0, 0)
+def schaffer_6(variables_values = [0, 0]):
     x1, x2     = variables_values
     x          = np.square(x1) + np.square(x2)
     func_value = 0.5 + (np.square(np.sin(x)) - 0.5) / np.square(1 + 0.001 * x)
@@ -104,4 +203,10 @@ def styblinski_tang(variables_values = [0, 0]):
     func_value = func_value*0.5    
     return func_value
 
+# Function: Three Hump Camel Back. Solution ->  f(x1, x2) = 0; (x1, x2) = (0, 0)
+def three_hump_camel_back(variables_values = [0, 0]):
+    x1, x2     = variables_values
+    func_value = 2*x1**2 - 1.05*x1**4 + (1/6)*x1**6 + x1*x2 + x2**2
+    return func_value
+    
 ############################################################################
