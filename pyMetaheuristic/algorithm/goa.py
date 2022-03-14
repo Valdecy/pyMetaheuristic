@@ -71,6 +71,6 @@ def grasshopper_optimization_algorithm(grasshoppers = 5, min_values = [-5,-5], m
         if (np.amin(position[:,-1]) < best_position[0,-1]):
             best_position = np.copy(position[np.argmin(position[:,-1]),:].reshape(1,-1))  
         count    = count + 1
-    return best_position, solutions
+    return best_position
 
 ############################################################################
