@@ -55,7 +55,7 @@ import numpy as np
 # Function: Ackley. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -5 <= x1, x2 <= 5
 def ackley(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -20*np.exp(-0.2*np.square(0.5*(x1**2 + x2**2))) - np.exp(0.5*(np.cos(2*np.pi*x1) +np.cos(2*np.pi*x2) ) + np.exp(1) + 20)
+    func_value = -20*np.exp(-0.2*np.sqrt(0.5*(x1**2 + x2**2))) - np.exp(0.5*(np.cos(2*np.pi*x1) +np.cos(2*np.pi*x2) )) + np.exp(1) + 20
     return func_value
 
 # Function: Axis Parallel Hyper-Ellipsoid. Solution -> f(xi) = 0; xi = 0. Domain -> -5.12 <= xi <= 5.12
@@ -110,13 +110,15 @@ def branin_rcos(variables_values = [0, 0]):
 # Function: Bukin F6. Solution -> f(x1, x2) = 0; (x1, x2) = (-10, 1). Domain -> -15 <= x1 <= -5; -3 <= x2 <= 3
 def bukin_6(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = 100*np.square(abs(x2 - 0.01*(x1**2))) + 0.01*abs(x1 + 10)
+    func_value = 100*np.sqrt(abs(x2 - 0.01*(x1**2))) + 0.01*abs(x1 + 10)
     return func_value
 
 # Function: Cross in Tray. Solution -> f(x1, x2) = -2.06261; (x1, x2) = (1.34941, 1.34941) or (-1.34941, 1.34941) or (1.34941, -1.34941) or (-1.34941, -1.34941). Domain -> -10 <= x1, x2 <= 10
 def cross_in_tray(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -0.0001*( abs(np.sin(x1)*np.sin(x2)*np.exp(abs(100 - (np.square(x1**2 + x2**2))/np.pi )) ) + 1 )**0.1
+    a          = np.sin(x1)*np.sin(x2)
+    b          = np.exp(abs(100 - np.sqrt(x1**2 + x2**2)/np.pi))
+    func_value = -0.0001*(abs(a*b)+1)**0.1
     return func_value
     
 # Function: De Jong F1. Solution -> f(xi) = 0; xi = 0. Domain -> -5.12 <= xi <= 5.12
@@ -129,7 +131,7 @@ def de_jong_1(variables_values = [0, 0]):
 # Function: Drop Wave. Solution -> f(x1, x2) = -1; (x1, x2) = (0, 0). Domain -> -5.12 <= xi <= 5.12
 def drop_wave(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = - (1 + np.cos(12*np.square(x1**2 + x2**2))) / (0.5*(x1**2 + x2**2) + 2)
+    func_value = - (1 + np.cos(12*np.sqrt(x1**2 + x2**2))) / (0.5*(x1**2 + x2**2) + 2)
     return func_value
    
 # Function: EASOM. Solution -> f(x1, x2) = -1; (x1, x2) = (3.14, 3.14). Domain -> -100 <= x1, x2 <= 100
@@ -141,7 +143,7 @@ def easom(variables_values = [0, 0]):
 # Function: Eggholder. Solution -> f(x1, x2) = -959.6407; (x1, x2) = (512, 404.2319). Domain -> -512 <= x1, x2 <= 512
 def eggholder(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = - (x2 + 47)*np.sin(np.square(abs( (x1/2) + x2 + 47))) - x1*np.sin(np.square(abs( x1 - (x2 + 47))))
+    func_value = - (x2 + 47)*np.sin(np.sqrt(abs( (x1/2) + x2 + 47))) - x1*np.sin(np.sqrt(abs( x1 - (x2 + 47))))
     return func_value
  
 # Function: Goldstein-Price. Solution -> f(x1, x2) = 3; (x1, x2) = (0, -1). Domain -> -2 <= x1, x2 <= 2
@@ -156,7 +158,7 @@ def griewangk_8(variables_values = [0, 0]):
     fv_1 = 1
     for i in range(0, len(variables_values)):
         fv_0 = fv_0 + (variables_values[i]**2)/4000
-        fv_1 = fv_1 * (np.cos(variables_values[i]/np.square(i+1)))
+        fv_1 = fv_1 * (np.cos(variables_values[i]/np.sqrt(i+1)))
     func_value = fv_0 - fv_1 + 1
     return func_value
   
@@ -169,7 +171,7 @@ def himmelblau(variables_values = [0, 0]):
 # Function: Hölder Table. Solution -> f(x1, x2) = -19.2085; (x1, x2) = (8.05502, 9.66459) or (-8.05502, 9.66459) or (8.05502, -9.66459) or (-8.05502, -9.66459. Domain -> -10 <= x1, x2 <= 10
 def holder_table(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = -abs(np.sin(x1)*np.cos(x2)*np.exp(abs(1 - np.square(x1**2 + x2**2)/np.pi)))
+    func_value = -abs(np.sin(x1)*np.cos(x2)*np.exp(abs(1 - np.sqrt(x1**2 + x2**2)/np.pi)))
     return func_value
     
 # Function: Matyas. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -10 <= x1, x2 <= 10
@@ -233,8 +235,8 @@ def schaffer_4(variables_values = [0, 0]):
 # Function: Schaffer F6. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -100 <= x1, x2 <= 100
 def schaffer_6(variables_values = [0, 0]):
     x1, x2     = variables_values
-    x          = np.square(x1) + np.square(x2)
-    func_value = 0.5 + (np.square(np.sin(x)) - 0.5) / np.square(1 + 0.001 * x)
+    x          = (x1**2 + x2**2)
+    func_value = 0.5 + (np.sin(np.sin(np.sqrt(x))) - 0.5) / (1 + 0.001 * x)**2
     return func_value
 
 # Function: Schwefel. Solution -> f(x) = 0; xi = 420.9687. Domain -> -500 <= xi <= 500
@@ -242,7 +244,7 @@ def schwefel(variables_values = [0, 0]):
     fv_0       = 418.9829*len(variables_values)
     func_value = 0
     for i in range(0, len(variables_values)):
-        func_value = func_value - variables_values[i]*np.sin(np.square(abs(variables_values[i])))
+        func_value = func_value - variables_values[i]*np.sin(np.sqrt(abs(variables_values[i])))
     func_value = func_value + fv_0
     return func_value
 
