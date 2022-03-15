@@ -6,7 +6,7 @@ long_description = (this_directory / 'README.md').read_text()
 
 setup(
     name='pyMetaheuristic',
-    version='1.1.0',
+    version='1.1.4',
     license='GNU',
     author='Valdecy Pereira',
     author_email='valdecy.pereira@gmail.com',
@@ -14,8 +14,10 @@ setup(
     packages=find_packages(),
     install_requires=[
         'numpy',
+        'plotly',
         'scipy'
     ],
+    description='A Metaheuristics Library',
     long_description=long_description,
     long_description_content_type='text/markdown',
 )
