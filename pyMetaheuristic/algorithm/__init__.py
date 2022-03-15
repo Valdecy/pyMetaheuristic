@@ -2,6 +2,7 @@ from .ars import adaptive_random_search
 from .alo import ant_lion_optimizer
 from .aoa import arithmetic_optimization_algorithm
 from .abco import artificial_bee_colony_optimization
+from .afsa import artificial_fish_swarm_algorithm
 from .bat_a import bat_algorithm
 from .bbo import biogeography_based_optimization
 from .cem import cross_entropy_method
