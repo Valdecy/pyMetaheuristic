@@ -42,7 +42,7 @@ parameters = {
 }
 pso = particle_swarm_optimization(target_function = easom, **parameters)
 
-# Show Solution
+# Print Solution
 variables = pso[:-1]
 minimum   = pso[ -1]
 print('Variables: ', np.around(variables, 4) , ' Minimum Value Found: ', round(minimum, 4) )
