@@ -36,7 +36,6 @@ import numpy as np
     # Hölder Table
     # Matyas
     # McCormick
-    # Lévi
     # Lévi F13
     # Rastrigin 
     # Rosenbrocks Valley (De Jong F2)
@@ -44,7 +43,6 @@ import numpy as np
     # Schaffer F4
     # Schaffer F6
     # Schwefel
-    # Shubert
     # Six Hump Camel Back
     # Styblinski-Tang
     # Three Hump Camel Back
@@ -185,23 +183,11 @@ def mccormick(variables_values = [0, 0]):
     x1, x2     = variables_values
     func_value = np.sin(x1 + x2) + (x1 - x2)**2 - 1.5*x1 + 2.5*x2 + 1
     return func_value
-
-# Function: Lévi. Solution -> f(xi) = 0; xi = 1. Domain -> -10 <= xi <= 10
-def levi(variables_values = [0, 0]):
-    w          = [[] for _ in variables_values]
-    func_value = 0
-    for i in range(0, len(w)):
-        w[i] = 1 + (variables_values[i]-1)/4    
-    fv_0 = np.sin(np.sin(np.pi*w[0]))
-    for i in range(0, len(w)-1):
-        func_value = func_value + ((w[i]-1)**2)*(1 + 10*np.sin(np.sin(np.pi*w[i]+1))) + ((w[-1]-1)**2)*(1+np.sin(np.sin(2*np.pi*w[-1])))
-    func_value = func_value + fv_0
-    return func_value
     
 # Function: Lévi F13. Solution -> f(x1, x2) = 0; (x1, x2) = (1, 1). Domain -> -10 <= x1, x2 <= 10
 def levi_13(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = np.sin(np.sin(3*np.pi*x1)) + ((x1 - 1)**2)*(1 +np.sin(np.sin(3*np.pi*x2))) + ((x2 - 1)**2)*(1 +np.sin(np.sin(2*np.pi*x2)))
+    func_value = (np.sin(3*np.pi*x1))**2 + ((x1 - 1)**2)*(1 + (np.sin(3*np.pi*x2)**2)) + ((x2 - 1)**2)*(1 +(np.sin(2*np.pi*x2)**2))
     return func_value
     
 # Function: Rastrigin. Solution -> f(xi) = 0; xi = 0. Domain -> -5.12 <= xi <= 5.12
@@ -223,20 +209,20 @@ def rosenbrocks_valley(variables_values = [0,0]):
 # Function: Schaffer F2. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -100 <= x1, x2 <= 100
 def schaffer_2(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = 0.5 + (np.sin(np.sin(x1**2 - x2**2)) -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
+    func_value = 0.5 + ((np.sin(x1**2 - x2**2)**2) -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
     return func_value
     
 # Function: Schaffer F4. Solution -> f(x1, x2) = 0.292579; (x1, x2) = (0, 1.25313) or (0, -1.25313) or (1.25313, 0) or (-1.25313, 0). Domain -> -100 <= x1, x2 <= 100
 def schaffer_4(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = 0.5 + (np.cos(np.cos(x1**2 - x2**2)) -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
+    func_value = 0.5 + (np.cos(np.sin(abs(x1**2 - x2**2)))**2 -0.5) / (1 + 0.001*(x1**2 + x2**2))**2
     return func_value
     
 # Function: Schaffer F6. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -100 <= x1, x2 <= 100
 def schaffer_6(variables_values = [0, 0]):
     x1, x2     = variables_values
     x          = (x1**2 + x2**2)
-    func_value = 0.5 + (np.sin(np.sin(np.sqrt(x))) - 0.5) / (1 + 0.001 * x)**2
+    func_value = 0.5 + ((np.sin(np.sqrt(x))**2) - 0.5) / (1 + 0.001 * x)**2
     return func_value
 
 # Function: Schwefel. Solution -> f(x) = 0; xi = 420.9687. Domain -> -500 <= xi <= 500
@@ -244,19 +230,8 @@ def schwefel(variables_values = [0, 0]):
     fv_0       = 418.9829*len(variables_values)
     func_value = 0
     for i in range(0, len(variables_values)):
-        func_value = func_value - variables_values[i]*np.sin(np.sqrt(abs(variables_values[i])))
-    func_value = func_value + fv_0
-    return func_value
-
-# Function: Shubert. Solution -> f(x1, x2) = -186.7309. Domain -> -10 <= x1, x2 <= 10
-def shubert(variables_values = [0, 0]):
-    x1, x2 = variables_values
-    fv_0   = 0
-    fv_1   = 0
-    for i in range(1, 6):
-        fv_0 = fv_0 + i*np.cos((i+1)*x1 + i)
-        fv_1 = fv_1 + i*np.cos((i+1)*x2 + i)
-    func_value = fv_0 + fv_1
+        func_value = func_value + variables_values[i]*np.sin(np.sqrt(abs(variables_values[i])))
+    func_value = - func_value + fv_0
     return func_value
     
 # Function: Six Hump Camel Back. Solution -> f(x1, x2) = -1.0316; (x1, x2) = (0.0898, -0.7126) or (-0.0898, 0.7126). Domain -> -3 <= x1 <= 3; -2 <= x2 <= 2
@@ -276,7 +251,7 @@ def styblinski_tang(variables_values = [0, 0]):
 # Function: Three Hump Camel Back. Solution -> f(x1, x2) = 0; (x1, x2) = (0, 0). Domain -> -5 <= x1, x2 <= 5
 def three_hump_camel_back(variables_values = [0, 0]):
     x1, x2     = variables_values
-    func_value = 2*x1**2 - 1.05*x1**4 + (1/6)*x1**6 + x1*x2 + x2**2
+    func_value = 2*x1**2 - 1.05*x1**4 + (x1**6)/6 + x1*x2 + x2**2
     return func_value
 
 # Function: Zakharov. Solution -> f(xi) = 0; xi = 0. Domain -> -5 <= xi <= 10
