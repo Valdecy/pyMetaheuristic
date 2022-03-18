@@ -61,9 +61,7 @@ graphs.plot_single_function(target_function = easom, **plot_parameters)
 
 ```
 
-3. Colab Demo
-
-Try it in **Colab**:
+3. Try it in **Colab**:
 
 - Adaptive Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1PbIjDVGAU75Dgxn6I3bpoWovvYA4RYks?usp=sharing))
 - Ant Lion Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/11GWyd-o11nzwjafF37YDbReAJyjV4Zhp?usp=sharing))
