@@ -65,7 +65,8 @@ graphs.plot_single_function(target_function = easom, **plot_parameters)
 
 Try it in **Colab**:
 
-- Adaptive Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1PbIjDVGAU75Dgxn6I3bpoWovvYA4RYks?usp=sharing)) ([ Original Paper ] (https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf))
+- Adaptive Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1PbIjDVGAU75Dgxn6I3bpoWovvYA4RYks?usp=sharing)) 
+- ([ Original Paper ] (https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf))
 - Ant Lion Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/11GWyd-o11nzwjafF37YDbReAJyjV4Zhp?usp=sharing)) ( [ Original Paper ] (https://doi.org/10.1016/j.advengsoft.2015.01.010))
 - Arithmetic Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1AH0B21_fhF4mOV5iR5MJt_JoUslYE_dt?usp=sharing)) ( [ Original Paper ] (https://doi.org/10.1016/j.cma.2020.113609))
 - Artificial Bee Colony Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1IBouxcnhbNLfCoCV5ueNCq0FZBd9E2gu?usp=sharing)) ( [ Original Paper ] (https://abc.erciyes.edu.tr/pub/tr06_2005.pdf))
