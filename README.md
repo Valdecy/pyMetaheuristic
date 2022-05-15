@@ -103,7 +103,7 @@ Try it in **Colab**:
 
 4. Test Functions
 
-- Test Functions and their Optimal Solutions with 2D or 3D plots ([ Colab Demo ] (https://colab.research.google.com/drive/1Trk6_9IFdBIzZXoVAj2kOBeYJauC5wI8?usp=sharing)) 
+- Test Functions and their Optimal Solutions with 2D or 3D plots ([ Colab Demo ](https://colab.research.google.com/drive/1Trk6_9IFdBIzZXoVAj2kOBeYJauC5wI8?usp=sharing)) 
 
 # Acknowledgement 
 This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
