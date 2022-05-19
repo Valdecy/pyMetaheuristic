@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Artificial Fish Swarm Algorithm**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Crow Search Algorithm**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grasshopper Optimization Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**, **Krill Herd Algorithm**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Whale Optimization Algorithm**.
+A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Artificial Fish Swarm Algorithm**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Crow Search Algorithm**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grasshopper Optimization Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**, **Krill Herd Algorithm**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Pathfinder Algorithm** ,**Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Teaching Learning Based Optimization**, **Whale Optimization Algorithm**.
 
 ## Usage
 
@@ -94,11 +94,13 @@ Try it in **Colab**:
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing)) ( [ Original Paper ](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.27.9474&rep=rep1&type=pdf))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.knosys.2015.07.006))
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-015-1870-7))
+- Pathfinder Algorithm ([ Colab Demo ](iterations)) ( [ Original Paper ](https://doi.org/10.1016/j.asoc.2019.03.012))
 - Particle Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1bWAmKTkNKSiSQPUcRdokLQYuhQBOhckZ?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/ICNN.1995.488968))
 - Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1DCi4aiO_ORlRq9MetZcxHyKAywMuFkRO?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1080/01621459.1953.10501200))
 - Salp Swarm Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Qhkn2NPO5Gavc6ZHW79n_DjmEFeDvOBq?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2017.07.002))
 - Simulated Annealing ([ Colab Demo ](https://colab.research.google.com/drive/1W6X_kCSGOKEDWIJ-ar25kgWIQAc4U1mA?usp=sharing)) ( [ Original Paper ](https://www.jstor.org/stable/1690046))
 - Sine Cosine Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1WjbCiks_E2s1qw9l9OkZ4mRQPQuWWYzs?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.knosys.2015.12.022))
+- Teaching Learning Based Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1ulyyREv0K3xPAtBeUdcKXznTzpKrTyL5?usp=sharing)) ( [ Original Paper ](https://doi.org/10.5267/j.ijiec.2012.03.007))
 - Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nt52dS0AsXm7RHVIt3K0DAaC1i8zKUUC?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2016.01.008))
 
 4. Test Functions
