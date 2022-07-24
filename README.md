@@ -94,7 +94,7 @@ Try it in **Colab**:
 - Memetic Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1ivRQVK8auSmU9jF3H7CYmpKLlxRHHrPd?usp=sharing)) ( [ Original Paper ](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.27.9474&rep=rep1&type=pdf))
 - Moth Flame Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1-parlgNJ6urQGmNLLViGxf65PhuAS3L4?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.knosys.2015.07.006))
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-015-1870-7))
-- Pathfinder Algorithm ([ Colab Demo ](iterations)) ( [ Original Paper ](https://doi.org/10.1016/j.asoc.2019.03.012))
+- Pathfinder Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1gntm149Ye1v_vr--zzBCej_5D68SyBHG?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.asoc.2019.03.012))
 - Particle Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1bWAmKTkNKSiSQPUcRdokLQYuhQBOhckZ?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/ICNN.1995.488968))
 - Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1DCi4aiO_ORlRq9MetZcxHyKAywMuFkRO?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1080/01621459.1953.10501200))
 - Salp Swarm Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Qhkn2NPO5Gavc6ZHW79n_DjmEFeDvOBq?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2017.07.002))
