@@ -78,7 +78,7 @@ def particle_swarm_optimization(swarm_size = 3, min_values = [-5,-5], max_values
     while (count <= iterations):
         if (verbose == True):
             print('Iteration = ', count, ' f(x) = ', best_global[-1])
-        position    = update_position(position, init_velocity, target_function = target_function)            
+        position    = update_position(position, init_velocity, min_values, max_values, target_function = target_function)            
         i_b_matrix  = individual_best_matrix(position, i_b_matrix)
         value       = np.copy(i_b_matrix[i_b_matrix[:,-1].argsort()][0,:])
         if (best_global[-1] > value[-1]):
