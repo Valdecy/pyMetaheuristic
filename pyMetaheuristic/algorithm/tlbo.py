@@ -17,14 +17,8 @@ import os
 ############################################################################
 
 # Function
-#def target_function():
-    #return
-
-# Target Function: Easom Function
-def target_function(variables_values = [0, 0]):
-    x1, x2     = variables_values
-    func_value = -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
-    return func_value
+def target_function():
+    return
 
 ############################################################################
 
