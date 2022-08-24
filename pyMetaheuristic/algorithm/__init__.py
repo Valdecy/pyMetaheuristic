@@ -33,5 +33,6 @@ from .random_s import random_search
 from .sa import simulated_annealing
 from .sine_cosine_a import sine_cosine_algorithm
 from .ssa import salp_swarm_algorithm
+from .spbo import student_psychology_based_optimization
 from .tlbo import teaching_learning_based_optimization
 from .whale_optimization_a import whale_optimization_algorithm
