@@ -2,11 +2,12 @@
 
 ## Introduction
 
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Artificial Fish Swarm Algorithm**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Crow Search Algorithm**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grasshopper Optimization Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**, **Krill Herd Algorithm**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Pathfinder Algorithm** ,**Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Teaching Learning Based Optimization**, **Whale Optimization Algorithm**.
+A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Artificial Fish Swarm Algorithm**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cross-Entropy Method**, **Crow Search Algorithm**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grasshopper Optimization Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**, **Krill Herd Algorithm**, **Memetic Algorithm**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Pathfinder Algorithm**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Student Psychology Based Optimization**; **Teaching Learning Based Optimization**, **Whale Optimization Algorithm**.
 
 ## Usage
 
 1. Install
+
 ```bash
 pip install pyMetaheuristic
 ```
@@ -100,14 +101,23 @@ Try it in **Colab**:
 - Salp Swarm Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Qhkn2NPO5Gavc6ZHW79n_DjmEFeDvOBq?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2017.07.002))
 - Simulated Annealing ([ Colab Demo ](https://colab.research.google.com/drive/1W6X_kCSGOKEDWIJ-ar25kgWIQAc4U1mA?usp=sharing)) ( [ Original Paper ](https://www.jstor.org/stable/1690046))
 - Sine Cosine Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1WjbCiks_E2s1qw9l9OkZ4mRQPQuWWYzs?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.knosys.2015.12.022))
+- Student Psychology Based Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1T_vFWdPT1qPldVHDTiyMhPiE3YEV9U4j?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2020.102804))
 - Teaching Learning Based Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1ulyyREv0K3xPAtBeUdcKXznTzpKrTyL5?usp=sharing)) ( [ Original Paper ](https://doi.org/10.5267/j.ijiec.2012.03.007))
 - Whale Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Nt52dS0AsXm7RHVIt3K0DAaC1i8zKUUC?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2016.01.008))
 
 4. Test Functions
 
+- Available Test Functions: https://bit.ly/3KyluPp
 - Test Functions and their Optimal Solutions with 2D or 3D plots ([ Colab Demo ](https://colab.research.google.com/drive/1Trk6_9IFdBIzZXoVAj2kOBeYJauC5wI8?usp=sharing)) 
 
+# Multiobjective Optimization or Many Objectives Optimization
+For Multiobjective Optimization or Many Objectives Optimization try [pyMultiobjective](https://github.com/Valdecy/pyMultiobjective)
+
+# TSP (Travelling Salesman Problem)
+For Travelling Salesman Problems try [pyCombinatorial](https://github.com/Valdecy/pyCombinatorial)
+
 # Acknowledgement 
+
 This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
 
 * Raiser (01.MARCH.2022) - https://github.com/mpraiser - University of Chinese Academy of Sciences (China)
