@@ -53,10 +53,6 @@ def update_population(population, elite, mu, moa, mop, min_values = [-5,-5], max
         p[i, -1] = target_function(p[i, :-1])
         if (p[i, -1] < population[i, -1]):
             population[i, :] = p[i, :]
-    population = np.vstack([population, p])
-    idx        = np.argsort(population[:,-1], axis = 0).tolist()
-    population = population[idx,:]
-    population = population[:p.shape[0],:]
     return population
 
 ############################################################################
