@@ -39,9 +39,9 @@ def update_population(population, elite, mu, moa, mop, min_values = [-5,-5], max
     p = np.copy(population)
     for i in range(0, population.shape[0]):
         for j in range(0, len(min_values)):
-            r1 = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-            r2 = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
-            r3 = int.from_bytes(os.urandom(8), byteorder = "big") / ((1 << 64) - 1)
+            r1 = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
+            r2 = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
+            r3 = int.from_bytes(os.urandom(8), byteorder = 'big') / ((1 << 64) - 1)
             if (r1 > moa and r2 > 0.5):
                 p[i, j] = np.clip(elite[j] / (mop + e) * ( (max_values[j] - min_values[j]) * mu + min_values[j]), min_values[j], max_values[j])
             elif (r1 > moa and r2 <= 0.5):
@@ -50,9 +50,13 @@ def update_population(population, elite, mu, moa, mop, min_values = [-5,-5], max
                 p[i, j] = np.clip(elite[j] - (  mop  ) * ( (max_values[j] - min_values[j]) * mu + min_values[j]), min_values[j], max_values[j])
             elif (r1 <= moa and r3 <= 0.5):
                 p[i, j] = np.clip(elite[j] + (  mop  ) * ( (max_values[j] - min_values[j]) * mu + min_values[j]), min_values[j], max_values[j])
-        p[i, -1] = target_function(population[i, :-1])
+        p[i, -1] = target_function(p[i, :-1])
         if (p[i, -1] < population[i, -1]):
             population[i, :] = p[i, :]
+    population = np.vstack([population, p])
+    idx        = np.argsort(population[:,-1], axis = 0).tolist()
+    population = population[idx,:]
+    population = population[:p.shape[0],:]
     return population
 
 ############################################################################
