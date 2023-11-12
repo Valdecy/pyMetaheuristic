@@ -70,7 +70,7 @@ def separation_alignment_cohesion(dragonflies, radius, dragon = 0):
                 nd = euclidean_distance(x, y)
                 if (nd < radius[0,k]):
                     dimensions      = dimensions + 1
-                    separation[0,k] = separation[0,k] - dragonflies[i,k] - dragonflies[i,k]
+                    separation[0,k] = separation[0,k] + (dragonflies[i,k] - dragonflies[j,k])
                     alignment [0,k] = alignment [0,k] + dragonflies[j,k]
                     cohesion  [0,k] = cohesion  [0,k] + dragonflies[j,k]
             if (dimensions == dragonflies.shape[1] - 1):
@@ -98,7 +98,7 @@ def update_food(dragonflies, radius, food_position, min_values = [-5,-5], max_va
         for k in range(0, dragonflies.shape[1]-1):
             food_position[0,k] = np.clip(food_position[0,k] - dragonflies[i,k], min_values[k], max_values[k])
     else:
-        food_position[0,k] = 0           
+        food_position[0,k] = np.clip(food_position[0,k] + levy_flight(beta = 1.5)*food_position[0,k], min_values[k], max_values[k])   
     food_position[0,-1] = target_function(food_position[0,:-1])
     return food_position, dimensions
 
