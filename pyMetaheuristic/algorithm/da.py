@@ -116,7 +116,7 @@ def update_predator(dragonflies, radius, predator, min_values = [-5,-5], max_val
         for k in range(0, dragonflies.shape[1]-1):
             predator[0,k] = np.clip(predator[0,k] + dragonflies[i,k], min_values[k], max_values[k])  
     else:
-        predator[0,k] = 0
+        predator[0,k] = np.clip(predator[0,k] + levy_flight(beta = 1.5)*predator[0,k], min_values[k], max_values[k])
     predator[0,-1] = target_function(predator[0,0:predator.shape[1]-1])
     return predator
 
