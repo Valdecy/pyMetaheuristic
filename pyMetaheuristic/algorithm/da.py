@@ -109,6 +109,9 @@ def update_food(dragonflies, radius, food_position, min_values = [-5,-5], max_va
     else:
         food_position[0,k] = np.clip(food_position[0,k] + levy_flight(beta = 1.5)*food_position[0,k], min_values[k], max_values[k])   
     food_position[0,-1] = target_function(food_position[0,:-1])
+    orign_food_position = np.copy(food_position)
+    if (np.array_equal(food_position, orign_food_position)):
+        food_position = initial_variables(1, min_values, max_values, target_function) 
     return food_position, dimensions
 
 # Function: Update Predator
@@ -127,6 +130,9 @@ def update_predator(dragonflies, radius, predator, min_values = [-5,-5], max_val
     else:
         predator[0,k] = np.clip(predator[0,k] + levy_flight(beta = 1.5)*predator[0,k], min_values[k], max_values[k])
     predator[0,-1] = target_function(predator[0,0:predator.shape[1]-1])
+    orign_pred_position = np.copy(predator)
+    if (np.array_equal(predator, orign_pred_position)):
+        predator = initial_variables(1, min_values, max_values, target_function) 
     return predator
 
 # Function: Update Search Matrices
