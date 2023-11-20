@@ -78,7 +78,7 @@ Try it in **Colab**:
 - Cuckoo Search ([ Colab Demo ](https://colab.research.google.com/drive/1L1STGmVK5IgdjLpEb-o8tuJ0yPCZ65Mt?usp=sharing)) ( [ Original Paper ](https://arxiv.org/abs/1003.1594v1))
 - Differential Evolution ([ Colab Demo ](https://colab.research.google.com/drive/1J56NxxplPOty9rjKQoo5TqN6MzmiqfBe?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1023%2FA%3A1008202821328))
 - Dispersive Flies Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1Y6eULdzLMnM2QpApdvABotxwG01BusmE?usp=sharing)) ( [ Original Paper ](http://dx.doi.org/10.15439/2014F142))
-- Dragonfly Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/19xgEwfzdI-yjFMM3e16PbVF1vX8ohu9c?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-020-04866-y))
+- Dragonfly Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/19xgEwfzdI-yjFMM3e16PbVF1vX8ohu9c?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-015-1920-1))
 - Firefly Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1vjUDRdRKPAGo6fTXAsvF9INJiF-wb6Pe?usp=sharing)) ( [ Original Paper ](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms))
 - Flow Direction Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1b72tXxS1X8ntCduN5lUn-An1REcJqp48?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.cie.2021.107224))
 - Flower Pollination Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1U7gTgWwBPOWGyEQGX38nSBnBzb3WWAM1?usp=sharing)) ( [ Original Paper ](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms))
