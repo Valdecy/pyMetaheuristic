@@ -94,9 +94,18 @@ def update_food(dragonflies, radius, food_position, min_values = [-5,-5], max_va
     for k in range(0, dragonflies.shape[1]-1):
         if (fd <= radius[0,k]):
             dimensions = dimensions + 1
+    idx = [index for index, dragonfly in enumerate(dragonflies) if not (dragonfly == food_position).all()]
+    if (len(idx) > 0):
+        idx    = random.choice(idx)
+        dragon = dragonflies[idx, :].reshape(food_position.shape)
+    else:
+        dragon = initial_variables(1, min_values, max_values, target_function)
     if (dimensions == dragonflies.shape[1] - 1):
         for k in range(0, dragonflies.shape[1]-1):
-            food_position[0,k] = np.clip(food_position[0,k] - dragonflies[i,k], min_values[k], max_values[k])
+            if (food_position[0,k] != dragonflies[i,k]):
+                food_position[0,k] = np.clip(food_position[0,k] - dragonflies[i,k], min_values[k], max_values[k])
+            else:
+                food_position[0,k] = np.clip(food_position[0,k] - dragon[0,k], min_values[k], max_values[k])
     else:
         food_position[0,k] = np.clip(food_position[0,k] + levy_flight(beta = 1.5)*food_position[0,k], min_values[k], max_values[k])   
     food_position[0,-1] = target_function(food_position[0,:-1])
