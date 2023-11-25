@@ -65,7 +65,7 @@ def update_hunters(population, alpha, beta, c_rate, mml, idx, best_hunter, count
 
 # Function: HUS
 def hunting_search_algorithm(size = 15, alpha = 0.5, beta = 0.01, mml = 0.5, c_rate = 0.5, min_radius = 0.5, max_radius = 2.0, min_values = [-100, -100], max_values = [100, 100], generations = 1500, target_function = target_function, verbose = True):
-    population  = initial_variables(size, min_values, max_values)
+    population  = initial_variables(size, min_values, max_values, target_function)
     idx         = np.argmin(population [:, -1])
     best_hunter = population [idx, :]
     count       = 0
