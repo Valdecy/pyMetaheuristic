@@ -61,7 +61,7 @@ def butterfly_adjusting_operator(region2, ratio, adj_rate, best_b, walk_size, co
 
 # Function: MBO
 def monarch_butterfly_optimization(size = 30, ratio = 5/12, phi = 1.2, adj_rate = 5/12, walk_size = 1, min_values = [-100, -100], max_values = [100, 100], generations = 1500, target_function = target_function, verbose = True):
-    population = initial_variables(size, min_values, max_values)
+    population = initial_variables(size, min_values, max_values, target_function)
     division   = int(np.ceil(size * 5 / 12))
     idx        = np.argmin(population [:, -1])
     best_b     = population[idx, :]
