@@ -17,7 +17,7 @@ setup(
         'plotly',
         'scipy'
     ],
-    description='A Metaheuristics Library',
+    description='pyMetaheuristic: A Comprehensive Python Library for Optimization',
     long_description=long_description,
     long_description_content_type='text/markdown',
 )
