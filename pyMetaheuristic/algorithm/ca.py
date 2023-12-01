@@ -45,6 +45,8 @@ def update_beliefspace_normative(min_values, max_values, accepted):
 
 # Function: CA
 def cultural_algorithm(size = 200, num_acc_ratio = 0.20, iterations = 50, min_values = [-100, -100], max_values = [100, 100], target_function = target_function, verbose = True):
+    min_values = [item for item in min_values]
+    max_values = [item for item in max_values]
     num_accepted = int(size * num_acc_ratio)
     population   = initial_variables(size, min_values, max_values, target_function)
     best         = population[np.argmin(population[:, -1])]
