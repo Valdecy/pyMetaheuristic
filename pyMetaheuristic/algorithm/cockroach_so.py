@@ -64,7 +64,7 @@ def ruthless_behavior(population, min_values, max_values, joe, target_function):
     old_population = np.copy(population)
     cut            = population.shape[0]
     for i in range(0, population.shape[0]):
-        for j in range(len(min_values)):
+        for j in range(0, len(min_values)):
             r                = random.uniform(0, 1)
             population[i, j] = np.clip(population[i, j] + r, min_values[j], max_values[j])
         population[i, -1] = target_function(population[i, :-1])
