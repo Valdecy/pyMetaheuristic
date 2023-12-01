@@ -2,7 +2,7 @@
 
 ## Introduction
 
-A python library for the following Metaheuristics: **Adaptive Random Search**, **Ant Lion Optimizer**, **Arithmetic Optimization Algorithm**, **Artificial Bee Colony Optimization**, **Artificial Fish Swarm Algorithm**, **Bat Algorithm**, **Biogeography Based Optimization**, **Cat Swarm Optimization**, **Chicken Swarm Optimization**, **Cockroach Swarm Optimization**, **Cross-Entropy Method**, **Crow Search Algorithm**, **Cuckoo Search**, **Differential Evolution**, **Dispersive Flies Optimization**, **Dragonfly Algorithm**, **Dynamic Virtual Bats Algorithm**, **Elephant Herding Optimization Algorithm**, **Firefly Algorithm**, **Flow Direction Algorithm**, **Flower Pollination Algorithm**, **Genetic Algorithm**, **Grasshopper Optimization Algorithm**, **Gravitational Search Algorithm**, **Grey Wolf Optimizer**, **Harris Hawks Optimization**, **Hunting Search Algorithm**, **Improved Grey Wolf Optimizer**, **Improved Whale Optimization Algorithm**, **Jaya**, **Jellyfish Search Optimizer**, **Krill Herd Algorithm**, **Memetic Algorithm**, **Monarch Butterfly Optimization**, **Moth Flame Optimization**, **Multiverse Optimizer**, **Pathfinder Algorithm**, **Particle Swarm Optimization**, **Random Search**, **Salp Swarm Algorithm**, **Simulated Annealing**, **Sine Cosine Algorithm**, **Student Psychology Based Optimization**; **Symbiotic Organisms Search**; **Teaching Learning Based Optimization**, **Whale Optimization Algorithm**.
+**pyMetaheuristic** is a robust Python Library crafted to provide a wide range of metaheuristic algorithms, ideal for tackling complex optimization tasks. It encompasses a diverse mix of algorithms, from traditional to modern methods. For a detailed list of these metaheuristics and their demonstrations, refer to **Section 3**. The library is also equipped with a selection of test functions, useful for benchmarking and evaluating algorithm performance. Details on these functions can be found in **Section 4**. Getting started with **pyMetaheuristic is straightforward**. Install the package using pip and begin exploring the available algorithms and test functions, as outlined in **Sections 1 and 2**. Whether you're addressing intricate optimization problems or experimenting with different algorithms, **pyMetaheuristic** is your essential toolkit.
 
 ## Usage
 
@@ -22,8 +22,8 @@ from pyMetaheuristic.algorithm import particle_swarm_optimization
 # Import a Test Function. Available Test Functions: https://bit.ly/3KyluPp
 from pyMetaheuristic.test_function import easom
 
-# OR Define your Own Custom Function. The function input should be a list of values, 
-# each value represents a dimenstion (x1, x2, ...xn) of the problem.
+# OR Define your Custom Function. The function input should be a list of values, 
+# each value representing a dimension (x1, x2, ...xn) of the problem.
 import numpy as np
 def easom(variables_values = [0, 0]):
     x1, x2     = variables_values
@@ -75,10 +75,12 @@ Try it in **Colab**:
 - Biogeography Based Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1k3wUNl2R486rkxUhTcTum3usc9f585p0?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/TEVC.2008.919004))
 - Cat Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/16kULfNzZsFayvAf9IYgF-260iWy5x-u4?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/978-3-540-36668-3_94))
 - Chicken Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1twWQX1rsZE0zcF36CIdBIvueNH-FfIif?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/978-3-319-11857-4_10))
+- Clonal Selection Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1tylsvAX0_MU5gOpDc4wS6v_z5nFEjTM5?usp=sharing)) ( [ Original Paper ](https://www.researchgate.net/publication/2917410_Parallelizing_an_Immune-Inspired_Algorithm_for_Efficient_Pattern_Recognition))
 - Cockroach Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1lrsRWMJhX2Uf-IGObukpZM7t2zr-OPW8?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/ICCET.2010.5485993))
 - Cross-Entropy Method ([ Colab Demo ](https://colab.research.google.com/drive/1tI1YbjbAV_O9TdXWYfu8aAlvadC7Crm_?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/S0377-2217(96)00385-2))
 - Crow Search Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/18pFLXYi5s9dMgtA03i5yKeC5WZstDp82?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.compstruc.2016.03.001))
 - Cuckoo Search ([ Colab Demo ](https://colab.research.google.com/drive/1L1STGmVK5IgdjLpEb-o8tuJ0yPCZ65Mt?usp=sharing)) ( [ Original Paper ](https://arxiv.org/abs/1003.1594v1))
+- Cultural Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1X2dIQvL91yQfEzg90UC9mvlE-h0pLc2i?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1142/9789814534116))
 - Differential Evolution ([ Colab Demo ](https://colab.research.google.com/drive/1J56NxxplPOty9rjKQoo5TqN6MzmiqfBe?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1023%2FA%3A1008202821328))
 - Dispersive Flies Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1Y6eULdzLMnM2QpApdvABotxwG01BusmE?usp=sharing)) ( [ Original Paper ](http://dx.doi.org/10.15439/2014F142))
 - Dragonfly Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/19xgEwfzdI-yjFMM3e16PbVF1vX8ohu9c?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-015-1920-1))
@@ -91,6 +93,8 @@ Try it in **Colab**:
 - Grey Wolf Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1EQqLtVs9ghQ9Cu-aFRh13hu5ZdgOf9sc?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2013.12.007))
 - Grasshopper Optimization Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Mift_Q38gvTkW6eYdkzSS6GpYZKGTwmy?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2017.01.004))
 - Gravitational Search Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1swxMC2Lu9nhObGv7UO5v7eTUm9ULz79Z?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.ins.2009.03.004))
+- Harmony Search Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1msIR83uzO-w7HLijaMS2e_Lt8r3EZqHn?usp=sharing)) ( [ Original Paper ](
+https://doi.org/10.1177/003754970107600201))
 - Harris Hawks Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1swYF7A0I67zX7NxXRJ1d1k1apeMWX2ix?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.future.2019.02.028))
 - Hunting Search Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1usqrl2Ljoj9ha7wuShD1JgFlHrAP4K0Z?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/ICSCCW.2009.5379451))
 - Improved Grey Wolf Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Ggu6bd6-FQkLMIrfJynF54b7JBUJaw8Z?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.eswa.2020.113917))
@@ -104,6 +108,7 @@ Try it in **Colab**:
 - Multiverse Optimizer ([ Colab Demo ](https://colab.research.google.com/drive/1Qna0EHucTYRt9pCfDFzpk9uuNM9tSNKi?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1007/s00521-015-1870-7))
 - Pathfinder Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1gntm149Ye1v_vr--zzBCej_5D68SyBHG?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.asoc.2019.03.012))
 - Particle Swarm Optimization ([ Colab Demo ](https://colab.research.google.com/drive/1bWAmKTkNKSiSQPUcRdokLQYuhQBOhckZ?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1109/ICNN.1995.488968))
+- Population-Based Incremental Learning ([ Colab Demo ](https://colab.research.google.com/drive/1aWaMLOhoX_lC9_9PTHcGc9Huuu1m1hMp?usp=sharing)) ( [ Original Paper ](https://apps.dtic.mil/sti/pdfs/ADA282654.pdf))
 - Random Search ([ Colab Demo ](https://colab.research.google.com/drive/1DCi4aiO_ORlRq9MetZcxHyKAywMuFkRO?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1080/01621459.1953.10501200))
 - Salp Swarm Algorithm ([ Colab Demo ](https://colab.research.google.com/drive/1Qhkn2NPO5Gavc6ZHW79n_DjmEFeDvOBq?usp=sharing)) ( [ Original Paper ](https://doi.org/10.1016/j.advengsoft.2017.07.002))
 - Simulated Annealing ([ Colab Demo ](https://colab.research.google.com/drive/1W6X_kCSGOKEDWIJ-ar25kgWIQAc4U1mA?usp=sharing)) ( [ Original Paper ](https://www.jstor.org/stable/1690046))
@@ -151,10 +156,10 @@ Try it in **Colab**:
 For Multiobjective Optimization or Many Objectives Optimization try [pyMultiobjective](https://github.com/Valdecy/pyMultiobjective)
 
 # TSP (Travelling Salesman Problem)
-For Travelling Salesman Problems try [pyCombinatorial](https://github.com/Valdecy/pyCombinatorial)
+For Travelling Salesman Problems, try [pyCombinatorial](https://github.com/Valdecy/pyCombinatorial)
 
 # Acknowledgement 
 
-This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
+This section is dedicated to everyone who helped improve or correct the code. Thank you very much!
 
 * Raiser (01.MARCH.2022) - https://github.com/mpraiser - University of Chinese Academy of Sciences (China)
