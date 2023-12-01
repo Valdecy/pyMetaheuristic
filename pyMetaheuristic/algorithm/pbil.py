@@ -22,7 +22,7 @@ def target_function():
 ############################################################################
 
 # Function: Initialize Variables
-def initial_variables(vector):
+def initial_variables(vector, target_function = target_function):
     candidate      = np.random.uniform(vector[0], vector[1], size = (len(vector[0]),))
     fitness_values = target_function(candidate)
     candidate      = np.hstack((candidate, fitness_values))
@@ -50,14 +50,14 @@ def mutate_vector(vector, p_mutate, mut_factor):
 def population_based_incremental_learning(size = 200, mut_factor = 0.05, l_rate = 0.1, iterations = 1500, min_values = [-100, -100], max_values  = [100, 100], target_function = target_function, verbose = True):
     p_mutate = 1.0 / len(min_values)
     vector   = [np.array(min_values) + (np.array(max_values) - np.array(min_values)) / 2, np.array(max_values)]
-    best     = initial_variables(vector)
+    best     = initial_variables(vector, target_function = target_function)
     count    = 0
     while (count <= iterations):
         if (verbose == True):    
             print('Iteration: ', count, ' f(x) = ', best[-1])
         current = None
         for _ in range(0, size):
-            candidate = initial_variables(vector)
+            candidate = initial_variables(vector, target_function = target_function)
             if (current is None or candidate[-1] < current[-1]):
                 current = np.copy(candidate)
             if (candidate[-1] < best[-1]):
