@@ -1,4 +1,5 @@
 from .abco import artificial_bee_colony_optimization
+from .acgwo import adaptive_chaotic_grey_wolf_optimizer
 from .afsa import artificial_fish_swarm_algorithm
 from .alo import ant_lion_optimizer
 from .aoa import arithmetic_optimization_algorithm
@@ -10,6 +11,7 @@ from .cat_so import cat_swarm_optimization
 from .cem import cross_entropy_method
 from .chicken_so import chicken_swarm_optimization
 from .clonalg import clonal_selection_algorithm
+from .coati_oa import coati_optimization_algorithm
 from .cockroach_so import cockroach_swarm_optimization
 from .csa import crow_search_algorithm
 from .cuckoo_s import cuckoo_search
@@ -22,6 +24,7 @@ from .fda import flow_direction_algorithm
 from .firefly_a import firefly_algorithm
 from .fpa import flower_pollination_algorithm
 from .ga import genetic_algorithm
+from .gmo import geometric_mean_optimizer
 from .goa import grasshopper_optimization_algorithm
 from .gsa import gravitational_search_algorithm
 from .gwo import grey_wolf_optimizer
