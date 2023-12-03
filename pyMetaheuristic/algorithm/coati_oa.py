@@ -38,15 +38,15 @@ def update_position(population, min_values, max_values, best, target_function):
     bt_            = initial_variables(1, min_values, max_values, target_function)
     bt_            = bt_[0,:]
     for i in range(0, population.shape[0]):
-        r                  = np.random.rand(2)
-        itg                = np.random.randint(low = 1, high = 3, size = 2, dtype = int)
+        r                  = np.random.rand(len(min_values))
+        itg                = np.random.randint(low = 1, high = 3, size = len(min_values), dtype = int)
         population[i, :-1] = np.clip(population[i, :-1] + r * (best[:-1] - itg * population[i, :-1]), min_values, max_values)
         if (r_population[i, -1] > bt_[-1]):
-            r                    = np.random.rand(2)
-            itg                  = np.random.randint(low = 1, high = 3, size = 2, dtype = int)
+            r                    = np.random.rand(len(min_values))
+            itg                  = np.random.randint(low = 1, high = 3, size = len(min_values), dtype = int)
             r_population[i, :-1] = np.clip(r_population[i, :-1] + r * (bt_[:-1] - itg * r_population[i, :-1]), min_values, max_values)
         else:
-            r                    = np.random.rand(2)
+            r                    = np.random.rand(len(min_values))
             r_population[i, :-1] = np.clip(r_population[i, :-1] + r * (r_population[i, :-1] - bt_[:-1]), min_values, max_values)
     population  [i,-1] = target_function(population[i, :-1])
     r_population[i,-1] = target_function(r_population[i, :-1])
