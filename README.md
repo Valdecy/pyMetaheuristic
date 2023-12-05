@@ -4,6 +4,8 @@
 
 **pyMetaheuristic** is a robust Python Library crafted to provide a wide range of metaheuristic algorithms, ideal for tackling complex optimization tasks. It encompasses a diverse mix of algorithms, from traditional to modern methods. For a detailed list of these metaheuristics and their demonstrations, refer to **Section 3**. The library is also equipped with a selection of test functions, useful for benchmarking and evaluating algorithm performance. Details on these functions can be found in **Section 4**. Getting started with **pyMetaheuristic is straightforward**. Install the package using pip and begin exploring the available algorithms and test functions, as outlined in **Sections 1 and 2**. Whether you're addressing intricate optimization problems or experimenting with different algorithms, **pyMetaheuristic** is your essential toolkit.
 
+Each metaheuristic includes two parameters: 'start_init' and 'target_value'. By default, 'start_init' is set to None, but it can be assigned an initial guess in the form of a NumPy array. The default value of 'target_value' is also None. However, you can specify a continuous value for it. If during the iterations, the objective function reaches a value that is equal to or less than this specified 'target_value', the iterations will halt.
+
 ## Usage
 
 1. Install
@@ -39,7 +41,10 @@ parameters = {
     'decay': 0,
     'w': 0.9,
     'c1': 2,
-    'c2': 2
+    'c2': 2,
+	'verbose': True,
+	'start_init': None,
+	'target_value': None
 }
 pso = particle_swarm_optimization(target_function = easom, **parameters)
 
