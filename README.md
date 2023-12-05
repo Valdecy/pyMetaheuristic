@@ -42,9 +42,9 @@ parameters = {
     'w': 0.9,
     'c1': 2,
     'c2': 2,
-	'verbose': True,
-	'start_init': None,
-	'target_value': None
+    'verbose': True,
+    'start_init': None,
+    'target_value': None
 }
 pso = particle_swarm_optimization(target_function = easom, **parameters)
 
