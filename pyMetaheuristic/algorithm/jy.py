@@ -41,7 +41,7 @@ def initial_variables(size, min_values, max_values, target_function, start_init 
 
 ############################################################################
 
-# Function: Updtade Position by Fitness
+# Function: Update Position by Fitness
 def update_bw_positions(position):
     best_idx       = np.argmin(position[:,-1])
     worst_idx      = np.argmax(position[:,-1])
