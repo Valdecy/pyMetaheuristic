@@ -42,7 +42,7 @@ def initial_variables(size, min_values, max_values, target_function, start_init 
 ############################################################################
 
 # Function: Update Best Student
-def update_best_student(population, best_student, min_values = [-5,-5], max_values = [5,5], target_function = target_function):
+def update_best_student(population, best_student, min_values, max_values, target_function):
     idx  = list(range(0, population.shape[0]))
     idx  = np.random.choice(idx)
     k    = [1, 2]
@@ -57,7 +57,7 @@ def update_best_student(population, best_student, min_values = [-5,-5], max_valu
     return n_b
 
 # Function: Update Good Student Type A
-def update_good_student_a(population, best_student, type_idx, min_values = [-5,-5], max_values = [5,5], target_function = target_function):
+def update_good_student_a(population, best_student, type_idx, min_values, max_values, target_function):
     n_p = np.copy(population)
     for i in type_idx:
         for j in range(0, len(min_values)):
@@ -67,7 +67,7 @@ def update_good_student_a(population, best_student, type_idx, min_values = [-5,-
     return n_p[type_idx,:]
 
 # Function: Update Good Student Type B
-def update_good_student_b(population, best_student, type_idx, min_values = [-5,-5], max_values = [5,5], target_function = target_function):
+def update_good_student_b(population, best_student, type_idx, min_values, max_values, target_function):
     n_p = np.copy(population)
     for i in type_idx:
         for j in range(0, len(min_values)):
@@ -78,7 +78,7 @@ def update_good_student_b(population, best_student, type_idx, min_values = [-5,-
     return n_p[type_idx,:]
 
 # Function: Update Average Student 
-def update_average_student(population, type_idx, min_values = [-5,-5], max_values = [5,5], target_function = target_function):
+def update_average_student(population, type_idx, min_values, max_values, target_function):
     n_p = np.copy(population)
     for i in type_idx:
         for j in range(0, len(min_values)):
@@ -88,7 +88,7 @@ def update_average_student(population, type_idx, min_values = [-5,-5], max_value
     return n_p[type_idx,:]
 
 # Function: Update Random Student 
-def update_random_student(population, type_idx, min_values = [-5,-5], max_values = [5,5], target_function = target_function):
+def update_random_student(population, type_idx, min_values, max_values, target_function):
     n_p = np.copy(population)
     for i in type_idx:
         for j in range(0, len(min_values)):
