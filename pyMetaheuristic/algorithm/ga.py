@@ -42,16 +42,12 @@ def initial_variables(size, min_values, max_values, target_function, start_init 
 ############################################################################
 
 # Function: Fitness
-def fitness_function(population): 
-    fitness = np.zeros((population.shape[0], 2))
-    for i in range(0, fitness.shape[0]):
-        fitness[i,0] = 1/(1+ population[i,-1] + abs(population[:,-1].min()))
-    fit_sum      = fitness[:,0].sum()
-    fitness[0,1] = fitness[0,0]
-    for i in range(1, fitness.shape[0]):
-        fitness[i,1] = (fitness[i,0] + fitness[i-1,1])
-    for i in range(0, fitness.shape[0]):
-        fitness[i,1] = fitness[i,1]/fit_sum
+def fitness_function(population):
+    min_pop            = abs(population[:, -1].min())
+    fitness_first_col  = 1 / (1 + population[:, -1] + min_pop)
+    fitness_second_col = np.cumsum(fitness_first_col)
+    fitness_second_col = fitness_second_col / fitness_second_col[-1]
+    fitness            = np.column_stack((fitness_first_col, fitness_second_col))
     return fitness
 
 # Function: Selection
@@ -140,3 +136,4 @@ def genetic_algorithm(population_size = 25, mutation_rate = 0.1, elite = 1, min_
     return elite_ind 
 
 ############################################################################
+
