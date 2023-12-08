@@ -41,12 +41,6 @@ def initial_variables(size, min_values, max_values, target_function, start_init 
 
 ############################################################################
 
-# Function: Initialize Leader
-def leader_position(min_values, max_values, target_function):
-    leader       = np.zeros((1, len(min_values) + 1))
-    leader[0,-1] = target_function(np.clip(leader[0,0:leader.shape[1]-1], min_values, max_values))
-    return leader[0,:]
-
 # Function: Update Leader by Fitness
 def update_leader(position, leader):
     best_idx = np.argmin(position[:, -1])
@@ -136,7 +130,7 @@ def breeding(position, fitness, min_values = [-5,-5], max_values = [5,5], mu = 1
 # Function: iWOA
 def improved_whale_optimization_algorithm(hunting_party = 25, spiral_param = 1,  mu = 1, min_values = [-100,-100], max_values = [100,100], iterations = 500, target_function = target_function, verbose = True, start_init = None, target_value = None):    
     position = initial_variables(hunting_party, min_values, max_values, target_function, start_init)
-    leader   = leader_position(min_values, max_values, target_function)
+    leader   = np.copy(position[position[:,-1].argsort()][0,:])
     count    = 0
     while (count <= iterations):
         if (verbose == True):
