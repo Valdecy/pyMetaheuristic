@@ -78,7 +78,11 @@ def simulated_annealing(min_values = [-100,-100], max_values = [100,100], mu = 0
             if (fx_new < fx_best):
                 fx_best = fx_new
                 best    = np.copy(guess)
-        temperature = alpha * temperature     
+        temperature = alpha * temperature   
+        if (target_value is not None):
+            if (fx_best <= target_value):
+                temperature = final_temperature 
+                break
     return best[0, :]
     
 ############################################################################
