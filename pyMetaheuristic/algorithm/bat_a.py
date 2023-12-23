@@ -66,6 +66,8 @@ def update_position(position, velocity, frequency, rate, loudness, best_ind, alp
             random_shift      = np.random.uniform(-1, 1, dim) * loudness_mean
             position_[i, :-1] = np.clip(best_ind[:-1] + random_shift, min_values, max_values)
             position_[i,  -1] = target_function(position_[i, :-1])
+        else:
+            position_[i, :]   = initial_variables(1, min_values, max_values, target_function)
         if (rand_position_update[i] < position[i, -1] and position_[i, -1] <= position[i, -1]):
             position[i, :-1]  = position_[i, :-1]
             position[i,  -1]  = position_[i,  -1]
