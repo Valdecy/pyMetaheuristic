@@ -71,7 +71,7 @@ def update_position(position, velocity, frequency, rate, loudness, best_ind, alp
         if (rand_position_update[i] < position[i, -1] and position_[i, -1] <= position[i, -1]):
             position[i, :-1]  = position_[i, :-1]
             position[i,  -1]  = position_[i,  -1]
-            rate[i, 0]        = rate[i, 0] * (1 - np.exp(-gama * count))
+            rate[i, 0]        = np.random.rand() * (1 - np.exp(-gama * count))
             loudness[i, 0]    = loudness[i, 0] * alpha
     position   = np.vstack([position, position_])
     position   = position[position[:, -1].argsort()]
