@@ -68,11 +68,10 @@ def update_position(position, velocity, frequency, rate, loudness, best_ind, alp
             position_[i,  -1] = target_function(position_[i, :-1])
         else:
             position_[i, :]   = initial_variables(1, min_values, max_values, target_function)
-        if (rand_position_update[i] < position[i, -1] and position_[i, -1] <= position[i, -1]):
-            position[i, :-1]  = position_[i, :-1]
-            position[i,  -1]  = position_[i,  -1]
-            rate[i, 0]        = np.random.rand() * (1 - np.exp(-gama * count))
-            loudness[i, 0]    = loudness[i, 0] * alpha
+        if (rand_position_update[i] < loudness[i, 0] and position_[i, -1] <= position[i, -1]):
+            position[i, :]  = position_[i, :]
+            rate[i, 0]      = np.random.rand() * (1 - np.exp(-gama * count))
+            loudness[i, 0]  = loudness[i, 0] * alpha
     position   = np.vstack([position, position_])
     position   = position[position[:, -1].argsort()]
     position   = position[:position_.shape[0], :]
@@ -80,7 +79,7 @@ def update_position(position, velocity, frequency, rate, loudness, best_ind, alp
     if (best_ind[-1] > position[best_index, -1]):
         best_ind = np.copy(position[best_index, :])
     return position, velocity, frequency, rate, loudness, best_ind
-
+    
 ############################################################################
 
 # Functio: BA
