@@ -55,6 +55,7 @@ def build_distance_matrix(position):
 # Function: Update Position
 def update_position(position, best_position, min_values, max_values, C, F, L, target_function):
     dim             = len(min_values)
+    size            = position.shape[0] - 1
     distance_matrix = build_distance_matrix(position)
     distance_matrix = 2 * (distance_matrix - np.min(distance_matrix)) / (np.ptp(distance_matrix) + 1e-8) + 1
     np.fill_diagonal(distance_matrix, 0)
@@ -65,7 +66,20 @@ def update_position(position, best_position, min_values, max_values, C, F, L, ta
             denominator  = np.where(distance_matrix[:, i] == 0, 1, distance_matrix[:, i])
             sum_grass[i] = np.sum(C * ((max_values[j] - min_values[j]) / 2) * s_vals * ((position[:, j] - position[i, j]) / denominator))
         position[:, j] = np.clip(C * sum_grass + best_position[j], min_values[j], max_values[j])
-    position[:, -1] = np.apply_along_axis(target_function, 1, position[:, :-1])
+    position[:, -1]     = np.apply_along_axis(target_function, 1, position[:, :-1])
+    unique_rows, counts = np.unique(np.round(position[:, :-1], 4), axis = 0, return_counts = True)
+    max_count           = np.max(counts)
+    if (max_count / position.shape[0] >= 0.8):
+        majority_row   = unique_rows[np.argmax(counts)]
+        different_rows = position[~np.all(np.round(position[:, :-1], 4) == majority_row, axis = 1)]
+        num_new_rows   = position.shape[0] - different_rows.shape[0]
+        new_rows       = initial_variables(num_new_rows, min_values, max_values, target_function)
+        if (different_rows.shape[0] > 0):
+            position = np.vstack((different_rows, new_rows))
+        else:   
+            position = new_rows
+        position = position[:size, :]
+        position = np.vstack((best_position, position))
     return position
 
 ############################################################################
@@ -73,7 +87,7 @@ def update_position(position, best_position, min_values, max_values, C, F, L, ta
 # Function: GOA
 def grasshopper_optimization_algorithm(grasshoppers = 25, min_values = [-5,-5], max_values = [5,5], c_min = 0.00004, c_max = 1, iterations = 1000, F = 0.5, L = 1.5, target_function = target_function, verbose = True, start_init = None, target_value = None):
     position      = initial_variables(grasshoppers, min_values, max_values, target_function, start_init)
-    best_position =  np.copy(position[np.argmin(position[:,-1]),:]) 
+    best_position = np.copy(position[np.argmin(position[:,-1]),:]) 
     count         = 0
     while (count <= iterations): 
         if (verbose == True):
