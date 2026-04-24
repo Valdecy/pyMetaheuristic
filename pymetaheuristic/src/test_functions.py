@@ -268,9 +268,6 @@ def zakharov(variables_values = [0, 0]):
         fv_2 = fv_2 + 0.5*(i+1)*variables_values[i]
     func_value = fv_0 + fv_1**2 + fv_2**4
     return func_value
-    
-
-# NiaPy-derived additional benchmark functions (only those not already present in pyMetaheuristic)
 
 def alpine_1(variables_values = [0, 0]):
     x = np.asarray(variables_values, dtype=float)
