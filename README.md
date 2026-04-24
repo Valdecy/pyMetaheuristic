@@ -2,7 +2,13 @@
 
 ## A. **Version Note**
 
-This README targets **v5+**. For legacy, the old library can still be installed with:
+This README targets **pymetaheuristic-v5+**. It can be intalled with:
+
+```bash
+pip install pymetaheuristic
+```
+
+For legacy, the old library can still be installed with:
 
 ```bash
 pip install pymetaheuristic==1.9.5
@@ -568,6 +574,7 @@ Default Parameters:
 
 The table below summarizes the optimization engines currently available in the library. The **Algorithm** column reports the conventional algorithm name, **ID** gives the identifier used in the codebase, **Family** provides a coarse methodological grouping, **Population** indicates whether the algorithm maintains an explicit candidate population, **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows, **Restart** shows whether native restart support is declared, **Checkpoint** reports whether the algorithm state can be serialized and restored, **Snapshot Fit** is a practical recommendation for using store_population_snapshots in the current implementation, **Constraint Support** indicates whether constraints are handled natively by the method or through the framework-level penalty/repair machinery. Finally, **Origin** points to the primary reference or original source associated with the algorithm.
 
+
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | Checkpoint | Snapshot Fit | Constraint Support | Origin |
 |---|---|---|---|---|---|---|---|---|---|
 | Artificial Bee Colony Optimization | `abco` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://abc.erciyes.edu.tr/pub/tr06_2005.pdf) |
@@ -624,6 +631,31 @@ The table below summarizes the optimization engines currently available in the l
 | Salp Swarm Algorithm | `ssa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2017.07.002) |
 | Teaching Learning Based Optimization | `tlbo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cad.2010.12.015) |
 | Whale Optimization Algorithm | `woa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2016.01.008) |
+| Bees Algorithm | `bea` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=The+bees+algorithm+a+novel+tool+for+complex+optimisation+problems) |
+| Bacterial Foraging Optimization | `bfo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/MCS.2002.1004010) |
+| Coral Reefs Optimization | `cro` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1155/2014/739768) |
+| Evolution Strategy (mu + lambda) | `es` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.wiley.com/en-us/Multi+Objective+Optimization+using+Evolutionary+Algorithms-p-9780471873396) |
+| Forest Optimization Algorithm | `foa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.eswa.2014.05.009) |
+| Fish School Search | `fss` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICSMC.2008.4811695) |
+| Fireworks Algorithm | `fwa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2017.10.046) |
+| Glowworm Swarm Optimization | `gso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.springer.com/gp/book/9783319515946) |
+| Lion Optimization Algorithm | `loa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.jcde.2015.06.003) |
+| Monkey King Evolution V1 | `mke` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2016.01.009) |
+| Mantis Shrimp Optimization Algorithm | `mshoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.3390/math13091500) |
+| Camel Algorithm | `camel` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.iasj.net/iasj?func=fulltext&aId=118375) |
+| Hybrid Bat Algorithm | `hba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang) |
+| Self-Adaptive Differential Evolution | `jde` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2006.872133) |
+| Success-History Adaptive Differential Evolution | `shade` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/CEC.2014.6900380) |
+| Improved L-SHADE | `ilshade` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/CEC.2016.7744312) |
+| Differential Evolution MTS | `hde` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/4983179/) |
+| Self-Adaptive Bat Algorithm | `saba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang) |
+| Hybrid Self-Adaptive Bat Algorithm | `hsaba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.hindawi.com/journals/tswj/2014/709738/cta/) |
+| Parameter-Free Bat Algorithm | `plba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Towards+the+development+of+a+parameter-free+bat+algorithm) |
+| Anarchic Society Optimization | `aso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Anarchic+Society+Optimization+A+human-inspired+method) |
+| Hill Climb Algorithm | `hc` | trajectory | No | No | No | Yes | No | Framework | [Paper](https://en.wikipedia.org/wiki/Hill_climbing) |
+| Multiple Trajectory Search | `mts` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/4631210/) |
+| Nelder-Mead Method | `nmm` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method) |
+
 
 ---
 ## 4. **Test Functions**
