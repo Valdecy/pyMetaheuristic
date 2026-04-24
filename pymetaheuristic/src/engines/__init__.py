@@ -10,9 +10,13 @@ from .afsa         import AFSAEngine
 from .alo          import ALOEngine
 from .aoa          import AOAEngine
 from .ars          import ARSEngine
+from .aso          import ASOEngine
 from .bat_a        import BATAEngine
+from .bea          import BEAEngine
+from .bfo          import BFOEngine
 from .bbo          import BBOEngine
 from .ca           import CAEngine
+from .camel        import CamelEngine
 from .cat_so       import CAT_SOEngine
 from .cem          import CEMEngine
 from .chicken_so   import CHICKEN_SOEngine
@@ -20,37 +24,57 @@ from .clonalg      import CLONALGEngine
 from .coati_oa     import COATI_OAEngine
 from .cockroach_so import COCKROACH_SOEngine
 from .csa          import CSAEngine
+from .cro          import CROEngine
 from .cuckoo_s     import CUCKOO_SEngine
 from .da           import DAEngine
 from .de           import DEEngine
 from .dfo          import DFOEngine
 from .dvba         import DVBAEngine
 from .eho          import EHOEngine
+from .es           import ESEngine
 from .fda          import FDAEngine
 from .firefly_a    import FIREFLY_AEngine
+from .foa          import FOAEngine
+from .fss          import FSSEngine
+from .fwa          import FWAEngine
 from .fpa          import FPAEngine
 from .ga           import GAEngine
 from .gmo          import GMOEngine
 from .goa          import GOAEngine
 from .gsa          import GSAEngine
+from .gso          import GSOEngine
 from .gwo          import GWOEngine
 from .hho          import HHOEngine
+from .hba          import HBAEngine
+from .hc           import HCEngine
+from .hde          import HDEEngine
 from .hsa          import HSAEngine
+from .hsaba        import HSABAEngine
 from .hus          import HUSEngine
 from .i_gwo        import I_GWOEngine
 from .i_woa        import I_WOAEngine
+from .ilshade      import ILSHADEEngine
 from .jso          import JSOEngine
+from .jde          import JDEEngine
 from .jy           import JYEngine
 from .kha          import KHAEngine
+from .loa          import LOAEngine
 from .mbo          import MBOEngine
 from .memetic_a    import MEMETIC_AEngine
 from .mfa          import MFAEngine
+from .mke          import MKEEngine
+from .mshoa        import MSHOAEngine
 from .mvo          import MVOEngine
+from .mts          import MTSEngine
+from .nmm          import NMMEngine
 from .pbil         import PBILEngine
+from .plba         import PLBAEngine
 from .pfa          import PFAEngine
 from .pcx          import PCXEngine
 from .pso          import PSOEngine
 from .random_s     import RANDOM_SEngine
+from .saba         import SABAEngine
+from .shade        import SHADEEngine
 from .sa           import SAEngine
 from .sine_cosine_a import SINE_COSINE_AEngine
 from .sos          import SOSEngine
@@ -72,6 +96,30 @@ REGISTRY: dict[str, type[BaseEngine]] = {
         I_GWOEngine, I_WOAEngine, JSOEngine, JYEngine, KHAEngine,
         MBOEngine, MEMETIC_AEngine, MFAEngine, MVOEngine, PBILEngine,
         PFAEngine, PCXEngine, PSOEngine, RANDOM_SEngine, SAEngine, SINE_COSINE_AEngine,
+        ASOEngine,
+        BEAEngine,
+        BFOEngine,
+        CamelEngine,
+        CROEngine,
+        ESEngine,
+        FOAEngine,
+        FSSEngine,
+        FWAEngine,
+        GSOEngine,
+        HBAEngine,
+        HCEngine,
+        HDEEngine,
+        HSABAEngine,
+        ILSHADEEngine,
+        JDEEngine,
+        LOAEngine,
+        MKEEngine,
+        MSHOAEngine,
+        MTSEngine,
+        NMMEngine,
+        PLBAEngine,
+        SABAEngine,
+        SHADEEngine,
         SOSEngine, SPBOEngine, SSAEngine, TLBOEngine, WOAEngine,
     ]
 }
@@ -84,13 +132,16 @@ __all__ = ["REGISTRY", "BaseEngine", "ProblemSpec", "EngineConfig",
 # migrants safely through either the generic population-replacement policy or
 # an engine-specific repair implementation.
 _INJECTION_ENABLED = {
-    "abco", "acgwo", "afsa", "aoa", "bbo", "ca", "cat_so", "clonalg",
-    "coati_oa", "cockroach_so", "csa", "cuckoo_s", "de", "dfo", "dvba",
-    "eho", "fda", "firefly_a", "fpa", "ga", "gmo", "goa", "gsa", "gwo",
-    "hus", "i_gwo", "jso", "jy", "mbo", "memetic_a", "mfa", "mvo",
-    "pfa", "pcx", "pso", "random_s", "sa", "sine_cosine_a", "sos", "spbo",
-    "ssa", "tlbo", "woa", "alo", "ars", "bat_a", "cem", "da", "hho",
-    "i_woa",
+    "abco", "acgwo", "afsa", "aoa", "aso", "bbo", "bea", "bfo",
+    "ca", "camel", "cat_so", "clonalg", "coati_oa", "cockroach_so", "cro", "csa",
+    "cuckoo_s", "de", "dfo", "dvba", "eho", "es", "fda", "firefly_a",
+    "foa", "fpa", "fss", "fwa", "ga", "gmo", "goa", "gsa",
+    "gso", "gwo", "hba", "hde", "hho", "hsaba", "hus", "i_gwo",
+    "i_woa", "ilshade", "jde", "jso", "jy", "kha", "loa", "mbo",
+    "memetic_a", "mfa", "mke", "mshoa", "mts", "mvo", "nmm", "pbil",
+    "pcx", "pfa", "plba", "pso", "random_s", "sa", "saba", "shade",
+    "sine_cosine_a", "sos", "spbo", "ssa", "tlbo", "woa", "alo", "ars",
+    "bat_a", "cem", "chicken_so", "da",
 }
 for _aid in _INJECTION_ENABLED:
     REGISTRY[_aid].capabilities.supports_candidate_injection = True
@@ -111,6 +162,13 @@ _ALGORITHM_DOIS: dict[str, str] = {
     "cem": "10.1016/S0377-2217(96)00385-2",
     "csa": "10.1016/j.compstruc.2016.03.001",
     "ca": "10.1142/9789814534116",
+    "mshoa": "10.3390/math13091500",
+    "mke": "10.1016/j.knosys.2016.01.009",
+    "loa": "10.1016/j.jcde.2015.06.003",
+    "fwa": "10.1016/j.asoc.2017.10.046",
+    "foa": "10.1016/j.eswa.2014.05.009",
+    "cro": "10.1155/2014/739768",
+    "bfo": "10.1109/MCS.2002.1004010",
     "de": "10.1023/A:1008202821328",
     "dfo": "10.15439/2014F142",
     "da": "10.1007/s00521-015-1920-1",
