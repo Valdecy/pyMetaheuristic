@@ -1,7 +1,7 @@
 """
 pyMetaheuristic src — IO (Save / Load / Checkpoint)
 ====================================================
-Feature 9: Serialise and restore OptimizationResult objects and
+Feature 9: Serialize and restore OptimizationResult objects and
 running engine state for checkpoint-and-resume workflows.
 
 Public API
