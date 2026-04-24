@@ -1,23 +1,32 @@
-from setuptools import setup, find_packages
 from pathlib import Path
 
+from setuptools import find_packages, setup
+
 this_directory = Path(__file__).parent
-long_description = (this_directory / 'README.md').read_text()
+long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
-    name='pyMetaheuristic',
-    version='1.9.5',
-    license='GNU',
-    author='Valdecy Pereira',
-    author_email='valdecy.pereira@gmail.com',
-    url='https://github.com/Valdecy/pyMetaheuristic',
-    packages=find_packages(),
+    name="pymetaheuristic",
+    version="5.5.2",
+    license="GNU",
+    author="Valdecy Pereira",
+    author_email="valdecy.pereira@gmail.com",
+    url="https://github.com/Valdecy/pyMetaheuristic",
+    packages=find_packages(include=["pyMetaheuristic", "pyMetaheuristic.*", "pymetaheuristic", "pymetaheuristic.*"]),
+    python_requires=">=3.9",
     install_requires=[
-        'numpy',
-        'plotly',
-        'scipy'
+        "kaleido",
+        "matplotlib",
+        "numpy",
+        "plotly",
+        "scipy",
+        "tabulate",
     ],
-    description='pyMetaheuristic: A Comprehensive Python Library for Optimization',
+    description="pymetaheuristic: A Python Library for Metaheuristic Optimization and Collaborative Search",
     long_description=long_description,
-    long_description_content_type='text/markdown',
+    long_description_content_type="text/markdown",
+    include_package_data=True,
+    package_data={
+        "pymetaheuristic.src": ["cec2022_input_data/*.txt"],
+    },
 )
