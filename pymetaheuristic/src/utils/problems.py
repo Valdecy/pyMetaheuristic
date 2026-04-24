@@ -227,7 +227,7 @@ def _build_functional_problem(key: str, dimension: int, lower=None, upper=None):
         name=key,
         function=get_test_function(key),
         latex=spec["latex"],
-        metadata={"origin": spec.get("origin"), "source": "NiaPy-derived wrapper"},
+        metadata={"origin": spec.get("origin"), "source": "Derived wrapper"},
     )
 
 
