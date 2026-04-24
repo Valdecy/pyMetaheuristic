@@ -1,12 +1,10 @@
 ############################################################################
-
 # Created by: Prof. Valdecy Pereira, D.Sc.
 # UFF - Universidade Federal Fluminense (Brazil)
 # email:  valdecy.pereira@gmail.com
 # Test Functions
 
 # PEREIRA, V. (2022). GitHub repository: https://github.com/Valdecy/pyMetaheuristic
-
 ############################################################################
 
 # Required Libraries
