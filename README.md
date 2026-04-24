@@ -2,7 +2,7 @@
 
 ## A. **Version Note**
 
-This README targets **pymetaheuristic-v5+**. It can be intalled with:
+This README targets **pymetaheuristic-v5+**. It can be installed with:
 
 ```bash
 pip install pymetaheuristic
@@ -36,7 +36,7 @@ pip install pymetaheuristic==1.9.5
 
 [Back to Summary](#b-summary)
 
-**pymetaheuristic** is a Python optimization library built around metaheuristics, benchmark functions, stepwise execution, telemetry, cooperation, rule-based orchestration, constraint-aware evaluation, composable termination criteria, typed variable spaces, chaotic initialisation, transfer functions, hyperparameter tuning, and benchmark sweeps. The package provides:
+**pymetaheuristic** is a Python optimization library built around metaheuristics, benchmark functions, stepwise execution, telemetry, cooperation, rule-based orchestration, constraint-aware evaluation, composable termination criteria, typed variable spaces, chaotic initialization, transfer functions, hyperparameter tuning, and benchmark sweeps. The package provides:
 
 - a broad collection of metaheuristic algorithms
 - benchmark functions for testing and visualization
@@ -49,13 +49,13 @@ pip install pymetaheuristic==1.9.5
 - automatic per-step diversity and exploration/exploitation tracking in history
 - matplotlib-based diversity, convergence, runtime, and explore/exploit charts, including evaluation-indexed convergence plots
 - typed variable space (`FloatVar`, `IntegerVar`, `CategoricalVar`, `PermutationVar`, `BinaryVar`)
-- ten chaotic maps plus `lhs`, `obl`, and `sobol` population initialisation presets
-- eight transfer functions and `BinaryAdapter` for binary/discrete optimisation
+- ten chaotic maps plus `lhs`, `obl`, and `sobol` population initialization presets
+- eight transfer functions and `BinaryAdapter` for binary/discrete optimization
 - `HyperparameterTuner` for grid/random hyperparameter search
 - `BenchmarkRunner` for multi-algorithm × multi-problem sweeps
 - `save_result`, `load_result`, `save_checkpoint`, `load_checkpoint` for persistence
 - callback system with lifecycle hooks and callback-driven early stopping
-- object-based `Problem` API with parametrised bounds, `latex_code()`, and curated test-problem wrappers
+- object-based `Problem` API with parametrized bounds, `latex_code()`, and curated test-problem wrappers
 - reusable `levy_flight()` utility and human-readable `algorithm.info()` metadata
 
 ---
@@ -78,15 +78,15 @@ pip install pymetaheuristic
 | Core Optimization | `optimize`, `list_algorithms`, `get_algorithm_info`, `create_optimizer` | Single-algorithm optimization, algorithm discovery, and inspection of default parameters |
 | Termination | `Termination`, `EarlyStopping`, callbacks | Composable stopping criteria: max_steps, max_evaluations, max_time, max_early_stop, target_fitness, and callback-driven stops |
 | Constraints and Feasibility | `optimize(..., constraints=..., constraint_handler=...)` | Constrained optimization with inequality/equality constraints, feasibility-aware evaluation |
-| Benchmarks and Plots (Plotly) | `FUNCTIONS`, `get_test_function`, `plot_function`, `plot_convergence`, `compare_convergence`, `plot_benchmark_summary`, `plot_island_dynamics`, `plot_collaboration_network`, `plot_population_snapshot` | Built-in benchmark functions and Plotly-based landscape, convergence, and cooperation visualisations |
+| Benchmarks and Plots (Plotly) | `FUNCTIONS`, `get_test_function`, `plot_function`, `plot_convergence`, `compare_convergence`, `plot_benchmark_summary`, `plot_island_dynamics`, `plot_collaboration_network`, `plot_population_snapshot` | Built-in benchmark functions and Plotly-based landscape, convergence, and cooperation visualizations |
 | History Charts (Matplotlib) | `plot_global_best_chart`, `plot_diversity_chart`, `plot_explore_exploit_chart`, `plot_runtime_chart`, `plot_run_dashboard`, `plot_diversity_comparison` | Per-step diversity, exploration/exploitation, runtime, and convergence charts using matplotlib |
 | Telemetry and Export | `summarize_result`, `export_history_csv`, `export_population_snapshots_json`, `convergence_data` | Experiment summarization, evaluation-indexed convergence extraction, and export of history and snapshots |
 | IO (Persistence) | `save_result`, `load_result`, `save_checkpoint`, `load_checkpoint`, `result_to_json`, `result_from_json` | Save and restore results; checkpoint-and-resume for long runs |
 | Typed Variable Space | `FloatVar`, `IntegerVar`, `BinaryVar`, `CategoricalVar`, `PermutationVar`, `build_problem_spec`, `decode_position`, `encode_position` | Define mixed-type search spaces; automatic encode/decode to/from continuous representation |
-| Problem Objects | `Problem`, `FunctionalProblem`, `SphereProblem`, `RastriginProblem`, `AckleyProblem`, `RosenbrockProblem`, `ZakharovProblem`, `get_test_problem` | N-dimensional object-based problem definitions with parametrised bounds and `latex_code()` |
+| Problem Objects | `Problem`, `FunctionalProblem`, `SphereProblem`, `RastriginProblem`, `AckleyProblem`, `RosenbrockProblem`, `ZakharovProblem`, `get_test_problem` | N-dimensional object-based problem definitions with parametrized bounds and `latex_code()` |
 | Chaotic Maps | `ChaoticMap`, `chaotic_sequence`, `chaotic_population`, `AVAILABLE_CHAOTIC_MAPS` | Ten chaotic maps for diversity-preserving population initialisation and perturbation |
 | Initialisation Presets | `uniform_population`, `lhs_population`, `obl_population`, `sobol_population`, `get_init_function`, `AVAILABLE_INIT_STRATEGIES` | Composable initialisation strategies for any algorithm through `init_function=` or `init_name=` |
-| Transfer Functions | `apply_transfer`, `binarize`, `BinaryAdapter`, `vstf_01`–`vstf_04`, `sstf_01`–`sstf_04`, `AVAILABLE_TRANSFER_FUNCTIONS` | Eight transfer functions mapping continuous positions to binary probabilities for binary optimisation |
+| Transfer Functions | `apply_transfer`, `binarize`, `BinaryAdapter`, `vstf_01`–`vstf_04`, `sstf_01`–`sstf_04`, `AVAILABLE_TRANSFER_FUNCTIONS` | Eight transfer functions mapping continuous positions to binary probabilities for binary optimization |
 | Repair and Random Utilities | `limit`, `limit_inverse`, `wang`, `rand`, `reflect`, `get_repair_function`, `levy_flight` | Named bound-repair policies and a reusable Lévy-flight sampler |
 | Hyperparameter Tuner | `HyperparameterTuner` | Grid or random search over algorithm hyperparameters across multiple trials |
 | Benchmark Runner | `BenchmarkRunner` | Multi-algorithm × multi-problem sweeps with statistical aggregation |
@@ -245,7 +245,7 @@ print(result.metadata["best_violation"])
 print(result.metadata["best_is_feasible"])
 ```
 
-Other contraints examples:
+Other constraints examples:
 
 ```python
 constraint  = [lambda x: x[0] + x[1] - 1.0   # means x0 + x1 <= 1]
@@ -369,7 +369,7 @@ print(len(result.decisions))
 
 [Back to Summary](#b-summary)
 
-**Chaotic maps** are initialisations with deterministic chaotic sequences, which improve early population diversity and help avoid premature convergence. Ten maps are available: `logistic`, `tent`, `bernoulli`, `chebyshev`, `circle`, `cubic`, `icmic`, `piecewise`, `sine`, `gauss`. The default for population initialisation is random. **Transfer functions** map continuous positions to bit-flip probabilities, enabling any continuous metaheuristic to solve binary or boolean problems. Four V-shaped (`v1`–`v4`) and four S-shaped (`s1`–`s4`) functions are available. `BinaryAdapter` wraps any algorithm and applies the transfer function automatically.
+**Chaotic maps** are initializations based on deterministic chaotic sequences that improve early population diversity and help avoid premature convergence. Ten maps are available: `logistic`, `tent`, `bernoulli`, `chebyshev`, `circle`, `cubic`, `icmic`, `piecewise`, `sine`, `gauss`. The default for population initialization is random. **Transfer functions** map continuous positions to bit-flip probabilities, enabling any continuous metaheuristic to solve binary or Boolean problems. Four V-shaped (`v1`–`v4`) and four S-shaped (`s1`–`s4`) functions are available. `BinaryAdapter` wraps any algorithm and automatically applies the transfer function.
 
 * [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1cvrahJ5Bp4E4vU7I-O6Uqru9SK2hxMXX?usp=sharing)
 
@@ -398,7 +398,7 @@ def knapsack(bits):
         return 1000.0 + (total_w - capacity)  
     return -float(total_v)  
 
-# Optimze
+# Optimize
 engine = pymetaheuristic.create_optimizer(
                                           algorithm       = "ga",
                                           target_function = knapsack,
@@ -574,13 +574,25 @@ Default Parameters:
 
 The table below summarizes the optimization engines currently available in the library. The **Algorithm** column reports the conventional algorithm name, **ID** gives the identifier used in the codebase, **Family** provides a coarse methodological grouping, **Population** indicates whether the algorithm maintains an explicit candidate population, **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows, **Restart** shows whether native restart support is declared, **Checkpoint** reports whether the algorithm state can be serialized and restored, **Snapshot Fit** is a practical recommendation for using store_population_snapshots in the current implementation, **Constraint Support** indicates whether constraints are handled natively by the method or through the framework-level penalty/repair machinery. Finally, **Origin** points to the primary reference or original source associated with the algorithm.
 
+---
+
+| Algorithm                                       | ID              | Family       | Population | Candidate Injection | Restart | Checkpoint | Snapshot Fit | Constraint Support | Origin                                                                                                                                 |
+| ----------------------------------------------- | --------------- | ------------ | ---------- | ------------------- | ------- | ---------- | ------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Adaptive Chaotic Grey Wolf Optimizer            | `acgwo`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s42835-023-01621-w)                                                                                    |
+| Adaptive Random Search                          | `ars`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf)                                           |
+
+<details>
+<summary><b>🔍 View complete metaheuristic reference table</b></summary>
+<br/>
+
+
 | Algorithm                                       | ID              | Family       | Population | Candidate Injection | Restart | Checkpoint | Snapshot Fit | Constraint Support | Origin                                                                                                                                 |
 | ----------------------------------------------- | --------------- | ------------ | ---------- | ------------------- | ------- | ---------- | ------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
 | Adaptive Chaotic Grey Wolf Optimizer            | `acgwo`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s42835-023-01621-w)                                                                                    |
 | Adaptive Random Search                          | `ars`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf)                                           |
 | Anarchic Society Optimization                   | `aso`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=Anarchic+Society+Optimization+A+human-inspired+method)                                    |
 | Ant Lion Optimizer                              | `alo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2015.01.010)                                                                              |
-| Arithmetic Optimization Algorithm               | `aoa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cma.2020.113609)                                                                                     |
+| Arithmetic Optimization Algorithm               | `aoa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cma.2020.113609)                                                                                    |
 | Artificial Bee Colony Optimization              | `abco`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://abc.erciyes.edu.tr/pub/tr06_2005.pdf)                                                                                  |
 | Artificial Fish Swarm Algorithm                 | `afsa`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.sysengi.com/EN/10.12011/1000-6788%282002%2911-32)                                                                  |
 | Bacterial Foraging Optimization                 | `bfo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/MCS.2002.1004010)                                                                                      |
@@ -655,7 +667,8 @@ The table below summarizes the optimization engines currently available in the l
 | Teaching Learning Based Optimization            | `tlbo`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cad.2010.12.015)                                                                                     |
 | Whale Optimization Algorithm                    | `woa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2016.01.008)                                                                              |
 
-
+<br/>
+</details>
 
 ---
 ## 4. **Test Functions**
