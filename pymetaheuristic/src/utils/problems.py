@@ -38,8 +38,8 @@ class Problem(ABC):
 
     def __post_init__(self) -> None:
         self.dimension = int(self.dimension)
-        self.lower = full_array(self.lower, self.dimension)
-        self.upper = full_array(self.upper, self.dimension)
+        self.lower     = full_array(self.lower, self.dimension)
+        self.upper     = full_array(self.upper, self.dimension)
 
     def __call__(self, x) -> float:
         values = np.asarray(x, dtype=float).tolist()
