@@ -1,3 +1,8 @@
+
+<p align="center">
+  <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/logo_pmh_.png" alt="Logo" width="300" height="300"/>
+</p>
+
 # pymetaheuristic
 
 ## A. **Version Note**
@@ -582,90 +587,226 @@ The table below summarizes the optimization engines currently available in the l
 | Adaptive Random Search                          | `ars`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf)                                           |
 
 <details>
-<summary><b>🔍 View complete metaheuristic reference table</b></summary>
+<summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
 
 
-| Algorithm                                       | ID              | Family       | Population | Candidate Injection | Restart | Checkpoint | Snapshot Fit | Constraint Support | Origin                                                                                                                                 |
-| ----------------------------------------------- | --------------- | ------------ | ---------- | ------------------- | ------- | ---------- | ------------ | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Adaptive Chaotic Grey Wolf Optimizer            | `acgwo`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s42835-023-01621-w)                                                                                    |
-| Adaptive Random Search                          | `ars`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf)                                           |
-| Anarchic Society Optimization                   | `aso`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=Anarchic+Society+Optimization+A+human-inspired+method)                                    |
-| Ant Lion Optimizer                              | `alo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2015.01.010)                                                                              |
-| Arithmetic Optimization Algorithm               | `aoa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cma.2020.113609)                                                                                    |
-| Artificial Bee Colony Optimization              | `abco`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://abc.erciyes.edu.tr/pub/tr06_2005.pdf)                                                                                  |
-| Artificial Fish Swarm Algorithm                 | `afsa`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.sysengi.com/EN/10.12011/1000-6788%282002%2911-32)                                                                  |
-| Bacterial Foraging Optimization                 | `bfo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/MCS.2002.1004010)                                                                                      |
-| Bat Algorithm                                   | `bat_a`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://arxiv.org/abs/1004.4170)                                                                                               |
-| Bees Algorithm                                  | `bea`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=The+bees+algorithm+a+novel+tool+for+complex+optimisation+problems)                        |
-| Biogeography-Based Optimization                 | `bbo`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/TEVC.2008.919004)                                                                                      |
-| Camel Algorithm                                 | `camel`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.iasj.net/iasj?func=fulltext&aId=118375)                                                                            |
-| Cat Swarm Optimization                          | `cat_so`        | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/978-3-540-36668-3_94)                                                                                  |
-| Chicken Swarm Optimization                      | `chicken_so`    | swarm        | Yes        | No                  | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/978-3-319-11857-4_10)                                                                                  |
-| Clonal Selection Algorithm                      | `clonalg`       | immune       | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.researchgate.net/publication/2917410_Parallelizing_an_Immune-Inspired_Algorithm_for_Efficient_Pattern_Recognition) |
-| Coati Optimization Algorithm                    | `coati_oa`      | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.knosys.2022.110011)                                                                                  |
-| Cockroach Swarm Optimization                    | `cockroach_so`  | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/ICCET.2010.5485993)                                                                                    |
-| Coral Reefs Optimization                        | `cro`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1155/2014/739768)                                                                                           |
-| Cross Entropy Method                            | `cem`           | distribution | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/S0377-2217%2896%2900385-2)                                                                             |
-| Crow Search Algorithm                           | `csa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.compstruc.2016.03.001)                                                                               |
-| Cuckoo Search                                   | `cuckoo_s`      | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://arxiv.org/abs/1003.1594v1)                                                                                             |
-| Cultural Algorithm                              | `ca`            | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1142/9789814534116)                                                                                         |
-| Differential Evolution                          | `de`            | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1023%2FA%3A1008202821328)                                                                                   |
-| Differential Evolution MTS                      | `hde`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://ieeexplore.ieee.org/document/4983179/)                                                                                 |
-| Dispersive Fly Optimization                     | `dfo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](http://dx.doi.org/10.15439/2014F142)                                                                                           |
-| Dragonfly Algorithm                             | `da`            | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s00521-015-1920-1)                                                                                     |
-| Dynamic Virtual Bats Algorithm                  | `dvba`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/INCoS.2014.40)                                                                                         |
-| Elephant Herding Optimization                   | `eho`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/ISCBI.2015.8)                                                                                          |
-| Evolution Strategy (mu + lambda)                | `es`            | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.wiley.com/en-us/Multi+Objective+Optimization+using+Evolutionary+Algorithms-p-9780471873396)                        |
-| Firefly Algorithm                               | `firefly_a`     | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms)                                      |
-| Fireworks Algorithm                             | `fwa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.asoc.2017.10.046)                                                                                    |
-| Fish School Search                              | `fss`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/ICSMC.2008.4811695)                                                                                    |
-| Flow Direction Algorithm                        | `fda`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cie.2021.107224)                                                                                     |
-| Flower Pollination Algorithm                    | `fpa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms)                                      |
-| Forest Optimization Algorithm                   | `foa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.eswa.2014.05.009)                                                                                    |
-| Genetic Algorithm                               | `ga`            | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://ieeexplore.ieee.org/book/6267401)                                                                                      |
-| Geometric Mean Optimizer                        | `gmo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s00500-023-08202-z)                                                                                    |
-| Glowworm Swarm Optimization                     | `gso`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.springer.com/gp/book/9783319515946)                                                                                |
-| Grasshopper Optimization Algorithm              | `goa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2017.01.004)                                                                              |
-| Gravitational Search Algorithm                  | `gsa`           | physics      | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.ins.2009.03.004)                                                                                     |
-| Grey Wolf Optimizer                             | `gwo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2013.12.007)                                                                              |
-| Harmony Search Algorithm                        | `hsa`           | trajectory   | Yes        | No                  | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1177/003754970107600201)                                                                                    |
-| Harris Hawks Optimization                       | `hho`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.future.2019.02.028)                                                                                  |
-| Hill Climb Algorithm                            | `hc`            | trajectory   | No         | No                  | No      | Yes        | No           | Framework          | [Paper](https://en.wikipedia.org/wiki/Hill_climbing)                                                                                   |
-| Hunting Search Algorithm                        | `hus`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/ICSCCW.2009.5379451)                                                                                   |
-| Hybrid Bat Algorithm                            | `hba`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang)                                                       |
-| Hybrid Self-Adaptive Bat Algorithm              | `hsaba`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://www.hindawi.com/journals/tswj/2014/709738/cta/)                                                                        |
-| Improved Grey Wolf Optimizer                    | `i_gwo`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.eswa.2020.113917)                                                                                    |
-| Improved L-SHADE                                | `ilshade`       | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/CEC.2016.7744312)                                                                                      |
-| Improved Whale Optimization Algorithm           | `i_woa`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.jcde.2019.02.002)                                                                                    |
-| Jaya Algorithm                                  | `jy`            | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](http://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf)                                                                    |
-| Jellyfish Search Optimizer                      | `jso`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.amc.2020.125535)                                                                                     |
-| Krill Herd Algorithm                            | `kha`           | swarm        | Yes        | No                  | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.asoc.2016.08.041)                                                                                    |
-| Lion Optimization Algorithm                     | `loa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.jcde.2015.06.003)                                                                                    |
-| Mantis Shrimp Optimization Algorithm            | `mshoa`         | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.3390/math13091500)                                                                                          |
-| Memetic Algorithm                               | `memetic_a`     | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.27.9474&rep=rep1&type=pdf)                                           |
-| Monarch Butterfly Optimization                  | `mbo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s00521-015-1923-y)                                                                                     |
-| Monkey King Evolution V1                        | `mke`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.knosys.2016.01.009)                                                                                  |
-| Moth Flame Algorithm                            | `mfa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.knosys.2015.07.006)                                                                                  |
-| Multi-Verse Optimizer                           | `mvo`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1007/s00521-015-1870-7)                                                                                     |
-| Multiple Trajectory Search                      | `mts`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://ieeexplore.ieee.org/document/4631210/)                                                                                 |
-| Nelder-Mead Method                              | `nmm`           | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method)                                                                      |
-| Parameter-Free Bat Algorithm                    | `plba`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=Towards+the+development+of+a+parameter-free+bat+algorithm)                                |
-| Parent-Centric Crossover (G3-PCX style)         | `pcx`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1162/106365602760972767)                                                                                    |
-| Particle Swarm Optimization                     | `pso`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/ICNN.1995.488968)                                                                                      |
-| Pathfinder Algorithm                            | `pfa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.asoc.2019.03.012)                                                                                    |
-| Population-Based Incremental Learning           | `pbil`          | distribution | No         | No                  | No      | Yes        | No           | Framework          | [Paper](https://apps.dtic.mil/sti/pdfs/ADA282654.pdf)                                                                                  |
-| Random Search                                   | `random_s`      | trajectory   | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1080/01621459.1953.10501200)                                                                                |
-| Salp Swarm Algorithm                            | `ssa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2017.07.002)                                                                              |
-| Self-Adaptive Bat Algorithm                     | `saba`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang)                                                       |
-| Self-Adaptive Differential Evolution            | `jde`           | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/TEVC.2006.872133)                                                                                      |
-| Simulated Annealing                             | `sa`            | trajectory   | No         | Yes                 | Yes     | Yes        | No           | Framework          | [Paper](https://www.jstor.org/stable/1690046)                                                                                          |
-| Sine Cosine Algorithm                           | `sine_cosine_a` | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.knosys.2015.12.022)                                                                                  |
-| Student Psychology Based Optimization           | `spbo`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2020.102804)                                                                              |
-| Success-History Adaptive Differential Evolution | `shade`         | evolutionary | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1109/CEC.2014.6900380)                                                                                      |
-| Symbiotic Organisms Search                      | `sos`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.compstruc.2014.03.007)                                                                               |
-| Teaching Learning Based Optimization            | `tlbo`          | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.cad.2010.12.015)                                                                                     |
-| Whale Optimization Algorithm                    | `woa`           | swarm        | Yes        | Yes                 | No      | Yes        | Yes          | Framework          | [Paper](https://doi.org/10.1016/j.advengsoft.2016.01.008)                                                                              |
+| Algorithm | ID | Family | Population | Candidate Injection | Restart | Checkpoint | Snapshot Fit | Constraint Support | Origin |
+|---|---|---|---|---|---|---|---|---|---|
+| Adaptive Chaotic Grey Wolf Optimizer | `acgwo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s42835-023-01621-w) |
+| Adaptive Exploration State-Space Particle Swarm Optimization | `aesspso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.swevo.2025.101868) |
+| Adaptive Random Search | `ars` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.87.1623&rep=rep1&type=pdf) |
+| Affix Optimization | `aft` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-021-06392-x) |
+| African Vultures Optimization Algorithm | `avoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S0360835221005507) |
+| Anarchic Society Optimization | `aso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Anarchic+Society+Optimization+A+human-inspired+method) |
+| Ant Colony Optimization | `aco` | swarm | Yes | No | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Ant+colony+optimization+a+new+meta-heuristic+Dorigo+1999) |
+| Ant Colony Optimization (Continuous) | `acor` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10732-008-9062-4) |
+| Ant Lion Optimizer | `alo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2015.01.010) |
+| Aquila Optimizer | `ao` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cie.2021.107250) |
+| Archimedes Optimization Algorithm | `arch_oa` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10489-020-01893-z) |
+| Arithmetic Optimization Algorithm | `aoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cma.2020.113609) |
+| Artificial Bee Colony Optimization | `abco` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://abc.erciyes.edu.tr/pub/tr06_2005.pdf) |
+| Artificial Ecosystem Optimization | `aeo` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0950705119302953) |
+| Artificial Fish Swarm Algorithm | `afsa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sysengi.com/EN/10.12011/1000-6788(2002)11-32) |
+| Artificial Gorilla Troops Optimizer | `agto` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1002/int.22535) |
+| Artificial Rabbits Optimization | `aro` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.engappai.2022.105082) |
+| Automated Design of Variation Operators | `autov` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.23919/CJE.2022.00.038) |
+| Bacterial Chemotaxis Optimizer | `bco` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/MCS.2002.1004010) |
+| Bacterial Foraging Optimization | `bfo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/MCS.2002.1004010) |
+| Bald Eagle Search | `bes` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10462-019-09732-5) |
+| Barnacles Mating Optimizer | `bmo` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICOICA.2019.8895393) |
+| Bat Algorithm | `bat_a` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://arxiv.org/abs/1004.4170) |
+| Battle Royale Optimization | `bro` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-020-05004-4) |
+| Bees Algorithm | `bea` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=The+bees+algorithm+a+novel+tool+for+complex+optimisation+problems) |
+| BFGS Quasi-Newton Method | `bfgs` | math | No | No | No | Yes | No | Framework | [Paper](https://scholar.google.com/scholar?q=Conditioning+of+quasi-Newton+methods+Shanno+1970) |
+| Binary Space Partition Tree Genetic Algorithm | `bspga` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.ins.2019.11.055) |
+| Biogeography-Based Optimization | `bbo` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2008.919004) |
+| Bird Swarm Algorithm | `bsa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1080/0952813X.2015.1042530) |
+| Black Widow Optimization | `bwo` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.engappai.2019.103249) |
+| Brain Storm Optimization | `bso` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/978-3-642-21515-5_36) |
+| Brown-Bear Optimization Algorithm | `bboa` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S0957417423005353) |
+| Camel Algorithm | `camel` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.iasj.net/iasj?func=fulltext&aId=118375) |
+| Cat Swarm Optimization | `cat_so` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/978-3-540-36668-3_94) |
+| Chaos Game Optimization | `cgo` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10462-020-09867-w) |
+| Cheetah Based Optimization | `cddo` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s13369-021-05928-6) |
+| Cheetah Optimizer | `cdo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S2667305322000448) |
+| Chicken Swarm Optimization | `chicken_so` | swarm | Yes | No | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/978-3-319-11857-4_10) |
+| Circle-Based Search Algorithm | `circle_sa` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417421009994) |
+| Clonal Selection Algorithm | `clonalg` | immune | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.researchgate.net/publication/2917410_Parallelizing_an_Immune-Inspired_Algorithm_for_Efficient_Pattern_Recognition) |
+| Coati Optimization Algorithm | `coati_oa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2022.110011) |
+| Cockroach Swarm Optimization | `cockroach_so` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICCET.2010.5485993) |
+| Competitive Swarm Optimizer | `cso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TCYB.2014.2314537) |
+| Coral Reefs Optimization | `cro` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1155/2014/739768) |
+| Coronavirus Herd Immunity Optimization | `chio` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-020-05296-6) |
+| Covariance Matrix Adaptation Evolution Strategy | `cmaes` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1162/106365602760972767) |
+| Coyote Optimization Algorithm | `coa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/7981604) |
+| Cross Entropy Method | `cem` | distribution | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/S0377-2217(96)00385-2) |
+| Crow Search Algorithm | `csa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.compstruc.2016.03.001) |
+| Cuckoo Search | `cuckoo_s` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://arxiv.org/abs/1003.1594v1) |
+| Cultural Algorithm | `ca` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1142/9789814534116) |
+| Deer Hunting Optimization Algorithm | `doa` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.hindawi.com/journals/cin/2021/8824610/) |
+| Differential Evolution | `de` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1023%2FA%3A1008202821328) |
+| Differential Evolution MTS | `hde` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/4983179/) |
+| Dispersive Fly Optimization | `dfo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](http://dx.doi.org/10.15439/2014F142) |
+| Dragonfly Algorithm | `da` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-015-1920-1) |
+| Dwarf Mongoose Optimization Algorithm | `dmoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cma.2022.114570) |
+| Dynamic Virtual Bats Algorithm | `dvba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/INCoS.2014.40) |
+| Earthworm Optimization Algorithm | `eoa` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1504/IJBIC.2015.10004283) |
+| Efficient Global Optimization | `ego` | distribution | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1023/A:1008306431147) |
+| Egret Swarm Optimization Algorithm | `esoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.hindawi.com/journals/cin/2022/6319430/) |
+| Electric Charged Particles Optimization | `ecpo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10462-020-09920-8) |
+| Electric Squirrel Optimizer | `eso` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.3390/make7010024) |
+| Electromagnetic Field Optimization | `efo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2015.10.048) |
+| Elephant Herding Optimization | `eho` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ISCBI.2015.8) |
+| Emperor Penguin Colony | `epc` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2018.06.001) |
+| Energy Valley Optimizer | `evo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.nature.com/articles/s41598-022-27818-9) |
+| Enzyme Activity Optimizer | `eao` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/2227-7390/12/21/3326) |
+| Equilibrium Optimizer | `eo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2019.105190) |
+| Evolution Strategy (mu + lambda) | `es` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.wiley.com/en-us/Multi+Objective+Optimization+using+Evolutionary+Algorithms-p-9780471873396) |
+| Evolutionary Programming | `ep` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/book/5263042) |
+| Fast Evolutionary Programming | `fep` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/4235.771163) |
+| Feasibility Rule with Objective Function Information | `frofi` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TCYB.2015.2493239) |
+| Fennec Fox Optimizer | `ffo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/2227-7390/11/4/1016) |
+| Fick's Law Algorithm | `fla` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s11831-022-09849-3) |
+| Firefly Algorithm | `firefly_a` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms) |
+| Fireworks Algorithm | `fwa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2017.10.046) |
+| Fish School Search | `fss` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICSMC.2008.4811695) |
+| Fletcher-Reeves Conjugate Gradient | `frcg` | math | No | No | No | Yes | No | Framework | [Paper](https://doi.org/10.1093/comjnl/7.2.149) |
+| Flow Direction Algorithm | `fda` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cie.2021.107224) |
+| Flower Pollination Algorithm | `fpa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/book/9780124167438/nature-inspired-optimization-algorithms) |
+| Flying Dobsonflies Optimizer | `fdo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s11831-022-09849-3) |
+| Forensic-Based Investigation Optimization | `fbio` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2020.106339) |
+| Forest Optimization Algorithm | `foa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.eswa.2014.05.009) |
+| Fox Optimizer | `fox` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10489-022-03533-0) |
+| Fruit-Fly Algorithm | `ffa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S0950705114002366) |
+| Gaining-Sharing Knowledge Algorithm | `gska` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s13042-019-01053-x) |
+| Genetic Algorithm | `ga` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/book/6267401) |
+| Geometric Mean Optimizer | `gmo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00500-023-08202-z) |
+| Germinal Center Optimization | `gco` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1002/int.21892) |
+| Giant Trevally Optimizer | `gto` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/9982508) |
+| Glowworm Swarm Optimization | `gso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.springer.com/gp/book/9783319515946) |
+| Golden Jackal Optimizer | `gjo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S095741742200358X) |
+| Gradient-Based Optimizer | `gbo` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s00500-020-05180-6) |
+| Gradient-Based Particle Swarm Optimization | `gpso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2011.10.007) |
+| Grasshopper Optimization Algorithm | `goa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2017.01.004) |
+| Gravitational Search Algorithm | `gsa` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.ins.2009.03.004) |
+| Grey Wolf Optimizer | `gwo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2013.12.007) |
+| Harmony Search Algorithm | `hsa` | trajectory | Yes | No | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1177/003754970107600201) |
+| Harris Hawks Optimization | `hho` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.future.2019.02.028) |
+| Heap-Based Optimizer | `hbo` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s11831-020-09444-y) |
+| Henry Gas Solubility Optimization | `hgso` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0167739X19306557) |
+| Hill Climb Algorithm | `hc` | trajectory | No | No | No | Yes | No | Framework | [Paper](https://en.wikipedia.org/wiki/Hill_climbing) |
+| Human Conception Optimizer | `hco` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417420305017) |
+| Hunger Games Search | `hgs` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s11831-021-09537-0) |
+| Hunting Search Algorithm | `hus` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICSCCW.2009.5379451) |
+| Hybrid Bat Algorithm | `hba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang) |
+| Hybrid Self-Adaptive Bat Algorithm | `hsaba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.hindawi.com/journals/tswj/2014/709738/cta/) |
+| Imperialist Competitive Algorithm | `ica` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/4425083) |
+| Improved Grey Wolf Optimizer | `i_gwo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.eswa.2020.113917) |
+| Improved L-SHADE | `ilshade` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/CEC.2016.7744312) |
+| Improved Multi-Operator Differential Evolution | `imode` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Improved+multi-operator+differential+evolution+Sallam+2020) |
+| Improved Whale Optimization Algorithm | `i_woa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.jcde.2019.02.002) |
+| Invasive Weed Optimization | `iwo` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S0925231206002366) |
+| Jaya Algorithm | `jy` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](http://www.growingscience.com/ijiec/Vol7/IJIEC_2015_32.pdf) |
+| Jellyfish Search Optimizer | `jso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.amc.2020.125535) |
+| Komodo Mlipir Algorithm | `kma` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2022.108043) |
+| Krill Herd Algorithm | `kha` | swarm | Yes | No | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2016.08.041) |
+| Life Choice-Based Optimizer | `lco` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00500-019-04443-z) |
+| Linear Subspace Surrogate Modeling Evolutionary Algorithm | `l2smea` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2024.3354543) |
+| Lion Optimization Algorithm | `loa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.jcde.2015.06.003) |
+| Manta Ray Foraging Optimization | `mrfo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.engappai.2019.103300) |
+| Mantis Shrimp Optimization Algorithm | `mshoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.3390/math13091500) |
+| Marine Predators Algorithm | `mpa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417420302025) |
+| Memetic Algorithm | `memetic_a` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.27.9474&rep=rep1&type=pdf) |
+| Mirage-Search Optimizer | `mso` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417422021510) |
+| Monarch Butterfly Optimization | `mbo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-015-1923-y) |
+| Monkey King Evolution V1 | `mke` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2016.01.009) |
+| Most Valuable Player Algorithm | `mvpa` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s12351-017-0307-5) |
+| Moth Flame Algorithm | `mfa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2015.07.006) |
+| Moth Search Algorithm | `msa_e` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s12293-016-0212-3) |
+| Mountain Gazelle Optimizer | `mgo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2022.103282) |
+| Multi-Surrogate-Assisted Ant Colony Optimization | `misaco` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TCYB.2020.3035521) |
+| Multi-Verse Optimizer | `mvo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-015-1870-7) |
+| Multifactorial Evolutionary Algorithm | `mfea` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2015.2458037) |
+| Multifactorial Evolutionary Algorithm II | `mfea2` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2019.2904771) |
+| Multiple Trajectory Search | `mts` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/4631210/) |
+| Multiswarm-Assisted Expensive Optimization | `samso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TCYB.2019.2950169) |
+| Naked Mole-Rat Algorithm | `nmra` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s00521-017-3287-8) |
+| Nelder-Mead Method | `nmm` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://en.wikipedia.org/wiki/Nelder%E2%80%93Mead_method) |
+| Neural Network-Based Dimensionality Reduction Evolutionary Algorithm (SO) | `nndrea_so` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2024.3378530) |
+| Northern Goshawk Optimization | `ngo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/9638548) |
+| Nuclear Reaction Optimization | `nro` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/8612324) |
+| Optimal Foraging Algorithm | `ofa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2017.01.006) |
+| Osprey Optimization Algorithm | `ooa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.frontiersin.org/articles/10.3389/fmech.2022.1126450/full) |
+| Parameter-Free Bat Algorithm | `plba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Towards+the+development+of+a+parameter-free+bat+algorithm) |
+| Parent-Centric Crossover (G3-PCX style) | `pcx` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1162/106365602760972767) |
+| Particle Swarm Optimization | `pso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/ICNN.1995.488968) |
+| Pathfinder Algorithm | `pfa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2019.03.012) |
+| Pelican Optimization Algorithm | `poa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/1424-8220/22/3/855) |
+| Population-Based Incremental Learning | `pbil` | distribution | No | No | No | Yes | No | Framework | [Paper](https://apps.dtic.mil/sti/pdfs/ADA282654.pdf) |
+| Prominent Space Search | `pss` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s00500-020-05274-3) |
+| Queuing Search Algorithm | `qsa` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s12652-020-02849-4) |
+| Random Search | `random_s` | trajectory | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1080/01621459.1953.10501200) |
+| RIME-ice Algorithm | `rime` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.neucom.2023.02.010) |
+| RMSProp | `rmsprop` | math | No | No | No | Yes | No | Framework | [Paper](https://scholar.google.com/scholar?q=Divide+the+gradient+by+a+running+average+Tieleman+Hinton+2012) |
+| RUNge Kutta Optimizer | `run` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.eswa.2021.115079) |
+| Sailfish Optimizer | `sfo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.engappai.2019.01.001) |
+| Salp Swarm Algorithm | `ssa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2017.07.002) |
+| Sammon Mapping Assisted Differential Evolution | `sade_sammon` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Surrogate-assisted+evolutionary+algorithm+dimensionality+reduction+Sammon+Chen+2020) |
+| Sand Cat Swarm Optimization | `scso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00366-022-01604-x) |
+| Satin Bowerbird Optimizer | `sbo` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.engappai.2017.01.006) |
+| Sea Lion Optimization | `slo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.14569/IJACSA.2019.0100548) |
+| Seagull Optimization Algorithm | `soa` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2018.11.024) |
+| Seahorse Optimizer | `seaho` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s10489-022-03994-3) |
+| Search And Rescue Optimization | `saro` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1155/2019/2482543) |
+| Search Space Independent Operator Based Deep Reinforcement Learning | `ssio_rl` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/JAS.2025.125018) |
+| Self-Adaptive Bat Algorithm | `saba` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=A+Hybrid+Bat+Algorithm+Fister+Yang) |
+| Self-Adaptive Differential Evolution | `jde` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2006.872133) |
+| Sequential Quadratic Programming | `sqp` | math | No | No | No | Yes | No | Framework | [Paper](https://scholar.google.com/scholar?q=Sequential+quadratic+programming+Boggs+Tolle+1995) |
+| Serval Optimization Algorithm | `serval_oa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/2227-7390/10/3/339) |
+| Shuffle-based Runner-Root Algorithm | `srsr` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2017.02.028) |
+| Siberian Tiger Optimization | `sto` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/9989374) |
+| Simulated Annealing | `sa` | trajectory | No | Yes | Yes | Yes | No | Framework | [Paper](https://www.jstor.org/stable/1690046) |
+| Sine Cosine Algorithm | `sine_cosine_a` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.knosys.2015.12.022) |
+| Slime Mould Algorithm | `sma` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.future.2020.03.055) |
+| Social Ski-Driver Optimization | `ssdo` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s00521-019-04159-z) |
+| Social Spider Algorithm | `sspider_a` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.asoc.2015.02.014) |
+| Social Spider Swarm Optimizer | `sso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/pii/S2210650215000632) |
+| Spider Monkey Optimization | `smo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/s12293-013-0128-0) |
+| Spotted Hyena Inspired Optimizer | `shio` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0957417421006461) |
+| Spotted Hyena Optimizer | `sho` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
+| Squirrel Search Algorithm | `squirrel_sa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.swevo.2018.02.013) |
+| Star Oscillator Optimization | `soo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/2227-7390/11/11/2536) |
+| Starfish Optimization Algorithm | `sfoa` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.swevo.2023.101262) |
+| Steepest Descent | `sd` | math | No | No | No | Yes | No | Framework | [Paper](https://scholar.google.com/scholar?q=The+origin+of+the+method+of+steepest+descent+Petrova+1997) |
+| Student Psychology Based Optimization | `spbo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2020.102804) |
+| Success-History Adaptive Differential Evolution | `shade` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/CEC.2014.6900380) |
+| Surrogate-Assisted Cooperative Co-Evolutionary Algorithm of Minamo II | `sacc_eam2` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/CEC.2019.8790061) |
+| Surrogate-Assisted Cooperative Swarm Optimization | `sacoso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2017.2674885) |
+| Surrogate-Assisted DE with Adaptive Multi-Subspace Search | `sade_amss` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1109/TEVC.2022.3168745) |
+| Surrogate-Assisted DE with Adaptive Training Data Selection Criterion | `sade_atdsc` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://scholar.google.com/scholar?q=Surrogate-assisted+differential+evolution+adaptation+training+data+Nishihara+2022) |
+| Surrogate-Assisted Partial Optimization | `sapo` | evolutionary | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1007/978-3-031-70085-9_22) |
+| Symbiotic Organisms Search | `sos` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.compstruc.2014.03.007) |
+| Tabu Search | `ts` | trajectory | No | No | No | Yes | No | Framework | [Paper](https://en.wikipedia.org/wiki/Tabu_search) |
+| Tasmanian Devil Optimization | `tdo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/9761116) |
+| Teaching Learning Based Optimization | `tlbo` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.cad.2010.12.015) |
+| Teamwork Optimization Algorithm | `toa` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s13042-021-01432-3) |
+| Tianji Horse Racing Optimizer | `thro` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0020025522014955) |
+| Tree Physiology Optimization | `tpo` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.tandfonline.com/doi/abs/10.1080/0305215X.2017.1305421) |
+| Tug of War Optimization | `two` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.procs.2020.03.063) |
+| Tuna Swarm Optimization | `tso` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.hindawi.com/journals/cin/2021/9210050/) |
+| Tunicate Swarm Algorithm | `tsa` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.sciencedirect.com/science/article/abs/pii/S0952197620301573) |
+| Virus Colony Search | `vcs` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2015.11.004) |
+| Walrus Optimization Algorithm | `waoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://www.mdpi.com/2227-7390/11/12/2807) |
+| War Strategy Optimization | `warso` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://link.springer.com/article/10.1007/s11831-022-09822-0) |
+| Water Cycle Algorithm | `wca` | human | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.compstruc.2012.07.010) |
+| Weighting and Inertia Random Walk Optimizer | `info` | math | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.eswa.2022.116516) |
+| Whale Optimization Algorithm | `woa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.1016/j.advengsoft.2016.01.008) |
+| Wildebeest Herd Optimization | `who` | bio | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://doi.org/10.3233/JIFS-190495) |
+| Wind Driven Optimization | `wdo` | physics | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/6316175) |
+| Zebra Optimization Algorithm | `zoa` | swarm | Yes | Yes | No | Yes | Yes | Framework | [Paper](https://ieeexplore.ieee.org/document/9768862) || Adam (Adaptive Moment Estimation) | `adam` | math | No | No | No | Yes | No | Framework | [Paper](https://arxiv.org/abs/1412.6980) |
+
+
 
 <br/>
 </details>
@@ -707,95 +848,108 @@ The table below summarizes the benchmark functions currently available in the li
 
 | Test Function | ID | Optimal Solution | Origin |
 |---|---|---|---|
-| Ackley | `ackley` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Alpine 1 | `alpine_1` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Alpine 2 | `alpine_2` | $f(x_i) = (2.808)^n$; $x_i ≈ 7.917$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Axis Parallel Hyper-Ellipsoid | `axis_parallel_hyper_ellipsoid` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Beale | `beale` | $f(x_1,x_2) = 0$; $(3,0.5)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bent Cigar | `bent_cigar` | $f(x_i) = 0$; $x_i = 0$  | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Bohachevsky F1 | `bohachevsky_1` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bohachevsky F2 | `bohachevsky_2` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bohachevsky F3 | `bohachevsky_3` | $f(x_1,x_2) = 0$; $(0,0)$  | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Booth | `booth` | $f(x_1,x_2) = 0$; $(1,3)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Branin RCOS | `branin_rcos` | $f(x_i) ≈ 0.397887$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bukin F6 | `bukin_6` | $f(x_1,x_2) = 0$; $(-10,1)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Chung-Reynolds | `chung_reynolds` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Cosine Mixture | `cosine_mixture` | $Note^1$ | [Paper](http://infinity77.net/global_optimization/test_functions_nd_C.html#go_benchmark.CosineMixture) |
-| Cross in Tray | `cross_in_tray` | $f(x_i) = -2.06261$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Csendes | `csendes` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| De Jong F1 | `de_jong_1` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Discus | `discus` | $f(x_i) = 0$; $x_i = 0$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Dixon-Price | `dixon_price` | $Note^2$ | [Paper](https://www.sfu.ca/~ssurjano/dixonpr.html) |
-| Drop Wave | `drop_wave` | $f(x_i) = -1$; $x_i = 0$ | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Easom | `easom` | $f(x_i) = -1$; $(π,π)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Eggholder | `eggholder` | $f(x_i) = -959.64$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Elliptic | `elliptic` | $f(x_i) = 0$; $x_i = 0$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Expanded Griewank plus Rosenbrock | `expanded_griewank_plus_rosenbrock` | $f(x_i) = 0$; $x_i = 1$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Goldstein-Price | `goldstein_price` | $f(x_1,x_2) = 3$; $(0,-1)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Griewangk F8 | `griewangk_8` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Happy Cat | `happy_cat` | $f(x_i) = 0$; $x_i = -1$ | [Paper](http://bee22.com/manual/tf_images/Liang%20CEC2014.pdf) |
-| HGBat | `hgbat` | $f(x_i) = 0$; $x_i = -1$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Himmelblau | `himmelblau` | $f(x_1,x_2) = 0$; $(3,2)$  | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Holder Table | `holder_table` | $f(x_i) ≈ -19.2085$ | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
-| Katsuura | `katsuura` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://www.geocities.ws/eadorio/mvf.pdf) |
-| Levi | `levy` | $f(x_i) = 0$; $x_i = 1$ | [Paper](https://www.sfu.ca/~ssurjano/levy.html) |
-| Levi F13 | `levi_13` | $f(x_1,x_2) = 0$; $(1,1)$ | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
-| Matyas | `matyas` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| McCormick | `mccormick` |$f(x_i) ≈ -1.9133$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Michalewicz | `michalewicz` | $Note^3$ | [Paper](https://www.sfu.ca/~ssurjano/michal.html) |
-| Modified Schwefel | `modified_schwefel` | $Note^4$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Perm | `perm` | $f(x_i) = 0$; $x_i = 1/i$ | [Paper](https://www.sfu.ca/~ssurjano/perm0db.html) |
-| Pinter | `pinter` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Powell | `powell` | $Note^5$ | [Paper](https://www.sfu.ca/~ssurjano/powell.html) |
-| Qing | `qing` | $f(x_i) = 0$; $x_i = ±√i$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Quintic | `quintic` | $Note^6$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Rastrigin | `rastrigin` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://doi.org/10.1007/978-3-031-14721-0_35) |
-| Ridge | `ridge` | $f(x_i) = 0$; $x_i = 0$ | [Paper](http://www.cs.unm.edu/~neal.holts/dga/benchmarkFunction/ridge.html) |
-| Rosenbrocks Valley | `rosenbrocks_valley` | $f(x_i) = 0$; $x_i = 1$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Salomon | `salomon` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schaffer F2 | `schaffer_2` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schaffer F4 | `schaffer_4` | $f(x_i) = 0.292579$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schaffer F6 | `schaffer_6` | $f(x_1,x_2) = 0$; $(0,0)$ | [Paper](http://dx.doi.org/10.1016/j.cam.2017.04.047) |
-| Schumer-Steiglitz | `schumer_steiglitz` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schwefel | `schwefel` | $f(x_i) = 0$; $x_i ≈ 420.97$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schwefel 2.21 | `schwefel_221` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schwefel 2.22 | `schwefel_222` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Six Hump Camel Back | `six_hump_camel_back` | $f(x_i) ≈ -1.0316$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Sphere 2 (Sum of Different Powers) | `sphere_2` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://www.sfu.ca/~ssurjano/sumpow.html) |
-| Sphere 3 (Rotated Hyper-Ellipsoid) | `sphere_3` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://www.sfu.ca/~ssurjano/rothyp.html) |
-| Step | `step` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Step 2 | `step_2` | $f(x_i) = 0$; $x_i = -0.5$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Step 3 | `step_3` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Stepint | `stepint` | $Note^7$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Styblinski-Tang | `styblinski_tang` |$f(x_i) ≈ -39.166n$; $x_i ≈ -2.904$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Three Hump Camel Back | `three_hump_camel_back` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Trid | `trid` | $Note^8$ | [Paper](https://www.sfu.ca/~ssurjano/trid.html) |
-| Weierstrass | `weierstrass` | $f(x_i) = 0$; $x_i = 0$ | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Whitley | `whitley` | $f(x_i) = 0$; $x_i = 1$ | [Paper](https://arxiv.org/abs/1308.4008) |
-| Zakharov | `zakharov` | $f(x_i) = 0$; $x_i = 0$ | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| CEC 2022 F1 | `cec_2022_f01` | $f(x_i) = 300$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F2 | `cec_2022_f02` | $f(x_i) = 400$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F3 | `cec_2022_f03` | $f(x_i) = 600$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F4 | `cec_2022_f04` | $f(x_i) = 800$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F5 | `cec_2022_f05` | $f(x_i) = 900$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F6 | `cec_2022_f06` | $f(x_i) = 1800$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F7 | `cec_2022_f07` | $f(x_i) = 2000$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F8 | `cec_2022_f08` | $f(x_i) = 2200$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F9 | `cec_2022_f09` | $f(x_i) = 2300$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F10| `cec_2022_f10` | $f(x_i) = 2400$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F11| `cec_2022_f11` | $f(x_i) = 2500$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F12| `cec_2022_f12` | $f(x_i) = 2700$; $Note^9$ | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| Ackley | `ackley` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Alpine 1 | `alpine_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+
+<details>
+<summary><b>🔍 View complete Test Functions reference table</b></summary>
+<br/>
+
+
+| Test Function | ID | Optimal Solution | Origin |
+|---|---|---|---|
+| Ackley | `ackley` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Alpine 1 | `alpine_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Alpine 2 | `alpine_2` | *f(x<sub>i</sub>)* = (2.808)<sup>n</sup>; *x<sub>i</sub>* ≈ 7.917 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Axis Parallel Hyper-Ellipsoid | `axis_parallel_hyper_ellipsoid` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
+| Beale | `beale` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (3,0.5) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Bent Cigar | `bent_cigar` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Bohachevsky F1 | `bohachevsky_1` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Bohachevsky F2 | `bohachevsky_2` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Bohachevsky F3 | `bohachevsky_3` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Booth | `booth` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (1,3) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Branin RCOS | `branin_rcos` | *f(x<sub>i</sub>)* ≈ 0.397887 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Bukin F6 | `bukin_6` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (-10,1) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Chung-Reynolds | `chung_reynolds` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Cosine Mixture | `cosine_mixture` | **Note<sup>1</sup>** | [Paper](http://infinity77.net/global_optimization/test_functions_nd_C.html#go_benchmark.CosineMixture) |
+| Cross in Tray | `cross_in_tray` | *f(x<sub>i</sub>)* = -2.06261 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Csendes | `csendes` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| De Jong F1 | `de_jong_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
+| Discus | `discus` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Dixon-Price | `dixon_price` | **Note<sup>2</sup>** | [Paper](https://www.sfu.ca/~ssurjano/dixonpr.html) |
+| Drop Wave | `drop_wave` | *f(x<sub>i</sub>)* = -1; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
+| Easom | `easom` | *f(x<sub>i</sub>)* = -1; (π,π) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Eggholder | `eggholder` | *f(x<sub>i</sub>)* = -959.64 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Elliptic | `elliptic` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Expanded Griewank plus Rosenbrock | `expanded_griewank_plus_rosenbrock` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Goldstein-Price | `goldstein_price` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 3; (0,-1) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Griewangk F8 | `griewangk_8` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Happy Cat | `happy_cat` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -1 | [Paper](http://bee22.com/manual/tf_images/Liang%20CEC2014.pdf) |
+| HGBat | `hgbat` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -1 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Himmelblau | `himmelblau` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (3,2) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Holder Table | `holder_table` | *f(x<sub>i</sub>)* ≈ -19.2085 | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
+| Katsuura | `katsuura` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.geocities.ws/eadorio/mvf.pdf) |
+| Levi | `levy` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://www.sfu.ca/~ssurjano/levy.html) |
+| Levi F13 | `levi_13` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (1,1) | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
+| Matyas | `matyas` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| McCormick | `mccormick` | *f(x<sub>i</sub>)* ≈ -1.9133 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Michalewicz | `michalewicz` | **Note<sup>3</sup>** | [Paper](https://www.sfu.ca/~ssurjano/michal.html) |
+| Modified Schwefel | `modified_schwefel` | **Note<sup>4</sup>** | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Perm | `perm` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1/*i* | [Paper](https://www.sfu.ca/~ssurjano/perm0db.html) |
+| Pinter | `pinter` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Powell | `powell` | **Note<sup>5</sup>** | [Paper](https://www.sfu.ca/~ssurjano/powell.html) |
+| Qing | `qing` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = ±√*i* | [Paper](https://arxiv.org/abs/1308.4008) |
+| Quintic | `quintic` | **Note<sup>6</sup>** | [Paper](https://arxiv.org/abs/1308.4008) |
+| Rastrigin | `rastrigin` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://doi.org/10.1007/978-3-031-14721-0_35) |
+| Ridge | `ridge` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www.cs.unm.edu/~neal.holts/dga/benchmarkFunction/ridge.html) |
+| Rosenbrocks Valley | `rosenbrocks_valley` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Salomon | `salomon` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Schaffer F2 | `schaffer_2` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Schaffer F4 | `schaffer_4` | *f(x<sub>i</sub>)* = 0.292579 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Schaffer F6 | `schaffer_6` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](http://dx.doi.org/10.1016/j.cam.2017.04.047) |
+| Schumer-Steiglitz | `schumer_steiglitz` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Schwefel | `schwefel` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* ≈ 420.97 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Schwefel 2.21 | `schwefel_221` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Schwefel 2.22 | `schwefel_222` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Six Hump Camel Back | `six_hump_camel_back` | *f(x<sub>i</sub>)* ≈ -1.0316 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Sphere 2 (Sum of Different Powers) | `sphere_2` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.sfu.ca/~ssurjano/sumpow.html) |
+| Sphere 3 (Rotated Hyper-Ellipsoid) | `sphere_3` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.sfu.ca/~ssurjano/rothyp.html) |
+| Step | `step` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Step 2 | `step_2` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -0.5 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Step 3 | `step_3` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Stepint | `stepint` | **Note<sup>7</sup>** | [Paper](https://arxiv.org/abs/1308.4008) |
+| Styblinski-Tang | `styblinski_tang` | *f(x<sub>i</sub>)* ≈ -39.166*n*; *x<sub>i</sub>* ≈ -2.904 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Three Hump Camel Back | `three_hump_camel_back` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| Trid | `trid` | **Note<sup>8</sup>** | [Paper](https://www.sfu.ca/~ssurjano/trid.html) |
+| Weierstrass | `weierstrass` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
+| Whitley | `whitley` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Zakharov | `zakharov` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
+| CEC 2022 F1 | `cec_2022_f01` | *f(x<sub>i</sub>)* = 300; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F2 | `cec_2022_f02` | *f(x<sub>i</sub>)* = 400; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F3 | `cec_2022_f03` | *f(x<sub>i</sub>)* = 600; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F4 | `cec_2022_f04` | *f(x<sub>i</sub>)* = 800; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F5 | `cec_2022_f05` | *f(x<sub>i</sub>)* = 900; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F6 | `cec_2022_f06` | *f(x<sub>i</sub>)* = 1800; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F7 | `cec_2022_f07` | *f(x<sub>i</sub>)* = 2000; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F8 | `cec_2022_f08` | *f(x<sub>i</sub>)* = 2200; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F9 | `cec_2022_f09` | *f(x<sub>i</sub>)* = 2300; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F10| `cec_2022_f10` | *f(x<sub>i</sub>)* = 2400; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F11| `cec_2022_f11` | *f(x<sub>i</sub>)* = 2500; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| CEC 2022 F12| `cec_2022_f12` | *f(x<sub>i</sub>)* = 2700; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
 
 #### Notes:
-* $Note^1$: $f(x_i) =$ multimodal; $x_i =$ peak-seeking style test
-* $Note^2$: $f(x_i) = 0$; $x_i =$ follows recursive optimum
-* $Note^3$: $f(x_i) < 0$; $x_i =$ known minima depend on $n$ and $m$
-* $Note^4$: $f(x_i) = 0$; $x_i =$ shifted Schwefel optimum
-* $Note^5$: $f(x_i) = 0$; $x_i =$ blockwise optimum at zero
-* $Note^6$: $f(x_i) = 0$; $x_i =$ multiple roots
-* $Note^7$: $f(x_i) = 0$; $x_i =$ piecewise integer floor optimum
-* $Note^8$: $f(x_i) =$ depends on dimension
-* $Note^9$: CEC 2022 functions are shifted and biased benchmark instances. The optimum point $x_i$ is defined by the official benchmark shift data. F1–F5 and F9–F12 support dimensions {2,10,20}; F6–F8 support only {10,20}.
+* **Note<sup>1</sup>:** *f(x<sub>i</sub>)* = multimodal; *x<sub>i</sub>* = peak-seeking style test
+* **Note<sup>2</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = follows recursive optimum
+* **Note<sup>3</sup>:** *f(x<sub>i</sub>)* < 0; *x<sub>i</sub>* = known minima depend on *n* and *m*
+* **Note<sup>4</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = shifted Schwefel optimum
+* **Note<sup>5</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = blockwise optimum at zero
+* **Note<sup>6</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = multiple roots
+* **Note<sup>7</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = piecewise integer floor optimum
+* **Note<sup>8</sup>:** *f(x<sub>i</sub>)* = depends on dimension
+* **Note<sup>9</sup>:** CEC 2022 functions are shifted and biased benchmark instances. The optimum point *x<sub>i</sub>* is defined by the official benchmark shift data. F1–F5 and F9–F12 support dimensions {2,10,20}; F6–F8 support only {10,20}.
+
+<br/>
+</details>
 
 ## 5. **Other Libraries**
 
