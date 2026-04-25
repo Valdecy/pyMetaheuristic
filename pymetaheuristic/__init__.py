@@ -6,6 +6,11 @@ from .src.cooperation import cooperative_optimize, replay_cooperative_result
 from .src.graphs import (
     compare_convergence,
     plot_benchmark_summary,
+    plot_benchmark_barplots,
+    plot_benchmark_boxplots,
+    plot_benchmark_rank_heatmap,
+    plot_benchmark_runtime,
+    plot_benchmark_convergence,
     plot_collaboration_network,
     plot_convergence,
     plot_function,
@@ -110,7 +115,7 @@ from .src.io import (
     save_result,
 )
 
-__version__ = "5.7.0"
+__version__ = "5.7.1"
 
 __all__ = [
     "FUNCTIONS",
@@ -127,7 +132,9 @@ __all__ = [
     "export_population_snapshots_json", "export_replay_manifest_json",
     "get_algorithm_info", "get_test_function", "get_test_problem",
     "list_algorithms", "optimize", "orchestrated_optimize",
-    "plot_benchmark_summary", "plot_collaboration_network",
+    "plot_benchmark_summary", "plot_benchmark_barplots", "plot_benchmark_boxplots",
+    "plot_benchmark_rank_heatmap", "plot_benchmark_runtime", "plot_benchmark_convergence",
+    "plot_collaboration_network",
     "plot_convergence", "plot_function",
     "plot_function_1d", "plot_function_2d", "plot_function_3d",
     "plot_function_contour", "plot_function_nd", "plot_function_surface",
