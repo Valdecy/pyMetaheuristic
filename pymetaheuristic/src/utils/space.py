@@ -2,7 +2,6 @@
 pyMetaheuristic src — Typed Variable Space
 ==========================================
 
-
 Provides typed variable descriptors that can be composed into a
 mixed-type search space.  Each descriptor knows how to:
 
