@@ -101,6 +101,19 @@ _DISCRETE_PALETTE = [
 ]
 
 
+def _hex_to_rgba(hex_color: str, alpha: float) -> str:
+    """Return a Plotly-compatible rgba() string from a #RRGGBB color."""
+    color = hex_color.strip()
+    if color.startswith("#"):
+        color = color[1:]
+    if len(color) != 6:
+        return hex_color
+    r = int(color[0:2], 16)
+    g = int(color[2:4], 16)
+    b = int(color[4:6], 16)
+    return f"rgba({r},{g},{b},{float(alpha):.3g})"
+
+
 __all__ = [
     "plot_function",
     "plot_function_1d",
@@ -1201,7 +1214,7 @@ def plot_benchmark_boxplots(
                 name=alg,
                 marker_color=colour,
                 line_color=colour,
-                fillcolor=colour + "22",
+                fillcolor=_hex_to_rgba(colour, 0.13),
                 boxmean="sd",
                 hovertemplate=(
                     f"<b>{alg}</b><br>"
@@ -1510,7 +1523,11 @@ def plot_benchmark_convergence(
                 font=dict(color=_TEXT_CLR, size=9),
                 bordercolor=_GRID_CLR,
                 borderwidth=1,
-                ncols=max(1, plotted // 10),
+                orientation="h",
+                yanchor="top",
+                y=-0.18,
+                xanchor="left",
+                x=0,
             ),
             width=1000,
             height=520,
