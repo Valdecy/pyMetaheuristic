@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Callable, Iterable, List, Optional, Sequence, Union
 
 import numpy as np
+import pandas as pd
 
 import matplotlib
 matplotlib.use("Agg")
@@ -92,6 +93,13 @@ _MPL_CMAP = LinearSegmentedColormap.from_list(
     "pym", ["#0d1b4b", "#0e7490", "#059669", "#d97706", "#dc2626", "#7f1d1d"]
 )
 
+# Discrete palette for benchmark bar/box/convergence charts
+_DISCRETE_PALETTE = [
+    "#3BC9DB", "#F0A500", "#3FB950", "#F85149",
+    "#C084FC", "#FB923C", "#34D399", "#60A5FA",
+    "#F472B6", "#A3E635", "#FBBF24", "#818CF8",
+]
+
 
 __all__ = [
     "plot_function",
@@ -103,6 +111,11 @@ __all__ = [
     "compare_convergence",
     "plot_population_snapshot",
     "plot_benchmark_summary",
+    "plot_benchmark_barplots",
+    "plot_benchmark_boxplots",
+    "plot_benchmark_rank_heatmap",
+    "plot_benchmark_runtime",
+    "plot_benchmark_convergence",
     "plot_function_contour",
     "plot_function_surface",
     "plot_island_dynamics",
@@ -1058,6 +1071,457 @@ def plot_benchmark_summary(
     else:
         plt.close(fig)
     return fig
+
+
+############################################################################
+# BenchmarkRunner graphs — Plotly (DataFrame-based)
+############################################################################
+
+def _bench_filepath(filepath, problem_name: str, suffix: str) -> Optional[Path]:
+    """Derive a per-problem save path from a base filepath."""
+    if filepath is None:
+        return None
+    p = Path(str(filepath))
+    slug = problem_name.lower().replace(" ", "_").replace("/", "_")
+    return p.parent / f"{p.stem}_{suffix}_{slug}{p.suffix or '.html'}"
+
+
+def plot_benchmark_barplots(
+    summary_df: "pd.DataFrame",
+    filepath=None,
+    renderer: str = "browser",
+    show: bool = False,
+) -> "dict[str, go.Figure]":
+    """Bar chart of mean best-fitness per algorithm, one figure per problem.
+
+    Parameters
+    ----------
+    summary_df : pd.DataFrame
+        Output of ``BenchmarkRunner.summary()``.  Must contain columns
+        ``problem``, ``algorithm``, ``mean_fitness``.
+    filepath : str or Path, optional
+        Base path for saving.  Each figure is saved as
+        ``{stem}_barplot_{problem}{ext}``.
+    renderer : str
+        Plotly renderer used when ``show=True``.
+    show : bool
+        Call ``fig.show()`` for every figure produced.
+
+    Returns
+    -------
+    dict[str, go.Figure]
+        Keyed by problem name.
+    """
+    figs: dict[str, go.Figure] = {}
+    for problem_name, sub in summary_df.groupby("problem"):
+        sub = sub.sort_values("mean_fitness", ascending=True).reset_index(drop=True)
+        n = len(sub)
+        colours = [_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)] for i in range(n)]
+
+        bar_colours = colours.copy()
+        bar_line_colours = [_PANEL_BG] * n
+        bar_line_widths = [0.8] * n
+        # highlight the winner with an amber border
+        bar_line_colours[0] = "#F0A500"
+        bar_line_widths[0] = 2.5
+
+        fig = go.Figure(go.Bar(
+            x=sub["algorithm"],
+            y=sub["mean_fitness"],
+            marker=dict(
+                color=colours,
+                line=dict(color=bar_line_colours, width=bar_line_widths),
+            ),
+            text=[f"{v:.4g}" for v in sub["mean_fitness"]],
+            textposition="outside",
+            textfont=dict(color=_TEXT_CLR, size=9),
+            hovertemplate="<b>%{x}</b><br>mean fitness = %{y:.6g}<extra></extra>",
+        ))
+
+        fig.update_layout(
+            **_LAYOUT_BASE,
+            title=dict(
+                text=f"Mean Best Fitness  ·  {problem_name}",
+                font=dict(color=_TEXT_CLR, size=16), x=0.04,
+            ),
+            xaxis=dict(**_AXIS_STYLE, title="Algorithm", tickangle=-40),
+            yaxis=dict(**_AXIS_STYLE, title="Mean best fitness  (↓ lower is better)"),
+            bargap=0.35,
+            width=max(700, n * 90 + 160),
+            height=480,
+        )
+
+        _save_plotly(fig, _bench_filepath(filepath, str(problem_name), "barplot"))
+        if show:
+            pio.renderers.default = renderer
+            fig.show()
+        figs[str(problem_name)] = fig
+    return figs
+
+
+def plot_benchmark_boxplots(
+    valid_df: "pd.DataFrame",
+    filepath=None,
+    renderer: str = "browser",
+    show: bool = False,
+) -> "dict[str, go.Figure]":
+    """Box plot of per-trial best-fitness distribution per algorithm per problem.
+
+    Parameters
+    ----------
+    valid_df : pd.DataFrame
+        Rows of ``BenchmarkRunner.run()`` that have no error.  Must contain
+        columns ``problem``, ``algorithm``, ``best_fitness``.
+    filepath : str or Path, optional
+        Base path for saving.
+    renderer : str
+        Plotly renderer.
+    show : bool
+        Whether to call ``fig.show()``.
+
+    Returns
+    -------
+    dict[str, go.Figure]
+    """
+    figs: dict[str, go.Figure] = {}
+    for problem_name, sub in valid_df.groupby("problem"):
+        alg_order = (
+            sub.groupby("algorithm")["best_fitness"]
+            .mean()
+            .sort_values()
+            .index.tolist()
+        )
+        n = len(alg_order)
+        fig = go.Figure()
+        for idx, alg in enumerate(alg_order):
+            colour = _DISCRETE_PALETTE[idx % len(_DISCRETE_PALETTE)]
+            vals = sub.loc[sub["algorithm"] == alg, "best_fitness"].tolist()
+            fig.add_trace(go.Box(
+                y=vals,
+                name=alg,
+                marker_color=colour,
+                line_color=colour,
+                fillcolor=colour + "22",
+                boxmean="sd",
+                hovertemplate=(
+                    f"<b>{alg}</b><br>"
+                    "median = %{median:.6g}<br>"
+                    "mean ± sd<extra></extra>"
+                ),
+            ))
+
+        fig.update_layout(
+            **_LAYOUT_BASE,
+            title=dict(
+                text=f"Trial Distribution  ·  {problem_name}",
+                font=dict(color=_TEXT_CLR, size=16), x=0.04,
+            ),
+            xaxis=dict(**_AXIS_STYLE, title="Algorithm", tickangle=-40),
+            yaxis=dict(**_AXIS_STYLE, title="Best fitness  (↓ lower is better)"),
+            boxmode="group",
+            legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)),
+            width=max(700, n * 90 + 160),
+            height=480,
+        )
+
+        _save_plotly(fig, _bench_filepath(filepath, str(problem_name), "boxplot"))
+        if show:
+            pio.renderers.default = renderer
+            fig.show()
+        figs[str(problem_name)] = fig
+    return figs
+
+
+def plot_benchmark_rank_heatmap(
+    rank_table: "pd.DataFrame",
+    filepath=None,
+    renderer: str = "browser",
+    show: bool = False,
+) -> go.Figure:
+    """Heatmap of algorithm ranks across benchmark problems.
+
+    Parameters
+    ----------
+    rank_table : pd.DataFrame
+        ``pivot`` of ranks; index = algorithm, columns = problems.
+        An ``average_rank`` column is silently dropped before plotting.
+    filepath : str or Path, optional
+        Save path.
+    renderer : str
+        Plotly renderer.
+    show : bool
+        Whether to call ``fig.show()``.
+
+    Returns
+    -------
+    go.Figure
+    """
+    plot_data = rank_table.drop(columns=["average_rank"], errors="ignore").copy()
+    nrows, ncols = plot_data.shape
+    zvals = plot_data.values.astype(float)
+    vmax = float(np.nanmax(zvals)) if zvals.size else 1.0
+
+    rank_colorscale = [
+        [0.0,  "#0D2137"],
+        [0.25, "#0E4D6A"],
+        [0.5,  "#0F7BAE"],
+        [0.75, "#3BC9DB"],
+        [1.0,  "#A5F3FC"],
+    ]
+
+    annotations = []
+    for i in range(nrows):
+        for j in range(ncols):
+            val = zvals[i, j]
+            norm = val / vmax if vmax else 0
+            txt_colour = _TEXT_CLR if norm > 0.45 else _DARK_BG
+            annotations.append(dict(
+                x=j, y=i,
+                text=f"{val:.1f}",
+                xref="x", yref="y",
+                showarrow=False,
+                font=dict(color=txt_colour, size=10, family="IBM Plex Mono, monospace"),
+            ))
+
+    fig = go.Figure(go.Heatmap(
+        z=zvals,
+        x=list(plot_data.columns),
+        y=list(plot_data.index),
+        colorscale=rank_colorscale,
+        zmin=1,
+        zmax=vmax,
+        colorbar=dict(
+            title=dict(text="Rank", font=dict(color=_TEXT_CLR, size=11)),
+            tickfont=dict(color=_TEXT_CLR, size=9),
+            outlinewidth=0,
+            bgcolor="rgba(0,0,0,0)",
+            thickness=14,
+        ),
+        hovertemplate="<b>%{y}</b>  ·  %{x}<br>rank = %{z:.1f}<extra></extra>",
+    ))
+
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        annotations=annotations,
+        title=dict(
+            text="Algorithm Rank by Benchmark Problem  ·  lower is better",
+            font=dict(color=_TEXT_CLR, size=16), x=0.04,
+        ),
+        xaxis=dict(
+            **_AXIS_STYLE,
+            title="Problem",
+            tickangle=-35,
+            side="bottom",
+        ),
+        yaxis=dict(
+            **_AXIS_STYLE,
+            title="Algorithm",
+            autorange="reversed",
+        ),
+        width=max(600, ncols * 130 + 200),
+        height=max(350, nrows * 42 + 150),
+    )
+
+    _save_plotly(fig, filepath)
+    if show:
+        pio.renderers.default = renderer
+        fig.show()
+    return fig
+
+
+def plot_benchmark_runtime(
+    raw_df: "pd.DataFrame",
+    filepath=None,
+    renderer: str = "browser",
+    show: bool = False,
+) -> go.Figure:
+    """Bar chart of mean runtime per algorithm across all successful runs.
+
+    Parameters
+    ----------
+    raw_df : pd.DataFrame
+        Full output of ``BenchmarkRunner.run()``.  Must contain columns
+        ``algorithm``, ``error``, ``elapsed_s``.
+    filepath : str or Path, optional
+        Save path.
+    renderer : str
+        Plotly renderer.
+    show : bool
+        Whether to call ``fig.show()``.
+
+    Returns
+    -------
+    go.Figure
+    """
+    runtime = (
+        raw_df[raw_df["error"].isna()]
+        .groupby("algorithm", as_index=False)["elapsed_s"]
+        .mean()
+        .sort_values("elapsed_s", ascending=True)
+        .reset_index(drop=True)
+    )
+    n = len(runtime)
+    colours = [_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)] for i in range(n)]
+    # highlight fastest with green border
+    line_colours = [_PANEL_BG] * n
+    line_widths = [0.8] * n
+    if n:
+        line_colours[0] = "#3FB950"
+        line_widths[0] = 2.5
+
+    fig = go.Figure(go.Bar(
+        x=runtime["algorithm"],
+        y=runtime["elapsed_s"],
+        marker=dict(
+            color=colours,
+            line=dict(color=line_colours, width=line_widths),
+        ),
+        text=[f"{v:.3g}s" for v in runtime["elapsed_s"]],
+        textposition="outside",
+        textfont=dict(color=_TEXT_CLR, size=9),
+        hovertemplate="<b>%{x}</b><br>mean runtime = %{y:.4g} s<extra></extra>",
+    ))
+
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(
+            text="Average Runtime per Run",
+            font=dict(color=_TEXT_CLR, size=16), x=0.04,
+        ),
+        xaxis=dict(**_AXIS_STYLE, title="Algorithm", tickangle=-40),
+        yaxis=dict(**_AXIS_STYLE, title="Elapsed seconds"),
+        bargap=0.35,
+        width=max(700, n * 90 + 160),
+        height=480,
+    )
+
+    _save_plotly(fig, filepath)
+    if show:
+        pio.renderers.default = renderer
+        fig.show()
+    return fig
+
+
+def plot_benchmark_convergence(
+    algorithms: "list[str]",
+    problems: "list[dict]",
+    termination,
+    seed: int = 2026,
+    filepath=None,
+    renderer: str = "browser",
+    show: bool = False,
+) -> "dict[str, go.Figure]":
+    """Convergence curves for every algorithm on every benchmark problem.
+
+    Runs each algorithm once (``store_history=True``) and overlays all
+    curves on a per-problem figure.
+
+    Parameters
+    ----------
+    algorithms : list[str]
+        Algorithm IDs understood by ``pymetaheuristic.optimize``.
+    problems : list[dict]
+        Each dict must have keys ``name``, ``target_function``,
+        ``min_values``, ``max_values`` and optionally ``objective``
+        (default ``"min"``).
+    termination : Termination
+        ``pymetaheuristic.Termination`` instance.
+    seed : int
+        Random seed passed to every run.
+    filepath : str or Path, optional
+        Base path for saving.  Each figure is saved as
+        ``{stem}_convergence_{problem}{ext}``.
+    renderer : str
+        Plotly renderer.
+    show : bool
+        Whether to call ``fig.show()``.
+
+    Returns
+    -------
+    dict[str, go.Figure]
+        Keyed by problem name.
+    """
+    from .api import optimize  # local import to avoid circularity
+
+    figs: dict[str, go.Figure] = {}
+    for problem in problems:
+        problem_name = problem["name"]
+        fig = go.Figure()
+
+        plotted = 0
+        for idx, alg in enumerate(algorithms):
+            colour = _DISCRETE_PALETTE[idx % len(_DISCRETE_PALETTE)]
+            try:
+                result = optimize(
+                    algorithm=alg,
+                    target_function=problem["target_function"],
+                    min_values=problem["min_values"],
+                    max_values=problem["max_values"],
+                    objective=problem.get("objective", "min"),
+                    termination=termination,
+                    seed=seed,
+                    store_history=True,
+                    verbose=False,
+                )
+                xs, ys = _history_series(result, key="best_fitness")
+                if xs.size == 0:
+                    continue
+
+                # glow effect: thick transparent trace behind a sharp line
+                fig.add_trace(go.Scatter(
+                    x=xs, y=ys,
+                    mode="lines",
+                    line=dict(color=colour, width=8),
+                    opacity=0.08,
+                    showlegend=False,
+                    hoverinfo="skip",
+                ))
+                fig.add_trace(go.Scatter(
+                    x=xs, y=ys,
+                    mode="lines",
+                    name=alg,
+                    line=dict(color=colour, width=1.8),
+                    hovertemplate=(
+                        f"<b>{alg}</b><br>"
+                        "step = %{x}<br>"
+                        "best fitness = %{y:.6g}<extra></extra>"
+                    ),
+                ))
+                plotted += 1
+
+            except Exception as exc:  # noqa: BLE001
+                import warnings
+                warnings.warn(
+                    f"plot_benchmark_convergence: algorithm={alg!r}, "
+                    f"problem={problem_name!r} failed: {exc}",
+                    stacklevel=2,
+                )
+
+        fig.update_layout(
+            **_LAYOUT_BASE,
+            title=dict(
+                text=f"Convergence Curves  ·  {problem_name}",
+                font=dict(color=_TEXT_CLR, size=16), x=0.04,
+            ),
+            xaxis=dict(**_AXIS_STYLE, title="Step"),
+            yaxis=dict(**_AXIS_STYLE, title="Best fitness  (↓ lower is better)", type="log"),
+            legend=dict(
+                bgcolor="rgba(0,0,0,0.25)",
+                font=dict(color=_TEXT_CLR, size=9),
+                bordercolor=_GRID_CLR,
+                borderwidth=1,
+                ncols=max(1, plotted // 10),
+            ),
+            width=1000,
+            height=520,
+        )
+
+        _save_plotly(fig, _bench_filepath(filepath, str(problem_name), "convergence"))
+        if show:
+            pio.renderers.default = renderer
+            fig.show()
+        figs[str(problem_name)] = fig
+    return figs
 
 
 ############################################################################
