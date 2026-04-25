@@ -110,7 +110,7 @@ from .src.io import (
     save_result,
 )
 
-__version__ = "5.5.2"
+__version__ = "5.5.7"
 
 __all__ = [
     "FUNCTIONS",
