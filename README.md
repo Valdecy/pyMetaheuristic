@@ -35,6 +35,7 @@ pip install pymetaheuristic==1.9.5
    - [2.8 Chaotic Maps and Transfer Functions](#28-chaotic-maps-and-transfer-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/1cvrahJ5Bp4E4vU7I-O6Uqru9SK2hxMXX?usp=sharing) ---
    - [2.9 Hyperparameter Tuner](#29-hyperparameter-tuner) --- [[Colab Demo] ](https://colab.research.google.com/drive/13pZQyrMDyegRAcYUJRO6cSwvQ7pZvDKs?usp=sharing) ---
    - [2.10 Save, Load, and Checkpoint](#210-save-load-and-checkpoint)
+   - [2.11 Benchmark Runner](#211-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
 3. [Algorithm Details](#3-algorithm-details)
 4. [Test Functions](#4-test-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/132-yqoaJKkJ4gf6yqjrV1siXVvZ3ZgE7?usp=sharing) ---
 5. [Other Libraries](#5-other-libraries)
@@ -299,7 +300,7 @@ def easom(x = [0, 0]):
     x1, x2 = x
     return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
-result = pymetaheuristic.ooperative_optimize(
+result = pymetaheuristic.coperative_optimize(
 					islands            = [
 											{"algorithm": "pso",  "config": {"swarm_size": 25}},
 											{"algorithm": "ga",   "config": {}},
@@ -550,6 +551,66 @@ print(f"Resumed best fitness:  {result_resumed.best_fitness:.6f}")
 print(f"Resumed best position: {result_resumed.best_position}")
 ```
 
+### 2.11 **Benchmark Runner**
+
+[Back to Summary](#b-summary)
+
+`BenchmarkRunner` performs multi-algorithm × multi-problem comparative sweeps. It executes every algorithm on every problem for a configurable number of independent trials, records the best fitness and wall-clock time for each run, and captures failed trials without interrupting the sweep. The raw results are returned as a tidy DataFrame that can be aggregated into summary statistics, rank tables, and publication-quality compact tables. Parallel execution across trials is available through the `n_jobs` argument. After calling `.run()`, the five dedicated Plotly-based visualisation functions — `plot_benchmark_barplots`, `plot_benchmark_boxplots`, `plot_benchmark_rank_heatmap`, `plot_benchmark_runtime`, and `plot_benchmark_convergence` — produce interactive charts that share the same dark-scientific visual theme as the rest of the library. All five return `go.Figure` objects that can be further customised, displayed inline in Jupyter or Colab, or saved to HTML, PNG, SVG, or PDF.
+
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing)
+
+```python
+import pandas as pd
+import pymetaheuristic
+
+# Algorithms
+algorithms = ["acgwo", "gwo", "i_gwo", "fox", "tlbo"]
+
+# Problems
+rastrigin  = pymetaheuristic.get_test_function("rastrigin")
+rosenbrock = pymetaheuristic.get_test_function("rosenbrocks_valley")
+
+problems = [
+               {
+                   "name":            "Rastrigin-5D",
+                   "target_function": rastrigin,
+                   "min_values":      [-5.12] * 5,
+                   "max_values":      [ 5.12] * 5,
+                   "objective":       "min",
+               },
+               {
+                   "name":            "Rosenbrock-5D",
+                   "target_function": rosenbrock,
+                   "min_values":      [-30.0] * 5,
+                   "max_values":      [ 30.0] * 5,
+                   "objective":       "min",
+               },
+           ]
+
+# Runner
+termination = pymetaheuristic.Termination(max_steps = 250)
+runner      = pymetaheuristic.BenchmarkRunner(
+                                               algorithms  = algorithms,
+                                               problems    = problems,
+                                               termination = termination,
+                                               n_trials    = 5,
+                                               seed        = 42,
+                                               n_jobs      = 1,
+                                             ) 
+raw_df = runner.run(show_progress = True)
+
+# Raw Results
+failed_df  = raw_df[raw_df["error"].notna()].copy()
+valid_df   = raw_df[raw_df["error"].isna()].copy()
+summary_df = runner.summary().copy()
+
+# Rank Table
+rank_table                 = summary_df.pivot(index = "algorithm", columns = "problem", values = "rank")
+rank_table["average_rank"] = rank_table.mean(axis = 1)
+rank_table                 = rank_table.sort_values("average_rank")
+
+```
+
 ---
 ## 3. **Algorithm Details**
 
@@ -591,7 +652,6 @@ The table below summarizes the optimization engines currently available in the l
 <details>
 <summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
-
 
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit | Origin |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -879,8 +939,6 @@ The table below summarizes the optimization engines currently available in the l
 | Wind Driven Optimization | `wdo` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1109/APS.2010.5562213) |
 | Young's Double-Slit Experiment Optimizer | `ydse` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.cma.2022.115652) |
 | Zebra Optimization Algorithm | `zoa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1109/ACCESS.2022.3172789) |
-
-
 
 <br/>
 </details>
