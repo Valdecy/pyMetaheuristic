@@ -1,7 +1,6 @@
 """
 pyMetaheuristic src — Composable Termination Criteria
 ======================================================
-Inspired by mealpy's Termination class.
 
 Supports four independent stopping conditions that can be combined freely.
 The first condition that triggers wins.
