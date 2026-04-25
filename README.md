@@ -5,7 +5,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together 280 optimization algorithms across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families.
+A Python library for metaheuristic optimization and collaborative search, bringing together **280 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families.
 
 ## A. **Version Note**
 
