@@ -1,53 +1,18 @@
 ############################################################################
+
 # Created by: Prof. Valdecy Pereira, D.Sc.
 # UFF - Universidade Federal Fluminense (Brazil)
 # email:  valdecy.pereira@gmail.com
 # Test Functions
 
 # PEREIRA, V. (2022). GitHub repository: https://github.com/Valdecy/pyMetaheuristic
+
 ############################################################################
 
 # Required Libraries
 import os
 import numpy as np
 from pathlib import Path
-
-############################################################################
-
-# Available Test Functions:
-
-    # Ackley
-    # Axis Parallel Hyper-Ellipsoid
-    # Beale
-    # Bohachevsky F1
-    # Bohachevsky F2
-    # Bohachevsky F3
-    # Booth
-    # Branin RCOS 
-    # Bukin F6 
-    # Cross in Tray
-    # De Jong F1
-    # Drop Wave
-    # Easom
-    # Eggholder
-    # Goldstein-Price 
-    # Griewangk F8
-    # Himmelblau
-    # Hölder Table
-    # Matyas
-    # McCormick
-    # Lévi F13
-    # Rastrigin 
-    # Rosenbrocks Valley (De Jong F2)
-    # Schaffer F2
-    # Schaffer F4
-    # Schaffer F6
-    # Schwefel
-    # Six Hump Camel Back
-    # Styblinski-Tang
-    # Three Hump Camel Back
-    # Zakharov
-    # CEC Functions F1 - F12
 
 ############################################################################
 
@@ -503,22 +468,9 @@ def whitley(variables_values = [1, 1]):
     return float(np.sum((tmp**2)/4000.0 - np.cos(tmp) + 1.0))
 
 ############################################################################
-# CEC 2022 Single Objective Bound Constrained Functions
-# Origin: https://github.com/P-N-Suganthan/2022-SO-BO
-#
-# Notes:
-# - These functions require the official CEC 2022 input_data files.
-# - By default, this module looks for either:
-#     1) a folder named "cec2022_input_data" next to this file, or
-#     2) a folder named "input_data" next to this file, or
-#     3) the directory pointed to by the environment variable
-#        PYMETAHEURISTIC_CEC2022_DATA
-# - Supported dimensions: D in {2, 10, 20}
-# - Functions 6, 7, and 8 are only defined for D in {10, 20}
-############################################################################
 
 _CEC2022_DIMENSIONS = (2, 10, 20)
-_CEC2022_NO_D2 = {6, 7, 8}
+_CEC2022_NO_D2      = {6, 7, 8}
 
 
 def _resolve_cec2022_data_dir():
@@ -538,7 +490,6 @@ def _resolve_cec2022_data_dir():
         "next to this file as 'cec2022_input_data' or set the environment variable "
         f"PYMETAHEURISTIC_CEC2022_DATA. Searched: {searched}"
     )
-
 
 def _loadtxt_strict(path):
     path = Path(path)
@@ -560,7 +511,6 @@ def _rotatefunc_cec2022(x, nx, Mr):
         Mr = Mr.reshape((nx, nx))
     return Mr[:nx, :nx].dot(x[:nx])
 
-
 def _sr_func_cec2022(x, nx, Os, Mr, sh_rate, s_flag, r_flag):
     x = np.asarray(x, dtype=float)
     if s_flag == 1:
@@ -571,7 +521,6 @@ def _sr_func_cec2022(x, nx, Os, Mr, sh_rate, s_flag, r_flag):
     if r_flag == 1:
         return _rotatefunc_cec2022(y, nx, Mr)
     return y
-
 
 def _ellips_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
@@ -587,7 +536,6 @@ def _discus_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
     return (10.0 ** 6.0) * z[0] * z[0] + sum(z[i] * z[i] for i in range(1, nx))
 
-
 def _rosenbrock_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 2.048 / 100.0, s_flag, r_flag)
     z = np.asarray(z, dtype=float).copy()
@@ -599,7 +547,6 @@ def _rosenbrock_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
         f += 100.0 * tmp1 * tmp1 + tmp2 * tmp2
     return f
 
-
 def _ackley_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
     sum1 = np.sum(z[:nx] ** 2)
@@ -608,7 +555,6 @@ def _ackley_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     sum2 = sum2 / nx
     return np.e - 20.0 * np.exp(sum1) - np.exp(sum2) + 20.0
 
-
 def _griewank_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 600.0 / 100.0, s_flag, r_flag)
     s = np.sum(z[:nx] ** 2)
@@ -616,7 +562,6 @@ def _griewank_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     for i in range(nx):
         p *= np.cos(z[i] / np.sqrt(1.0 + i))
     return 1.0 + s / 4000.0 - p
-
 
 def _rastrigin_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 5.12 / 100.0, s_flag, r_flag)
@@ -641,7 +586,6 @@ def _schwefel_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     f += 4.189828872724338e+002 * nx
     return f
 
-
 def _grie_rosen_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 5.0 / 100.0, s_flag, r_flag)
     z = np.asarray(z, dtype=float).copy()
@@ -658,7 +602,6 @@ def _grie_rosen_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     f += (temp * temp) / 4000.0 - np.cos(temp) + 1.0
     return f
 
-
 def _escaffer6_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
     f = 0.0
@@ -671,7 +614,6 @@ def _escaffer6_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     f += 0.5 + (temp1 - 0.5) / (temp2 * temp2)
     return f
 
-
 def _happycat_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     alpha = 1.0 / 8.0
     z = _sr_func_cec2022(x, nx, Os, Mr, 5.0 / 100.0, s_flag, r_flag)
@@ -680,7 +622,6 @@ def _happycat_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     sum_z = np.sum(z[:nx])
     return np.abs(r2 - nx) ** (2 * alpha) + (0.5 * r2 + sum_z) / nx + 0.5
 
-
 def _hgbat_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     alpha = 1.0 / 4.0
     z = _sr_func_cec2022(x, nx, Os, Mr, 5.0 / 100.0, s_flag, r_flag)
@@ -688,7 +629,6 @@ def _hgbat_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     r2 = np.sum(z[:nx] ** 2)
     sum_z = np.sum(z[:nx])
     return np.abs((r2 ** 2.0) - (sum_z ** 2.0)) ** (2 * alpha) + (0.5 * r2 + sum_z) / nx + 0.5
-
 
 def _schaffer_F7_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
@@ -699,7 +639,6 @@ def _schaffer_F7_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
         f += (zi ** 0.5) + (zi ** 0.5) * tmp * tmp
     return (f * f) / ((nx - 1) * (nx - 1))
 
-
 def _step_rastrigin_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     y = np.asarray(x, dtype=float).copy()
     Os = np.asarray(Os, dtype=float)
@@ -708,7 +647,6 @@ def _step_rastrigin_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
             y[i] = Os[i] + np.floor(2.0 * (y[i] - Os[i]) + 0.5) / 2.0
     z = _sr_func_cec2022(y, nx, Os, Mr, 5.12 / 100.0, s_flag, r_flag)
     return float(np.sum((z[:nx] ** 2) - 10.0 * np.cos(2.0 * np.pi * z[:nx]) + 10.0))
-
 
 def _levy_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
@@ -721,13 +659,11 @@ def _levy_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
         sum_mid += ((wi - 1.0) ** 2) * (1.0 + 10.0 * (np.sin(np.pi * wi + 1.0) ** 2))
     return term1 + sum_mid + term3
 
-
 def _zakharov_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 1.0, s_flag, r_flag)
     sum1 = np.sum(z[:nx] ** 2)
     sum2 = np.sum([0.5 * (i + 1) * z[i] for i in range(nx)])
     return sum1 + (sum2 ** 2) + (sum2 ** 4)
-
 
 def _katsuura_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     z = _sr_func_cec2022(x, nx, Os, Mr, 5.0 / 100.0, s_flag, r_flag)
@@ -742,7 +678,6 @@ def _katsuura_func_cec2022(x, nx, Os, Mr, s_flag, r_flag):
         f *= (1.0 + (i + 1) * temp) ** (10.0 / tmp3)
     tmp1 = 10.0 / (nx * nx)
     return f * tmp1 - tmp1
-
 
 def _hf02_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     cf_num = 3
@@ -765,7 +700,6 @@ def _hf02_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     fit1 = _hgbat_func_cec2022(y[G[1]:G[2]], G_nx[1], Os, Mr, 0, 0)
     fit2 = _rastrigin_func_cec2022(y[G[2]:nx], G_nx[2], Os, Mr, 0, 0)
     return fit0 + fit1 + fit2
-
 
 def _hf10_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     cf_num = 6
@@ -794,7 +728,6 @@ def _hf10_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     ]
     return float(sum(fits))
 
-
 def _hf06_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     cf_num = 5
     Gp = [0.3, 0.2, 0.2, 0.1, 0.2]
@@ -821,7 +754,6 @@ def _hf06_cec2022(x, nx, Os, Mr, S, s_flag, r_flag):
     ]
     return float(sum(fits))
 
-
 def _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num):
     INF = 1.0e99
     w = [0.0] * cf_num
@@ -845,7 +777,6 @@ def _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num):
         f += w[i] / w_sum * fit[i]
     return f
 
-
 def _cf01_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     cf_num = 5
     fit = [0.0] * cf_num
@@ -858,7 +789,6 @@ def _cf01_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     fit[4] = 10000 * _ellips_func_cec2022(x, nx, Os[4 * nx:5 * nx], Mr[4 * nx:5 * nx, 0:nx], 1, 0) / 1e10
     return _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num)
 
-
 def _cf02_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     cf_num = 3
     fit = [0.0] * cf_num
@@ -868,7 +798,6 @@ def _cf02_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     fit[1] = _rastrigin_func_cec2022(x, nx, Os[1 * nx:2 * nx], Mr[1 * nx:2 * nx, 0:nx], 1, r_flag)
     fit[2] = _hgbat_func_cec2022(x, nx, Os[2 * nx:3 * nx], Mr[2 * nx:3 * nx, 0:nx], 1, r_flag)
     return _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num)
-
 
 def _cf06_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     cf_num = 5
@@ -882,7 +811,6 @@ def _cf06_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     fit[4] = 10000 * _rastrigin_func_cec2022(x, nx, Os[4 * nx:5 * nx], Mr[4 * nx:5 * nx, 0:nx], 1, r_flag) / 1e3
     return _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num)
 
-
 def _cf07_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     cf_num = 6
     fit = [0.0] * cf_num
@@ -895,7 +823,6 @@ def _cf07_cec2022(x, nx, Os, Mr, s_flag, r_flag):
     fit[4] = 10000 * _ellips_func_cec2022(x, nx, Os[4 * nx:5 * nx], Mr[4 * nx:5 * nx, 0:nx], 1, r_flag) / 1e10
     fit[5] = 10000 * _escaffer6_func_cec2022(x, nx, Os[5 * nx:6 * nx], Mr[5 * nx:6 * nx, 0:nx], 1, r_flag) / 2e7
     return _cf_cal_cec2022(x, nx, Os, delta, bias, fit, cf_num)
-
 
 def _cec2022_eval(variables_values, func_num):
     x = np.asarray(variables_values, dtype=float).reshape(-1)
@@ -945,50 +872,38 @@ def _cec2022_eval(variables_values, func_num):
         return float(_cf06_cec2022(x, nx, OShift, M, 1, 1) + 2600.0)
     return float(_cf07_cec2022(x, nx, OShift, M, 1, 1) + 2700.0)
 
-
 def cec_2022_f01(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 1)
-
 
 def cec_2022_f02(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 2)
 
-
 def cec_2022_f03(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 3)
-
 
 def cec_2022_f04(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 4)
 
-
 def cec_2022_f05(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 5)
-
 
 def cec_2022_f06(variables_values=[0] * 10):
     return _cec2022_eval(variables_values, 6)
 
-
 def cec_2022_f07(variables_values=[0] * 10):
     return _cec2022_eval(variables_values, 7)
-
 
 def cec_2022_f08(variables_values=[0] * 10):
     return _cec2022_eval(variables_values, 8)
 
-
 def cec_2022_f09(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 9)
-
 
 def cec_2022_f10(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 10)
 
-
 def cec_2022_f11(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 11)
-
 
 def cec_2022_f12(variables_values=[0, 0]):
     return _cec2022_eval(variables_values, 12)
@@ -1079,10 +994,8 @@ FUNCTIONS = {
     "cec_2022_f12": cec_2022_f12,
 }
 
-
 def list_test_functions():
     return sorted(FUNCTIONS.keys())
-
 
 def get_test_function(name):
     key = str(name).strip().lower()
