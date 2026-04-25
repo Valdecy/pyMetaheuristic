@@ -478,7 +478,6 @@ for _aid, _doi in _ALGORITHM_DOIS.items():
         _reference["doi"] = _doi
         REGISTRY[_aid]._REFERENCE = _reference
 
-# ── New engines added by PMH-PlatEMO integration ──────────────────────────────
 from .aco          import ACOEngine
 from .adam         import AdamEngine
 from .aesspso      import AESSPSOEngine
