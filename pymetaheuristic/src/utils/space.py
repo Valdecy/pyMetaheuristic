@@ -1,7 +1,7 @@
 """
 pyMetaheuristic src — Typed Variable Space
 ==========================================
-Inspired by mealpy's utils/space.py.
+
 
 Provides typed variable descriptors that can be composed into a
 mixed-type search space.  Each descriptor knows how to:
