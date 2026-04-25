@@ -4,7 +4,6 @@ from .protocol import (
     CandidateRecord, EngineState, OptimizationResult,
 )
 
-
 from .abco          import ABCOEngine
 from .acgwo         import ACGWOEngine
 from .acor          import ACOREngine
