@@ -154,7 +154,7 @@ class Termination:
             self._stagnation_count += 1
         else:
             self._stagnation_count = 0
-            self._last_best = best_fitness
+            self._last_best        = best_fitness
 
     def should_stop(
         self,
