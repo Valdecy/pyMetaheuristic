@@ -18,6 +18,7 @@ setup(
         "kaleido",
         "matplotlib",
         "numpy",
+        "pandas",
         "plotly",
         "scipy",
         "tabulate",
