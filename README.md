@@ -256,7 +256,7 @@ print(result.metadata["best_is_feasible"])
 Other constraints examples:
 
 ```python
-constraint  = [lambda x: x[0] + x[1] - 1.0   # means x0 + x1 <= 1]
+constraint  = [lambda x: x[0] + x[1] - 1.0]                    # x0 + x1 <= 1
 constraints = [
 				lambda x:  x[0]**2 + x[1]**2 - 4.0,            # x0^2 + x1^2 <= 4
 				lambda x: -x[0],                               # x0 >= 0
