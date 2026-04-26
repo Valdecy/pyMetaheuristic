@@ -9,6 +9,7 @@ class MFAEngine(BaseEngine):
     algorithm_id   = "mfa"
     algorithm_name = "Moth Flame Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2015.07.006"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(swarm_size=15, b_constant=1)
 

@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class SSOEngine(PortedPopulationEngine):
     """Social Spider Swarm Optimizer — two-group cosine/averaging update inspired by spiders."""
     algorithm_id = "sso"; algorithm_name = "Social Spider Swarm Optimizer"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2013.05.041"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

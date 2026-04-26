@@ -9,6 +9,7 @@ class MBOEngine(BaseEngine):
     algorithm_id   = "mbo"
     algorithm_name = "Monarch Butterfly Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/s00521-015-1923-y"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=15, ratio=0.4167, phi=1.2, adj_rate=0.4167, walk_size=1)
 

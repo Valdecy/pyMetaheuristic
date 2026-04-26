@@ -9,6 +9,7 @@ class RANDOM_SEngine(BaseEngine):
     algorithm_id   = "random_s"
     algorithm_name = "Random Search"
     family         = "trajectory"
+    _REFERENCE     = {"doi": "10.1080/01621459.1953.10501200"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(solutions=15)
 

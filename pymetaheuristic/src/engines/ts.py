@@ -10,6 +10,7 @@ class TSEngine(PortedTrajectoryEngine):
     algorithm_id   = "ts"
     algorithm_name = "Tabu Search"
     family         = "trajectory"
+    _REFERENCE     = {"doi": "10.1287/ijoc.1.3.190"}
     capabilities   = CapabilityProfile(
         has_population=False,
         supports_candidate_injection=False,

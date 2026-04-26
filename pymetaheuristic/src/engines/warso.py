@@ -9,6 +9,7 @@ class WARSOEngine(PortedPopulationEngine):
     algorithm_id   = "warso"
     algorithm_name = "War Strategy Optimization"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1007/s11831-022-09822-0"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

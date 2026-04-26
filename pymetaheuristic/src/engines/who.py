@@ -8,7 +8,7 @@ class WHOEngine(PortedPopulationEngine):
     """Wildebeest Herd Optimization — five social behaviours of migrating herds."""
     algorithm_id   = "who"
     algorithm_name = "Wildebeest Herd Optimization"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.3233/JIFS-190495"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

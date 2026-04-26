@@ -9,6 +9,7 @@ class ZOAEngine(PortedPopulationEngine):
     algorithm_id   = "zoa"
     algorithm_name = "Zebra Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2022.3172789"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

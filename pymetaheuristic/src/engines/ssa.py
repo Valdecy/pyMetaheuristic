@@ -9,6 +9,7 @@ class SSAEngine(BaseEngine):
     algorithm_id   = "ssa"
     algorithm_name = "Salp Swarm Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2017.07.002"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(swarm_size=5)
 

@@ -12,6 +12,7 @@ class NMMEngine(PortedPopulationEngine):
     algorithm_id = "nmm"
     algorithm_name = "Nelder-Mead Method"
     family = "trajectory"
+    _REFERENCE     = {"doi": "10.1093/comjnl/7.4.308"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=None, alpha=0.1, gamma=0.3, rho=-0.2, sigma=-0.2)
 

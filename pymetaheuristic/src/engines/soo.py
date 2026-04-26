@@ -9,6 +9,7 @@ class SOOEngine(PortedPopulationEngine):
     algorithm_id   = "soo"
     algorithm_name = "Star Oscillator Optimization"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.3390/math11112536"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

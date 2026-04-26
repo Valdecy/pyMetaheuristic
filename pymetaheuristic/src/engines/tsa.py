@@ -8,7 +8,8 @@ class TSAEngine(PortedPopulationEngine):
     """Tunicate Swarm Algorithm — coefficient-driven best-neighbourhood pursuit."""
     algorithm_id   = "tsa"
     algorithm_name = "Tunicate Swarm Algorithm"
-    family         = "bio"
+    family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.engappai.2020.103541"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

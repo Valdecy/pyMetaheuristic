@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class OOAEngine(PortedPopulationEngine):
     """Osprey Optimization Algorithm — fish-hunting and carry-to-position two-phase update."""
     algorithm_id = "ooa"; algorithm_name = "Osprey Optimization Algorithm"; family = "swarm"
+    _REFERENCE     = {"doi": "10.3389/fmech.2022.1126450"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

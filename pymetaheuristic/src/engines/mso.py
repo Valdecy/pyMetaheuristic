@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class MSOEngine(PortedPopulationEngine):
     """Mirage-Search Optimizer — superior/inferior mirage search with triangle-angle geometry."""
     algorithm_id = "mso"; algorithm_name = "Mirage-Search Optimizer"; family = "physics"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2025.103883"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

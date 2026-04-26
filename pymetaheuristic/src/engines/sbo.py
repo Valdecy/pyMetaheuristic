@@ -8,7 +8,7 @@ class SBOEngine(PortedPopulationEngine):
     """Satin Bowerbird Optimizer — roulette-guided step with Gaussian mutation."""
     algorithm_id   = "sbo"
     algorithm_name = "Satin Bowerbird Optimizer"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.engappai.2017.01.006"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

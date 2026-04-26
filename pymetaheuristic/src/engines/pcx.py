@@ -18,6 +18,7 @@ class PCXEngine(BaseEngine):
     algorithm_id = "pcx"
     algorithm_name = "Parent-Centric Crossover (G3-PCX style)"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/CEC.2004.1331141"}
     capabilities = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(
         population_size=100,

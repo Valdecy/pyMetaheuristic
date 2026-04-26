@@ -29,6 +29,7 @@ class RMSPropEngine(BaseEngine):
     algorithm_id   = "rmsprop"
     algorithm_name = "RMSProp"
     family         = "math"
+    _REFERENCE     = {"url": "https://www.youtube.com/watch?v=defQQqkXEfE"}
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(alpha=1.0, rho=0.9, epsilon=1e-6)
 

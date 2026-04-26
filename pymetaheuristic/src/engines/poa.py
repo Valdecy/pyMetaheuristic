@@ -9,6 +9,7 @@ class POAEngine(PortedPopulationEngine):
     algorithm_id   = "poa"
     algorithm_name = "Pelican Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.3390/s22030855"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

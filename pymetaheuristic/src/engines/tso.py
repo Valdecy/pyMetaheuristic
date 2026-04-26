@@ -9,6 +9,7 @@ class TSOEngine(PortedPopulationEngine):
     algorithm_id   = "tso"
     algorithm_name = "Tuna Swarm Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1155/2021/9210050"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

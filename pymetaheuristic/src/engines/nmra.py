@@ -9,6 +9,7 @@ class NMRAEngine(PortedPopulationEngine):
     algorithm_id   = "nmra"
     algorithm_name = "Naked Mole-Rat Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/s00521-017-3287-8"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

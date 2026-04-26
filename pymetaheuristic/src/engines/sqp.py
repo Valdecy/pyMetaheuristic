@@ -30,6 +30,7 @@ class SQPEngine(BaseEngine):
     algorithm_id   = "sqp"
     algorithm_name = "Sequential Quadratic Programming"
     family         = "math"
+    _REFERENCE     = {"doi": "10.1017/S0962492900002518"}
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(ro=0.5, eta=0.1, sigma0=0.8, max_ls=20)
 

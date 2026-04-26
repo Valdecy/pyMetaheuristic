@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class TDOEngine(PortedPopulationEngine):
     """Tasmanian Devil Optimization — carrion/prey feeding with neighbourhood-radius chase."""
     algorithm_id = "tdo"; algorithm_name = "Tasmanian Devil Optimization"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2022.3151642"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

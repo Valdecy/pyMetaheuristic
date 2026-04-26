@@ -9,6 +9,7 @@ class SINE_COSINE_AEngine(BaseEngine):
     algorithm_id   = "sine_cosine_a"
     algorithm_name = "Sine Cosine Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2015.12.022"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(solutions=5, a_linear_component=2)
 

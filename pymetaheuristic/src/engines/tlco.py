@@ -15,7 +15,7 @@ def _levy(n,d,beta=1.5):
 class TLCOEngine(PortedPopulationEngine):
     algorithm_id   = "tlco"
     algorithm_name = "Termite Life Cycle Optimizer"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.eswa.2022.119211"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

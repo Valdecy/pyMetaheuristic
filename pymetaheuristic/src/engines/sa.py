@@ -46,6 +46,7 @@ class SAEngine(BaseEngine):
     algorithm_id   = "sa"
     algorithm_name = "Simulated Annealing"
     family         = "trajectory"
+    _REFERENCE     = {"doi": "10.1126/science.220.4598.671"}
     capabilities   = CapabilityProfile(
         has_population               = False,
         has_archive                  = False,

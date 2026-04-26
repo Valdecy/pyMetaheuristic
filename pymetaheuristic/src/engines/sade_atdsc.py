@@ -16,6 +16,7 @@ class SADEATDSCEngine(BaseEngine):
     algorithm_id   = "sade_atdsc"
     algorithm_name = "Surrogate-Assisted DE with Adaptive Training Data Selection Criterion"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/SSCI51031.2022.10022105"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, F=0.5, CR=0.9)
 

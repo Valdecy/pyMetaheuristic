@@ -12,6 +12,7 @@ class MKEEngine(PortedPopulationEngine):
     algorithm_id = "mke"
     algorithm_name = "Monkey King Evolution V1"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2016.01.009"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, fluctuation_coeff=0.7, population_rate=0.3, c=3.0, fc=0.5)
 

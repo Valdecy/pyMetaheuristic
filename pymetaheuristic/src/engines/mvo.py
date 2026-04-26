@@ -9,6 +9,7 @@ class MVOEngine(BaseEngine):
     algorithm_id   = "mvo"
     algorithm_name = "Multi-Verse Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/s00521-015-1870-7"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(universes=5)
 

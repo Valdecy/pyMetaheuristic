@@ -9,6 +9,7 @@ class WDOEngine(PortedPopulationEngine):
     algorithm_id   = "wdo"
     algorithm_name = "Wind Driven Optimization"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.1109/APS.2010.5562213"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

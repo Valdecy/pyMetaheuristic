@@ -9,6 +9,7 @@ class SOSEngine(BaseEngine):
     algorithm_id   = "sos"
     algorithm_name = "Symbiotic Organisms Search"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.compstruc.2014.03.007"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=5, eta=1)
 

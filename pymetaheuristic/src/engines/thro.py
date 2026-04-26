@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class THROEngine(PortedPopulationEngine):
     """Tianji Horse Racing Optimizer — binary mask swap between Tianji and King horse groups."""
     algorithm_id = "thro"; algorithm_name = "Tianji Horse Racing Optimizer"; family = "human"
+    _REFERENCE     = {"doi": "10.1007/s10462-025-11269-9"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

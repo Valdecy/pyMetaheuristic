@@ -10,6 +10,7 @@ class MPAEngine(PortedPopulationEngine):
     algorithm_id   = "mpa"
     algorithm_name = "Marine Predators Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2020.113377"}
     capabilities   = CapabilityProfile(
         has_population=True,
         supports_candidate_injection=True,

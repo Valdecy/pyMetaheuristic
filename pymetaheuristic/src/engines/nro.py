@@ -10,6 +10,7 @@ class NROEngine(PortedPopulationEngine):
     algorithm_id   = "nro"
     algorithm_name = "Nuclear Reaction Optimization"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2019.2918406"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

@@ -12,6 +12,7 @@ class SHADEEngine(PortedPopulationEngine):
     algorithm_id = "shade"
     algorithm_name = "Success-History Adaptive Differential Evolution"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/CEC.2014.6900380"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=100, extern_arc_rate=2.6, pbest_factor=0.11, hist_mem_size=6)
 

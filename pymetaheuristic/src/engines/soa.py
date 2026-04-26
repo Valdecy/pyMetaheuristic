@@ -8,7 +8,7 @@ class SOAEngine(PortedPopulationEngine):
     """Seagull Optimization Algorithm — spiral-attack with linearly decreasing frequency."""
     algorithm_id   = "soa"
     algorithm_name = "Seagull Optimization Algorithm"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.knosys.2018.11.024"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

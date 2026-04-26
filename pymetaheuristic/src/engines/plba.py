@@ -12,6 +12,7 @@ class PLBAEngine(PortedPopulationEngine):
     algorithm_id = "plba"
     algorithm_name = "Parameter-Free Bat Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.3390/s21134389"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40)
 

@@ -8,7 +8,7 @@ class SMAEngine(PortedPopulationEngine):
     """Slime Mould Algorithm — oscillation weights model foraging behaviour of slime mould."""
     algorithm_id   = "sma"
     algorithm_name = "Slime Mould Algorithm"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.future.2020.03.055"}
     capabilities   = CapabilityProfile(
         has_population=True,

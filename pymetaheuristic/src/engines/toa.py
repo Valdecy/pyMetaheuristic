@@ -9,6 +9,7 @@ class TOAEngine(PortedPopulationEngine):
     algorithm_id   = "toa"
     algorithm_name = "Teamwork Optimization Algorithm"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1007/s13042-021-01432-3"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

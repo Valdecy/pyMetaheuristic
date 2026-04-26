@@ -8,7 +8,7 @@ class VCSEngine(PortedPopulationEngine):
     """Virus Colony Search — diffusion, host-cell infection and immune-response phases."""
     algorithm_id   = "vcs"
     algorithm_name = "Virus Colony Search"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.advengsoft.2015.11.004"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

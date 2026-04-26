@@ -12,6 +12,7 @@ class MSHOAEngine(PortedPopulationEngine):
     algorithm_id = "mshoa"
     algorithm_name = "Mantis Shrimp Optimization Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.3390/math13091500"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, k_value=0.3, use_reflection=True)
 

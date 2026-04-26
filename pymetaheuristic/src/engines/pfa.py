@@ -9,6 +9,7 @@ class PFAEngine(BaseEngine):
     algorithm_id   = "pfa"
     algorithm_name = "Pathfinder Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.asoc.2019.03.012"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=15)
 

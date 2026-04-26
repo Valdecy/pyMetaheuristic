@@ -9,6 +9,7 @@ class SPBOEngine(BaseEngine):
     algorithm_id   = "spbo"
     algorithm_name = "Student Psychology Based Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2020.102804"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=50)
 

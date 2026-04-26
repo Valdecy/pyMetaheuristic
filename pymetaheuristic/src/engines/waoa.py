@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class WAOAEngine(PortedPopulationEngine):
     """Walrus Optimization Algorithm — feeding exploration and range-narrowing exploitation."""
     algorithm_id = "waoa"; algorithm_name = "Walrus Optimization Algorithm"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1038/s41598-023-35863-5"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

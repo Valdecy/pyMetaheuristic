@@ -9,6 +9,7 @@ class NGOEngine(PortedPopulationEngine):
     algorithm_id   = "ngo"
     algorithm_name = "Northern Goshawk Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2021.3133286"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

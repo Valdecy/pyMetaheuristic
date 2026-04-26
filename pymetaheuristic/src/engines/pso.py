@@ -37,6 +37,7 @@ class PSOEngine(BaseEngine):
     algorithm_id   = "pso"
     algorithm_name = "Particle Swarm Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ICNN.1995.488968"}
     capabilities   = CapabilityProfile(
         has_population              = True,
         has_archive                 = False,

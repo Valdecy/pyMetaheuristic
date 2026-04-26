@@ -14,6 +14,7 @@ class MVPAEngine(BaseEngine):
     algorithm_id   = "mvpa"
     algorithm_name = "Most Valuable Player Algorithm"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1007/s12351-017-0307-5"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, team_size=None, archive_size=None, c1=1.0, c2=2.0)
 

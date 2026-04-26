@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class SERVALOAEngine(PortedPopulationEngine):
     """Serval Optimization Algorithm — random-prey attack and chase-with-range-narrowing."""
     algorithm_id = "serval_oa"; algorithm_name = "Serval Optimization Algorithm"; family = "swarm"
+    _REFERENCE     = {"doi": "10.3390/biomimetics7040204"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

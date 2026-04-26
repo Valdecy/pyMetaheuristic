@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class STOEngine(PortedPopulationEngine):
     """Siberian Tiger Optimization — prey hunting plus scaled range reduction."""
     algorithm_id = "sto"; algorithm_name = "Siberian Tiger Optimization"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2022.3229964"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

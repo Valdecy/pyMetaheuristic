@@ -29,6 +29,7 @@ class SDEngine(BaseEngine):
     algorithm_id   = "sd"
     algorithm_name = "Steepest Descent"
     family         = "math"
+    _REFERENCE     = {"doi": "10.1006/hmat.1996.2146"}
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(beta=0.6, sigma=0.4, max_ls=20)
 
