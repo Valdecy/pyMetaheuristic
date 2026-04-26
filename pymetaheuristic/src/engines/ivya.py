@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class IVYAEngine(PortedPopulationEngine):
     algorithm_id   = "ivya"
     algorithm_name = "Ivy Algorithm"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.knosys.2024.111850"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

@@ -12,6 +12,7 @@ class FSSEngine(PortedPopulationEngine):
     algorithm_id = "fss"
     algorithm_name = "Fish School Search"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ICSMC.2008.4811695"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, step_individual_init=0.1, step_individual_final=0.0001, step_volitive_init=0.01, step_volitive_final=0.001, min_weight=1.0, max_weight=5.0)
 

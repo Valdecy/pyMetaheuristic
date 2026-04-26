@@ -12,6 +12,7 @@ class CROEngine(PortedPopulationEngine):
     algorithm_id = "cro"
     algorithm_name = "Coral Reefs Optimization"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1155/2014/739768"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=25, broadcast_prob=0.5, mutation_rate=0.1, depredation_prob=0.05, larvae_factor=1.0)
 

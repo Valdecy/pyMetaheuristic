@@ -12,6 +12,7 @@ class FWAEngine(PortedPopulationEngine):
     algorithm_id = "fwa"
     algorithm_name = "Fireworks Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.asoc.2017.10.046"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=5, num_sparks=50, a=0.04, b=0.8, max_amplitude=0.4, num_gaussian=5)
 

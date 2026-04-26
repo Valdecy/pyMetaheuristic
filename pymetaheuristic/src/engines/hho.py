@@ -9,6 +9,7 @@ class HHOEngine(BaseEngine):
     algorithm_id   = "hho"
     algorithm_name = "Harris Hawks Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.future.2019.02.028"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(hawks=50)
 

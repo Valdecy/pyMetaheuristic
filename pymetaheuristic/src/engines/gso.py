@@ -12,6 +12,7 @@ class GSOEngine(PortedPopulationEngine):
     algorithm_id = "gso"
     algorithm_name = "Glowworm Swarm Optimization"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1007/978-3-319-51595-3"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=25, l0=5.0, nt=5.0, rho=0.4, gamma=0.6, beta=0.08, s=0.03, max_radius=1.0)
 

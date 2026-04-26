@@ -9,6 +9,7 @@ class FIREFLY_AEngine(BaseEngine):
     algorithm_id   = "firefly_a"
     algorithm_name = "Firefly Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1504/IJBIC.2010.032124"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(swarm_size=25, alpha_0=0.2, beta_0=1.0, gama=1.0)
 

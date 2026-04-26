@@ -12,6 +12,7 @@ class HSABAEngine(PortedPopulationEngine):
     algorithm_id = "hsaba"
     algorithm_name = "Hybrid Self-Adaptive Bat Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1155/2014/709738"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=100, min_loudness=0.9, max_loudness=1.0, min_pulse_rate=0.001, max_pulse_rate=0.1, tao_1=0.1, tao_2=0.1, min_frequency=0.0, max_frequency=2.0, differential_weight=0.9, crossover_probability=0.85)
 

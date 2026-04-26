@@ -29,6 +29,7 @@ class AdamEngine(BaseEngine):
     algorithm_id   = "adam"
     algorithm_name = "Adam (Adaptive Moment Estimation)"
     family         = "math"
+    _REFERENCE     = {"doi": "10.48550/arXiv.1412.6980"}
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(alpha=1.0, beta1=0.9, beta2=0.999, epsilon=1e-8)
 

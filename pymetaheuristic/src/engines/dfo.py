@@ -9,6 +9,7 @@ class DFOEngine(BaseEngine):
     algorithm_id   = "dfo"
     algorithm_name = "Dispersive Fly Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.15439/2014F142"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=15, dt=0.2)
 

@@ -16,6 +16,7 @@ class IMODEEngine(BaseEngine):
     algorithm_id   = "imode"
     algorithm_name = "Improved Multi-Operator Differential Evolution"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/CEC48606.2020.9185577"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=100, min_population=4, archive_rate=2.6, memory_size=None)
 

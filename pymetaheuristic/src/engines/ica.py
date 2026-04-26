@@ -9,6 +9,7 @@ class ICAEngine(PortedPopulationEngine):
     algorithm_id   = "ica"
     algorithm_name = "Imperialist Competitive Algorithm"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1109/CEC.2007.4425083"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

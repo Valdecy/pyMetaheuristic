@@ -13,6 +13,7 @@ class ACGWOEngine(BaseEngine):
     algorithm_id   = "acgwo"
     algorithm_name = "Adaptive Chaotic Grey Wolf Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/s42835-023-01621-w"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS = dict(pack_size=15, lmbda=0.5)
 

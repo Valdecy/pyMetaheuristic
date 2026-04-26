@@ -8,6 +8,7 @@ class GAEngine(BaseEngine):
     algorithm_id   = "ga"
     algorithm_name = "Genetic Algorithm"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.7551/mitpress/1090.001.0001"}
     capabilities   = CapabilityProfile(has_population=True,supports_candidate_injection=True)
     _DEFAULTS = dict(population_size=25, mutation_rate=0.1, elite=1, eta=1, mu=1)
 

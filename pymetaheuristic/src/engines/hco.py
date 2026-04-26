@@ -9,6 +9,7 @@ class HCOEngine(PortedPopulationEngine):
     algorithm_id   = "hco"
     algorithm_name = "Human Conception Optimizer"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1038/s41598-022-25031-6"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

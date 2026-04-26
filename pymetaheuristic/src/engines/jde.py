@@ -12,6 +12,7 @@ class JDEEngine(PortedPopulationEngine):
     algorithm_id = "jde"
     algorithm_name = "Self-Adaptive Differential Evolution"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/TEVC.2006.872133"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, f_lower=0.0, f_upper=1.0, tao1=0.4, tao2=0.2, crossover_probability=0.9, differential_weight=0.5)
 

@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class FFOEngine(PortedPopulationEngine):
     """Fennec Fox Optimizer — digging exploitation and predator-escape exploration."""
     algorithm_id = "ffo"; algorithm_name = "Fennec Fox Optimizer"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2022.3197745"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

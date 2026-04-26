@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class LPOEngine(PortedPopulationEngine):
     algorithm_id   = "lpo"
     algorithm_name = "Lungs Performance-Based Optimization"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.cma.2023.116582"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

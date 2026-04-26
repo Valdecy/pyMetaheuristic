@@ -9,6 +9,7 @@ class COCKROACH_SOEngine(BaseEngine):
     algorithm_id   = "cockroach_so"
     algorithm_name = "Cockroach Swarm Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ICCET.2010.5485993"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=10, step=2)
 

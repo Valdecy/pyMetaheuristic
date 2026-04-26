@@ -9,6 +9,7 @@ class JSOEngine(BaseEngine):
     algorithm_id   = "jso"
     algorithm_name = "Jellyfish Search Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.amc.2020.125535"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(jellyfishes=25, eta=4.0, beta=3.0, gamma=0.1, c_0=0.5)
 

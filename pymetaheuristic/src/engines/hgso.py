@@ -9,6 +9,7 @@ class HGSOEngine(PortedPopulationEngine):
     algorithm_id   = "hgso"
     algorithm_name = "Henry Gas Solubility Optimization"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.1016/j.future.2019.07.015"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

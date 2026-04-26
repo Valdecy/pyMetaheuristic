@@ -8,6 +8,7 @@ class AOAEngine(BaseEngine):
     algorithm_id   = "aoa"
     algorithm_name = "Arithmetic Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.cma.2020.113609"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=250, alpha=0.5, mu=5)
 

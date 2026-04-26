@@ -9,6 +9,7 @@ class CAEngine(BaseEngine):
     algorithm_id   = "ca"
     algorithm_name = "Cultural Algorithm"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1142/9789814534116"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=200, num_acc_ratio=0.20)
 

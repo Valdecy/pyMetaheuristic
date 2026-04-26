@@ -8,6 +8,7 @@ class KHAEngine(BaseEngine):
     algorithm_id   = "kha"
     algorithm_name = "Krill Herd Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.asoc.2016.08.041"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=15, c_t=1.0)
 

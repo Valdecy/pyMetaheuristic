@@ -9,6 +9,7 @@ class DAEngine(BaseEngine):
     algorithm_id   = "da"
     algorithm_name = "Dragonfly Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/s00521-015-1920-1"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=3)
 

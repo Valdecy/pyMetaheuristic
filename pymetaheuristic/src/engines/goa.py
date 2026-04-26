@@ -9,6 +9,7 @@ class GOAEngine(BaseEngine):
     algorithm_id   = "goa"
     algorithm_name = "Grasshopper Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2017.01.004"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(grasshoppers=25, c_min=0.00004, c_max=1.0, F=0.5, L=1.5)
 

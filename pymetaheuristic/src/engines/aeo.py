@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class AEOEngine(PortedPopulationEngine):
     """Artificial Ecosystem Optimization — production, herbivore/carnivore/omnivore consumption."""
     algorithm_id = "aeo"; algorithm_name = "Artificial Ecosystem Optimization"; family = "human"
+    _REFERENCE     = {"doi": "10.1007/s00521-019-04452-x"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

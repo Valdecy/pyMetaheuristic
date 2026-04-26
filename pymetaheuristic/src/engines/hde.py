@@ -12,6 +12,7 @@ class HDEEngine(PortedPopulationEngine):
     algorithm_id = "hde"
     algorithm_name = "Differential Evolution MTS"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/CEC.2009.4983179"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, differential_weight=0.5, crossover_probability=0.9, local_searches=5, search_range=0.1)
 

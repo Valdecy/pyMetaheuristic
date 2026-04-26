@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class FFAEngine(PortedPopulationEngine):
     """Fruit-Fly Algorithm — distance-attenuated brightness attraction with random mutation."""
     algorithm_id = "ffa"; algorithm_name = "Fruit-Fly Algorithm"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2011.07.001"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, gamma=0.001, beta_base=2.0, alpha=0.2, alpha_damp=0.99, delta=0.05, exponent=2)

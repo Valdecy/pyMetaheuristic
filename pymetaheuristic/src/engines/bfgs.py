@@ -29,6 +29,7 @@ class BFGSEngine(BaseEngine):
     algorithm_id   = "bfgs"
     algorithm_name = "BFGS Quasi-Newton Method"
     family         = "math"
+    _REFERENCE     = {"doi": "10.1090/S0025-5718-1970-0274029-X"}
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(beta=0.6, sigma=0.4, max_ls=20)
 

@@ -9,6 +9,7 @@ class COAEngine(PortedPopulationEngine):
     algorithm_id   = "coa"
     algorithm_name = "Coyote Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/CEC.2018.8477769"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

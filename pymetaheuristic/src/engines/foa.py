@@ -12,6 +12,7 @@ class FOAEngine(PortedPopulationEngine):
     algorithm_id = "foa"
     algorithm_name = "Forest Optimization Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2014.05.009"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=10, lifetime=3, area_limit=10, local_seeding_changes=1, global_seeding_changes=1, transfer_rate=0.1)
 

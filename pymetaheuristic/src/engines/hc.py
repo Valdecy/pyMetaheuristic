@@ -10,5 +10,6 @@ class HCEngine(PortedTrajectoryEngine):
     algorithm_id = "hc"
     algorithm_name = "Hill Climb Algorithm"
     family = "trajectory"
+    _REFERENCE     = {"doi": "10.1007/978-3-540-75256-1_52"}
     capabilities = CapabilityProfile(has_population=False, supports_candidate_injection=False, supports_checkpoint=True, supports_framework_constraints=True)
     _DEFAULTS = dict(delta=0.5, neighborhood_size=20, expand=1.0, contract=0.95)

@@ -9,6 +9,7 @@ class FPAEngine(BaseEngine):
     algorithm_id   = "fpa"
     algorithm_name = "Flower Pollination Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/978-3-642-32894-7_27"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(flowers=25, gama=0.5, lamb=1.4, p=0.8)
 

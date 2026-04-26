@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class ESOAEngine(PortedPopulationEngine):
     """Egret Swarm Optimization Algorithm — gradient-estimated individual+group direction flight."""
     algorithm_id = "esoa"; algorithm_name = "Egret Swarm Optimization Algorithm"; family = "swarm"
+    _REFERENCE     = {"doi": "10.3390/biomimetics7040144"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, beta1=0.9, beta2=0.99)

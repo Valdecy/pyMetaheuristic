@@ -9,6 +9,7 @@ class GSAEngine(BaseEngine):
     algorithm_id   = "gsa"
     algorithm_name = "Gravitational Search Algorithm"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.1016/j.ins.2009.03.004"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(swarm_size=200)
 

@@ -15,7 +15,7 @@ def _levy(n,d,beta=1.5):
 class DandelionOEngine(PortedPopulationEngine):
     algorithm_id   = "do_dandelion"
     algorithm_name = "Dandelion Optimizer"
-    family         = "swarm"
+    family         = "physics"
     _REFERENCE     = {"doi": "10.1016/j.engappai.2022.105075"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

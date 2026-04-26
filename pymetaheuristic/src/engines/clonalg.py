@@ -8,7 +8,8 @@ from .protocol import (BaseEngine, CandidateRecord, CapabilityProfile,
 class CLONALGEngine(BaseEngine):
     algorithm_id   = "clonalg"
     algorithm_name = "Clonal Selection Algorithm"
-    family         = "immune"
+    family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/TEVC.2002.1011539"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=200, clone_factor=0.1, num_rand=2)
 

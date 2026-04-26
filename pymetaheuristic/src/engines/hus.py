@@ -9,6 +9,7 @@ class HUSEngine(BaseEngine):
     algorithm_id   = "hus"
     algorithm_name = "Hunting Search Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ICSCCW.2009.5379451"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=15, alpha=0.5, beta=0.01, mml=0.5, c_rate=0.5, min_radius=0.5, max_radius=2.0)
 

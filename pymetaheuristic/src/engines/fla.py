@@ -9,6 +9,7 @@ class FLAEngine(PortedPopulationEngine):
     algorithm_id   = "fla"
     algorithm_name = "Fick's Law Algorithm"
     family         = "physics"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2022.110146"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

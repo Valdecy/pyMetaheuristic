@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class CSBOEngine(PortedPopulationEngine):
     algorithm_id   = "csbo"
     algorithm_name = "Circulatory System Based Optimization"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1007/s10462-021-10044-y"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

@@ -12,6 +12,7 @@ class BFOEngine(PortedPopulationEngine):
     algorithm_id = "bfo"
     algorithm_name = "Bacterial Foraging Optimization"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/MCS.2002.1004010"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, step_size=0.1, n_swim=4, reproduction_interval=10, elimination_prob=0.25)
 

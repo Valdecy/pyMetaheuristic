@@ -9,6 +9,7 @@ class BBOAEngine(PortedPopulationEngine):
     algorithm_id   = "bboa"
     algorithm_name = "Brown-Bear Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1201/9781003337003-6"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

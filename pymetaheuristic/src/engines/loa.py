@@ -12,6 +12,7 @@ class LOAEngine(PortedPopulationEngine):
     algorithm_id = "loa"
     algorithm_name = "Lion Optimization Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.jcde.2015.06.003"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, nomad_ratio=0.2, mating_prob=0.4, roaming_prob=0.2, mutation_rate=0.1)
 

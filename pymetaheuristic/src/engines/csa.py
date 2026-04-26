@@ -9,6 +9,7 @@ class CSAEngine(BaseEngine):
     algorithm_id   = "csa"
     algorithm_name = "Crow Search Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.compstruc.2016.03.001"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=25, ap=0.02, fL=0.02)
 

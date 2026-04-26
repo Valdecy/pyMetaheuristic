@@ -9,6 +9,7 @@ class EPEngine(PortedPopulationEngine):
     algorithm_id   = "ep"
     algorithm_name = "Evolutionary Programming"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1007/BF00175356"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

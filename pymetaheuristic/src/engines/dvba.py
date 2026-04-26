@@ -9,6 +9,7 @@ class DVBAEngine(BaseEngine):
     algorithm_id   = "dvba"
     algorithm_name = "Dynamic Virtual Bats Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/INCoS.2014.40"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=20, wave_vectors=5, search_points=6, bats=20, beta=100)
 

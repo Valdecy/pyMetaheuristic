@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class LCAEngine(PortedPopulationEngine):
     algorithm_id   = "lca"
     algorithm_name = "Liver Cancer Algorithm"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.asoc.2023.111039"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

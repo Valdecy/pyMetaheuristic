@@ -9,6 +9,7 @@ class CHICKEN_SOEngine(BaseEngine):
     algorithm_id   = "chicken_so"
     algorithm_name = "Chicken Swarm Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/978-3-319-11857-4_10"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=10, g=5, rooster_ratio=0.2, hen_ratio=0.6)
 

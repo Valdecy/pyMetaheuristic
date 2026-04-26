@@ -18,6 +18,7 @@ class GTOEngine(PortedPopulationEngine):
     algorithm_id   = "gto"
     algorithm_name = "Giant Trevally Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ACCESS.2022.3223388"}
     capabilities   = CapabilityProfile(
         has_population=True,
         supports_candidate_injection=True,

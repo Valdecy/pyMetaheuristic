@@ -12,6 +12,7 @@ class CamelEngine(PortedPopulationEngine):
     algorithm_id = "camel"
     algorithm_name = "Camel Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.33762/eeej.2016.118375"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, endurance_init=1.0, supply_init=1.0, visibility=0.5, burden_factor=0.1, death_rate=0.05)
 

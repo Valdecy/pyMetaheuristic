@@ -12,6 +12,7 @@ class HBAEngine(PortedPopulationEngine):
     algorithm_id = "hba"
     algorithm_name = "Hybrid Bat Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.48550/arXiv.1303.6310"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, loudness=1.0, pulse_rate=0.5, alpha=0.97, gamma=0.1, min_frequency=0.0, max_frequency=2.0, differential_weight=0.5, crossover_probability=0.9, use_de_local_search=True)
 

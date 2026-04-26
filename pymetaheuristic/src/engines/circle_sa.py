@@ -9,6 +9,7 @@ class CIRCLESAEngine(PortedPopulationEngine):
     algorithm_id   = "circle_sa"
     algorithm_name = "Circle-Based Search Algorithm"
     family         = "math"
+    _REFERENCE     = {"doi": "10.3390/math10101626"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

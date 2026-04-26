@@ -8,7 +8,7 @@ class BCOEngine(PortedPopulationEngine):
     """Bacterial Chemotaxis Optimizer — tumble/swim with personal+global direction blending."""
     algorithm_id   = "bco"
     algorithm_name = "Bacterial Chemotaxis Optimizer"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1109/MCS.2002.1004010"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

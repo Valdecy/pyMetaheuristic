@@ -8,6 +8,7 @@ class ALOEngine(BaseEngine):
     algorithm_id   = "alo"
     algorithm_name = "Ant Lion Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2015.01.010"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(colony_size=500)
 

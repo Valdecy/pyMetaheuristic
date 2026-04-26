@@ -12,6 +12,7 @@ class ASOEngine(PortedPopulationEngine):
     algorithm_id = "aso"
     algorithm_name = "Anarchic Society Optimization"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1109/CEC.2011.5949940"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=43, alpha=(1.0, 0.83), gamma=(1.17, 0.56), theta=(0.932, 0.832), noise=0.05)
 

@@ -12,6 +12,7 @@ class BEAEngine(PortedPopulationEngine):
     algorithm_id = "bea"
     algorithm_name = "Bees Algorithm"
     family = "swarm"
+    _REFERENCE     = {"doi": "10.1016/B978-008045157-2/50081-X"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, m=5, e=4, ngh=0.15, nep=4, nsp=2, shrink=0.95)
 

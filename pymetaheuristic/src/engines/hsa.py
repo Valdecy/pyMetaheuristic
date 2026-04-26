@@ -8,6 +8,7 @@ class HSAEngine(BaseEngine):
     algorithm_id   = "hsa"
     algorithm_name = "Harmony Search Algorithm"
     family         = "trajectory"
+    _REFERENCE     = {"doi": "10.1177/003754970107600201"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=200, consid_rate=0.95, adjust_rate=0.7, bw=0.05)
 

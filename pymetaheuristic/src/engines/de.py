@@ -9,6 +9,7 @@ class DEEngine(BaseEngine):
     algorithm_id   = "de"
     algorithm_name = "Differential Evolution"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1023/A:1008202821328"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=3, F=0.9, Cr=0.2)
 

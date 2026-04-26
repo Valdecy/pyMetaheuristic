@@ -9,6 +9,7 @@ class HGSEngine(PortedPopulationEngine):
     algorithm_id   = "hgs"
     algorithm_name = "Hunger Games Search"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2021.114864"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

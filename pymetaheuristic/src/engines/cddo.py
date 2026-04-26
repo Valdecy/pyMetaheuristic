@@ -9,7 +9,7 @@ class CDDOEngine(PortedPopulationEngine):
     algorithm_id   = "cddo"
     algorithm_name = "Cheetah Based Optimization"
     family         = "human"
-    _REFERENCE     = {"doi": "10.1007/s13369-021-05928-6"}
+    _REFERENCE     = {"doi": "10.1038/s41598-022-14338-z"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

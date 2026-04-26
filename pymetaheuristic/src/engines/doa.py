@@ -9,6 +9,7 @@ class DOAEngine(PortedPopulationEngine):
     algorithm_id   = "doa"
     algorithm_name = "Deer Hunting Optimization Algorithm"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1093/comjnl/bxy133"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

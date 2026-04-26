@@ -7,6 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class CDOEngine(PortedPopulationEngine):
     """Cheetah Optimizer — three-speed spiral attack using top-3 best positions."""
     algorithm_id = "cdo"; algorithm_name = "Cheetah Optimizer"; family = "swarm"
+    _REFERENCE     = {"doi": "10.1038/s41598-022-14338-z"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50)

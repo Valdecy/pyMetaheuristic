@@ -8,6 +8,7 @@ class BATAEngine(BaseEngine):
     algorithm_id   = "bat_a"
     algorithm_name = "Bat Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/978-3-642-12538-6_6"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(swarm_size=50, alpha=0.9, gama=0.9, fmin=0.0, fmax=10.0)
 

@@ -8,7 +8,8 @@ class IWOEngine(PortedPopulationEngine):
     """Invasive Weed Optimization — seed dispersal with adaptive sigma reduction."""
     algorithm_id   = "iwo"
     algorithm_name = "Invasive Weed Optimization"
-    family         = "bio"
+    family         = "nature"
+    _REFERENCE     = {"doi": "10.1016/j.ecoinf.2006.07.003"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

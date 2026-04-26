@@ -18,7 +18,7 @@ class EcologicalCycleOEngine(PortedPopulationEngine):
     algorithm_id = "ecological_cycle_o"
     algorithm_name = "Ecological Cycle Optimizer"
     family = "swarm"
-    _REFERENCE = {"url": "https://github.com/jiaxiao-shi/ECO-Optimizer"}
+    _REFERENCE     = {"doi": "10.48550/arXiv.2508.20458"}
     capabilities = CapabilityProfile(
         has_population=True,
         supports_candidate_injection=True,

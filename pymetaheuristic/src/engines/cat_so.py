@@ -9,6 +9,7 @@ class CAT_SOEngine(BaseEngine):
     algorithm_id   = "cat_so"
     algorithm_name = "Cat Swarm Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1007/978-3-540-36668-3_94"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=15, mixture_ratio=0.2, seeking_range=0.2, dim_change=2, c1=0.5)
 

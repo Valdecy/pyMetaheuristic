@@ -9,6 +9,7 @@ class EHOEngine(BaseEngine):
     algorithm_id   = "eho"
     algorithm_name = "Elephant Herding Optimization"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/ISCBI.2015.8"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=50, alpha=0.5, beta=0.1)
 

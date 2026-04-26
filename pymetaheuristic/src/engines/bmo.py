@@ -8,7 +8,7 @@ class BMOEngine(PortedPopulationEngine):
     """Barnacles Mating Optimizer — penis-length threshold crossover between permuted pairs."""
     algorithm_id   = "bmo"
     algorithm_name = "Barnacles Mating Optimizer"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1109/ICOICA.2019.8895393"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

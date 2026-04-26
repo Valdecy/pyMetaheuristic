@@ -18,7 +18,7 @@ class CrayfishOAEngine(PortedPopulationEngine):
     algorithm_id = "crayfish_oa"
     algorithm_name = "Crayfish Optimization Algorithm"
     family = "swarm"
-    _REFERENCE = {"url": "https://scholar.google.com/scholar?q=Crayfish+Optimization+Algorithm+Heming+Jia+Seyedali+Mirjalili"}
+    _REFERENCE     = {"doi": "10.1007/s10462-023-10567-4"}
     capabilities = CapabilityProfile(
         has_population=True,
         supports_candidate_injection=True,

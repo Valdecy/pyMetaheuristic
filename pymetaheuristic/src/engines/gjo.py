@@ -18,6 +18,7 @@ class GJOEngine(PortedPopulationEngine):
     algorithm_id   = "gjo"
     algorithm_name = "Golden Jackal Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2022.116924"}
     capabilities   = CapabilityProfile(
         has_population=True,
         supports_candidate_injection=True,

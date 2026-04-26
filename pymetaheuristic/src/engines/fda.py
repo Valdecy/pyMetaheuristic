@@ -9,6 +9,7 @@ class FDAEngine(BaseEngine):
     algorithm_id   = "fda"
     algorithm_name = "Flow Direction Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.cie.2021.107224"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=25, beta=8)
 

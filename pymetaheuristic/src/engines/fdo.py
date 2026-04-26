@@ -11,7 +11,7 @@ def _levy_fdo(dim):
 class FDOEngine(PortedPopulationEngine):
     """Flying Dobsonflies Optimizer — fitness-weighted Lévy steps toward global best."""
     algorithm_id = "fdo"; algorithm_name = "Flying Dobsonflies Optimizer"; family = "swarm"
-    _REFERENCE   = {"doi": "10.1007/s11831-022-09849-3"}
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2020.105574"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, weight_factor=0.1)

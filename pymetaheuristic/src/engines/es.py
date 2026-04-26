@@ -12,6 +12,7 @@ class ESEngine(PortedPopulationEngine):
     algorithm_id = "es"
     algorithm_name = "Evolution Strategy (mu + lambda)"
     family = "evolutionary"
+    _REFERENCE     = {"doi": "10.1023/A:1015059928466"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, lam=45, sigma=0.15, tau=None, tau_prime=None)
 

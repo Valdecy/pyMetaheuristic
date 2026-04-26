@@ -8,7 +8,7 @@ class EOAEngine(PortedPopulationEngine):
     """Earthworm Optimization Algorithm — reproduction and Cauchy mutation on sorted population."""
     algorithm_id   = "eoa"
     algorithm_name = "Earthworm Optimization Algorithm"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1504/IJBIC.2015.10004283"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

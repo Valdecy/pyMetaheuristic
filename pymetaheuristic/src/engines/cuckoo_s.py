@@ -9,6 +9,7 @@ class CUCKOO_SEngine(BaseEngine):
     algorithm_id   = "cuckoo_s"
     algorithm_name = "Cuckoo Search"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1109/NABIC.2009.5393690"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(birds=3, discovery_rate=0.25, alpha_value=0.01, lambda_value=1.5)
 

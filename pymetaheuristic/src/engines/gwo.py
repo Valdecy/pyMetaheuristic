@@ -9,6 +9,7 @@ class GWOEngine(BaseEngine):
     algorithm_id   = "gwo"
     algorithm_name = "Grey Wolf Optimizer"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.advengsoft.2013.12.007"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(pack_size=5)
 

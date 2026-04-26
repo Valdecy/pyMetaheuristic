@@ -8,7 +8,8 @@ class EAOEngine(PortedPopulationEngine):
     """Enzyme Activity Optimizer — three substrate candidates with adaptation factor."""
     algorithm_id   = "eao"
     algorithm_name = "Enzyme Activity Optimizer"
-    family         = "bio"
+    family         = "nature"
+    _REFERENCE     = {"doi": "10.3390/math12213326"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

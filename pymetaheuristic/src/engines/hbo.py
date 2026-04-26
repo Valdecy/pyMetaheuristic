@@ -9,6 +9,7 @@ class HBOEngine(PortedPopulationEngine):
     algorithm_id   = "hbo"
     algorithm_name = "Heap-Based Optimizer"
     family         = "human"
+    _REFERENCE     = {"doi": "10.1016/j.eswa.2020.113702"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

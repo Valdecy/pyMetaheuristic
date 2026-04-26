@@ -9,6 +9,7 @@ class JYEngine(BaseEngine):
     algorithm_id   = "jy"
     algorithm_name = "Jaya Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.5267/j.ijiec.2015.8.004"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=25)
 

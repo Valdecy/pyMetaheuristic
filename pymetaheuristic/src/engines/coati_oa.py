@@ -9,6 +9,7 @@ class COATI_OAEngine(BaseEngine):
     algorithm_id   = "coati_oa"
     algorithm_name = "Coati Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2022.110011"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=25)
 

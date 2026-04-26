@@ -9,6 +9,7 @@ class BBOEngine(BaseEngine):
     algorithm_id   = "bbo"
     algorithm_name = "Biogeography-Based Optimization"
     family         = "evolutionary"
+    _REFERENCE     = {"doi": "10.1109/TEVC.2008.919004"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=50, mutation_rate=0.1, elite=1, eta=1)
 

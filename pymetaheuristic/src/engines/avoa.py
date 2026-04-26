@@ -18,6 +18,7 @@ class AVOAEngine(PortedPopulationEngine):
     algorithm_id   = "avoa"
     algorithm_name = "African Vultures Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.cie.2021.107408"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

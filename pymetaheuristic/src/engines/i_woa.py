@@ -8,6 +8,7 @@ class I_WOAEngine(BaseEngine):
     algorithm_id   = "i_woa"
     algorithm_name = "Improved Whale Optimization Algorithm"
     family         = "swarm"
+    _REFERENCE     = {"doi": "10.1016/j.jcde.2019.02.002"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(hunting_party=25, spiral_param=1, mu=1)
 
