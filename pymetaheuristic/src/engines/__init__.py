@@ -350,12 +350,6 @@ REGISTRY: dict[str, type[BaseEngine]] = {
     for cls in _ENGINE_CLASSES
 }
 
-# Compatibility alias for the historical Bonobo Optimizer module name.
-# The public algorithm ID in the table is "bono".
-_REGISTRY_ALIASES: dict[str, str] = {
-    "bo_bonobo": "bono",
-}
-
 for _old_id, _new_id in _REGISTRY_ALIASES.items():
     if _new_id not in REGISTRY and _old_id in REGISTRY:
         REGISTRY[_new_id] = REGISTRY[_old_id]
