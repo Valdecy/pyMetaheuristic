@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class ArtemisininOEngine(PortedPopulationEngine):
     algorithm_id   = "artemisinin_o"
     algorithm_name = "Artemisinin Optimization"
-    family         = "bio"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.displa.2024.102740"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
