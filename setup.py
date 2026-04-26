@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="pymetaheuristic",
-    version="5.7.2",
+    version="5.7.5",
     license="GNU",
     author="Valdecy Pereira",
     author_email="valdecy.pereira@gmail.com",
@@ -22,12 +22,16 @@ setup(
         "plotly",
         "scipy",
         "tabulate",
+        "fastapi",
+        "uvicorn[standard]",
+        "pydantic",
     ],
     description="pymetaheuristic: A Python Library for Metaheuristic Optimization and Collaborative Search",
     long_description=long_description,
     long_description_content_type="text/markdown",
     include_package_data=True,
     package_data={
-        "pymetaheuristic.src": ["cec2022_input_data/*.txt"],
+        "pymetaheuristic.src": ["cec2022_input_data/*.txt"], 
+        "pymetaheuristic.web": ["app.html"],
     },
 )
