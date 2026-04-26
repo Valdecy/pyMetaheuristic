@@ -9,7 +9,7 @@ class APOEngine(PortedPopulationEngine):
     """Artificial Protozoa Optimizer — dormancy, reproduction, foraging behaviors."""
     algorithm_id   = "apo"
     algorithm_name = "Artificial Protozoa Optimizer"
-    family         = "bio"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.knosys.2024.111737"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
