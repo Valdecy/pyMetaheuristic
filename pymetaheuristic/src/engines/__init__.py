@@ -501,7 +501,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'acgwo'             : 'Adaptive Chaotic Grey Wolf Optimizer',
     'aesspso'           : 'Adaptive Exploration State-Space Particle Swarm Optimization',
     'ars'               : 'Adaptive Random Search',
-    'aft'               : 'Affix Optimization',
+    'aft'               : 'Ali Baba and the Forty Thieves',
     'avoa'              : 'African Vultures Optimization Algorithm',
     'aso'               : 'Anarchic Society Optimization',
     'aco'               : 'Ant Colony Optimization',
