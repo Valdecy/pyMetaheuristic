@@ -6,6 +6,8 @@ from ._ported_common import PortedPopulationEngine
 
 class SFOAEngine(PortedPopulationEngine):
     """Starfish Optimization Algorithm — cosine-arm exploration and five-arm exploitation."""
+    algorithm_id   = "sfoa"
+    algorithm_name = "Starfish Optimization Algorithm"
     family         = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.swevo.2023.101262"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,

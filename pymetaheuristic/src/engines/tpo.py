@@ -6,6 +6,8 @@ from ._ported_common import PortedPopulationEngine
 
 class TPOEngine(PortedPopulationEngine):
     """Tree Physiology Optimization — carbon/nutrient feedback leaf update around best."""
+    algorithm_id   = "tpo"
+    algorithm_name = "Tree Physiology Optimization"
     family         = "nature"
     _REFERENCE     = {"doi": "10.1080/0305215X.2017.1305421"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,

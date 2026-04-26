@@ -26,13 +26,20 @@ class TTAOEngine(PortedPopulationEngine):
     _DEFAULTS = dict(population_size=30)
     _MIN_P_SIZE = 6
 
-    def __init__(self, *args, population_size=None, **kwargs):
-        if population_size is None:
-            population_size = self._DEFAULTS["population_size"]
+    def __init__(self, problem, config):
+        """Initialize TTAO with a minimum viable population size.
 
-        population_size = max(int(population_size), self._MIN_P_SIZE)
+        PortedPopulationEngine expects only (problem, config). Algorithm-specific
+        parameters must be passed through config.params, so we normalize
+        population_size there before delegating to the base class.
+        """
+        from dataclasses import replace
 
-        super().__init__(*args, population_size=population_size, **kwargs)
+        params = dict(config.params)
+        population_size = params.get("population_size", self._DEFAULTS["population_size"])
+        params["population_size"] = max(int(population_size), self._MIN_P_SIZE)
+
+        super().__init__(problem, replace(config, params=params))
 
     def _step_impl(self, state, pop):
         n, d = pop.shape[0], self.problem.dimension
