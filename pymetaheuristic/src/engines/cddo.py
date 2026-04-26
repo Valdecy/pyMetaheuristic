@@ -8,7 +8,7 @@ class CDDOEngine(PortedPopulationEngine):
     """Cheetah Based Optimization — learning/skill rate drawing-inspired update."""
     algorithm_id   = "cddo"
     algorithm_name = "Cheetah Based Optimization"
-    family         = "human"
+    family         = "swarm"
     _REFERENCE     = {"doi": "10.1038/s41598-022-14338-z"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

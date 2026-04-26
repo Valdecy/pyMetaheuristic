@@ -6,7 +6,7 @@ from ._ported_common import PortedPopulationEngine
 
 class WCAEngine(PortedPopulationEngine):
     """Water Cycle Algorithm — sea/river/stream hierarchy with evaporation raining."""
-    algorithm_id = "wca"; algorithm_name = "Water Cycle Algorithm"; family = "human"
+    algorithm_id = "wca"; algorithm_name = "Water Cycle Algorithm"; family = "nature"
     _REFERENCE   = {"doi": "10.1016/j.compstruc.2012.07.010"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
