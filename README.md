@@ -36,7 +36,7 @@ pymetaheuristic.web.web_stop()
 ```
 
 <p align="center">
-  <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/lab_.png" alt="Lab" width="700" height="800"/>
+  <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/lab_.png" alt="Lab" width="700"/>
 </p>
 
 * [Preview pyMetaheuristic Lab in Google Colab](https://colab.research.google.com/drive/1ouIGIrD0QNMuTPC2diTqGoY4v6gxb0xt?usp=sharing)
