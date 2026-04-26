@@ -3,6 +3,8 @@
   <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/logo_pmh_.png" alt="Logo" width="300" height="300"/>
 </p>
 
+
+
 # pymetaheuristic
 
 A Python library for metaheuristic optimization and collaborative search, bringing together **284 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families. 
@@ -36,6 +38,9 @@ pymetaheuristic.web.web_stop()
 <p align="center">
   <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/lab_.png" alt="Lab" width="700" height="800"/>
 </p>
+
+* [Preview pyMetaheuristic Lab in Google Colab](https://colab.research.google.com/drive/1ouIGIrD0QNMuTPC2diTqGoY4v6gxb0xt?usp=sharing)
+  _Colab mode is intended for quick demos only. For the best experience, run the Web UI locally or open it directly in a full browser._
 
 ## B. **Summary** 
 
