@@ -5,7 +5,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **284 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families.
+A Python library for metaheuristic optimization and collaborative search, bringing together **284 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families. 
 
 ## A. **Version Note**
 
@@ -21,6 +21,22 @@ For legacy, the old library can still be installed with:
 pip install pymetaheuristic==1.9.5
 ```
 
+New to Python or prefer a graphical interface? The **pymetaheuristic Lab** provides a convenient Web App to run optimizations without writing extensive code.
+
+```python
+import pymetaheuristic
+
+# Start the web service using:
+pymetaheuristic.web_app()
+
+# Terminate the web service using:
+pymetaheuristic.web.web_stop()
+```
+
+<p align="center">
+  <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/lab_.png" alt="Lab" width="700" height="800"/>
+</p>
+
 ## B. **Summary** 
 
 1. [Introduction](#1-introduction)
@@ -28,13 +44,13 @@ pip install pymetaheuristic==1.9.5
    - [2.1 Installation](#21-installation)
    - [2.2 Package Overview](#22-package-overview)
    - [2.3 Optimization, Telemetry, Export, and Plotting Example](#23-optimization-telemetry-export-and-plotting-example) --- [[Colab Demo]](https://colab.research.google.com/drive/11lPwLf13mav4UWSqNolMaKPbqt2lsq4x?usp=sharing) ---
-   - [2.4 Termination Criteria](#24-termination-criteria)
+   - [2.4 Termination Criteria](#24-termination-criteria) --- [[Colab Demo]](https://colab.research.google.com/drive/1GVIsdruPnozKHE0Rd972pk8tgXAKGKFs?usp=sharing) ---  
    - [2.5 Constraint Handling Example](#25-constraint-handling-example) --- [[Colab Demo]](https://colab.research.google.com/drive/1T8ltBcunERKd7N3q12rW2MdnzSTdsOGs?usp=sharing) ---  
    - [2.6 Cooperative Multi-island Example](#26-cooperative-multi-island-example) --- [[Colab Demo] ](https://colab.research.google.com/drive/1DteFWUIqpZZNV4nUM7FGAHfqZN5Vabse?usp=sharing) ---
    - [2.7 Orchestrated Cooperation Example](#27-orchestrated-cooperation-example) --- [[Colab Demo]](https://colab.research.google.com/drive/1j4RbtBjFyxAVuVTMNaJw9ALbREWiIBmn?usp=sharing) --- 
    - [2.8 Chaotic Maps and Transfer Functions](#28-chaotic-maps-and-transfer-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/1cvrahJ5Bp4E4vU7I-O6Uqru9SK2hxMXX?usp=sharing) ---
    - [2.9 Hyperparameter Tuner](#29-hyperparameter-tuner) --- [[Colab Demo] ](https://colab.research.google.com/drive/13pZQyrMDyegRAcYUJRO6cSwvQ7pZvDKs?usp=sharing) ---
-   - [2.10 Save, Load, and Checkpoint](#210-save-load-and-checkpoint)
+   - [2.10 Save, Load, and Checkpoint](#210-save-load-and-checkpoint) --- [[Colab Demo] ](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing) ---
    - [2.11 Benchmark Runner](#211-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
 3. [Algorithm Details](#3-algorithm-details)
 4. [Test Functions](#4-test-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/132-yqoaJKkJ4gf6yqjrV1siXVvZ3ZgE7?usp=sharing) ---
@@ -154,9 +170,9 @@ print(result.best_fitness)
 print(len(result.history))
 print(pymetaheuristic.summarize_result(result))
 
-export_history_csv(result, "population_history.csv")
-export_population_snapshots_json(result, "population_snapshots.json")
-fig = plot_convergence(result)
+pymetaheuristic.export_history_csv(result, "population_history.csv")
+pymetaheuristic.export_population_snapshots_json(result, "population_snapshots.json")
+fig = pymetaheuristic.plot_convergence(result)
 fig.show()
 ```
 
@@ -172,7 +188,7 @@ Four independent condition types are supported:
 - **TB** (`max_time`): wall-clock time bound in seconds.
 - **ES** (`max_early_stop`): early stopping — halt if the global best has not improved by more than `epsilon` for this many consecutive steps.
 
-`Termination` can also be passed as a plain dict.
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1GVIsdruPnozKHE0Rd972pk8tgXAKGKFs?usp=sharing)
 
 ```python
 import numpy as np
@@ -480,7 +496,9 @@ print(summary.head())
 
 [Back to Summary](#b-summary)
 
-The IO module provides four functions for persisting results and resuming interrupted runs.
+The IO module provides a set of functions for persisting results and resuming interrupted runs.
+
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing)
 
 - `save_result` / `load_result`: pickle a completed `OptimizationResult` to disk.
 - `result_to_json` / `result_from_json`: export a human-readable JSON summary.
@@ -701,7 +719,7 @@ The table below summarizes the optimization engines currently available in the l
 | Cat Swarm Optimization | `cat_so` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/978-3-540-36668-3_94) |
 | Chameleon Swarm Algorithm | `chameleon_sa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.eswa.2021.114685) |
 | Chaos Game Optimization | `cgo` | math | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10462-020-09867-w) |
-| Cheetah Based Optimization | `cddo` | human | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1038/s41598-022-14338-z) |
+| Cheetah Based Optimization | `cddo` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1038/s41598-022-14338-z) |
 | Cheetah Optimizer | `cdo` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1038/s41598-022-14338-z) |
 | Chicken Swarm Optimization | `chicken_so` | swarm | Yes | No | No | Yes | [Paper](https://doi.org/10.1007/978-3-319-11857-4_10) |
 | Chimp Optimization Algorithm | `choa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.eswa.2020.113338) |
@@ -929,7 +947,7 @@ The table below summarizes the optimization engines currently available in the l
 | Virus Colony Search | `vcs` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2015.11.004) |
 | Walrus Optimization Algorithm | `waoa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1038/s41598-023-35863-5) |
 | War Strategy Optimization | `warso` | human | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s11831-022-09822-0) |
-| Water Cycle Algorithm | `wca` | human | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.compstruc.2012.07.010) |
+| Water Cycle Algorithm | `wca` | nature | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.compstruc.2012.07.010) |
 | Water Uptake and Transport in Plants | `wutp` | nature | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s00521-025-11059-6) |
 | Wave Optimization Algorithm | `wo_wave` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.knosys.2021.107760) |
 | Weighting and Inertia Random Walk Optimizer | `info` | math | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.eswa.2022.116516) |
