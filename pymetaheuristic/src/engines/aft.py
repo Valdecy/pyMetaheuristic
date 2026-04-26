@@ -1,13 +1,13 @@
-"""pyMetaheuristic src — Artificial Hummingbird Algorithm / Affix Optimization Engine"""
+"""pyMetaheuristic src — Ali Baba and the Forty Thieves Engine"""
 from __future__ import annotations
 import numpy as np
 from .protocol import CapabilityProfile
 from ._ported_common import PortedPopulationEngine
 
 class AFTEngine(PortedPopulationEngine):
-    """Affix Optimization (AFT) — perception-guided thief tracking with local best memory."""
+    """Ali Baba and the Forty Thieves (AFT) — perception-guided thief tracking with local best memory."""
     algorithm_id   = "aft"
-    algorithm_name = "Affix Optimization"
+    algorithm_name = "Ali Baba and the Forty Thieves"
     family         = "human"
     _REFERENCE     = {"doi": "10.1007/s00521-021-06392-x"}
     capabilities   = CapabilityProfile(
