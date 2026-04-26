@@ -1,0 +1,2464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>pyMetaheuristic Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Josefin+Sans:wght@300;400;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#05080f;--s1:#090d1a;--s2:#0e1322;--s3:#141a2e;--s4:#1b2138;
+  --bd:rgba(255,255,255,.06);--bdh:rgba(255,255,255,.12);
+  --gold:#e8961e;--gold-lt:#f5b84a;--gold-dim:rgba(232,150,30,.09);--gold-glow:rgba(232,150,30,.26);
+  --cyan:#38bdf8;--cyan-dim:rgba(56,189,248,.09);
+  --green:#34d399;--green-dim:rgba(52,211,153,.09);
+  --rose:#fb7185;--rose-dim:rgba(251,113,133,.09);
+  --violet:#a78bfa;--violet-dim:rgba(167,139,250,.09);
+  --lime:#86efac;--amber:#fbbf24;
+  --t1:#eef2ff;--t2:#94a3b8;--t3:#475569;--t4:#1e293b;
+  --fd:'Cormorant Garamond',Georgia,serif;
+  --fu:'Josefin Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --e:cubic-bezier(.4,0,.2,1);--fast:140ms var(--e);--mid:260ms var(--e);
+  --hdr:62px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:14px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--fu);background:var(--bg);color:var(--t1);height:100vh;overflow:hidden;display:flex;flex-direction:column}
+input,select,textarea,button{font-family:inherit}
+button{cursor:pointer;border:none;background:none}
+a{color:var(--cyan);text-decoration:none}a:hover{text-decoration:underline}
+::-webkit-scrollbar{width:3px;height:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--s4);border-radius:99px}
+body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background-image:radial-gradient(circle,rgba(255,255,255,.034) 1px,transparent 1px);background-size:32px 32px}
+body::after{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 10% 75%,rgba(232,150,30,.048) 0%,transparent 60%),radial-gradient(ellipse 50% 60% at 90% 15%,rgba(56,189,248,.035) 0%,transparent 60%)}
+
+/* HEADER */
+header{position:relative;z-index:100;height:var(--hdr);display:flex;align-items:center;padding:0 24px;border-bottom:1px solid var(--bd);background:rgba(5,8,15,.92);backdrop-filter:blur(32px);flex-shrink:0;gap:20px}
+.logo{flex-shrink:0;display:flex;align-items:center}
+.logo-img{height:50px;width:auto;object-fit:contain;filter:brightness(1.06)}
+#logo-fb{display:none;align-items:center;gap:8px}
+.lfhex{width:36px;height:36px;background:linear-gradient(135deg,var(--gold),#c47a10);clip-path:polygon(50% 0%,95% 25%,95% 75%,50% 100%,5% 75%,5% 25%);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#000;box-shadow:0 0 18px var(--gold-glow)}
+.lftxt{font-family:var(--fd);font-size:1.28rem;font-weight:700;background:linear-gradient(135deg,#f5e6c0,var(--gold));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.stepper{flex:1;display:flex;align-items:center;justify-content:center;gap:0}
+.step{display:flex;align-items:center;gap:8px;padding:6px 16px;border-radius:8px;cursor:pointer;user-select:none;transition:all var(--fast);position:relative}
+.step:hover:not(.active){background:rgba(255,255,255,.04)}
+.step.active{background:var(--gold-dim)}
+.step.active::after{content:'';position:absolute;bottom:-19px;left:50%;transform:translateX(-50%);width:24px;height:2px;background:var(--gold);border-radius:2px}
+.step-n{font-family:var(--fm);font-size:.58rem;color:var(--t3);transition:color var(--fast)}
+.step-l{font-size:.75rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--t3);transition:color var(--fast)}
+.step.active .step-n{color:var(--gold)}.step.active .step-l{color:var(--gold-lt)}
+.step.done .step-l{color:var(--t2)}
+.step-div{color:var(--t4);font-size:.9rem;padding:0 2px}
+.hdr-r{flex-shrink:0;display:flex;align-items:center;gap:10px}
+.tot-badge{font-family:var(--fm);font-size:.67rem;color:var(--t3);background:var(--s2);border:1px solid var(--bd);padding:3px 9px;border-radius:99px}
+.live-pill{display:flex;align-items:center;gap:5px;padding:3px 11px;border-radius:99px;background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);font-size:.67rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);animation:blink 2.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* PAGE SYSTEM */
+.app{position:relative;z-index:1;flex:1;height:calc(100vh - var(--hdr));overflow:hidden}
+.page{position:absolute;inset:0;display:none;opacity:0}
+.page.active{display:flex;flex-direction:column;animation:pgIn var(--mid) forwards}
+@keyframes pgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* SHARED ATOMS */
+.card{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(16px)}
+.chdr{padding:14px 20px 12px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:9px}
+.cico{width:24px;height:24px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.78rem;flex-shrink:0}
+.cttl{font-size:.65rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3)}
+.cbdy{padding:18px 20px}
+.pill{display:inline-flex;align-items:center;padding:2px 9px;border-radius:99px;font-size:.62rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;border:1px solid}
+.f{margin-bottom:14px}.f:last-child{margin-bottom:0}
+.flbl{display:block;font-size:.64rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.fld{width:100%;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);padding:8px 11px;font-size:.8rem;outline:none;transition:border-color var(--fast),box-shadow var(--fast);font-family:var(--fu)}
+.fld:focus{border-color:rgba(232,150,30,.5);box-shadow:0 0 0 3px rgba(232,150,30,.07)}
+.fld::placeholder{color:var(--t3)}
+.fld-sel{appearance:none;cursor:pointer}
+.fld-mono{font-family:var(--fm);font-size:.78rem}
+.fhint{margin-top:4px;font-size:.63rem;color:var(--t3);line-height:1.5}
+.fr{display:grid;gap:10px}.fr2{grid-template-columns:1fr 1fr}.fr3{grid-template-columns:1fr 1fr 1fr}.fr4{grid-template-columns:1fr 1fr 1fr 1fr}
+.code-ta{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t2);padding:10px 13px;font-size:.72rem;font-family:var(--fm);outline:none;transition:border-color var(--fast);resize:vertical;min-height:90px;line-height:1.7}
+.code-ta:focus{border-color:rgba(232,150,30,.4)}
+.divider{height:1px;background:var(--bd);margin:14px 0}
+.obj-tog{display:grid;grid-template-columns:1fr 1fr;border-radius:8px;overflow:hidden;border:1px solid var(--bd);background:var(--s2)}
+.obj-btn{padding:8px;text-align:center;font-size:.76rem;font-weight:600;color:var(--t3);transition:all var(--fast)}
+.obj-btn.active{background:var(--gold-dim);color:var(--gold-lt)}
+.bounds-row{display:grid;grid-template-columns:1fr 28px 1fr;gap:8px;align-items:end}
+.barr{display:flex;align-items:center;justify-content:center;padding-bottom:9px;color:var(--t3);font-size:1rem}
+
+/* Sub-mode tabs */
+.subtab-row{display:flex;gap:6px;margin-bottom:18px}
+.subtab{padding:6px 16px;border-radius:7px;border:1px solid var(--bd);background:var(--s2);color:var(--t3);font-size:.7rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;transition:all var(--fast)}
+.subtab.active{background:var(--gold-dim);border-color:rgba(232,150,30,.35);color:var(--gold-lt)}
+.subtab:hover:not(.active){border-color:var(--bdh);color:var(--t2)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:8px;font-family:var(--fu);font-weight:700;letter-spacing:.07em;text-transform:uppercase;transition:all var(--fast);cursor:pointer}
+.btn-gold{background:linear-gradient(135deg,#e8961e,#c47a10);color:#000;font-size:.78rem;padding:10px 22px;border:none;box-shadow:0 0 22px var(--gold-glow),0 1px 0 rgba(255,255,255,.12) inset}
+.btn-gold:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 0 38px rgba(232,150,30,.44),0 1px 0 rgba(255,255,255,.15) inset}
+.btn-gold:active:not(:disabled){transform:translateY(0)}
+.btn-gold:disabled{opacity:.4;cursor:not-allowed}
+.btn-gold.running{background:linear-gradient(135deg,#1b2138,#111827);color:var(--t2);box-shadow:none}
+.btn-gold.running .bico{animation:spin .9s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.btn-ghost{background:var(--s2);border:1px solid var(--bd);color:var(--t2);font-size:.72rem;padding:8px 14px}
+.btn-ghost:hover{border-color:var(--bdh);color:var(--t1);background:var(--s3)}
+.btn-danger{background:var(--rose-dim);border:1px solid rgba(251,113,133,.28);color:var(--rose);font-size:.72rem;padding:8px 14px}
+.btn-danger:hover{background:rgba(251,113,133,.18)}
+.btn-sm{padding:5px 11px;font-size:.67rem}
+.btn-xs{padding:3px 8px;font-size:.62rem}
+
+/* Check items */
+.chk-item{display:flex;align-items:center;gap:8px;padding:6px 9px;border-radius:7px;cursor:pointer;transition:background var(--fast);border:1px solid transparent}
+.chk-item:hover{background:rgba(255,255,255,.03)}
+.chk-item.checked{border-color:var(--bd);background:rgba(232,150,30,.04)}
+.chk-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0}
+.chk-item label{font-size:.77rem;color:var(--t2);cursor:pointer;flex:1;line-height:1.3}
+.chk-item.checked label{color:var(--gold-lt)}
+.chk-item .chk-sub{font-size:.62rem;color:var(--t3);display:block;font-family:var(--fm)}
+.sel-all{font-size:.65rem;color:var(--gold);font-weight:600;cursor:pointer;user-select:none}
+.sel-all:hover{text-decoration:underline}
+
+/* MODE PAGE */
+#p-mode{overflow-y:auto}
+.mode-wrap{max-width:960px;margin:0 auto;padding:36px 28px 60px;display:flex;flex-direction:column;gap:24px}
+.mode-intro{text-align:center;padding:8px 0 16px}
+.mode-intro-ttl{font-family:var(--fd);font-size:2rem;font-weight:700;letter-spacing:-.01em;margin-bottom:8px;background:linear-gradient(135deg,#f5e6c0,var(--gold-lt));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.mode-intro-sub{font-size:.82rem;color:var(--t3);line-height:1.6}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mode-card{position:relative;overflow:hidden;background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:16px;padding:26px 24px 24px;cursor:pointer;transition:all var(--mid);display:flex;flex-direction:column;gap:14px}
+.mode-card::before{content:'';position:absolute;inset:0;background:var(--accent-glow,transparent);opacity:0;transition:opacity var(--mid)}
+.mode-card:hover{border-color:var(--bdh);transform:translateY(-2px);box-shadow:0 12px 32px rgba(0,0,0,.3)}
+.mode-card:hover::before{opacity:1}
+.mode-card.selected{border-color:var(--accent,var(--gold))!important;box-shadow:0 0 0 1px var(--accent,var(--gold)),0 12px 32px rgba(0,0,0,.35)}
+.mode-card-top{display:flex;align-items:center;gap:12px}
+.mode-icon{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+.mode-card-titles{display:flex;flex-direction:column;gap:3px}
+.mode-name{font-family:var(--fd);font-size:1.3rem;font-weight:700;color:var(--t1)}
+.mode-tag{font-size:.62rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase}
+.mode-desc{font-size:.78rem;color:var(--t3);line-height:1.65}
+.mode-features{display:flex;flex-wrap:wrap;gap:5px;margin-top:2px}
+.mf{font-size:.62rem;padding:2px 8px;border-radius:5px;background:var(--s3);border:1px solid var(--bd);color:var(--t3)}
+.mode-proceed{margin-top:auto;display:flex;justify-content:flex-end}
+.mc-single{--accent:var(--gold);--accent-glow:radial-gradient(circle at 0 0,rgba(232,150,30,.08) 0%,transparent 60%)}
+.mc-bench{--accent:var(--cyan);--accent-glow:radial-gradient(circle at 0 0,rgba(56,189,248,.08) 0%,transparent 60%)}
+.mc-collab{--accent:var(--violet);--accent-glow:radial-gradient(circle at 0 0,rgba(167,139,250,.08) 0%,transparent 60%)}
+.mc-orch{--accent:var(--green);--accent-glow:radial-gradient(circle at 0 0,rgba(52,211,153,.08) 0%,transparent 60%)}
+
+/* BROWSE PAGE */
+#p-browse{overflow:hidden}
+.browse-top{flex-shrink:0;padding:12px 22px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px;background:rgba(5,8,15,.45);flex-wrap:wrap}
+.srch-wrap{position:relative;flex:0 0 240px}
+.srch-ico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--t3);font-size:.9rem;pointer-events:none}
+.srch{width:100%;padding:7px 11px 7px 30px;background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);font-size:.78rem;outline:none;transition:border-color var(--fast);font-family:var(--fu)}
+.srch:focus{border-color:rgba(232,150,30,.4)}
+.srch::placeholder{color:var(--t3)}
+.fam-pills{display:flex;flex-wrap:wrap;gap:5px;flex:1}
+.fp{padding:3px 10px;border-radius:99px;font-size:.63rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border:1px solid var(--bd);color:var(--t3);background:transparent;transition:all var(--fast);cursor:pointer}
+.fp:hover:not(.active){border-color:var(--bdh);color:var(--t2)}
+.fp.active{color:#000!important;border-color:transparent!important}
+.browse-ct{font-family:var(--fm);font-size:.66rem;color:var(--t3);flex-shrink:0;white-space:nowrap}
+.browse-ws{flex:1;display:grid;grid-template-columns:300px 1fr;overflow:hidden}
+.alg-list-col{border-right:1px solid var(--bd);overflow-y:auto;padding:6px}
+.alg-item{display:flex;align-items:stretch;border-radius:9px;cursor:pointer;transition:all var(--fast);margin-bottom:1px;border:1px solid transparent;overflow:hidden}
+.alg-item:hover{background:rgba(255,255,255,.03);border-color:var(--bd)}
+.alg-item.sel{background:var(--gold-dim);border-color:rgba(232,150,30,.24)}
+.alg-item.multi-sel{background:rgba(56,189,248,.06);border-color:rgba(56,189,248,.22)}
+.alg-bar{width:3px;flex-shrink:0;border-radius:3px 0 0 3px;margin-right:9px}
+.alg-body{flex:1;padding:8px 10px 8px 0;min-width:0}
+.alg-name{font-size:.78rem;font-weight:600;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color var(--fast)}
+.alg-item.sel .alg-name{color:var(--gold-lt)}
+.alg-item.multi-sel .alg-name{color:var(--cyan)}
+.alg-id{font-family:var(--fm);font-size:.58rem;color:var(--t3);margin-top:1px}
+.alg-chk{width:28px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.alg-chk input{width:14px;height:14px;accent-color:var(--cyan)}
+.alg-det-col{overflow-y:auto;padding:32px 40px;display:flex;flex-direction:column}
+.det-empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);text-align:center}
+.det-empty-ico{font-size:2.8rem;opacity:.16;font-family:var(--fd)}
+.det-empty-txt{font-size:.8rem;line-height:1.7}
+.det-loaded{display:none;animation:pgIn var(--mid) both}
+.det-loaded.vis{display:flex;flex-direction:column;gap:22px}
+.det-name{font-family:var(--fd);font-size:2.2rem;font-weight:700;line-height:1.1;color:var(--t1)}
+.det-badges{display:flex;flex-wrap:wrap;gap:7px;align-items:center;margin-top:4px}
+.det-id{font-family:var(--fm);font-size:.68rem;color:var(--t3);background:var(--s2);border:1px solid var(--bd);padding:2px 9px;border-radius:6px}
+.det-sec{font-size:.61rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:8px}
+.caps-row{display:flex;flex-wrap:wrap;gap:5px}
+.cbdg{padding:3px 10px;border-radius:99px;font-size:.62rem;font-weight:700;background:var(--s3);border:1px solid var(--bd);color:var(--t3)}
+.cbdg.on{background:var(--green-dim);border-color:rgba(52,211,153,.26);color:var(--green)}
+.def-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:7px}
+.dtc{background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:9px 13px;display:flex;flex-direction:column;gap:2px}
+.dtk{font-size:.60rem;color:var(--t3);text-transform:uppercase;letter-spacing:.08em}
+.dtv{font-family:var(--fm);font-size:.85rem;color:var(--gold-lt);font-weight:500}
+.det-doi{font-size:.68rem;color:var(--t3)}
+.det-cta{display:flex;gap:10px;align-items:center;padding-top:4px}
+.det-cta-hint{font-size:.7rem;color:var(--t3)}
+.sel-count-bar{background:var(--cyan-dim);border-top:1px solid rgba(56,189,248,.2);padding:10px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.sel-count-txt{font-size:.75rem;color:var(--cyan);font-weight:600}
+
+/* CONFIGURE PAGE */
+#p-configure{overflow-y:auto}
+.cfg-wrap{max-width:800px;margin:0 auto;padding:28px 28px 64px;display:flex;flex-direction:column;gap:16px}
+.cfg-hero{padding-bottom:10px;border-bottom:1px solid var(--bd)}
+.cfg-hero-lbl{font-size:.61rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--t3);margin-bottom:5px}
+.cfg-hero-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cfg-mode-name{font-family:var(--fd);font-size:1.75rem;font-weight:700;color:var(--t1)}
+.cfg-alg-name{font-family:var(--fd);font-size:1.1rem;color:var(--t2);margin-top:2px}
+.cfg-chg{font-size:.67rem;color:var(--gold);font-weight:600;padding:3px 10px;border-radius:6px;border:1px solid rgba(232,150,30,.28);background:var(--gold-dim);cursor:pointer;transition:all var(--fast)}
+.cfg-chg:hover{background:rgba(232,150,30,.18)}
+.cfg-rel{position:relative}
+.cfg-n{position:absolute;top:14px;right:18px;font-family:var(--fm);font-size:.60rem;color:var(--t4)}
+.island-list{display:flex;flex-direction:column;gap:8px}
+.island-row{background:var(--s2);border:1px solid var(--bd);border-radius:10px;padding:11px 13px;display:grid;grid-template-columns:auto 1fr 1fr 120px 90px 28px;gap:8px;align-items:center}
+.isle-n{font-family:var(--fm);font-size:.65rem;color:var(--t3);width:22px;text-align:center}
+.isle-lbl-txt{font-size:.61rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);margin-bottom:3px}
+.isle-rm{width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--rose);background:var(--rose-dim);border:1px solid rgba(251,113,133,.22);font-size:.9rem;transition:all var(--fast)}
+.isle-rm:hover{background:rgba(251,113,133,.2)}
+.outputs-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.out-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;border-radius:8px;cursor:pointer;transition:all var(--fast);border:1px solid transparent}
+.out-item:hover{background:rgba(255,255,255,.03)}
+.out-item.selected{border-color:var(--bd);background:rgba(232,150,30,.04)}
+.out-item input[type=checkbox]{width:14px;height:14px;accent-color:var(--gold);cursor:pointer;flex-shrink:0;margin-top:1px}
+.out-item-body{display:flex;flex-direction:column;gap:1px}
+.out-name{font-size:.76rem;font-weight:600;color:var(--t2);cursor:pointer}
+.out-item.selected .out-name{color:var(--gold-lt)}
+.out-desc{font-size:.61rem;color:var(--t3);line-height:1.4;cursor:pointer}
+.params-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px}
+.prm{display:flex;flex-direction:column;gap:4px}
+.prm-name{font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--t3)}
+.prm-inp{background:var(--s2);border:1px solid var(--bd);border-radius:8px;color:var(--t1);padding:7px 10px;font-family:var(--fm);font-size:.8rem;outline:none;width:100%;transition:border-color var(--fast)}
+.prm-inp:focus{border-color:rgba(232,150,30,.44)}
+.prm-def{font-family:var(--fm);font-size:.58rem;color:var(--t3)}
+.no-prm{padding:16px 0;text-align:center;font-size:.8rem;color:var(--t3)}
+.cfg-ftr{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;background:rgba(9,13,26,.55);border:1px solid var(--bd);border-radius:14px;gap:14px;flex-wrap:wrap}
+.cfg-ftr-info{font-size:.75rem;color:var(--t3);line-height:1.6}
+.cfg-ftr-info strong{color:var(--t2)}
+.cfg-ftr-btns{display:flex;gap:9px;align-items:center;flex-shrink:0}
+
+/* RUN PAGE */
+#p-run{overflow-y:auto}
+.run-wrap{max-width:1080px;margin:0 auto;padding:20px 28px 64px;display:flex;flex-direction:column;gap:16px}
+.run-bar{display:flex;align-items:center;gap:12px;padding:14px 20px;background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;backdrop-filter:blur(16px);flex-wrap:wrap}
+.rb-info{flex:1;min-width:160px}
+.rb-mode{font-size:.61rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--t3);margin-bottom:2px}
+.rb-name{font-family:var(--fd);font-size:1.2rem;font-weight:700;color:var(--t1)}
+.rb-meta{display:flex;gap:8px;align-items:center;margin-top:2px;flex-wrap:wrap}
+.rb-tag{font-size:.65rem;color:var(--t3);font-family:var(--fm)}
+.status-banner{display:flex;align-items:center;gap:10px;padding:10px 16px;border:1px solid var(--bd);border-radius:10px;background:rgba(9,13,26,.5);flex-wrap:wrap}
+.sbdg{padding:2px 11px;border-radius:99px;font-size:.61rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:1px solid}
+.sbdg.running{background:var(--cyan-dim);color:var(--cyan);border-color:rgba(56,189,248,.3);animation:blink 1.4s ease-in-out infinite}
+.sbdg.done{background:var(--green-dim);color:var(--green);border-color:rgba(52,211,153,.3)}
+.sbdg.error{background:var(--rose-dim);color:var(--rose);border-color:rgba(251,113,133,.3)}
+.sbdg.idle,.sbdg.cancelled{background:var(--s3);color:var(--t3);border-color:var(--bd)}
+.stxt{flex:1;font-size:.8rem;color:var(--t2)}
+.selt{font-family:var(--fm);font-size:.68rem;color:var(--t3)}
+.sreason{font-family:var(--fm);font-size:.64rem;color:var(--t3)}
+
+/* Feasibility banner */
+.feasibility-banner{display:flex;align-items:center;gap:12px;padding:10px 16px;border-radius:10px;border:1px solid}
+.feasibility-banner.feasible{background:var(--green-dim);border-color:rgba(52,211,153,.28)}
+.feasibility-banner.infeasible{background:var(--rose-dim);border-color:rgba(251,113,133,.28)}
+.feasibility-icon{font-size:1.1rem}
+.feasibility-label{font-size:.8rem;font-weight:700;flex:1}
+.feasibility-banner.feasible .feasibility-label{color:var(--green)}
+.feasibility-banner.infeasible .feasibility-label{color:var(--rose)}
+.feasibility-meta{font-family:var(--fm);font-size:.68rem;color:var(--t3)}
+
+/* Binary solution */
+.binary-display{display:flex;flex-wrap:wrap;gap:3px;padding:10px 0}
+.bit{width:22px;height:22px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.62rem;font-weight:700;border:1px solid}
+.bit.one{background:var(--gold-dim);border-color:rgba(232,150,30,.35);color:var(--gold-lt)}
+.bit.zero{background:var(--s3);border-color:var(--bd);color:var(--t3)}
+.binary-summary{font-family:var(--fm);font-size:.7rem;color:var(--t3);margin-top:8px}
+
+/* Metrics strip */
+.mstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.mc{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:4px}
+.mc.hi{border-color:rgba(232,150,30,.2);background:rgba(232,150,30,.03)}
+.mc-lbl{font-size:.59rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3)}
+.mc-val{font-family:var(--fm);font-size:1.05rem;font-weight:500;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mc-val.gold{color:var(--gold-lt)}.mc-val.cyan{color:var(--cyan)}.mc-val.green{color:var(--green)}.mc-val.violet{color:var(--violet)}
+
+/* Charts */
+.chart-card{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.chart-hdr{padding:12px 18px 10px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between}
+.chart-ttl{font-size:.63rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3)}
+.chart-ctrls{display:flex;gap:4px}
+.scbtn{padding:2px 8px;border-radius:5px;border:1px solid var(--bd);background:transparent;font-size:.60rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--t3);transition:all var(--fast);cursor:pointer}
+.scbtn.active{color:var(--gold);border-color:rgba(232,150,30,.33);background:var(--gold-dim)}
+.scbtn:not(.active):hover{color:var(--t2);border-color:var(--bdh)}
+.chart-body{padding:10px 14px 12px;position:relative}
+.chart-body canvas{width:100%!important}
+
+/* Two-column chart layout */
+.chart-2col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* Best position */
+.pos-card{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.pos-hdr{padding:12px 18px 10px;border-bottom:1px solid var(--bd);font-size:.63rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3)}
+.pos-body{padding:12px 14px}
+.pos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:5px}
+.pc{background:var(--s2);border:1px solid var(--bd);border-radius:7px;padding:7px 9px;display:flex;flex-direction:column;gap:1px}
+.pd{font-family:var(--fm);font-size:.56rem;color:var(--t3)}
+.pv{font-family:var(--fm);font-size:.74rem;color:var(--cyan);font-weight:500}
+
+/* Error */
+.err-card{background:rgba(251,113,133,.05);border:1px solid rgba(251,113,133,.2);border-radius:12px;padding:14px 18px}
+.err-ttl{font-size:.68rem;font-weight:700;color:var(--rose);margin-bottom:7px}
+.err-body{font-family:var(--fm);font-size:.66rem;color:var(--t2);white-space:pre-wrap;word-break:break-all;max-height:140px;overflow-y:auto;line-height:1.7}
+
+/* Export */
+.exp-card .cbdy{display:flex;flex-direction:column;gap:10px}
+.exp-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.exp-lbl{font-size:.61rem;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--t3);flex-shrink:0}
+.code-blk{background:var(--s1);border:1px solid var(--bd);border-radius:10px;overflow:hidden;margin-top:6px}
+.code-blk-hdr{display:flex;align-items:center;justify-content:space-between;padding:7px 13px;border-bottom:1px solid var(--bd);background:rgba(20,26,46,.7)}
+.code-blk-lbl{font-family:var(--fm);font-size:.60rem;color:var(--t3)}
+.copy-btn{font-size:.60rem;font-weight:700;letter-spacing:.07em;padding:2px 9px;border-radius:4px;background:var(--s3);border:1px solid var(--bd);color:var(--t3);transition:all var(--fast);cursor:pointer}
+.copy-btn:hover{color:var(--gold);border-color:rgba(232,150,30,.28)}
+.code-blk pre{padding:12px 14px;font-family:var(--fm);font-size:.68rem;color:var(--t2);line-height:1.75;overflow-x:auto;white-space:pre}
+
+/* Tables */
+.mig-table-wrap{overflow-x:auto;max-height:300px;overflow-y:auto}
+table.mig,table.hof,table.bmt,table.dtbl{width:100%;border-collapse:collapse}
+table.mig th,table.hof th,table.bmt th,table.dtbl th{font-family:var(--fm);font-size:.59rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--t3);padding:8px 12px;text-align:left;border-bottom:1px solid var(--bd);background:rgba(14,19,34,.6);white-space:nowrap}
+table.mig td,table.hof td,table.bmt td,table.dtbl td{font-family:var(--fm);font-size:.69rem;color:var(--t2);padding:7px 12px;border-bottom:1px solid rgba(255,255,255,.025);white-space:nowrap;max-width:260px;overflow:hidden;text-overflow:ellipsis}
+table.mig tr:last-child td,table.hof tr:last-child td,table.bmt tr:last-child td,table.dtbl tr:last-child td{border-bottom:none}
+table.mig tr:hover td,table.hof tr:hover td,table.bmt tr:hover td,table.dtbl tr:hover td{background:rgba(255,255,255,.018)}
+table.bmt td.best{color:var(--green);font-weight:600}
+table.bmt td.worst{color:var(--rose)}
+table.bmt td.alg-col{color:var(--t1);font-weight:500}
+table.dtbl td.td-reasoning{max-width:320px;white-space:normal;line-height:1.4;color:var(--t3);font-size:.62rem}
+table.dtbl td.td-executed.yes{color:var(--green)}
+table.dtbl td.td-executed.no{color:var(--rose)}
+
+/* Benchmark */
+.bm-prog-bar{height:3px;background:var(--gold-dim);border-radius:99px;overflow:hidden;margin-bottom:5px}
+.bm-prog-fill{height:100%;background:var(--gold);border-radius:99px;transition:width .35s var(--e)}
+.bm-prog-txt{font-family:var(--fm);font-size:.66rem;color:var(--t3)}
+
+/* Island bars */
+.ibar-card{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
+.ibar-body{padding:14px 18px;display:flex;flex-direction:column;gap:9px}
+.ibar-row{display:flex;align-items:center;gap:10px}
+.ibar-lbl{font-family:var(--fm);font-size:.68rem;color:var(--t2);width:96px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ibar-trk{flex:1;height:7px;background:var(--s3);border-radius:99px;overflow:hidden}
+.ibar-fill{height:100%;border-radius:99px;transition:width .6s var(--e)}
+.ibar-val{font-family:var(--fm);font-size:.67rem;color:var(--cyan);flex-shrink:0;min-width:80px;text-align:right}
+
+/* Telemetry sparklines */
+.telem-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;padding:14px 16px}
+.telem-cell{background:var(--s2);border:1px solid var(--bd);border-radius:9px;overflow:hidden}
+.telem-cell-hdr{padding:8px 10px 6px;font-family:var(--fm);font-size:.60rem;font-weight:600;color:var(--t3);border-bottom:1px solid var(--bd)}
+.telem-cell-body{padding:6px 8px;height:90px;position:relative}
+
+/* Snapshot scatter */
+.snapshot-info{font-family:var(--fm);font-size:.62rem;color:var(--t3);padding:6px 14px 0}
+
+/* Run placeholder */
+.run-ph{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--t3);padding:52px 0;text-align:center}
+.run-ph-ico{font-size:2.2rem;opacity:.16}
+.run-ph-txt{font-size:.8rem;line-height:1.72}
+
+
+/* MODE-SPECIFIC WORKFLOW SIDEBAR */
+.lab-head{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.lab-title{font-family:var(--fd);font-size:1.25rem;font-weight:700;color:var(--t1);line-height:1.05}
+.lab-sub{font-size:.68rem;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.flow-side{position:absolute;z-index:60;left:0;top:0;bottom:0;width:272px;background:rgba(5,8,15,.82);border-right:1px solid var(--bd);backdrop-filter:blur(24px);padding:18px 16px;overflow-y:auto;display:flex;flex-direction:column;gap:16px}
+.app.flow-active .page:not(#p-mode){left:272px}
+.flow-top{display:flex;flex-direction:column;gap:6px;padding-bottom:14px;border-bottom:1px solid var(--bd)}
+.flow-back{align-self:flex-start;color:var(--t3);font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px;border:1px solid var(--bd);background:var(--s2);transition:all var(--fast)}
+.flow-back:hover{color:var(--gold);border-color:rgba(232,150,30,.28);background:var(--gold-dim)}
+.flow-kicker{font-size:.58rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--t4);margin-top:8px}
+.flow-title{font-family:var(--fd);font-size:1.38rem;font-weight:700;line-height:1.08;color:var(--t1)}
+.flow-desc{font-size:.72rem;color:var(--t3);line-height:1.55}
+.flow-steps{display:flex;flex-direction:column;gap:8px}
+.flow-step{position:relative;display:grid;grid-template-columns:26px 1fr;gap:9px;padding:10px 9px;border-radius:11px;border:1px solid transparent;cursor:pointer;transition:all var(--fast);background:transparent;text-align:left}
+.flow-step:hover{background:rgba(255,255,255,.035);border-color:var(--bd)}
+.flow-step.active{background:var(--gold-dim);border-color:rgba(232,150,30,.24);box-shadow:0 0 0 1px rgba(232,150,30,.05) inset}
+.flow-step.done{background:rgba(52,211,153,.035);border-color:rgba(52,211,153,.13)}
+.flow-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.63rem;color:var(--t3);background:var(--s2);border:1px solid var(--bd);margin-top:1px}
+.flow-step.active .flow-dot{color:#000;background:var(--gold);border-color:transparent;box-shadow:0 0 12px var(--gold-glow)}
+.flow-step.done .flow-dot{color:var(--green);border-color:rgba(52,211,153,.3);background:var(--green-dim)}
+.flow-main{display:flex;flex-direction:column;gap:2px;min-width:0}
+.flow-label{font-size:.75rem;font-weight:700;color:var(--t2);letter-spacing:.02em;line-height:1.2}
+.flow-step.active .flow-label{color:var(--gold-lt)}
+.flow-step.done .flow-label{color:var(--green)}
+.flow-small{font-size:.62rem;color:var(--t3);line-height:1.35}
+.flow-hint{margin-top:auto;border:1px solid var(--bd);background:rgba(14,19,34,.5);border-radius:12px;padding:11px 12px;font-size:.68rem;color:var(--t3);line-height:1.5}
+.cfg-anchor{scroll-margin-top:20px}
+@media(max-width:900px){
+  .flow-side{position:relative;width:auto;height:auto;bottom:auto;border-right:none;border-bottom:1px solid var(--bd);display:block;padding:12px 14px}
+  .flow-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px}
+  .app.flow-active .page:not(#p-mode){left:0;top:172px}
+  .lab-sub{display:none}
+}
+
+/* Utils */
+.hidden{display:none!important}
+#tip{position:fixed;z-index:9999;padding:4px 10px;background:var(--s3);border:1px solid var(--bdh);border-radius:6px;font-size:.66rem;color:var(--t2);pointer-events:none;opacity:0;transition:opacity 100ms;white-space:nowrap;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+#tip.show{opacity:1}
+mark{background:rgba(232,150,30,.2);color:var(--gold-lt);border-radius:2px;padding:0 1px}
+</style>
+</head>
+<body>
+<div id="tip"></div>
+
+<header>
+  <div class="logo">
+    <img src="https://github.com/Valdecy/Datasets/raw/master/Data%20Science/logo_pmh_.png"
+         alt="pyMetaheuristic" class="logo-img"
+         onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex'"/>
+    <div id="logo-fb"><div class="lfhex">⬡</div><span class="lftxt">pyMetaheuristic</span></div>
+  </div>
+  <div class="lab-head">
+    <div class="lab-title">Optimization Laboratory</div>
+    <div class="lab-sub" id="lab-sub">Choose a workflow. The left guide will adapt to the selected mode.</div>
+  </div>
+  <div class="hdr-r">
+    <span class="tot-badge" id="tot-badge">Loading…</span>
+    <div class="live-pill"><div class="live-dot"></div>Live</div>
+  </div>
+</header>
+
+<div class="app" id="app-shell">
+
+<aside class="flow-side hidden" id="flow-side">
+  <div class="flow-top">
+    <button class="flow-back" onclick="goPage('mode')">← Modes</button>
+    <div class="flow-kicker">Workflow</div>
+    <div class="flow-title" id="flow-title">—</div>
+    <div class="flow-desc" id="flow-desc">—</div>
+  </div>
+  <div class="flow-steps" id="flow-steps"></div>
+  <div class="flow-hint" id="flow-hint">Select a mode to start.</div>
+</aside>
+
+<!-- PAGE 0: MODE -->
+<div class="page active" id="p-mode">
+  <div class="mode-wrap">
+    <div class="mode-intro">
+      <div class="mode-intro-ttl">Optimization Laboratory</div>
+      <div class="mode-intro-sub">Choose a workflow to begin. Each mode exposes different configuration options<br>and result visualizations tailored to the analysis you need.</div>
+    </div>
+    <div class="mode-grid">
+      <div class="mode-card mc-single" data-mode="single" onclick="selectMode('single');goPage('browse')">
+        <div class="mode-card-top">
+          <div class="mode-icon" style="background:rgba(232,150,30,.12)">🔬</div>
+          <div class="mode-card-titles">
+            <div class="mode-name">Single Algorithm</div>
+            <div class="mode-tag" style="color:var(--gold)">Standard · Constrained · Binary</div>
+          </div>
+        </div>
+        <div class="mode-desc">Run one metaheuristic on a continuous, constrained, or binary objective. Three sub-modes: standard optimization, constraint-handling (Deb/penalty/repair), and binary via BinaryAdapter with chaotic transfer functions.</div>
+        <div class="mode-features">
+          <span class="mf">Convergence charts</span><span class="mf">Diversity</span><span class="mf">Exploitation ratio</span><span class="mf">Population snapshot</span><span class="mf">Feasibility banner</span><span class="mf">Binary solution</span>
+        </div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('single');goPage('browse')">Select →</div></div>
+      </div>
+      <div class="mode-card mc-bench" data-mode="benchmark" onclick="selectMode('benchmark');goPage('browse')">
+        <div class="mode-card-top">
+          <div class="mode-icon" style="background:rgba(56,189,248,.10)">📊</div>
+          <div class="mode-card-titles">
+            <div class="mode-name">Benchmark Runner</div>
+            <div class="mode-tag" style="color:var(--cyan)">Many algorithms · Many functions</div>
+          </div>
+        </div>
+        <div class="mode-desc">Compare multiple algorithms across benchmark functions with repeated trials. Statistical summaries, compact mean±std tables, global rankings, timing analysis.</div>
+        <div class="mode-features">
+          <span class="mf">Mean±std table</span><span class="mf">Rankings</span><span class="mf">Global ranking</span><span class="mf">Timing</span><span class="mf">CSV export</span>
+        </div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('benchmark');goPage('browse')" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9)">Select →</div></div>
+      </div>
+      <div class="mode-card mc-collab" data-mode="collaborative" onclick="selectMode('collaborative');goPage('browse')">
+        <div class="mode-card-top">
+          <div class="mode-icon" style="background:rgba(167,139,250,.10)">🏝️</div>
+          <div class="mode-card-titles">
+            <div class="mode-name">Collaborative Islands</div>
+            <div class="mode-tag" style="color:var(--violet)">Islands · Migration · Cooperation</div>
+          </div>
+        </div>
+        <div class="mode-desc">Multiple algorithm instances exchange best solutions via migration. Ring, star, full, and other topologies. Migration log, hall of fame, per-island convergence.</div>
+        <div class="mode-features">
+          <span class="mf">Global convergence</span><span class="mf">Per-island charts</span><span class="mf">Migration log</span><span class="mf">Hall of fame</span>
+        </div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('collaborative');goPage('browse')" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">Select →</div></div>
+      </div>
+      <div class="mode-card mc-orch" data-mode="orchestrated" onclick="selectMode('orchestrated');goPage('browse')">
+        <div class="mode-card-top">
+          <div class="mode-icon" style="background:rgba(52,211,153,.10)">🎯</div>
+          <div class="mode-card-titles">
+            <div class="mode-name">Orchestrated Islands</div>
+            <div class="mode-tag" style="color:var(--green)">Rules/Fixed · Checkpoints · Decisions</div>
+          </div>
+        </div>
+        <div class="mode-desc">Full cooperative engine with adaptive checkpointing and a heuristic or fixed controller. Inspect decisions at every checkpoint, action outcomes, island health and diversity telemetry.</div>
+        <div class="mode-features">
+          <span class="mf">Controller decisions</span><span class="mf">Action outcomes</span><span class="mf">Telemetry</span><span class="mf">Checkpoints</span>
+        </div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('orchestrated');goPage('browse')" style="background:linear-gradient(135deg,#34d399,#059669)">Select →</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 1: BROWSE -->
+<div class="page" id="p-browse">
+  <div class="browse-top">
+    <div class="srch-wrap">
+      <span class="srch-ico">⌕</span>
+      <input class="srch" id="srch" placeholder="Search by name or ID…" autocomplete="off"/>
+    </div>
+    <div class="fam-pills" id="fam-pills">
+      <button class="fp active" data-f="all" onclick="setFam('all')">All</button>
+    </div>
+    <span class="browse-ct" id="browse-ct">—</span>
+  </div>
+  <div class="browse-ws">
+    <div class="alg-list-col" id="alg-list">
+      <div style="color:var(--t3);padding:24px;text-align:center;font-size:.78rem">Loading algorithms…</div>
+    </div>
+    <div class="alg-det-col">
+      <div class="det-empty" id="det-empty">
+        <div class="det-empty-ico">◈</div>
+        <div class="det-empty-txt" id="det-empty-txt">Select an algorithm from the list<br>to explore its capabilities and defaults.</div>
+      </div>
+      <div class="det-loaded" id="det-loaded">
+        <div>
+          <div class="det-name" id="dn">—</div>
+          <div class="det-badges">
+            <span class="det-id" id="did">—</span>
+            <span class="pill" id="dfam">—</span>
+            <span class="pill" id="dcst">—</span>
+          </div>
+        </div>
+        <div><div class="det-sec">Capabilities</div><div class="caps-row" id="dcaps"></div></div>
+        <div id="ddef-wrap"><div class="det-sec">Default Parameters</div><div class="def-grid" id="ddef"></div></div>
+        <div id="ddoi-wrap" class="hidden"><div class="det-sec">Reference</div><div class="det-doi" id="ddoi"></div></div>
+        <div class="det-cta" id="det-cta-single">
+          <button class="btn btn-gold" onclick="useAlg()"><span>Configure this Algorithm</span><span>→</span></button>
+          <span class="det-cta-hint">Continue to configuration →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="sel-count-bar hidden" id="sel-count-bar">
+    <span class="sel-count-txt" id="sel-count-txt">0 algorithms selected</span>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-ghost btn-sm" onclick="clearSelections()">Clear</button>
+      <button class="btn btn-gold btn-sm" onclick="goPage('configure')">Configure Selection →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 2: CONFIGURE -->
+<div class="page" id="p-configure">
+  <div class="cfg-wrap" id="cfg-wrap"></div>
+</div>
+
+<!-- PAGE 3: RUN & RESULTS -->
+<div class="page" id="p-run">
+  <div class="run-wrap">
+    <div class="run-bar">
+      <div class="rb-info">
+        <div class="rb-mode" id="rb-mode">—</div>
+        <div class="rb-name" id="rb-name">—</div>
+        <div class="rb-meta" id="rb-meta"></div>
+      </div>
+      <button class="btn btn-ghost" onclick="goPage('configure')">← Reconfigure</button>
+      <button class="btn btn-gold" id="run-btn" onclick="startJob()">
+        <span class="bico">▶</span><span class="blbl">Run Optimization</span>
+      </button>
+      <button class="btn btn-danger hidden" id="stop-btn" onclick="cancelJob()">■ Stop</button>
+    </div>
+    <div class="run-ph" id="run-ph">
+      <div class="run-ph-ico">∿</div>
+      <div class="run-ph-txt">Click <strong style="color:var(--gold)">Run Optimization</strong> to start.<br>Results appear here live as the job runs.</div>
+    </div>
+    <div id="results-container" style="display:flex;flex-direction:column;gap:14px"></div>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<script>
+/* ════════════════════ GLOBALS ════════════════════ */
+let allAlgs=[], testFns=[], transferFns=[], selectedAlg=null, selectedAlgs=new Set();
+let selectedMode=null, singleSubMode='standard', activeFam='all', srchQ='', activeConfigAnchor=null;
+let currentJobId=null, pollTimer=null, lastHistLen=0;
+let charts={};
+let outputs={};
+let bmLastRows=[];
+let lastResult=null;
+let customFnCounters={bm:0,shared:0};
+let _sharedProblemCnt=0;
+
+const FC={swarm:'#38bdf8',evolutionary:'#34d399',physics:'#a78bfa',math:'#e8961e',mathematical:'#e8961e',human:'#fb7185',nature:'#86efac',trajectory:'#fbbf24',distribution:'#67e8f9',other:'#64748b'};
+function fc(f){return FC[(f||'').toLowerCase()]||FC.other}
+
+const CAP={has_population:'Population-based',has_archive:'Archive',supports_candidate_injection:'Candidate Injection',supports_restart:'Restart',supports_checkpoint:'Checkpoint',supports_native_constraints:'Native Constraints',supports_framework_constraints:'Framework Constraints',supports_constraints:'Constraints'};
+const MODE_LABELS={single:'Single Algorithm',benchmark:'Benchmark Runner',collaborative:'Collaborative Islands',orchestrated:'Orchestrated Islands'};
+const MODE_COLORS={single:'var(--gold)',benchmark:'var(--cyan)',collaborative:'var(--violet)',orchestrated:'var(--green)'};
+const ISLAND_COLORS=['#a78bfa','#38bdf8','#34d399','#fb7185','#fbbf24','#86efac','#e8961e','#f9a8d4','#67e8f9','#bbf7d0'];
+
+/* ════════════════════ BOOT ════════════════════ */
+async function init(){
+  await Promise.all([loadAlgs(),loadFns(),loadTransferFns()]);
+  bindEvents();
+}
+async function loadAlgs(){
+  try{
+    allAlgs=await(await fetch('/api/algorithms')).json();
+    buildFamPills();renderAlgList();
+    document.getElementById('tot-badge').textContent=`${allAlgs.length} algorithms`;
+  }catch(e){
+    document.getElementById('alg-list').innerHTML='<div style="color:var(--rose);padding:24px;font-size:.78rem;text-align:center">⚠ Cannot reach server. Make sure server.py is running.</div>';
+    document.getElementById('tot-badge').textContent='Offline';
+  }
+}
+async function loadFns(){try{testFns=await(await fetch('/api/test-functions')).json();}catch(e){}}
+async function loadTransferFns(){
+  try{transferFns=await(await fetch('/api/transfer-functions')).json();}
+  catch(e){transferFns=['v1','v2','v3','v4','s1','s2','s3','s4'];}
+}
+
+/* ════════════════════ NAVIGATION ════════════════════ */
+const PAGES=['mode','browse','configure','run'];
+const WORKFLOWS={
+  single:{
+    title:'Single Algorithm',
+    desc:'One solver, one problem, full telemetry.',
+    hint:'Each sidebar item opens only the fields required for that step.',
+    steps:[
+      {id:'browse',label:'Select algorithm',small:'Pick exactly one metaheuristic'},
+      {id:'configure',anchor:'cfg-algorithm-card',label:'Method',small:'Standard, constrained, or binary'},
+      {id:'configure',anchor:'cfg-params-card',label:'Algorithm parameters',small:'Edit this solver only'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Define problem',small:'Objective, dimensions, bounds'},
+      {id:'configure',anchor:'cfg-term-card',label:'Termination',small:'Iterations, evaluations, timeout'},
+      {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Choose charts and exports'},
+      {id:'run',label:'Run & inspect',small:'Live charts and exports'},
+    ]
+  },
+  benchmark:{
+    title:'Benchmark Runner',
+    desc:'Many algorithms against many functions.',
+    hint:'No algorithm or test function is selected silently. Choose them explicitly.',
+    steps:[
+      {id:'browse',label:'Select algorithms',small:'Choose the candidate set'},
+      {id:'configure',anchor:'cfg-multi-params-card',label:'Configure algorithms',small:'Separate parameters per solver'},
+      {id:'configure',anchor:'cfg-benchmark-card',label:'Define problem set',small:'Add problems one at a time'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Global settings',small:'Locked algorithms, trials, objective'},
+      {id:'configure',anchor:'cfg-output-card',label:'Result tables',small:'Ranking, timing, CSV'},
+      {id:'run',label:'Run comparison',small:'Monitor and export results'},
+    ]
+  },
+  collaborative:{
+    title:'Collaborative Islands',
+    desc:'Multiple solvers exchange solutions.',
+    hint:'First configure solver parameters, then configure island labels/topology.',
+    steps:[
+      {id:'browse',label:'Select island solvers',small:'Choose one or more algorithms'},
+      {id:'configure',anchor:'cfg-island-param-card',label:'Configure solver parameters',small:'Separate parameters per solver'},
+      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, population'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Define problem set',small:'Add problems one at a time'},
+      {id:'configure',anchor:'cfg-migration-card',label:'Migration policy',small:'Topology, interval, size'},
+      {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Charts, logs, exports'},
+      {id:'run',label:'Run cooperation',small:'Global and per-island results'},
+    ]
+  },
+  orchestrated:{
+    title:'Orchestrated Islands',
+    desc:'Islands plus an adaptive controller.',
+    hint:'First configure solver parameters, then configure islands and controller rules.',
+    steps:[
+      {id:'browse',label:'Select island solvers',small:'Choose one or more algorithms'},
+      {id:'configure',anchor:'cfg-island-param-card',label:'Configure solver parameters',small:'Separate parameters per solver'},
+      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, population'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Define problem set',small:'Add problems one at a time'},
+      {id:'configure',anchor:'cfg-migration-card',label:'Migration policy',small:'Topology, interval, size'},
+      {id:'configure',anchor:'cfg-orchestration-card',label:'Controller rules',small:'Checkpoints and actions'},
+      {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Telemetry, logs, exports'},
+      {id:'run',label:'Run orchestration',small:'Decisions, outcomes, telemetry'},
+    ]
+  }
+};
+function currentWorkflow(){return selectedMode?WORKFLOWS[selectedMode]:null;}
+function defaultConfigureAnchor(){
+  const wf=currentWorkflow();
+  return wf?.steps.find(s=>s.id==='configure')?.anchor||null;
+}
+function goPage(id,anchor=null){
+  if(id==='configure'&&!anchor)anchor=activeConfigAnchor||defaultConfigureAnchor();
+  if(id==='configure')activeConfigAnchor=anchor;
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(`p-${id}`).classList.add('active');
+  document.getElementById('app-shell')?.classList.toggle('flow-active',id!=='mode'&&!!selectedMode);
+  document.getElementById('flow-side')?.classList.toggle('hidden',id==='mode'||!selectedMode);
+  if(id==='mode')document.getElementById('lab-sub').textContent='Choose a workflow. The left guide will adapt to the selected mode.';
+  if(id==='configure'){renderConfigure(anchor);setTimeout(refreshBenchmarkSummaries,0);}
+  if(id==='run')updateRunBar();
+  renderFlow(id,anchor);
+}
+function goFlow(idx){
+  const wf=currentWorkflow();if(!wf)return;
+  const st=wf.steps[idx];if(!st)return;
+  goPage(st.id,st.anchor||null);
+}
+function inferFlowIndex(page,anchor=null){
+  const wf=currentWorkflow();if(!wf)return-1;
+  if(anchor){const i=wf.steps.findIndex(s=>s.id===page&&s.anchor===anchor);if(i>=0)return i;}
+  if(page==='browse')return wf.steps.findIndex(s=>s.id==='browse');
+  if(page==='run')return wf.steps.findIndex(s=>s.id==='run');
+  if(page==='configure')return wf.steps.findIndex(s=>s.id==='configure');
+  return-1;
+}
+function renderFlow(page='browse',anchor=null){
+  const wf=currentWorkflow();
+  const shell=document.getElementById('app-shell');
+  const side=document.getElementById('flow-side');
+  if(!wf||page==='mode'){
+    shell?.classList.remove('flow-active');side?.classList.add('hidden');return;
+  }
+  side?.classList.remove('hidden');shell?.classList.add('flow-active');
+  document.getElementById('flow-title').textContent=wf.title;
+  document.getElementById('flow-desc').textContent=wf.desc;
+  document.getElementById('flow-hint').textContent=wf.hint;
+  document.getElementById('lab-sub').textContent=`${wf.title}: ${wf.desc}`;
+  const active=inferFlowIndex(page,anchor);
+  document.getElementById('flow-steps').innerHTML=wf.steps.map((st,i)=>`<button class="flow-step ${i===active?'active':i<active?'done':''}" onclick="goFlow(${i})">
+      <div class="flow-dot">${i<active?'✓':String(i+1).padStart(2,'0')}</div>
+      <div class="flow-main"><div class="flow-label">${st.label}</div><div class="flow-small">${st.small}</div></div>
+    </button>`).join('');
+}
+
+/* ════════════════════ MODE SELECTION ════════════════════ */
+function selectMode(m){
+  if(selectedMode!==m){
+    selectedAlg=null;
+    selectedAlgs.clear();
+    activeConfigAnchor=null;
+    document.getElementById('det-empty')?.style.setProperty('display','flex');
+    document.getElementById('det-loaded')?.classList.remove('vis');
+  }
+  selectedMode=m;
+  document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('selected',c.dataset.mode===m));
+  const multiMode=(m==='benchmark'||m==='collaborative'||m==='orchestrated');
+  document.getElementById('det-cta-single').classList.toggle('hidden',multiMode);
+  document.getElementById('sel-count-bar').classList.toggle('hidden',!multiMode);
+  document.getElementById('det-empty-txt').textContent=multiMode
+    ?'Select one or more algorithms from the list.\nUse the checkboxes to build the candidate set.'
+    :'Select one algorithm from the list\nto inspect it and continue.';
+  document.getElementById('sel-count-txt').textContent=`${selectedAlgs.size} algorithm${selectedAlgs.size!==1?'s':''} selected`;
+  renderAlgList();renderFlow('browse');
+}
+
+/* ════════════════════ FAMILY FILTER ════════════════════ */
+function buildFamPills(){
+  const fams=[...new Set(allAlgs.map(a=>a.family).filter(Boolean))].sort();
+  const bar=document.getElementById('fam-pills');
+  fams.forEach(f=>{
+    const b=document.createElement('button');b.className='fp';b.dataset.f=f;
+    b.textContent=f.charAt(0).toUpperCase()+f.slice(1);b.onclick=()=>setFam(f);bar.appendChild(b);
+  });
+}
+function setFam(f){
+  activeFam=f;
+  document.querySelectorAll('.fp').forEach(b=>{
+    const col=fc(b.dataset.f);const isAll=b.dataset.f==='all';
+    b.classList.toggle('active',b.dataset.f===f);
+    if(b.classList.contains('active')){b.style.background=isAll?'var(--t3)':col;b.style.borderColor='transparent';b.style.color='#000';}
+    else{b.style.background=b.style.borderColor=b.style.color='';}
+  });
+  renderAlgList();
+}
+
+/* ════════════════════ ALGORITHM LIST ════════════════════ */
+function renderAlgList(){
+  const q=srchQ.toLowerCase();
+  const filtered=allAlgs.filter(a=>(activeFam==='all'||a.family===activeFam)&&(!q||a.name.toLowerCase().includes(q)||a.id.toLowerCase().includes(q)));
+  document.getElementById('browse-ct').textContent=`${filtered.length} / ${allAlgs.length}`;
+  const list=document.getElementById('alg-list');
+  if(!filtered.length){list.innerHTML='<div style="color:var(--t3);padding:24px;text-align:center;font-size:.78rem">No algorithms match.</div>';return;}
+  const multiMode=(selectedMode==='benchmark'||selectedMode==='collaborative'||selectedMode==='orchestrated');
+  list.innerHTML='';
+  filtered.forEach(a=>{
+    const div=document.createElement('div');
+    const isSel=selectedAlg?.id===a.id;const isMultiSel=selectedAlgs.has(a.id);
+    div.className='alg-item'+(isSel?' sel':'')+(isMultiSel?' multi-sel':'');
+    div.dataset.id=a.id;
+    const col=fc(a.family);const nameHl=q?hl(a.name,q):a.name;
+    if(multiMode){
+      div.innerHTML=`<div class="alg-bar" style="background:${col}"></div><div class="alg-body"><div class="alg-name">${nameHl}</div><div class="alg-id">${a.id}</div></div><div class="alg-chk"><input type="checkbox" ${isMultiSel?'checked':''} onclick="toggleAlgSel('${a.id}',event)"/></div>`;
+      div.addEventListener('click',e=>{if(e.target.tagName!=='INPUT')toggleAlgSel(a.id,e);});
+    }else{
+      div.innerHTML=`<div class="alg-bar" style="background:${col}"></div><div class="alg-body"><div class="alg-name">${nameHl}</div><div class="alg-id">${a.id}</div></div>`;
+      div.addEventListener('click',()=>selectAlg(a.id));
+    }
+    list.appendChild(div);
+  });
+}
+function hl(text,q){const i=text.toLowerCase().indexOf(q);if(i<0)return text;return`${text.slice(0,i)}<mark>${text.slice(i,i+q.length)}</mark>${text.slice(i+q.length)}`;}
+function toggleAlgSel(id,e){
+  if(e)e.stopPropagation();
+  if(selectedAlgs.has(id))selectedAlgs.delete(id);else selectedAlgs.add(id);
+  document.getElementById('sel-count-txt').textContent=`${selectedAlgs.size} algorithm${selectedAlgs.size!==1?'s':''} selected`;
+  renderAlgList();
+}
+function clearSelections(){selectedAlgs.clear();document.getElementById('sel-count-txt').textContent='0 algorithms selected';renderAlgList();}
+async function selectAlg(id){
+  document.querySelectorAll('.alg-item').forEach(el=>el.classList.toggle('sel',el.dataset.id===id));
+  try{selectedAlg=await(await fetch(`/api/algorithms/${id}`)).json();renderDetail(selectedAlg);}
+  catch(e){console.error(e);}
+}
+function renderDetail(alg){
+  document.getElementById('det-empty').style.display='none';
+  document.getElementById('det-loaded').classList.add('vis');
+  document.getElementById('dn').textContent=alg.name;
+  document.getElementById('did').textContent=alg.id;
+  const col=fc(alg.family);
+  const fp=document.getElementById('dfam');fp.textContent=alg.family||'other';fp.style.cssText=`background:${col}1a;color:${col};border-color:${col}44`;
+  const cp=document.getElementById('dcst');
+  const cm={native:`background:var(--green-dim);color:var(--green);border-color:rgba(52,211,153,.28)`,framework:`background:var(--cyan-dim);color:var(--cyan);border-color:rgba(56,189,248,.28)`,none:`background:var(--s3);color:var(--t3);border-color:var(--bd)`};
+  cp.textContent=alg.constraint_support==='native'?'Native Constraints':alg.constraint_support==='framework'?'Framework Constraints':'No Constraints';
+  cp.style.cssText=cm[alg.constraint_support]||cm.none;
+  const cg=document.getElementById('dcaps');cg.innerHTML='';
+  if(alg.caps)Object.entries(CAP).forEach(([k,l])=>{if(alg.caps[k]===undefined)return;const b=document.createElement('div');b.className=`cbdg ${alg.caps[k]?'on':''}`;b.textContent=l;cg.appendChild(b);});
+  const dw=document.getElementById('ddef-wrap');const dg=document.getElementById('ddef');
+  // The browse step is only for selection/inspection. Parameter editing lives exclusively in the Configure step.
+  if(dw)dw.style.display='none';
+  if(dg)dg.innerHTML='';
+  const dw2=document.getElementById('ddoi-wrap'),de=document.getElementById('ddoi');
+  if(alg.doi){dw2.classList.remove('hidden');de.innerHTML=`<a href="https://doi.org/${alg.doi}" target="_blank">${alg.doi}</a>`;}
+  else dw2.classList.add('hidden');
+}
+function useAlg(){if(!selectedAlg)return;goPage('configure');}
+
+/* ════════════════════ FORM HELPERS ════════════════════ */
+function esc(v){return String(v??'').replace(/[&<>\"]/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[ch]));}
+function numText(v){return String(v??'').replace(',', '.').trim();}
+function readNumValue(v,fallback=null){
+  const raw=numText(v);
+  if(raw==='')return fallback;
+  const n=Number(raw);
+  return Number.isFinite(n)?n:fallback;
+}
+function readFloatById(id,fallback=null){return readNumValue(document.getElementById(id)?.value,fallback);}
+function readIntById(id,fallback=null){
+  const n=readNumValue(document.getElementById(id)?.value,fallback);
+  return n==null?fallback:Math.trunc(n);
+}
+function algInfo(id){return allAlgs.find(a=>a.id===id)||null;}
+function paramInputHTML(k,v,extraClass='',extraAttrs=''){
+  return `<div class="prm"><div class="prm-name">${esc(k).replace(/_/g,' ')}</div><input class="prm-inp ${extraClass}" ${extraAttrs} data-param="${esc(k)}" type="text" inputmode="decimal" value="${esc(v)}"/><div class="prm-def">default: ${esc(v)}</div></div>`;
+}
+function paramsGridHTML(defaults,emptyText,extraClass='',extraAttrs=''){
+  const entries=Object.entries(defaults||{});
+  if(!entries.length)return `<div class="no-prm">${emptyText||'No configurable parameters.'}</div>`;
+  return `<div class="params-grid">${entries.map(([k,v])=>paramInputHTML(k,v,extraClass,extraAttrs)).join('')}</div>`;
+}
+function selectedAlgIds(){return [...selectedAlgs];}
+function applyConfigStepVisibility(anchor){
+  const active=anchor||defaultConfigureAnchor();
+  const visible={
+    'cfg-algorithm-card':['cfg-algorithm-card'],
+    'cfg-params-card':['cfg-params-card'],
+    'cfg-problem-card':['cfg-problem-card'],
+    'cfg-term-card':['cfg-term-card'],
+    'cfg-output-card':['cfg-output-card'],
+    'cfg-multi-params-card':['cfg-multi-params-card'],
+    'cfg-benchmark-card':['cfg-benchmark-card'],
+    'cfg-island-param-card':['cfg-island-param-card'],
+    'cfg-island-card':['cfg-island-card'],
+    'cfg-migration-card':['cfg-migration-card'],
+    'cfg-orchestration-card':['cfg-orchestration-card'],
+  }[active]||[active];
+  document.querySelectorAll('#cfg-wrap .cfg-anchor, #cfg-wrap .card[id^="cfg-"]').forEach(el=>{
+    el.classList.toggle('hidden',!visible.includes(el.id));
+  });
+  activeConfigAnchor=active;
+}
+function collectInputsAsConfig(selector){
+  const cfg={};
+  document.querySelectorAll(selector).forEach(inp=>{
+    const key=inp.dataset.param;
+    if(!key)return;
+    const raw=(inp.value||'').trim();
+    if(raw==='')return;
+    const n=readNumValue(raw,null);
+    cfg[key]=n==null?raw:n;
+  });
+  return cfg;
+}
+function collectBenchmarkConfigs(){
+  const configs={};
+  selectedAlgIds().forEach(id=>{
+    const cfg=collectInputsAsConfig(`[data-bm-alg="${CSS.escape(id)}"]`);
+    if(Object.keys(cfg).length)configs[id]=cfg;
+  });
+  return configs;
+}
+function selectedTestFunctions(name='bm-fn'){return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(c=>c.value);}
+function selectedFunctionLabels(name='bm-fn'){
+  return [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(c=>c.closest('.chk-item')?.querySelector('span')?.childNodes?.[0]?.textContent?.trim()||c.value);
+}
+function customFunctionBlock(scope,id){
+  const prefix=`${scope}-custom-${id}`;
+  return `<div class="card custom-fn-card" data-scope="${esc(scope)}" data-cfid="${id}" style="background:var(--s2);margin-top:8px;border-radius:10px">
+    <div class="chdr" style="padding:9px 12px"><div class="cttl">Custom Function ${id}</div><button class="btn btn-danger btn-xs" onclick="removeCustomFn('${esc(scope)}',${id})">Remove</button></div>
+    <div class="cbdy" style="padding:12px">
+      <div class="fr fr4">
+        <div class="f"><label class="flbl">ID</label><input class="fld fld-mono custom-fn-id" value="custom_${id}"/></div>
+        <div class="f"><label class="flbl">Label</label><input class="fld fld-mono custom-fn-label" value="Custom ${id}"/></div>
+        <div class="f"><label class="flbl">Min</label><input class="fld fld-mono custom-fn-min" type="text" inputmode="decimal" value="-5.12"/></div>
+        <div class="f"><label class="flbl">Max</label><input class="fld fld-mono custom-fn-max" type="text" inputmode="decimal" value="5.12"/></div>
+      </div>
+      <div class="fr fr2">
+        <div class="f"><label class="flbl">Dimensions</label><input class="fld fld-mono custom-fn-dims" type="number" placeholder="Use global dimensions"/></div>
+        <div class="f"><label class="flbl">Optimum</label><input class="fld fld-mono custom-fn-opt" type="text" inputmode="decimal" placeholder="Optional"/></div>
+      </div>
+      <div class="f"><label class="flbl">Python Objective Code</label><textarea class="code-ta custom-fn-code" spellcheck="false"># variables_values is a list of floats
+import numpy as np
+result = np.sum(np.array(variables_values) ** 2)</textarea></div>
+    </div>
+  </div>`;
+}
+function addCustomFn(scope='bm'){
+  customFnCounters[scope]=(customFnCounters[scope]||0)+1;
+  const box=document.getElementById(`${scope}-custom-list`);if(box)box.insertAdjacentHTML('beforeend',customFunctionBlock(scope,customFnCounters[scope]));
+}
+function removeCustomFn(scope,id){document.querySelector(`.custom-fn-card[data-scope="${CSS.escape(scope)}"][data-cfid="${id}"]`)?.remove();}
+function collectCustomFunctions(scope='bm'){
+  return [...document.querySelectorAll(`.custom-fn-card[data-scope="${CSS.escape(scope)}"]`)].map((card,i)=>{
+    const id=(card.querySelector('.custom-fn-id')?.value||`custom_${i+1}`).trim().replace(/[^A-Za-z0-9_\-]/g,'_');
+    return {
+      id,
+      label:(card.querySelector('.custom-fn-label')?.value||id).trim(),
+      code:card.querySelector('.custom-fn-code')?.value||'',
+      min:readNumValue(card.querySelector('.custom-fn-min')?.value,-5.12),
+      max:readNumValue(card.querySelector('.custom-fn-max')?.value,5.12),
+      dimensions:readIntByIdFromEl(card.querySelector('.custom-fn-dims'),null),
+      optimum:readNumValue(card.querySelector('.custom-fn-opt')?.value,null),
+    };
+  }).filter(f=>f.code.trim());
+}
+function readIntByIdFromEl(el,fallback=null){const n=readNumValue(el?.value,fallback);return n==null?fallback:Math.trunc(n);}
+function functionCheckboxesHTML(name){
+  return testFns.map(f=>`<label class="chk-item"><input type="checkbox" name="${esc(name)}" value="${esc(f.id)}"/><span>${esc(f.label)}<span class="chk-sub">${esc(f.id)}</span></span></label>`).join('');
+}
+function selectedFunctionPayload(name='bm-fn',scope='bm'){
+  return {functions:selectedTestFunctions(name),custom_functions:collectCustomFunctions(scope)};
+}
+
+function renderBenchmarkGlobalSettings(){
+  const card=document.getElementById('cfg-problem-card');if(!card)return;
+  const ids=selectedAlgIds();
+  const lockedAlgs=ids.length?ids.map(id=>{const a=algInfo(id);return `<select class="fld fld-sel fld-mono" disabled><option>${esc(a?.name||id)} (${esc(id)})</option></select>`;}).join(''):'<div class="no-prm" style="color:var(--rose)">No algorithms selected.</div>';
+  card.innerHTML=`<div class="chdr"><div class="cico" style="background:var(--cyan-dim);color:var(--cyan)">◎</div><div class="cttl">Benchmark Global Settings</div></div>
+    <div class="cbdy">
+      <div class="f"><label class="flbl">Selected Algorithms (locked)</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">${lockedAlgs}</div><div class="fhint">Change the candidate set only from the “Select algorithms” step.</div></div>
+      <div class="f"><label class="flbl">Selected Problem Set (locked)</label><div id="bm-problem-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px"><div class="no-prm" style="color:var(--rose)">No benchmark problem added yet.</div></div><div class="fhint">Change functions, dimensions, and bounds only from the “Define problem set” step.</div></div>
+      <div class="fr fr2">
+        <div class="f"><label class="flbl">Trials per algorithm × problem</label><input class="fld fld-mono" type="number" id="bm-trials" value="5" min="1"/></div>
+        <div class="f"><label class="flbl">Max Steps per run</label><input class="fld fld-mono" type="number" id="bm-steps" value="300" min="1"/></div>
+      </div>
+      <div class="fr fr2">
+        <div class="f"><label class="flbl">Objective for All Problems</label><div class="obj-tog"><button class="obj-btn active" data-obj="min" onclick="setObj(this)">↓ Minimize</button><button class="obj-btn" data-obj="max" onclick="setObj(this)">↑ Maximize</button></div></div>
+        <div class="f"><label class="flbl">Random Seed</label><input class="fld fld-mono" type="number" id="cfg-seed" placeholder="Optional — leave blank for random"/></div>
+      </div>
+    </div>`;
+  refreshBenchmarkSummaries();
+}
+function builtInProblemOptions(){
+  return ['<option value="" selected disabled>Choose built-in function…</option>']
+    .concat(testFns.map(f=>`<option value="${esc(f.id)}">${esc(f.label)}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`))
+    .join('');
+}
+function sharedProblemRowHTML(id, kind='builtin', fnId=''){
+  const meta=testFns.find(f=>f.id===fnId)||{};
+  const isCustom=kind==='custom';
+  const label=isCustom?`Custom Problem ${id}`:(meta.label||'Built-in Problem');
+  const dims=isCustom?10:(meta.fixed_dims||10);
+  const bmin=isCustom?-5.12:(meta.min??-5.12);
+  const bmax=isCustom?5.12:(meta.max??5.12);
+  const fnOptions=testFns.map(f=>`<option value="${esc(f.id)}" ${f.id===fnId?'selected':''}>${esc(f.label)}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`).join('');
+  return `<div class="card shared-problem-row" data-pid="${id}" data-kind="${esc(kind)}" style="background:var(--s2);margin-bottom:10px;border-radius:12px">
+    <div class="chdr" style="padding:10px 14px;justify-content:space-between">
+      <div class="cttl">Problem ${id} · ${isCustom?'Custom Python':'Built-in'} </div>
+      <button class="btn btn-danger btn-xs" onclick="removeSharedProblem(${id})">Remove</button>
+    </div>
+    <div class="cbdy" style="padding:12px 14px">
+      ${isCustom?`
+        <div class="fr fr2">
+          <div class="f"><label class="flbl">ID</label><input class="fld fld-mono sp-id" value="custom_${id}"/></div>
+          <div class="f"><label class="flbl">Label</label><input class="fld fld-mono sp-label" value="${esc(label)}"/></div>
+        </div>
+        <div class="f"><label class="flbl">Python Objective Code</label><textarea class="code-ta sp-code" spellcheck="false"># variables_values is a list of floats
+import numpy as np
+result = np.sum(np.array(variables_values) ** 2)</textarea></div>
+      `:`
+        <div class="fr fr2">
+          <div class="f"><label class="flbl">Function</label><select class="fld fld-sel fld-mono sp-fn" onchange="syncSharedProblemMeta(this,${id})">${fnOptions}</select></div>
+          <div class="f"><label class="flbl">Label</label><input class="fld fld-mono sp-label" value="${esc(label)}"/></div>
+        </div>
+      `}
+      <div class="fr fr4">
+        <div class="f"><label class="flbl">Dimensions</label><input class="fld fld-mono sp-dims" type="number" value="${esc(dims)}" min="1" max="200" ${meta.fixed_dims?'data-fixed="1"':''}/><div class="fhint sp-note">${meta.fixed_dims?`Fixed default: ${meta.fixed_dims}D. You may override only if the function implementation supports it.`:''}</div></div>
+        <div class="f"><label class="flbl">Min Bound</label><input class="fld fld-mono sp-min" type="text" inputmode="decimal" value="${esc(bmin)}"/></div>
+        <div class="f"><label class="flbl">Max Bound</label><input class="fld fld-mono sp-max" type="text" inputmode="decimal" value="${esc(bmax)}"/></div>
+        <div class="f"><label class="flbl">Optimum</label><input class="fld fld-mono sp-opt" type="text" inputmode="decimal" value="${meta.optimum??''}" placeholder="Optional"/></div>
+      </div>
+    </div>
+  </div>`;
+}
+function renderSharedProblemCard(targetId='cfg-problem-card', title='Shared Problem Set', includeControls=true){
+  const card=document.getElementById(targetId);if(!card)return;
+  const isBenchmark=targetId==='cfg-benchmark-card';
+  card.innerHTML=`<div class="chdr"><div class="cico" style="background:rgba(232,150,30,.10);color:var(--gold)">⚙</div><div class="cttl">${esc(title)}</div></div>
+    <div class="cbdy">
+      <div class="fhint" style="margin-bottom:12px">Add one problem at a time. Each built-in or custom function carries its own dimensions, bounds, and optional optimum. This avoids mixing incompatible parameter ranges.</div>
+      <div class="card" style="background:var(--s2);border-radius:11px;margin-bottom:12px">
+        <div class="cbdy" style="padding:12px 14px">
+          <div class="fr fr3">
+            <div class="f" style="grid-column:span 2"><label class="flbl">Add Built-in Function</label><select class="fld fld-sel fld-mono" id="shared-add-fn">${builtInProblemOptions()}</select></div>
+            <div class="f" style="display:flex;align-items:end"><button class="btn btn-ghost" style="width:100%" onclick="addBuiltInSharedProblem()">+ Add Built-in</button></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="addCustomSharedProblem()">+ Add Custom Python Function</button>
+        </div>
+      </div>
+      <div id="shared-problem-list"><div class="no-prm" style="color:var(--rose)">No shared problem added yet.</div></div>
+      ${includeControls?`<div class="divider"></div>
+      <div class="fr fr2">
+        <div class="f"><label class="flbl">Objective for All Problems</label><div class="obj-tog"><button class="obj-btn active" data-obj="min" onclick="setObj(this)">↓ Minimize</button><button class="obj-btn" data-obj="max" onclick="setObj(this)">↑ Maximize</button></div></div>
+        <div class="f"><label class="flbl">Random Seed</label><input class="fld fld-mono" type="number" id="cfg-seed" placeholder="Optional — leave blank for random"/></div>
+      </div>`:''}
+      <div class="fhint">${isBenchmark?'For benchmark mode, each algorithm is run on each problem using that problem’s own dimensions and bounds.':'For multiple problems, the island system runs once per problem and produces a problem-result table. For one problem, full live telemetry remains available.'}</div>
+    </div>`;
+}
+function ensureProblemList(){
+  const list=document.getElementById('shared-problem-list');
+  if(list?.querySelector('.no-prm'))list.innerHTML='';
+  return list;
+}
+function addBuiltInSharedProblem(){
+  const sel=document.getElementById('shared-add-fn');
+  const fnId=sel?.value||'';
+  if(!fnId){alert('Choose a built-in function first.');return;}
+  _sharedProblemCnt++;
+  ensureProblemList()?.insertAdjacentHTML('beforeend',sharedProblemRowHTML(_sharedProblemCnt,'builtin',fnId));
+  if(sel)sel.value='';
+  refreshBenchmarkSummaries();
+}
+function addCustomSharedProblem(){
+  _sharedProblemCnt++;
+  ensureProblemList()?.insertAdjacentHTML('beforeend',sharedProblemRowHTML(_sharedProblemCnt,'custom',''));
+  refreshBenchmarkSummaries();
+}
+function removeSharedProblem(id){
+  document.querySelector(`.shared-problem-row[data-pid="${id}"]`)?.remove();
+  const list=document.getElementById('shared-problem-list');
+  if(list&&!list.querySelector('.shared-problem-row'))list.innerHTML='<div class="no-prm" style="color:var(--rose)">No shared problem added yet.</div>';
+  refreshBenchmarkSummaries();
+}
+function syncSharedProblemMeta(sel,id){
+  const row=document.querySelector(`.shared-problem-row[data-pid="${id}"]`);if(!row)return;
+  const meta=testFns.find(f=>f.id===sel.value)||{};
+  row.querySelector('.sp-label').value=meta.label||sel.value;
+  row.querySelector('.sp-dims').value=meta.fixed_dims||10;
+  row.querySelector('.sp-min').value=String(meta.min??-5.12);
+  row.querySelector('.sp-max').value=String(meta.max??5.12);
+  row.querySelector('.sp-opt').value=meta.optimum??'';
+  const note=row.querySelector('.sp-note');if(note)note.textContent=meta.fixed_dims?`Fixed default: ${meta.fixed_dims}D. You may override only if the function implementation supports it.`:'';
+  refreshBenchmarkSummaries();
+}
+function collectSharedProblemSpecs(){
+  const specs=[];
+  document.querySelectorAll('#shared-problem-list .shared-problem-row').forEach((row,i)=>{
+    const kind=row.dataset.kind||'builtin';
+    const dims=readIntByIdFromEl(row.querySelector('.sp-dims'),null);
+    const bmin=readNumValue(row.querySelector('.sp-min')?.value,null);
+    const bmax=readNumValue(row.querySelector('.sp-max')?.value,null);
+    if(!dims||bmin==null||bmax==null)throw new Error(`Problem ${i+1} has invalid dimensions or bounds.`);
+    const optimum=readNumValue(row.querySelector('.sp-opt')?.value,null);
+    if(kind==='custom'){
+      const id=(row.querySelector('.sp-id')?.value||`custom_${i+1}`).trim().replace(/[^A-Za-z0-9_\-]/g,'_');
+      const code=row.querySelector('.sp-code')?.value||'';
+      if(!code.trim())throw new Error(`Custom problem ${i+1} has empty Python code.`);
+      specs.push({type:'custom',id,label:row.querySelector('.sp-label')?.value||id,code,dimensions:dims,min:bmin,max:bmax,optimum});
+    }else{
+      const fn=row.querySelector('.sp-fn')?.value||'';
+      if(!fn)throw new Error(`Built-in problem ${i+1} has no function selected.`);
+      specs.push({type:'builtin',id:fn,function:fn,label:row.querySelector('.sp-label')?.value||fn,dimensions:dims,min:bmin,max:bmax,optimum});
+    }
+  });
+  return specs;
+}
+function getSharedProblem(){
+  let specs=[];
+  try{specs=collectSharedProblemSpecs();}
+  catch(e){alert(e.message||String(e));goPage('configure','cfg-problem-card');return null;}
+  if(!specs.length){alert('Add at least one built-in or custom shared problem.');goPage('configure','cfg-problem-card');return null;}
+  const first=specs[0];
+  const seedRaw=document.getElementById('cfg-seed')?.value;
+  return {target_function:first.type==='custom'?'custom':(first.function||first.id),custom_code:first.type==='custom'?first.code:'',
+    functions:specs.filter(s=>s.type!=='custom').map(s=>s.function||s.id),
+    custom_functions:specs.filter(s=>s.type==='custom').map(s=>({id:s.id,label:s.label,code:s.code,min:s.min,max:s.max,dimensions:s.dimensions,optimum:s.optimum})),
+    problem_specs:specs,
+    min_values:Array.from({length:first.dimensions},()=>first.min),max_values:Array.from({length:first.dimensions},()=>first.max),dimensions:first.dimensions,
+    objective:currentObjective(),seed:seedRaw?parseInt(seedRaw):null};
+}
+
+function refreshBenchmarkSummaries(){
+  const box=document.getElementById('bm-problem-summary');
+  if(!box)return;
+  let specs=[];
+  try{specs=collectSharedProblemSpecs();}
+  catch(e){box.innerHTML=`<div class="no-prm" style="color:var(--rose)">Problem set incomplete: ${esc(e.message||String(e))}</div>`;return;}
+  if(!specs.length){box.innerHTML='<div class="no-prm" style="color:var(--rose)">No benchmark problem added yet.</div>';return;}
+  box.innerHTML=specs.map((s,i)=>{
+    const name=s.label||s.id||s.function||`Problem ${i+1}`;
+    const id=s.type==='custom'?(s.id||`custom_${i+1}`):(s.function||s.id);
+    const dims=s.dimensions||'?';
+    const lo=s.min;const hi=s.max;
+    return `<select class="fld fld-sel fld-mono" disabled><option>${esc(name)} · ${esc(id)} · ${esc(dims)}D [${esc(lo)}, ${esc(hi)}]</option></select>`;
+  }).join('');
+}
+
+/* ════════════════════ OUTPUT DEFINITIONS ════════════════════ */
+
+const OUTPUT_DEFS={
+  single:{
+    conv_steps:  {name:'Convergence (Steps)',     desc:'Best fitness vs iteration count'},
+    conv_evals:  {name:'Convergence (Evaluations)',desc:'Best fitness vs total function evaluations'},
+    diversity:   {name:'Diversity Chart',          desc:'Population diversity over iterations'},
+    exploit:     {name:'Exploitation Ratio',       desc:'Exploration vs exploitation balance'},
+    metrics:     {name:'Metric Strip',             desc:'Best fitness, iterations, evaluations, elapsed time'},
+    position:    {name:'Best Position',            desc:'Solution vector x1…xN'},
+    hist_table:  {name:'History Table',            desc:'Step, fitness, diversity, exploitation ratio (last 100)'},
+    snapshot:    {name:'Population Snapshot',      desc:'Agent positions at the final snapshot (2D scatter if ≤2 dims)'},
+    snippet:     {name:'Python Snippet',           desc:'Ready-to-run code to reproduce this exact run'},
+    json_export: {name:'JSON Export',              desc:'Full result as downloadable JSON'},
+    csv_export:  {name:'CSV Convergence',          desc:'Fitness history as CSV'},
+  },
+  benchmark:{
+    cmp_table:   {name:'Comparison Table (mean)',  desc:'Mean best fitness per algorithm × function'},
+    compact:     {name:'Compact Table (mean±std)', desc:'mean ± std formatted for publication'},
+    rankings:    {name:'Rankings per Function',    desc:'Algorithm rank on each benchmark function'},
+    global_rank: {name:'Global Ranking',           desc:'Average rank + wins across all functions'},
+    timing:      {name:'Timing Analysis',          desc:'Mean runtime per (algorithm, function)'},
+    raw_table:   {name:'Raw Results Table',        desc:'Every individual trial result'},
+    csv_export:  {name:'CSV Export',               desc:'Full results as CSV'},
+  },
+  collaborative:{
+    global_conv: {name:'Global Convergence',       desc:'Best-so-far fitness across all islands'},
+    island_conv: {name:'Per-Island Convergence',   desc:'Convergence line per island'},
+    isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
+    mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
+    hall_of_fame:{name:'Hall of Fame',             desc:'Top solutions ever found'},
+    position:    {name:'Global Best Position',     desc:'Best solution vector overall'},
+    problem_table:{name:'Problem Result Table',    desc:'One row per selected shared problem'},
+    json_export: {name:'JSON Export',              desc:'Full cooperative result as JSON'},
+    csv_export:  {name:'CSV Convergence',          desc:'Global convergence as CSV'},
+  },
+  orchestrated:{
+    global_conv: {name:'Global Convergence',       desc:'Best-so-far fitness across all islands'},
+    island_conv: {name:'Per-Island Convergence',   desc:'Convergence line per island'},
+    isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
+    telem:       {name:'Island Telemetry',         desc:'Health and diversity sparklines per island'},
+    mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
+    decisions:   {name:'Controller Decisions',     desc:'Orchestrator decisions at each checkpoint'},
+    outcomes:    {name:'Action Outcomes',          desc:'Result of each action taken by the orchestrator'},
+    hall_of_fame:{name:'Hall of Fame',             desc:'Top solutions ever found'},
+    position:    {name:'Global Best Position',     desc:'Best solution vector overall'},
+    problem_table:{name:'Problem Result Table',    desc:'One row per selected shared problem'},
+    json_export: {name:'JSON Export',              desc:'Full orchestrated result as JSON'},
+  },
+};
+
+const OUTPUT_DEFAULTS={
+  single:      ['conv_steps','conv_evals','diversity','exploit','metrics','position','hist_table','snippet','csv_export'],
+  benchmark:   ['cmp_table','compact','rankings','global_rank','timing','csv_export'],
+  collaborative:['global_conv','island_conv','isl_summary','mig_log','hall_of_fame','position','problem_table'],
+  orchestrated: ['global_conv','island_conv','isl_summary','telem','decisions','outcomes','hall_of_fame','position','problem_table'],
+};
+
+/* ════════════════════ CONFIGURE ════════════════════ */
+function renderConfigure(anchor=null){
+  if(!selectedMode)return;
+  const wrap=document.getElementById('cfg-wrap');
+  const mode=selectedMode;
+  const sig=JSON.stringify({mode,alg:selectedAlg?.id||null,algs:selectedAlgIds().sort()});
+  if(wrap.dataset.sig===sig && wrap.innerHTML.trim()){
+    applyConfigStepVisibility(anchor||activeConfigAnchor||defaultConfigureAnchor());
+    renderFlow('configure',anchor||activeConfigAnchor||defaultConfigureAnchor());
+    return;
+  }
+  wrap.dataset.sig=sig;
+  outputs=Object.fromEntries(Object.keys(OUTPUT_DEFS[mode]).map(k=>[k,OUTPUT_DEFAULTS[mode].includes(k)]));
+  const modeColor=MODE_COLORS[mode];
+  const algName=selectedAlg?selectedAlg.name:'No algorithm selected';
+
+  let html=`<div class="cfg-hero">
+    <div class="cfg-hero-lbl">Workflow Configuration</div>
+    <div class="cfg-hero-row">
+      <div>
+        <div class="cfg-mode-name" style="color:${modeColor}">${MODE_LABELS[mode]}</div>
+        ${mode==='single'?`<div class="cfg-alg-name">${esc(algName)}</div>`:''}
+      </div>
+      <button class="cfg-chg" onclick="goPage('browse')">← Change selection</button>
+    </div>
+  </div>`;
+
+  const fnOpts=testFns.map(f=>`<option value="${esc(f.id)}">${esc(f.label)}${f.optimum!=null?` (opt≈${esc(f.optimum)})`:''}${f.fixed_dims?` [${esc(f.fixed_dims)}D only]`:''}</option>`).join('');
+  html+=`<div class="card cfg-rel cfg-anchor" id="cfg-problem-card">
+    <div class="chdr"><div class="cico" style="background:rgba(232,150,30,.10);color:var(--gold)">⚙</div><div class="cttl">Problem Setup</div></div>
+    <div class="cbdy">
+      <div class="f"><label class="flbl">Target Function</label>
+        <select class="fld fld-sel" id="cfg-fn">
+          <option value="" selected disabled>Choose a benchmark function or custom objective…</option>
+          <option value="custom">Custom Python code</option>
+          <optgroup label="Benchmark Functions">${fnOpts}</optgroup>
+        </select>
+        <div class="fhint">No test function is selected by default. Choose one explicitly before running.</div>
+      </div>
+      <div id="cfg-custom-wrap" class="f hidden">
+        <label class="flbl">Custom Objective (Python)</label>
+        <textarea class="code-ta" id="cfg-custom" spellcheck="false"># variables_values is a list of floats
+import numpy as np
+result = np.sum(np.array(variables_values) ** 2)</textarea>
+        <div class="fhint">Assign the scalar objective to <code style="color:var(--gold)">result</code>.</div>
+      </div>
+      <div class="fr fr2">
+        <div class="f"><label class="flbl">Objective</label>
+          <div class="obj-tog">
+            <button class="obj-btn active" data-obj="min" onclick="setObj(this)">↓ Minimize</button>
+            <button class="obj-btn" data-obj="max" onclick="setObj(this)">↑ Maximize</button>
+          </div>
+        </div>
+        <div class="f"><label class="flbl">Dimensions</label>
+          <input class="fld fld-mono" type="number" id="cfg-dims" value="10" min="1" max="200"/>
+          <div class="fhint" id="cfg-dims-note" style="color:var(--rose)"></div>
+        </div>
+      </div>
+      <div class="f"><label class="flbl">Search Bounds (uniform per dimension)</label>
+        <div class="bounds-row">
+          <input class="fld fld-mono" type="text" inputmode="decimal" id="cfg-bmin" value="-5.12" placeholder="Min"/>
+          <div class="barr">→</div>
+          <input class="fld fld-mono" type="text" inputmode="decimal" id="cfg-bmax" value="5.12" placeholder="Max"/>
+        </div>
+        <div class="fhint">Decimal commas are accepted, but values are sent to Python using decimal points.</div>
+      </div>
+      <div class="f"><label class="flbl">Random Seed</label>
+        <input class="fld fld-mono" type="number" id="cfg-seed" placeholder="Optional — leave blank for random"/>
+      </div>
+    </div>
+  </div>`;
+
+  if(mode==='single'){
+    const tfOpts=transferFns.map(t=>`<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    const defs=selectedAlg?.defaults||{};
+    html+=`
+    <div class="card cfg-anchor" id="cfg-algorithm-card">
+      <div class="chdr"><div class="cico" style="background:var(--gold-dim);color:var(--gold)">⊡</div><div class="cttl">Optimization Method</div></div>
+      <div class="cbdy">
+        <div class="subtab-row">
+          <button class="subtab active" id="stab-standard" onclick="setSubMode('standard')">Standard</button>
+          <button class="subtab" id="stab-constrained" onclick="setSubMode('constrained')">Constrained</button>
+          <button class="subtab" id="stab-binary" onclick="setSubMode('binary')">Binary</button>
+        </div>
+        <div id="subhint-standard" class="fhint">Continuous unconstrained optimization using <code style="color:var(--gold)">pymetaheuristic.optimize()</code>.</div>
+        <div id="subhint-constrained" class="hidden">
+          <div class="fr fr2" style="margin-bottom:14px">
+            <div class="f"><label class="flbl">Constraint Handler</label>
+              <select class="fld fld-sel fld-mono" id="c-handler">
+                <option value="deb">Deb's Rules (recommended)</option>
+                <option value="penalty">Penalty (C × violation)</option>
+                <option value="repair">Repair (clamp to bounds)</option>
+                <option value="reject_resample">Reject & Resample</option>
+              </select>
+            </div>
+            <div class="f"><label class="flbl">Penalty Coefficient (C)</label>
+              <input class="fld fld-mono" type="text" inputmode="decimal" id="c-coeff" value="1000000"/>
+            </div>
+          </div>
+          <div class="f"><label class="flbl">Constraint Expressions (one per line)</label>
+            <textarea class="code-ta" id="c-exprs" rows="6" spellcheck="false"># Each line returns <= 0 if satisfied.
+# x[0]**2 + x[1]**2 - 4.0 means x0^2 + x1^2 <= 4
+# -x[0] means x0 >= 0</textarea>
+          </div>
+        </div>
+        <div id="subhint-binary" class="hidden">
+          <div class="fr fr2">
+            <div class="f"><label class="flbl">Transfer Function</label>
+              <select class="fld fld-sel fld-mono" id="b-transfer">${tfOpts}</select>
+            </div>
+            <div class="f"><label class="flbl">Initializer</label>
+              <select class="fld fld-sel fld-mono" id="b-init">
+                <option value="chaotic:tent">Chaotic Tent (recommended)</option>
+                <option value="chaotic:logistic">Chaotic Logistic</option>
+                <option value="chaotic:sine">Chaotic Sine</option>
+                <option value="chaotic:chebyshev">Chaotic Chebyshev</option>
+                <option value="">Default (uniform)</option>
+              </select>
+            </div>
+          </div>
+          <div class="fhint" style="margin-top:4px">For binary problems, use Dims = number of binary variables. Bounds can remain 0–1.</div>
+        </div>
+      </div>
+    </div>
+    <div class="card cfg-rel cfg-anchor" id="cfg-params-card">
+      <div class="chdr"><div class="cico" style="background:var(--cyan-dim);color:var(--cyan)">⚛</div><div class="cttl">Algorithm Parameters</div></div>
+      <div class="cbdy">${selectedAlg?paramsGridHTML(defs,'This algorithm has no configurable defaults.','',''): '<div class="no-prm" style="color:var(--rose)">Select an algorithm before configuring parameters.</div>'}</div>
+    </div>
+    <div class="card cfg-rel cfg-anchor" id="cfg-term-card">
+      <div class="chdr"><div class="cico" style="background:var(--green-dim);color:var(--green)">◎</div><div class="cttl">Termination & Storage</div></div>
+      <div class="cbdy">
+        <div class="fr fr4">
+          <div class="f"><label class="flbl">Max Iterations</label><input class="fld fld-mono" type="number" id="t-steps" value="500" min="1"/></div>
+          <div class="f"><label class="flbl">Max Evaluations</label><input class="fld fld-mono" type="number" id="t-evals" placeholder="No limit"/></div>
+          <div class="f"><label class="flbl">Target Fitness</label><input class="fld fld-mono" type="text" inputmode="decimal" id="t-fitness" placeholder="No target"/></div>
+          <div class="f"><label class="flbl">Timeout (s)</label><input class="fld fld-mono" type="text" inputmode="decimal" id="t-timeout" placeholder="No timeout"/></div>
+        </div>
+        <div class="divider"></div>
+        <label class="chk-item checked" id="snap-chk-item">
+          <input type="checkbox" id="t-snapshots" checked/>
+          <span>Store population snapshots <span class="chk-sub">Enables the Population Snapshot output and 2D scatter visualization</span></span>
+        </label>
+      </div>
+    </div>`;
+  }
+
+  if(mode==='benchmark'){
+    const ids=selectedAlgIds();
+    const paramBlocks=ids.length?ids.map(id=>{
+      const a=algInfo(id)||{id,name:id,defaults:{}};
+      return `<div class="card" style="background:var(--s2);margin-bottom:10px;border-radius:11px">
+        <div class="chdr" style="padding:10px 14px"><div class="cttl">${esc(a.name)} <span style="font-family:var(--fm);color:var(--t3);text-transform:none">${esc(id)}</span></div></div>
+        <div class="cbdy" style="padding:12px 14px">${paramsGridHTML(a.defaults, 'No configurable defaults for this algorithm.', 'bm-alg-param', `data-bm-alg="${esc(id)}"`)}</div>
+      </div>`;
+    }).join(''):`<div class="no-prm" style="color:var(--rose)">No algorithms selected. Use the previous sidebar step to choose one or more algorithms.</div>`;
+    html+=`<div class="card cfg-rel cfg-anchor" id="cfg-multi-params-card">
+      <div class="chdr"><div class="cico" style="background:var(--cyan-dim);color:var(--cyan)">⚛</div><div class="cttl">Per-Algorithm Parameters</div></div>
+      <div class="cbdy">${paramBlocks}</div>
+    </div>
+    <div class="card cfg-rel cfg-anchor" id="cfg-benchmark-card"></div>`;
+  }
+
+  if(mode==='collaborative'||mode==='orchestrated'){
+    const islandParamBlocks=selectedAlgIds().length?selectedAlgIds().map(id=>{
+      const a=algInfo(id)||{id,name:id,defaults:{}};
+      return `<div class="card" style="background:var(--s2);margin-bottom:10px;border-radius:11px">
+        <div class="chdr" style="padding:10px 14px"><div class="cttl">${esc(a.name)} <span style="font-family:var(--fm);color:var(--t3);text-transform:none">${esc(id)}</span></div></div>
+        <div class="cbdy" style="padding:12px 14px">${paramsGridHTML(a.defaults,'No configurable defaults for this algorithm.','island-solver-param',`data-island-solver="${esc(id)}"`)}</div>
+      </div>`;
+    }).join(''):`<div class="no-prm" style="color:var(--rose)">No island solver selected. Use the previous sidebar step.</div>`;
+    html+=`<div class="card cfg-rel cfg-anchor" id="cfg-island-param-card">
+      <div class="chdr"><div class="cico" style="background:var(--violet-dim);color:var(--violet)">⚛</div><div class="cttl">Island Solver Parameters</div></div>
+      <div class="cbdy">${islandParamBlocks}</div>
+    </div>
+    <div class="card cfg-rel cfg-anchor" id="cfg-island-card">
+      <div class="chdr"><div class="cico" style="background:var(--violet-dim);color:var(--violet)">⬡</div><div class="cttl">Island Layout</div></div>
+      <div class="cbdy">
+        <div class="fhint" style="margin-bottom:10px">This step defines island labels and population overrides. Solver parameters are configured in the previous sidebar step.</div>
+        <div class="island-list" id="island-list"></div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addIsland()">+ Add Island</button>
+      </div>
+    </div>
+    <div class="card cfg-rel cfg-anchor" id="cfg-migration-card">
+      <div class="chdr"><div class="cico" style="background:var(--green-dim);color:var(--green)">⇄</div><div class="cttl">Migration & Topology</div></div>
+      <div class="cbdy">
+        <div class="fr fr4">
+          <div class="f"><label class="flbl">Topology</label>
+            <select class="fld fld-sel fld-mono" id="coop-topo">
+              <option value="ring">Ring</option><option value="star" selected>Star</option><option value="full">Full</option><option value="bidirectional_ring">Bidirectional Ring</option><option value="line">Line</option><option value="wheel">Wheel</option><option value="clusters">Clusters</option><option value="random_sparse">Random Sparse</option>
+            </select>
+          </div>
+          <div class="f"><label class="flbl">Migration Interval</label><input class="fld fld-mono" type="number" id="coop-interval" value="2" min="1"/></div>
+          <div class="f"><label class="flbl">Migration Size</label><input class="fld fld-mono" type="number" id="coop-size" value="4" min="1"/></div>
+          <div class="f"><label class="flbl">Max Steps</label><input class="fld fld-mono" type="number" id="coop-steps" value="20" min="1"/></div>
+        </div>
+      </div>
+    </div>`;
+    if(mode==='orchestrated'){
+      html+=`<div class="card cfg-rel cfg-anchor" id="cfg-orchestration-card">
+        <div class="chdr"><div class="cico" style="background:rgba(52,211,153,.10);color:var(--green)">🧠</div><div class="cttl">Orchestration Config</div></div>
+        <div class="cbdy">
+          <div class="fr fr3">
+            <div class="f"><label class="flbl">Controller Mode</label><select class="fld fld-sel fld-mono" id="orch-mode"><option value="rules">Rules (heuristic)</option><option value="fixed">Fixed (no adaptation)</option></select></div>
+            <div class="f"><label class="flbl">Checkpoint Interval</label><input class="fld fld-mono" type="number" id="orch-chk-interval" value="5" min="1"/></div>
+            <div class="f"><label class="flbl">Max Actions / Checkpoint</label><input class="fld fld-mono" type="number" id="orch-max-actions" value="2" min="1"/></div>
+          </div>
+          <div class="fr fr3" style="margin-top:10px">
+            <div class="f"><label class="flbl">Warmup Checkpoints</label><input class="fld fld-mono" type="number" id="orch-warmup" value="1" min="0"/></div>
+            <div class="f"><label class="flbl">Stagnation Threshold</label><input class="fld fld-mono" type="number" id="orch-stagnation" value="1" min="1"/></div>
+            <div class="f"><label class="flbl">Perturbation σ</label><input class="fld fld-mono" type="text" inputmode="decimal" id="orch-sigma" value="0.05"/></div>
+          </div>
+          <div class="fr fr2" style="margin-top:10px">
+            <div class="f"><label class="flbl">Low Diversity Threshold</label><input class="fld fld-mono" type="text" inputmode="decimal" id="orch-low-div" value="0.05"/></div>
+            <div class="f"><label class="flbl">High Diversity Threshold</label><input class="fld fld-mono" type="text" inputmode="decimal" id="orch-high-div" value="0.25"/></div>
+          </div>
+        </div>
+      </div>`;
+    }
+  }
+
+  const outDefs=OUTPUT_DEFS[mode]||{};
+  const outHtml=Object.entries(outDefs).map(([k,v])=>`
+    <label class="out-item ${outputs[k]?'selected':''}" id="out-${esc(k)}">
+      <input type="checkbox" id="outchk-${esc(k)}" ${outputs[k]?'checked':''} onchange="toggleOutput('${esc(k)}',this.checked)"/>
+      <div class="out-item-body"><div class="out-name">${esc(v.name)}</div><div class="out-desc">${esc(v.desc)}</div></div>
+    </label>`).join('');
+  html+=`<div class="card cfg-anchor" id="cfg-output-card">
+    <div class="chdr"><div class="cico" style="background:rgba(232,150,30,.10);color:var(--gold)">☑</div><div class="cttl">Outputs to Show</div></div>
+    <div class="cbdy"><div class="outputs-grid">${outHtml}</div></div>
+  </div>
+  <div class="cfg-ftr">
+    <div class="cfg-ftr-info">Use the sidebar to move between setup blocks. Only the active block is shown.</div>
+    <div class="cfg-ftr-btns"><button class="btn btn-ghost" onclick="goPage('run')">Go to Run →</button><button class="btn btn-gold" onclick="goRunNow()"><span class="bico">▶</span><span>Run Now</span></button></div>
+  </div>`;
+
+  wrap.innerHTML=html;
+  if(mode==='benchmark'){renderSharedProblemCard('cfg-benchmark-card','Benchmark Problem Set',false);renderBenchmarkGlobalSettings();}
+  if(mode==='collaborative'||mode==='orchestrated')renderSharedProblemCard('cfg-problem-card','Shared Problem Set',true);
+  document.getElementById('cfg-fn')?.addEventListener('change',onFnChange);
+  document.querySelectorAll('.chk-item input').forEach(cb=>cb.addEventListener('change',e=>{
+    e.target.closest('.chk-item').classList.toggle('checked',e.target.checked);
+    refreshBenchmarkSummaries();
+  }));
+  refreshBenchmarkSummaries();
+  if(mode==='collaborative'||mode==='orchestrated'){
+    const seeds=selectedAlgIds();
+    if(seeds.length)seeds.forEach(id=>addIsland(id));
+    else document.getElementById('island-list').innerHTML='<div class="no-prm" style="color:var(--rose)">No island solver selected. Add an island below and choose an algorithm, or return to algorithm selection.</div>';
+  }
+  applyConfigStepVisibility(anchor||activeConfigAnchor||defaultConfigureAnchor());
+}
+
+function setSubMode(m){
+  singleSubMode=m;
+  ['standard','constrained','binary'].forEach(s=>{
+    document.getElementById(`stab-${s}`)?.classList.toggle('active',s===m);
+    const h=document.getElementById(`subhint-${s}`);
+    if(h)h.classList.toggle('hidden',s!==m);
+  });
+}
+function setObj(btn){document.querySelectorAll('.obj-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function toggleOutput(key,val){outputs[key]=val;document.getElementById(`out-${key}`)?.classList.toggle('selected',val);}
+function onFnChange(){
+  const v=document.getElementById('cfg-fn')?.value||'';
+  const cw=document.getElementById('cfg-custom-wrap');
+  const dims=document.getElementById('cfg-dims');
+  const note=document.getElementById('cfg-dims-note');
+  if(v==='custom'){
+    cw?.classList.remove('hidden');
+    if(dims)dims.disabled=false;
+    if(note)note.textContent='';
+    return;
+  }
+  cw?.classList.add('hidden');
+  if(!v){
+    if(dims)dims.disabled=false;
+    if(note)note.textContent='';
+    return;
+  }
+  const meta=testFns.find(f=>f.id===v);
+  if(meta){
+    const bmin=document.getElementById('cfg-bmin');const bmax=document.getElementById('cfg-bmax');
+    if(bmin)bmin.value=String(meta.min);
+    if(bmax)bmax.value=String(meta.max);
+    if(meta.fixed_dims){if(dims)dims.value=meta.fixed_dims;if(dims)dims.disabled=true;if(note)note.textContent=`Fixed at ${meta.fixed_dims}D`;}
+    else{if(dims)dims.disabled=false;if(note)note.textContent='';}
+  }
+}
+
+let _islandCnt=0;
+function renderIslandParams(id,algId){
+  const box=document.getElementById(`isle-params-${id}`);if(!box)return;
+  box.innerHTML=algId?'<div class="fhint">Solver parameters are edited in “Configure solver parameters”.</div>':'<div class="no-prm">Choose an algorithm first.</div>';
+}
+function collectIslandSolverConfig(algId){
+  return collectInputsAsConfig(`[data-island-solver="${CSS.escape(algId)}"]`);
+}
+function addIsland(algId=null){
+  _islandCnt++;
+  const list=document.getElementById('island-list');if(!list)return;
+  if(list.querySelector('.no-prm'))list.innerHTML='';
+  const id=_islandCnt;
+  const algOpts=['<option value="" '+(!algId?'selected':'')+'>Choose algorithm…</option>']
+    .concat(allAlgs.map(a=>`<option value="${esc(a.id)}" ${a.id===algId?'selected':''}>${esc(a.name)}</option>`)).join('');
+  const div=document.createElement('div');div.className='island-row';div.id=`isle-${id}`;
+  div.style.gridTemplateColumns='auto 1.2fr 1fr 110px 28px';
+  div.innerHTML=`<div class="isle-n">#${id}</div>
+    <div><div class="isle-lbl-txt">Algorithm</div><select class="fld fld-sel fld-mono island-alg" onchange="renderIslandParams(${id},this.value)" style="font-size:.72rem">${algOpts}</select></div>
+    <div><div class="isle-lbl-txt">Label</div><input class="fld fld-mono island-label" placeholder="Island ${id}" value="${algId?esc(algId+' island '+id):''}" style="font-size:.78rem"/></div>
+    <div><div class="isle-lbl-txt">Pop. Size</div><input class="fld fld-mono island-pop" type="number" placeholder="Default" style="font-size:.78rem"/></div>
+    <button class="isle-rm" onclick="removeIsland(${id})" title="Remove">×</button>
+    <div id="isle-params-${id}" style="grid-column:2 / -1;margin-top:6px"></div>`;
+  list.appendChild(div);
+  renderIslandParams(id,algId||'');
+}
+function removeIsland(id){document.getElementById(`isle-${id}`)?.remove();}
+function collectIslands(){
+  const islands=[];
+  document.querySelectorAll('#island-list .island-row').forEach(row=>{
+    const algSel=row.querySelector('.island-alg');
+    const labelInp=row.querySelector('.island-label');
+    const popInp=row.querySelector('.island-pop');
+    if(!algSel?.value)return;
+    const cfg=collectIslandSolverConfig(algSel.value);
+    if(popInp?.value)cfg.population_size=parseInt(popInp.value);
+    islands.push({algorithm:algSel.value,label:labelInp.value||algSel.value,config:cfg});
+  });
+  return islands;
+}
+function bmSelAll(name,val){
+  document.querySelectorAll(`input[name="${name}"]`).forEach(cb=>{cb.checked=val;cb.closest('.chk-item')?.classList.toggle('checked',val);});
+}
+function getBmAlgs(){return selectedAlgIds();}
+function getBmFns(){return selectedTestFunctions('bm-fn');}
+
+/* ════════════════════ RUN BAR ════════════════════ */
+function updateRunBar(){
+  if(!selectedMode)return;
+  const mode=selectedMode;
+  document.getElementById('rb-mode').textContent=MODE_LABELS[mode];
+  if(mode==='single'&&selectedAlg){
+    document.getElementById('rb-name').textContent=selectedAlg.name;
+    const col=fc(selectedAlg.family);
+    document.getElementById('rb-meta').innerHTML=`<span class="rb-tag" style="color:${col}">${selectedAlg.family}</span><span class="rb-tag">·</span><span class="rb-tag">${selectedAlg.id}</span><span class="rb-tag">·</span><span class="rb-tag" style="color:var(--gold)">${singleSubMode}</span>`;
+  }else if(mode==='benchmark'){
+    document.getElementById('rb-name').textContent='Benchmark Runner';
+    document.getElementById('rb-meta').innerHTML=`<span class="rb-tag">${selectedAlgs.size||getBmAlgs().length||'?'} algorithms</span>`;
+  }else{
+    document.getElementById('rb-name').textContent=MODE_LABELS[mode];
+    const n=selectedAlgs.size||document.querySelectorAll('#island-list .island-row').length||'?';
+    document.getElementById('rb-meta').innerHTML=`<span class="rb-tag">${n} island solver${n===1?'':'s'}</span>`;
+  }
+}
+
+/* ════════════════════ JOB START ════════════════════ */
+function currentObjective(){return [...document.querySelectorAll('.obj-btn')].find(b=>b.classList.contains('active'))?.dataset.obj||'min';}
+function getProblem(){
+  const fn=document.getElementById('cfg-fn')?.value||'';
+  const code=document.getElementById('cfg-custom')?.value||'';
+  if(!fn){alert('Select a target function or choose Custom Python code.');goPage('configure','cfg-problem-card');return null;}
+  if(fn==='custom'&&!code.trim()){alert('Custom objective code is empty.');goPage('configure','cfg-problem-card');return null;}
+  const dims=readIntById('cfg-dims',10)||10;
+  const bmin=readFloatById('cfg-bmin',null);
+  const bmax=readFloatById('cfg-bmax',null);
+  if(bmin==null||bmax==null){alert('Search bounds must be valid numeric values. Use decimal point or comma.');goPage('configure','cfg-problem-card');return null;}
+  const seedRaw=document.getElementById('cfg-seed')?.value;
+  return{target_function:fn,custom_code:fn==='custom'?code:'',
+    min_values:Array.from({length:dims},()=>bmin),
+    max_values:Array.from({length:dims},()=>bmax),
+    objective:currentObjective(),seed:seedRaw?parseInt(seedRaw):null};
+}
+function goRunNow(){goPage('run');startJob();}
+
+async function startJob(){
+  if(!selectedMode){alert('Select a mode first.');return;}
+  const mode=selectedMode;
+  lastHistLen=0;bmLastRows=[];lastResult=null;
+  Object.values(charts).forEach(c=>{try{c.destroy();}catch(_){}});charts={};
+  const rc=document.getElementById('results-container');rc.innerHTML='';
+  document.getElementById('run-ph').style.display='none';
+
+  let req={};let url='/api/jobs';
+  if(mode==='single'){
+    if(!selectedAlg){alert('Select an algorithm before running.');goPage('browse');return;}
+    const prob=getProblem();if(!prob)return;
+    const params=collectInputsAsConfig('#cfg-params-card [data-param]');
+    const steps=readIntById('t-steps',500)||500;
+    req={...prob,algorithm:selectedAlg.id,max_steps:steps,
+      max_evaluations:readIntById('t-evals',null),
+      target_fitness:readFloatById('t-fitness',null),
+      timeout_seconds:readFloatById('t-timeout',null),
+      store_history:true,
+      store_population_snapshots:document.getElementById('t-snapshots')?.checked||false,
+      params,
+      sub_mode:singleSubMode,
+    };
+    if(singleSubMode==='constrained'){
+      req.constraint_handler=document.getElementById('c-handler')?.value||'deb';
+      req.penalty_coeff=readFloatById('c-coeff',1e6)||1e6;
+      req.constraints_text=document.getElementById('c-exprs')?.value||'';
+    }
+    if(singleSubMode==='binary'){
+      req.transfer_fn=document.getElementById('b-transfer')?.value||'v2';
+      req.init_name=document.getElementById('b-init')?.value||'chaotic:tent';
+    }
+  }else if(mode==='benchmark'){
+    refreshBenchmarkSummaries();
+    const algs=getBmAlgs();
+    if(!algs.length){alert('Select at least one algorithm.');goPage('browse');return;}
+    const prob=getSharedProblem();if(!prob)return;
+    req={algorithms:algs,
+      functions:prob.functions||[],
+      custom_functions:prob.custom_functions||[],
+      problem_specs:prob.problem_specs||[],
+      algorithm_configs:collectBenchmarkConfigs(),
+      n_trials:readIntById('bm-trials',5)||5,
+      max_steps:readIntById('bm-steps',300)||300,
+      dimensions:prob.dimensions||10,
+      objective:currentObjective(),
+      seed:prob.seed};
+    url='/api/jobs/benchmark';
+  }else{
+    const prob=getSharedProblem();if(!prob)return;
+    const islands=collectIslands();
+    if(!islands.length){alert('Add at least one island and choose its algorithm.');goPage('configure','cfg-island-card');return;}
+    req={...prob,islands,
+      max_steps:readIntById('coop-steps',20)||20,
+      migration_interval:readIntById('coop-interval',2)||2,
+      migration_size:readIntById('coop-size',4)||4,
+      topology:document.getElementById('coop-topo')?.value||'star',
+    };
+    if(mode==='orchestrated'){
+      req.orchestration={
+        mode:document.getElementById('orch-mode')?.value||'rules',
+        checkpoint_interval:readIntById('orch-chk-interval',5)||5,
+        max_actions_per_checkpoint:readIntById('orch-max-actions',2)||2,
+        warmup_checkpoints:readIntById('orch-warmup',1)||1,
+      };
+      req.rules={
+        stagnation_threshold:readIntById('orch-stagnation',1)||1,
+        low_diversity_threshold:readFloatById('orch-low-div',0.05)||0.05,
+        high_diversity_threshold:readFloatById('orch-high-div',0.25)||0.25,
+        perturbation_sigma:readFloatById('orch-sigma',0.05)||0.05,
+      };
+      url='/api/jobs/orchestrated';
+    }else{
+      url='/api/jobs/collaborative';
+    }
+  }
+
+  setRunBtn(true);
+  renderResultsSkeleton();
+
+  try{
+    const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(req)});
+    if(!r.ok){const d=await r.json();alert('Server error: '+(d.detail||r.statusText));setRunBtn(false);return;}
+    const d=await r.json();
+    currentJobId=d.job_id;
+    const pollInterval=mode==='benchmark'?800:400;
+    pollTimer=setInterval(()=>pollJob(currentJobId),pollInterval);
+  }catch(e){setSt('error','Connection failed: '+e.message);setRunBtn(false);}
+}
+
+/* ════════════════════ RESULTS SKELETON ════════════════════ */
+function renderResultsSkeleton(){
+  const mode=selectedMode;const rc=document.getElementById('results-container');rc.innerHTML='';
+
+  rc.insertAdjacentHTML('beforeend',`<div class="status-banner" id="sbanner">
+    <div class="sbdg running" id="sbdg">Running</div>
+    <div class="stxt" id="stxt">Initializing…</div>
+    <div class="selt" id="selt">0.0s</div>
+    <div class="sreason" id="sreason"></div>
+  </div>`);
+
+  if(mode==='single'){
+    if(outputs.metrics) rc.insertAdjacentHTML('beforeend',`<div class="mstrip">
+      <div class="mc hi"><div class="mc-lbl">Best Fitness</div><div class="mc-val gold" id="m-fit">—</div></div>
+      <div class="mc"><div class="mc-lbl">Iterations</div><div class="mc-val cyan" id="m-stp">0</div></div>
+      <div class="mc"><div class="mc-lbl">Evaluations</div><div class="mc-val" id="m-evl">0</div></div>
+      <div class="mc"><div class="mc-lbl">Elapsed</div><div class="mc-val green" id="m-tim">—</div></div>
+    </div>`);
+
+    /* Feasibility banner (constrained) */
+    if(singleSubMode==='constrained') rc.insertAdjacentHTML('beforeend',
+      `<div class="feasibility-banner idle" id="feasibility-banner" style="border:1px solid var(--bd);background:var(--s2)">
+        <span class="feasibility-icon">⏳</span>
+        <span class="feasibility-label" style="color:var(--t3)">Awaiting result…</span>
+        <span class="feasibility-meta" id="feasibility-meta"></span>
+      </div>`);
+
+    /* Binary solution */
+    if(singleSubMode==='binary') rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Binary Solution</span><span id="binary-count" class="chart-ttl" style="color:var(--cyan)"></span></div>
+      <div class="pos-body"><div class="binary-display" id="binary-display"></div><div class="binary-summary" id="binary-summary"></div></div>
+    </div>`);
+
+    /* Convergence charts */
+    if(outputs.conv_steps||outputs.conv_evals){
+      const hasBoth=outputs.conv_steps&&outputs.conv_evals;
+      if(hasBoth){
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-2col">
+          ${outputs.conv_steps?`<div class="chart-card">
+            <div class="chart-hdr"><span class="chart-ttl">Convergence — Steps</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScale('chart-conv-s','linear',this)">Lin</button><button class="scbtn" onclick="setScale('chart-conv-s','log',this)">Log</button></div></div>
+            <div class="chart-body" style="height:200px"><canvas id="chart-conv-s"></canvas></div>
+          </div>`:''}
+          ${outputs.conv_evals?`<div class="chart-card">
+            <div class="chart-hdr"><span class="chart-ttl">Convergence — Evaluations</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScale('chart-conv-e','linear',this)">Lin</button><button class="scbtn" onclick="setScale('chart-conv-e','log',this)">Log</button></div></div>
+            <div class="chart-body" style="height:200px"><canvas id="chart-conv-e"></canvas></div>
+          </div>`:''}
+        </div>`);
+      }else if(outputs.conv_steps){
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Convergence — Steps</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScale('chart-conv-s','linear',this)">Lin</button><button class="scbtn" onclick="setScale('chart-conv-s','log',this)">Log</button></div></div><div class="chart-body" style="height:220px"><canvas id="chart-conv-s"></canvas></div></div>`);
+      }else{
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Convergence — Evaluations</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScale('chart-conv-e','linear',this)">Lin</button><button class="scbtn" onclick="setScale('chart-conv-e','log',this)">Log</button></div></div><div class="chart-body" style="height:220px"><canvas id="chart-conv-e"></canvas></div></div>`);
+      }
+    }
+
+    /* Diversity + Exploitation side by side */
+    if(outputs.diversity||outputs.exploit){
+      const hasBoth=outputs.diversity&&outputs.exploit;
+      if(hasBoth){
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-2col">
+          <div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Diversity</span></div><div class="chart-body" style="height:160px"><canvas id="chart-div"></canvas></div></div>
+          <div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Exploitation Ratio</span></div><div class="chart-body" style="height:160px"><canvas id="chart-expl"></canvas></div></div>
+        </div>`);
+      }else if(outputs.diversity){
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Diversity</span></div><div class="chart-body" style="height:180px"><canvas id="chart-div"></canvas></div></div>`);
+      }else{
+        rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Exploitation Ratio</span></div><div class="chart-body" style="height:180px"><canvas id="chart-expl"></canvas></div></div>`);
+      }
+    }
+
+    if(outputs.snapshot) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Population Snapshot (last step)</span><span class="snapshot-info" id="snap-info" style="color:var(--t3);font-size:.62rem"></span></div>
+      <div class="chart-body" style="height:220px"><canvas id="chart-snapshot"></canvas></div>
+    </div>`);
+
+    if(outputs.position) rc.insertAdjacentHTML('beforeend',
+      `<div class="pos-card"><div class="pos-hdr">Best Position</div><div class="pos-body"><div class="pos-grid" id="pos-grid"></div></div></div>`);
+
+    if(outputs.hist_table) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Fitness History (last 100)</span></div>
+      <div class="mig-table-wrap"><table class="mig"><thead><tr><th>Step</th><th>Best Fitness</th><th>Diversity</th><th>Exploit Ratio</th></tr></thead><tbody id="hist-tbody"></tbody></table></div>
+    </div>`);
+
+    rc.insertAdjacentHTML('beforeend',`<div class="err-card hidden" id="err-card"><div class="err-ttl">⚠ Error</div><div class="err-body" id="err-body"></div></div>`);
+
+    if(outputs.snippet||outputs.json_export||outputs.csv_export) rc.insertAdjacentHTML('beforeend',`<div class="card exp-card" id="exp-card">
+      <div class="chdr"><div class="cico" style="background:var(--s3);color:var(--t3)">↓</div><div class="cttl">Export & Reproduce</div></div>
+      <div class="cbdy">
+        <div class="exp-row">
+          <span class="exp-lbl">Download:</span>
+          ${outputs.json_export?'<button class="btn btn-ghost btn-sm" onclick="exportJSON()">JSON</button>':''}
+          ${outputs.csv_export?'<button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV Convergence</button>':''}
+          ${outputs.snippet?'<button class="btn btn-ghost btn-sm" onclick="toggleCode()">{ } Python Snippet</button>':''}
+        </div>
+        ${outputs.snippet?`<div id="code-wrap" class="hidden"><div class="code-blk"><div class="code-blk-hdr"><span class="code-blk-lbl">Python — reproduce this run</span><button class="copy-btn" onclick="copyCode()">Copy</button></div><pre id="code-pre"></pre></div></div>`:''}
+      </div>
+    </div>`);
+  }
+
+  if(mode==='benchmark'){
+    rc.insertAdjacentHTML('beforeend',`<div class="card"><div class="cbdy" style="padding:14px 18px">
+      <div class="bm-prog-bar"><div class="bm-prog-fill" id="bm-prog" style="width:0%"></div></div>
+      <div class="bm-prog-txt" id="bm-ptxt">Starting…</div>
+    </div></div>
+    <div class="mstrip" style="grid-template-columns:1fr 1fr 1fr">
+      <div class="mc hi"><div class="mc-lbl">Runs Completed</div><div class="mc-val gold" id="bm-done">0</div></div>
+      <div class="mc"><div class="mc-lbl">Total Runs</div><div class="mc-val cyan" id="bm-total">—</div></div>
+      <div class="mc"><div class="mc-lbl">Elapsed</div><div class="mc-val green" id="bm-elapsed">0.0s</div></div>
+    </div>
+    <div class="err-card hidden" id="err-card"><div class="err-ttl">⚠ Error</div><div class="err-body" id="err-body"></div></div>`);
+
+    if(outputs.cmp_table) rc.insertAdjacentHTML('beforeend',`<div class="chart-card" id="bm-cmp-card">
+      <div class="chart-hdr"><span class="chart-ttl">Comparison — Mean Best Fitness</span><button class="btn btn-ghost btn-xs" onclick="exportBmCSV()">↓ CSV</button></div>
+      <div class="mig-table-wrap"><table class="bmt" id="bm-cmp-table"><thead></thead><tbody></tbody></table></div>
+    </div>`);
+
+    if(outputs.compact) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Compact Table — Mean ± Std</span></div>
+      <div class="mig-table-wrap"><table class="bmt" id="bm-compact-table"><thead></thead><tbody></tbody></table></div>
+    </div>`);
+
+    if(outputs.rankings) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Rankings per Function</span></div>
+      <div class="mig-table-wrap"><table class="bmt" id="bm-rank-per-fn"><thead></thead><tbody></tbody></table></div>
+    </div>`);
+
+    if(outputs.global_rank) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Global Ranking (avg rank across functions)</span></div>
+      <div class="mig-table-wrap"><table class="bmt" id="bm-rank-table"><thead><tr><th>Rank</th><th>Algorithm</th><th>Avg Rank</th><th>Wins</th><th>Avg Mean Fitness</th></tr></thead><tbody id="bm-rank-body"></tbody></table></div>
+    </div>`);
+
+    if(outputs.timing) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Timing — Mean Elapsed (s)</span></div>
+      <div class="mig-table-wrap"><table class="bmt" id="bm-tim-table"><thead></thead><tbody></tbody></table></div>
+    </div>`);
+
+    if(outputs.raw_table) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Raw Results (all trials)</span></div>
+      <div class="mig-table-wrap" style="max-height:320px"><table class="bmt"><thead><tr><th>Algorithm</th><th>Function</th><th>Trial</th><th>Best Fitness</th><th>Steps</th><th>Elapsed (s)</th><th>Error</th></tr></thead><tbody id="bm-raw-tbody"></tbody></table></div>
+    </div>`);
+
+    if(outputs.csv_export) rc.insertAdjacentHTML('beforeend',`<div class="card exp-card">
+      <div class="chdr"><div class="cico" style="background:var(--s3);color:var(--t3)">↓</div><div class="cttl">Export</div></div>
+      <div class="cbdy"><div class="exp-row"><span class="exp-lbl">Download:</span><button class="btn btn-ghost btn-sm" onclick="exportBmCSV()">CSV All Trials</button></div></div>
+    </div>`);
+  }
+
+  if(mode==='collaborative'||mode==='orchestrated'){
+    rc.insertAdjacentHTML('beforeend',`<div class="mstrip">
+      <div class="mc hi"><div class="mc-lbl">Global Best</div><div class="mc-val gold" id="m-fit">—</div></div>
+      <div class="mc"><div class="mc-lbl">Islands</div><div class="mc-val violet" id="m-islands">—</div></div>
+      <div class="mc"><div class="mc-lbl">Migrations</div><div class="mc-val cyan" id="m-migs">0</div></div>
+      <div class="mc"><div class="mc-lbl">Elapsed</div><div class="mc-val green" id="m-tim">—</div></div>
+    </div>`);
+
+    if(outputs.global_conv) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Global Convergence</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScaleById('chart-global','linear',this)">Lin</button><button class="scbtn" onclick="setScaleById('chart-global','log',this)">Log</button></div></div>
+      <div class="chart-body" style="height:210px"><canvas id="chart-global"></canvas></div>
+    </div>`);
+
+    if(outputs.island_conv) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Per-Island Convergence</span></div>
+      <div class="chart-body" style="height:210px"><canvas id="chart-islands"></canvas></div>
+    </div>`);
+
+    if(outputs.isl_summary) rc.insertAdjacentHTML('beforeend',`<div class="ibar-card">
+      <div class="chdr" style="padding:12px 18px 10px"><div class="cttl">Island Summary — Best Fitness</div></div>
+      <div class="ibar-body" id="ibar-body">—</div>
+    </div>`);
+
+    if(outputs.telem&&mode==='orchestrated') rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Island Telemetry — Health & Diversity</span></div>
+      <div class="telem-grid" id="telem-grid"></div>
+    </div>`);
+
+    if(outputs.decisions&&mode==='orchestrated') rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Controller Decisions</span><span id="decisions-count" class="chart-ttl" style="color:var(--t2)"></span></div>
+      <div class="mig-table-wrap"><table class="dtbl"><thead><tr><th>Checkpoint</th><th>Mode</th><th>Controller</th><th>Confidence</th><th>Actions</th><th>Reasoning</th></tr></thead><tbody id="decisions-tbody"></tbody></table></div>
+    </div>`);
+
+    if(outputs.outcomes&&mode==='orchestrated') rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Action Outcomes</span></div>
+      <div class="mig-table-wrap"><table class="dtbl"><thead><tr><th>Checkpoint</th><th>Action</th><th>From</th><th>To</th><th>Executed</th><th>Status</th><th>Fitness After</th></tr></thead><tbody id="outcomes-tbody"></tbody></table></div>
+    </div>`);
+
+    if(outputs.mig_log) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Migration Log</span><span id="mig-count" class="chart-ttl" style="color:var(--t2)"></span></div>
+      <div class="mig-table-wrap"><table class="mig"><thead><tr><th>Step</th><th>From</th><th>To</th><th>Migrants</th><th>Fitness After</th></tr></thead><tbody id="mig-tbody"></tbody></table></div>
+    </div>`);
+
+    if(outputs.hall_of_fame) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Hall of Fame — Top Solutions</span></div>
+      <div class="mig-table-wrap"><table class="hof"><thead><tr><th>#</th><th>Island</th><th>Algorithm</th><th>Best Fitness</th></tr></thead><tbody id="hof-tbody"></tbody></table></div>
+    </div>`);
+
+    if(outputs.position) rc.insertAdjacentHTML('beforeend',`<div class="pos-card"><div class="pos-hdr">Global Best Position</div><div class="pos-body"><div class="pos-grid" id="pos-grid"></div></div></div>`);
+
+    if(outputs.problem_table) rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Problem Results</span></div><div class="mig-table-wrap"><table class="bmt"><thead><tr><th>Function</th><th>Best Fitness</th><th>Steps</th><th>Elapsed (s)</th><th>Error</th></tr></thead><tbody id="coop-problem-tbody"></tbody></table></div></div>`);
+
+    rc.insertAdjacentHTML('beforeend',`<div class="err-card hidden" id="err-card"><div class="err-ttl">⚠ Error</div><div class="err-body" id="err-body"></div></div>`);
+
+    if(outputs.json_export||outputs.csv_export) rc.insertAdjacentHTML('beforeend',`<div class="card exp-card">
+      <div class="chdr"><div class="cico" style="background:var(--s3);color:var(--t3)">↓</div><div class="cttl">Export</div></div>
+      <div class="cbdy"><div class="exp-row">
+        <span class="exp-lbl">Download:</span>
+        ${outputs.json_export?'<button class="btn btn-ghost btn-sm" onclick="exportJSON()">JSON</button>':''}
+        ${outputs.csv_export?'<button class="btn btn-ghost btn-sm" onclick="exportCSV()">CSV Convergence</button>':''}
+      </div></div>
+    </div>`);
+  }
+
+  setTimeout(initCharts,60);
+}
+
+/* ════════════════════ CHARTS ════════════════════ */
+function makeChart(id,color,label='Fitness',xLabel='Step'){
+  const canvas=document.getElementById(id);if(!canvas)return null;
+  const ctx=canvas.getContext('2d');
+  const grad=ctx.createLinearGradient(0,0,0,200);grad.addColorStop(0,color+'36');grad.addColorStop(1,color+'00');
+  return new Chart(ctx,{type:'line',
+    data:{labels:[],datasets:[{label,data:[],borderColor:color,borderWidth:2.2,backgroundColor:grad,fill:true,tension:.4,pointRadius:0,pointHoverRadius:5,pointHoverBackgroundColor:color}]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0e1322',borderColor:'rgba(255,255,255,.1)',borderWidth:1,
+        titleColor:'#475569',bodyColor:color,
+        titleFont:{family:'JetBrains Mono',size:11},bodyFont:{family:'JetBrains Mono',size:12},padding:10,
+        callbacks:{title:i=>`${xLabel} ${i[0].label}`,label:i=>`${label}: ${fmt(i.raw)}`}}},
+      scales:{
+        x:{type:'linear',grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},maxTicksLimit:8},border:{display:false}},
+        y:{type:'linear',grid:{color:'rgba(255,255,255,.035)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},maxTicksLimit:5,callback:v=>fmt(v)},border:{display:false}},
+      }}});
+}
+
+function makeIslandChart(){
+  const canvas=document.getElementById('chart-islands');if(!canvas)return null;
+  const ctx=canvas.getContext('2d');
+  return new Chart(ctx,{type:'line',data:{datasets:[]},
+    options:{responsive:true,maintainAspectRatio:false,animation:false,
+      interaction:{mode:'index',intersect:false},
+      plugins:{legend:{display:true,position:'top',labels:{color:'#94a3b8',font:{family:'JetBrains Mono',size:10},boxWidth:10,padding:8}}},
+      scales:{
+        x:{type:'linear',grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},maxTicksLimit:8},border:{display:false}},
+        y:{type:'linear',grid:{color:'rgba(255,255,255,.035)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10},maxTicksLimit:5,callback:v=>fmt(v)},border:{display:false}},
+      }}});
+}
+
+function initCharts(){
+  const m=selectedMode;
+  if(m==='single'){
+    if(outputs.conv_steps) charts['conv-s']=makeChart('chart-conv-s','#e8961e','Fitness','Step');
+    if(outputs.conv_evals) charts['conv-e']=makeChart('chart-conv-e','#e8961e','Fitness','Eval');
+    if(outputs.diversity)  charts['div']=makeChart('chart-div','#38bdf8','Diversity','Step');
+    if(outputs.exploit)    charts['expl']=makeChart('chart-expl','#34d399','Exploit','Step');
+  }
+  if(outputs.global_conv) charts['global']=makeChart('chart-global','#e8961e','Fitness','Step');
+  if(outputs.island_conv) charts['islands']=makeIslandChart();
+}
+
+function setScale(chartId,scale,btn){
+  const c=charts[chartId];if(!c)return;
+  c.options.scales.y.type=scale;c.update();
+  btn.closest('.chart-ctrls')?.querySelectorAll('.scbtn').forEach(b=>b.classList.toggle('active',b===btn));
+}
+function setScaleById(chartId,scale,btn){
+  const c=charts[chartId];if(!c)return;
+  c.options.scales.y.type=scale;c.update();
+  btn.closest('.chart-ctrls')?.querySelectorAll('.scbtn').forEach(b=>b.classList.toggle('active',b===btn));
+}
+
+/* ════════════════════ POLLING ════════════════════ */
+async function pollJob(jid){
+  try{
+    const r=await fetch(`/api/jobs/${jid}`);
+    if(!r.ok)return;
+    const d=await r.json();
+    const selt=document.getElementById('selt');if(selt)selt.textContent=`${d.elapsed??0}s`;
+
+    if(d.status==='done'){clearPoll();finalizeResults(d);setRunBtn(false);return;}
+    if(d.status==='error'){
+      clearPoll();setSt('error','Optimization error');
+      const ec=document.getElementById('err-card');ec?.classList.remove('hidden');
+      const eb=document.getElementById('err-body');if(eb)eb.textContent=d.error||'Unknown error';
+      setRunBtn(false);return;
+    }
+    if(d.status==='cancelled'){clearPoll();setSt('cancelled','Cancelled');setRunBtn(false);return;}
+
+    setSt('running',d.status_text||'Running…');
+
+    if(selectedMode==='single') updateSingleLive(d);
+    else if(selectedMode==='benchmark') updateBmLive(d);
+    else updateCollabLive(d);
+  }catch(e){}
+}
+
+function updateSingleLive(d){
+  if(d.best_fitness!=null){setEl('m-fit',fmt(d.best_fitness));setEl('m-stp',d.step??0);setEl('m-evl',d.evaluations??0);setEl('m-tim',`${d.elapsed??0}s`);}
+  const hist=d.history||[];
+  if(hist.length>lastHistLen){
+    const newPts=hist.slice(lastHistLen);
+    newPts.forEach(p=>{
+      if(charts['conv-s']){charts['conv-s'].data.labels.push(p.step);charts['conv-s'].data.datasets[0].data.push(p.fitness);}
+      if(charts['conv-e']&&p.evaluations!=null){charts['conv-e'].data.labels.push(p.evaluations);charts['conv-e'].data.datasets[0].data.push(p.fitness);}
+      if(charts['div']&&p.diversity!=null){charts['div'].data.labels.push(p.step);charts['div'].data.datasets[0].data.push(p.diversity);}
+      if(charts['expl']&&p.exploitation_ratio!=null){charts['expl'].data.labels.push(p.step);charts['expl'].data.datasets[0].data.push(p.exploitation_ratio);}
+    });
+    lastHistLen=hist.length;
+    Object.values(charts).forEach(c=>{try{c.update('none');}catch(_){}});
+  }
+  if(d.best_position) renderPos(d.best_position);
+}
+
+function updateBmLive(d){
+  const req=d.request||{};
+  const total=(req.algorithms?.length||1)*(((req.functions?.length||0)+(req.custom_functions?.length||0))||1)*(req.n_trials||5);
+  const done=d.step||0;const pct=Math.round(Math.min(done/total*100,99));
+  setEl('bm-done',done);setEl('bm-total',total);setEl('bm-elapsed',`${d.elapsed??0}s`);
+  const pf=document.getElementById('bm-prog');if(pf)pf.style.width=`${pct}%`;
+  const pt=document.getElementById('bm-ptxt');if(pt)pt.textContent=d.status_text||`${pct}%`;
+  if(d.partial_rows?.length){bmLastRows=d.partial_rows;renderBmTables(bmLastRows,req.algorithms||[],req.functions||[]);}
+}
+
+function updateCollabLive(d){
+  if(d.best_fitness!=null)setEl('m-fit',fmt(d.best_fitness));
+  setEl('m-migs',d.migration_events?.length||0);setEl('m-tim',`${d.elapsed??0}s`);
+  const hist=d.history||[];
+  if(hist.length>lastHistLen&&charts.global){
+    hist.slice(lastHistLen).forEach(p=>{charts.global.data.labels.push(p.step);charts.global.data.datasets[0].data.push(p.fitness);});
+    lastHistLen=hist.length;charts.global.update('none');
+  }
+  if(d.partial_rows?.length)renderProblemRows(d.partial_rows);
+}
+function renderProblemRows(rows){
+  const tb=document.getElementById('coop-problem-tbody');if(!tb)return;
+  tb.innerHTML=(rows||[]).map(r=>`<tr><td>${esc(r.fn_label||r.function||'—')}</td><td>${r.best_fitness!=null?fmt(r.best_fitness):'—'}</td><td>${r.steps??'—'}</td><td>${r.elapsed_s??'—'}</td><td>${r.error?esc(r.error):''}</td></tr>`).join('');
+}
+
+/* ════════════════════ FINALIZE ════════════════════ */
+function finalizeResults(d){
+  lastResult=d;
+  setSt('done',`Done`);
+  if(d.termination_reason){const sr=document.getElementById('sreason');if(sr)sr.textContent=`· ${d.termination_reason}`;}
+  const mode=selectedMode;
+
+  if(mode==='single'){
+    if(d.best_fitness!=null){setEl('m-fit',fmt(d.best_fitness));setEl('m-stp',d.step??0);setEl('m-evl',d.evaluations??0);setEl('m-tim',`${d.elapsed??0}s`);}
+    /* Flush remaining history */
+    const hist=d.history||[];
+    if(hist.length>lastHistLen){
+      hist.slice(lastHistLen).forEach(p=>{
+        if(charts['conv-s']){charts['conv-s'].data.labels.push(p.step);charts['conv-s'].data.datasets[0].data.push(p.fitness);}
+        if(charts['conv-e']&&p.evaluations!=null){charts['conv-e'].data.labels.push(p.evaluations);charts['conv-e'].data.datasets[0].data.push(p.fitness);}
+        if(charts['div']&&p.diversity!=null){charts['div'].data.labels.push(p.step);charts['div'].data.datasets[0].data.push(p.diversity);}
+        if(charts['expl']&&p.exploitation_ratio!=null){charts['expl'].data.labels.push(p.step);charts['expl'].data.datasets[0].data.push(p.exploitation_ratio);}
+      });
+      Object.values(charts).forEach(c=>{try{c.update();}catch(_){}});
+    }
+    if(d.best_position) renderPos(d.best_position);
+
+    /* Feasibility banner */
+    const fb=document.getElementById('feasibility-banner');
+    if(fb&&d.metadata){
+      const feasible=d.metadata.best_is_feasible;
+      const violation=d.metadata.best_violation;const rawFit=d.metadata.best_raw_fitness;
+      fb.className=`feasibility-banner ${feasible?'feasible':'infeasible'}`;
+      fb.querySelector('.feasibility-icon').textContent=feasible?'✅':'❌';
+      fb.querySelector('.feasibility-label').textContent=feasible?'Solution is Feasible':'Solution is Infeasible';
+      const meta=fb.querySelector('#feasibility-meta');
+      if(meta)meta.textContent=`Raw fitness: ${fmt(rawFit)} · Violation: ${fmt(violation)}`;
+    }
+
+    /* Binary display */
+    if(singleSubMode==='binary'&&d.metadata?.binary_best_position){
+      const bits=d.metadata.binary_best_position;
+      const disp=document.getElementById('binary-display');
+      const cnt=document.getElementById('binary-count');
+      const sumEl=document.getElementById('binary-summary');
+      if(disp){disp.innerHTML=bits.map((b,i)=>`<div class="bit ${b?'one':'zero'}" title="x${i+1}=${b}">${b}</div>`).join('');}
+      const ones=bits.filter(b=>b).length;
+      if(cnt)cnt.textContent=`${ones} / ${bits.length} ones`;
+      if(sumEl)sumEl.textContent=`Indices (1-based): ${bits.map((b,i)=>b?i+1:null).filter(Boolean).join(', ')||'(none)'}`;
+    }
+
+    /* History table */
+    if(outputs.hist_table){
+      const tb=document.getElementById('hist-tbody');if(tb){
+        const show=hist.slice(-100);
+        tb.innerHTML=show.map(p=>`<tr><td>${p.step}</td><td>${fmt(p.fitness)}</td><td>${p.diversity!=null?p.diversity.toFixed(4):'—'}</td><td>${p.exploitation_ratio!=null?p.exploitation_ratio.toFixed(3):'—'}</td></tr>`).join('');
+      }
+    }
+
+    /* Population snapshot scatter */
+    if(outputs.snapshot&&d.population_snapshots?.length){
+      const lastSnap=d.population_snapshots[d.population_snapshots.length-1];
+      const canvas=document.getElementById('chart-snapshot');const info=document.getElementById('snap-info');
+      const pop=lastSnap.population||[];const step=lastSnap.step;
+      if(info)info.textContent=`Step ${step} — ${pop.length} agents`;
+      if(canvas&&pop.length){
+        const dims=(pop[0]?.position||[]).length;
+        if(dims>=2){
+          // 2D scatter: x1 vs x2, coloured by fitness
+          const fits=pop.map(a=>a.fitness).filter(isFinite);
+          const minF=Math.min(...fits),maxF=Math.max(...fits),rngF=maxF-minF||1;
+          const data=pop.map(a=>({x:a.position[0],y:a.position[1],r:5,fitness:a.fitness}));
+          if(charts.snapshot)try{charts.snapshot.destroy();}catch(_){}
+          const ctx=canvas.getContext('2d');
+          charts.snapshot=new Chart(ctx,{type:'bubble',
+            data:{datasets:[{label:'Agents',data,
+              backgroundColor:data.map(pt=>{const t=isFinite(pt.fitness)?(pt.fitness-minF)/rngF:0.5;return `rgba(${Math.round(56+t*180)},${Math.round(189-t*154)},${Math.round(248-t*200)},0.7)`;}),
+              borderColor:'rgba(255,255,255,.1)',borderWidth:0.5,
+            }]},
+            options:{responsive:true,maintainAspectRatio:false,animation:false,
+              plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`(${fmt(i.raw.x)}, ${fmt(i.raw.y)}) f=${fmt(i.raw.fitness)}`}}},
+              scales:{
+                x:{grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
+                y:{grid:{color:'rgba(255,255,255,.035)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
+              }}});
+        }else{
+          // 1D: show bar chart of positions
+          const ctx=canvas.getContext('2d');
+          if(charts.snapshot)try{charts.snapshot.destroy();}catch(_){}
+          charts.snapshot=new Chart(ctx,{type:'bar',
+            data:{labels:pop.map((_,i)=>`A${i+1}`),datasets:[{label:'Position x1',data:pop.map(a=>a.position[0]),backgroundColor:'rgba(56,189,248,.5)',borderColor:'#38bdf8',borderWidth:1}]},
+            options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
+              scales:{x:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:9}},border:{display:false}},y:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}}}}});
+        }
+      }
+    }
+
+    if(outputs.snippet) buildSnippet(d);
+  }
+
+  if(mode==='benchmark'){
+    const req=d.request||{};
+    if(d.result?.rows){bmLastRows=d.result.rows;renderBmTables(bmLastRows,d.result.algorithms||req.algorithms||[],d.result.functions||req.functions||[]);}
+    const pf=document.getElementById('bm-prog');if(pf)pf.style.width='100%';
+    setEl('bm-ptxt',`Complete — ${bmLastRows.length} runs`);setEl('bm-done',bmLastRows.length);
+  }
+
+  if(mode==='collaborative'||mode==='orchestrated'){
+    const hist=d.history||[];
+    if(hist.length>lastHistLen&&charts.global){
+      hist.slice(lastHistLen).forEach(p=>{charts.global.data.labels.push(p.step);charts.global.data.datasets[0].data.push(p.fitness);});
+      charts.global.update();
+    }
+    /* Per-island convergence */
+    if(charts.islands&&d.per_island_history){
+      const labels=Object.keys(d.per_island_history);
+      charts.islands.data.datasets=labels.map((lbl,i)=>{
+        const pts=d.per_island_history[lbl]||[];
+        return{label:lbl,data:pts.map(p=>({x:p.step,y:p.fitness})),
+          borderColor:ISLAND_COLORS[i%ISLAND_COLORS.length],borderWidth:1.8,
+          backgroundColor:'transparent',fill:false,tension:.4,pointRadius:0,parsing:false};
+      });
+      charts.islands.options.scales.x={type:'linear',grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}};
+      charts.islands.update();
+    }
+    if(d.result?.rows)renderProblemRows(d.result.rows);
+    if(d.island_summary) renderIslandBars(d.island_summary);
+    setEl('m-islands',Object.keys(d.island_summary||{}).length);
+    setEl('m-migs',d.migration_events?.length||0);
+    if(d.best_fitness!=null)setEl('m-fit',fmt(d.best_fitness));
+    /* Migration log */
+    if(outputs.mig_log){
+      const tb=document.getElementById('mig-tbody');if(tb){
+        const mc=document.getElementById('mig-count');if(mc)mc.textContent=`${d.migration_events?.length||0} events`;
+        tb.innerHTML=(d.migration_events||[]).map(e=>`<tr><td>${e.step}</td><td>${e.from}</td><td>${e.to}</td><td>${e.migrants}</td><td>${fmt(e.fit_after)}</td></tr>`).join('');
+      }
+    }
+    /* Hall of fame */
+    if(outputs.hall_of_fame){
+      const tb=document.getElementById('hof-tbody');if(tb){
+        tb.innerHTML=(d.hall_of_fame||[]).map((h,i)=>`<tr>
+          <td style="color:${i===0?'var(--gold)':'var(--t2)'}">${i+1}${i===0?' 🏆':''}</td>
+          <td>${h.label||'—'}</td><td>${h.algorithm||'—'}</td>
+          <td style="color:${i===0?'var(--gold-lt)':'var(--t2)'}">${fmt(h.fitness)}</td></tr>`).join('');
+      }
+    }
+    /* Telemetry sparklines */
+    if(outputs.telem&&mode==='orchestrated'&&d.island_telemetry) renderTelemetry(d.island_telemetry);
+    /* Decisions */
+    if(outputs.decisions&&mode==='orchestrated'){
+      const tb=document.getElementById('decisions-tbody');
+      const cnt=document.getElementById('decisions-count');
+      if(tb){
+        const decisions=d.decisions||[];
+        if(cnt)cnt.textContent=`${decisions.length} checkpoints`;
+        tb.innerHTML=decisions.map((dec,i)=>`<tr>
+          <td style="color:var(--gold)">${i+1}</td>
+          <td>${dec.controller_mode||'—'}</td>
+          <td>${dec.controller_name||'—'}</td>
+          <td style="color:${(dec.confidence||0)>0.7?'var(--green)':(dec.confidence||0)>0.4?'var(--amber)':'var(--rose)'}">${dec.confidence!=null?dec.confidence.toFixed(2):'—'}</td>
+          <td style="color:var(--cyan)">${dec.n_actions??'—'}</td>
+          <td class="td-reasoning">${dec.reasoning||'—'}</td>
+        </tr>`).join('');
+      }
+    }
+    /* Outcomes */
+    if(outputs.outcomes&&mode==='orchestrated'){
+      const tb=document.getElementById('outcomes-tbody');if(tb){
+        const allOutcomes=[];
+        (d.outcomes||[]).forEach((cpOutcomes,cpIdx)=>{
+          (cpOutcomes||[]).forEach(out=>{
+            allOutcomes.push({cp:cpIdx+1,...out});
+          });
+        });
+        tb.innerHTML=allOutcomes.map(out=>`<tr>
+          <td style="color:var(--gold)">${out.cp}</td>
+          <td>${out.action_type||'—'}</td>
+          <td>${out.source_label||'—'}</td>
+          <td>${out.target_label||'—'}</td>
+          <td class="td-executed ${out.executed?'yes':'no'}">${out.executed?'✓ Yes':'✗ No'}</td>
+          <td>${out.status||'—'}</td>
+          <td style="color:var(--cyan)">${fmt(out.target_fitness_after)}</td>
+        </tr>`).join('');
+      }
+    }
+    if(d.best_position) renderPos(d.best_position);
+  }
+}
+
+/* ════════════════════ BENCHMARK TABLES ════════════════════ */
+function renderBmTables(rows,algorithms,functions){
+  if(!rows.length||!algorithms.length||!functions.length)return;
+  const buck={},tbuck={};
+  rows.forEach(r=>{
+    const k=`${r.algorithm}|${r.function}`;
+    if(r.best_fitness!=null&&r.error==null){if(!buck[k])buck[k]=[];buck[k].push(+r.best_fitness);}
+    if(r.elapsed_s!=null){if(!tbuck[k])tbuck[k]=[];tbuck[k].push(+r.elapsed_s);}
+  });
+  const stats={};
+  Object.entries(buck).forEach(([k,v])=>{
+    const a=v.filter(isFinite);if(!a.length)return;
+    const mean=a.reduce((s,x)=>s+x,0)/a.length;
+    const std=Math.sqrt(a.reduce((s,x)=>s+(x-mean)**2,0)/a.length);
+    stats[k]={mean,std,min:Math.min(...a),max:Math.max(...a),n:a.length};
+  });
+  const tstats={};
+  Object.entries(tbuck).forEach(([k,v])=>{const a=v.filter(isFinite);tstats[k]={mean:a.reduce((s,x)=>s+x,0)/a.length};});
+
+  // Best per function (min mean)
+  const bestPerFn={};
+  functions.forEach(fn=>{
+    let bestVal=null,bestAlg=null;
+    algorithms.forEach(alg=>{const s=stats[`${alg}|${fn}`];if(s&&(bestVal===null||s.mean<bestVal)){bestVal=s.mean;bestAlg=alg;}});
+    if(bestAlg)bestPerFn[fn]=bestAlg;
+  });
+
+  const fnLabels=functions.map(f=>testFns.find(x=>x.id===f)?.label||f);
+  const shortFn=fnLabels.map(l=>l.length>13?l.slice(0,12)+'…':l);
+
+  /* Comparison table */
+  if(outputs.cmp_table){const t=document.getElementById('bm-cmp-table');if(t){
+    t.querySelector('thead').innerHTML=`<tr><th>Algorithm</th>${shortFn.map((l,i)=>`<th title="${functions[i]}">${l}</th>`).join('')}</tr>`;
+    t.querySelector('tbody').innerHTML=algorithms.map(alg=>`<tr><td class="alg-col">${alg}</td>${functions.map(fn=>{
+      const s=stats[`${alg}|${fn}`];if(!s)return'<td style="color:var(--t3)">—</td>';
+      return`<td class="${bestPerFn[fn]===alg?'best':''}">${fmtSci(s.mean)}</td>`;
+    }).join('')}</tr>`).join('');
+  }}
+
+  /* Compact table */
+  if(outputs.compact){const t=document.getElementById('bm-compact-table');if(t){
+    t.querySelector('thead').innerHTML=`<tr><th>Algorithm</th>${shortFn.map((l,i)=>`<th title="${functions[i]}">${l}</th>`).join('')}</tr>`;
+    t.querySelector('tbody').innerHTML=algorithms.map(alg=>`<tr><td class="alg-col">${alg}</td>${functions.map(fn=>{
+      const s=stats[`${alg}|${fn}`];if(!s)return'<td style="color:var(--t3)">—</td>';
+      const best=bestPerFn[fn]===alg;
+      return`<td class="${best?'best':''}" style="white-space:normal;line-height:1.4">${fmtSci(s.mean)}<br><span style="font-size:.58rem;color:var(--t3)">±${fmtSci(s.std)}</span></td>`;
+    }).join('')}</tr>`).join('');
+  }}
+
+  /* Rankings per function */
+  if(outputs.rankings){const t=document.getElementById('bm-rank-per-fn');if(t){
+    // Compute per-fn ranks
+    const perFnRanks={}; // alg -> fn -> rank
+    algorithms.forEach(a=>{perFnRanks[a]={};});
+    functions.forEach(fn=>{
+      const sorted=[...algorithms].sort((a,b)=>(stats[`${a}|${fn}`]?.mean??Infinity)-(stats[`${b}|${fn}`]?.mean??Infinity));
+      sorted.forEach((alg,i)=>{perFnRanks[alg][fn]=i+1;});
+    });
+    t.querySelector('thead').innerHTML=`<tr><th>Algorithm</th>${shortFn.map((l,i)=>`<th title="${functions[i]}">${l}</th>`).join('')}<th>Avg Rank</th></tr>`;
+    const avgRanks=algorithms.map(alg=>{const ranks=functions.map(fn=>perFnRanks[alg][fn]||functions.length);const avg=ranks.reduce((s,x)=>s+x,0)/ranks.length;return{alg,avg,ranks};});
+    avgRanks.sort((a,b)=>a.avg-b.avg);
+    t.querySelector('tbody').innerHTML=avgRanks.map(({alg,avg,ranks})=>`<tr><td class="alg-col">${alg}</td>${functions.map((fn,i)=>{const r=perFnRanks[alg][fn];return`<td style="color:${r===1?'var(--green)':r===algorithms.length?'var(--rose)':'var(--t2)'}">${r||'—'}</td>`;}).join('')}<td style="color:var(--gold)">${avg.toFixed(2)}</td></tr>`).join('');
+  }}
+
+  /* Global ranking */
+  if(outputs.global_rank){const tb=document.getElementById('bm-rank-body');if(tb){
+    const rankSum={},winCount={},fitSum={};
+    algorithms.forEach(a=>{rankSum[a]=0;winCount[a]=0;fitSum[a]=0;});
+    functions.forEach(fn=>{
+      const sorted=[...algorithms].sort((a,b)=>(stats[`${a}|${fn}`]?.mean??Infinity)-(stats[`${b}|${fn}`]?.mean??Infinity));
+      sorted.forEach((alg,i)=>{rankSum[alg]+=(i+1);if(i===0)winCount[alg]++;});
+      algorithms.forEach(a=>{fitSum[a]+=(stats[`${a}|${fn}`]?.mean??0);});
+    });
+    const ranked=[...algorithms].sort((a,b)=>rankSum[a]-rankSum[b]);
+    tb.innerHTML=ranked.map((alg,i)=>`<tr>
+      <td style="color:${i===0?'var(--gold)':'var(--t2)'}">${i+1}${i===0?' 🏆':''}</td>
+      <td class="alg-col">${alg}</td>
+      <td style="color:var(--gold)">${(rankSum[alg]/functions.length).toFixed(2)}</td>
+      <td style="color:var(--green)">${winCount[alg]}</td>
+      <td>${fmtSci(fitSum[alg]/functions.length)}</td>
+    </tr>`).join('');
+  }}
+
+  /* Timing */
+  if(outputs.timing){const t=document.getElementById('bm-tim-table');if(t){
+    t.querySelector('thead').innerHTML=`<tr><th>Algorithm</th>${shortFn.map((l,i)=>`<th title="${functions[i]}">${l}</th>`).join('')}</tr>`;
+    t.querySelector('tbody').innerHTML=algorithms.map(alg=>`<tr><td class="alg-col">${alg}</td>${functions.map(fn=>{
+      const ts=tstats[`${alg}|${fn}`];return ts?`<td>${ts.mean.toFixed(3)}s</td>`:'<td style="color:var(--t3)">—</td>';
+    }).join('')}</tr>`).join('');
+  }}
+
+  /* Raw table */
+  if(outputs.raw_table){const tb=document.getElementById('bm-raw-tbody');if(tb){
+    tb.innerHTML=rows.slice(-300).map(r=>`<tr>
+      <td>${r.algorithm}</td>
+      <td>${fnLabels[functions.indexOf(r.function)]||r.function}</td>
+      <td>${r.trial}</td>
+      <td style="color:${r.error?'var(--rose)':'var(--t2)'}">${r.error?'ERROR':fmt(r.best_fitness)}</td>
+      <td>${r.steps||'—'}</td>
+      <td>${r.elapsed_s!=null?r.elapsed_s.toFixed(3)+'s':'—'}</td>
+      <td style="color:var(--rose);font-size:.58rem">${r.error||''}</td>
+    </tr>`).join('');
+  }}
+}
+
+/* ════════════════════ HELPERS ════════════════════ */
+function renderPos(pos){
+  const g=document.getElementById('pos-grid');if(!g)return;
+  g.innerHTML=pos.map((v,i)=>`<div class="pc"><div class="pd">x${i+1}</div><div class="pv">${fmt(v)}</div></div>`).join('');
+}
+
+function renderIslandBars(summary){
+  const body=document.getElementById('ibar-body');if(!body)return;
+  const entries=Object.entries(summary).filter(([,v])=>v!=null);
+  if(!entries.length){body.innerHTML='<div style="color:var(--t3);font-size:.75rem">No per-island data.</div>';return;}
+  const vals=entries.map(([,v])=>v);const mn=Math.min(...vals),mx=Math.max(...vals),range=mx-mn||1;
+  body.innerHTML=entries.map(([lbl,val],i)=>{
+    const pct=Math.max(5,Math.round((1-(val-mn)/range)*100));
+    const col=ISLAND_COLORS[i%ISLAND_COLORS.length];
+    return`<div class="ibar-row">
+      <div class="ibar-lbl" title="${lbl}">${lbl}</div>
+      <div class="ibar-trk"><div class="ibar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="ibar-val" style="color:${col}">${fmt(val)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTelemetry(telem){
+  const grid=document.getElementById('telem-grid');if(!grid)return;
+  grid.innerHTML='';
+  Object.entries(telem).slice(0,8).forEach(([label,records],i)=>{
+    const col=ISLAND_COLORS[i%ISLAND_COLORS.length];
+    const div=document.createElement('div');div.className='telem-cell';
+    const cid=`telem-${i}`;
+    div.innerHTML=`<div class="telem-cell-hdr" style="color:${col}">${label}</div><div class="telem-cell-body"><canvas id="${cid}"></canvas></div>`;
+    grid.appendChild(div);
+    setTimeout(()=>{
+      const canvas=document.getElementById(cid);if(!canvas)return;
+      const ctx=canvas.getContext('2d');
+      const healthPts=(records||[]).filter(r=>r.health!=null).map(r=>({x:r.step||r.global_step,y:r.health}));
+      const divPts=(records||[]).filter(r=>r.diversity!=null).map(r=>({x:r.step||r.global_step,y:r.diversity}));
+      new Chart(ctx,{type:'line',data:{datasets:[
+        {label:'Health',data:healthPts,borderColor:col,borderWidth:1.5,backgroundColor:'transparent',tension:.4,pointRadius:0,parsing:false},
+        {label:'Diversity',data:divPts,borderColor:'rgba(255,255,255,.3)',borderWidth:1,backgroundColor:'transparent',tension:.4,pointRadius:0,parsing:false},
+      ]},options:{responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{display:true,position:'top',labels:{color:'#475569',font:{family:'JetBrains Mono',size:8},boxWidth:8,padding:4}}},
+        scales:{x:{type:'linear',display:false},y:{display:false}}}});
+    },100);
+  });
+}
+
+function buildSnippet(d){
+  const req=d.request||{};
+  const params=req.params&&Object.keys(req.params).length?',\n    config={'+Object.entries(req.params).map(([k,v])=>`"${k}":${v}`).join(',')+'}'  :'';
+  const bmin=req.min_values?.[0]??'?',bmax=req.max_values?.[0]??'?',dims=req.min_values?.length??'?';
+  const fn=req.target_function==='custom'?'your_function':req.target_function;
+  const pre=document.getElementById('code-pre');if(!pre)return;
+  const subm=req.sub_mode||'standard';
+  let snippet='';
+  if(subm==='binary'){
+    snippet=`import pymetaheuristic as pmh
+
+engine = pmh.create_optimizer(
+    algorithm="${req.algorithm??'?'}",
+    target_function=pmh.get_test_function("${fn}"),
+    min_values=[${bmin}] * ${dims},
+    max_values=[${bmax}] * ${dims},
+    max_steps=${req.max_steps??500},
+    seed=${req.seed??'None'}${params}
+)
+adapter = pmh.BinaryAdapter(engine, transfer_fn="${req.transfer_fn||'v2'}")
+result  = adapter.run()
+
+print("Best fitness:", result.best_fitness)
+print("Binary solution:", result.metadata.get("binary_best_position"))`;
+  }else if(subm==='constrained'){
+    snippet=`import pymetaheuristic as pmh
+
+# Define your constraints (return <= 0 if satisfied)
+constraints = [
+    lambda x: x[0]**2 + x[1]**2 - 4.0,  # x0^2+x1^2 <= 4
+]
+
+result = pmh.optimize(
+    algorithm="${req.algorithm??'?'}",
+    target_function=pmh.get_test_function("${fn}"),
+    min_values=[${bmin}] * ${dims},
+    max_values=[${bmax}] * ${dims},
+    max_steps=${req.max_steps??500},
+    constraints=constraints,
+    constraint_handler="${req.constraint_handler||'deb'}",
+    seed=${req.seed??'None'},
+    store_history=True${params}
+)
+
+print("Best fitness:", result.best_fitness)
+print("Feasible:", result.metadata["best_is_feasible"])
+print("Violation:", result.metadata["best_violation"])`;
+  }else{
+    snippet=`import pymetaheuristic as pmh
+
+result = pmh.optimize(
+    algorithm="${req.algorithm??'?'}",
+    target_function=pmh.get_test_function("${fn}"),
+    min_values=[${bmin}] * ${dims},
+    max_values=[${bmax}] * ${dims},
+    objective="${req.objective??'min'}",
+    max_steps=${req.max_steps??500},
+    seed=${req.seed??'None'},
+    store_history=True${params}
+)
+
+print("Best fitness:", result.best_fitness)
+print("Best position:", result.best_position)
+print("Mean diversity:", result.metadata["mean_diversity"])`;
+  }
+  pre.textContent=snippet;
+}
+
+function setSt(type,text){
+  const b=document.getElementById('sbdg');if(!b)return;
+  b.className=`sbdg ${type}`;
+  b.textContent={running:'Running',done:'Done',error:'Error',cancelled:'Cancelled',idle:'Idle'}[type]||type;
+  const t=document.getElementById('stxt');if(t)t.textContent=text;
+}
+function setEl(id,val){const el=document.getElementById(id);if(el)el.textContent=val;}
+function clearPoll(){if(pollTimer){clearInterval(pollTimer);pollTimer=null;}}
+async function cancelJob(){
+  if(!currentJobId)return;
+  await fetch(`/api/jobs/${currentJobId}`,{method:'DELETE'}).catch(()=>{});
+  clearPoll();setSt('cancelled','Cancelled');setRunBtn(false);
+}
+function setRunBtn(running){
+  const btn=document.getElementById('run-btn'),stop=document.getElementById('stop-btn');
+  btn.disabled=running;btn.classList.toggle('running',running);
+  btn.querySelector('.bico').textContent=running?'↻':'▶';
+  btn.querySelector('.blbl').textContent=running?'Running…':'Run Optimization';
+  stop.classList.toggle('hidden',!running);
+}
+
+/* ════════════════════ EXPORT ════════════════════ */
+async function exportJSON(){
+  if(!currentJobId)return;
+  try{const r=await fetch(`/api/jobs/${currentJobId}/result`);if(!r.ok){alert('Not ready.');return;}dl(JSON.stringify(await r.json(),null,2),'result.json','application/json');}
+  catch(e){alert('Error.');}
+}
+function exportCSV(){
+  const chart=charts['conv-s']||charts['conv-e']||charts.global;
+  if(!chart?.data.labels.length){alert('No data yet.');return;}
+  const rows=['step,fitness'];
+  chart.data.labels.forEach((s,i)=>rows.push(`${s},${chart.data.datasets[0].data[i]}`));
+  dl(rows.join('\n'),'convergence.csv','text/csv');
+}
+function exportBmCSV(){
+  if(!bmLastRows.length){alert('No data.');return;}
+  const header=Object.keys(bmLastRows[0]).join(',');
+  dl(header+'\n'+bmLastRows.map(r=>Object.values(r).join(',')).join('\n'),'benchmark.csv','text/csv');
+}
+function dl(content,name,mime){
+  const url=URL.createObjectURL(new Blob([content],{type:mime}));
+  Object.assign(document.createElement('a'),{href:url,download:name}).click();
+  URL.revokeObjectURL(url);
+}
+function toggleCode(){document.getElementById('code-wrap')?.classList.toggle('hidden');}
+function copyCode(){
+  navigator.clipboard.writeText(document.getElementById('code-pre')?.textContent||'').then(()=>{
+    const b=document.querySelector('.copy-btn');if(!b)return;
+    b.textContent='✓ Copied';setTimeout(()=>b.textContent='Copy',1600);
+  });
+}
+
+/* ════════════════════ UTILS ════════════════════ */
+function fmt(v){
+  if(v==null)return'—';const n=parseFloat(v);if(isNaN(n))return String(v);
+  if(n!==0&&Math.abs(n)<1e-4)return n.toExponential(5);
+  if(Math.abs(n)>=1e7)return n.toExponential(4);
+  return parseFloat(n.toFixed(8)).toString();
+}
+function fmtSci(v){
+  if(v==null)return'—';const n=parseFloat(v);if(isNaN(n))return'—';
+  if(Math.abs(n)<1e-3||Math.abs(n)>=1e5)return n.toExponential(3);
+  return n.toPrecision(4);
+}
+
+function bindEvents(){
+  document.getElementById('srch').addEventListener('input',e=>{srchQ=e.target.value.trim();renderAlgList();});
+  const tip=document.getElementById('tip');
+  document.addEventListener('mouseover',e=>{const el=e.target.closest('[title]');if(el){tip.textContent=el.title;tip.classList.add('show');}});
+  document.addEventListener('mousemove',e=>{tip.style.left=`${e.clientX+14}px`;tip.style.top=`${e.clientY-30}px`;});
+  document.addEventListener('mouseout',()=>tip.classList.remove('show'));
+}
+
+document.addEventListener('DOMContentLoaded',init);
+</script>
+</body>
+</html>
