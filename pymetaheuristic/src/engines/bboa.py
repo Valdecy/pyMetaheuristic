@@ -8,7 +8,7 @@ class BBOAEngine(PortedPopulationEngine):
     """Brown-Bear Optimization Algorithm — pedal-marking and sniffing foraging phases."""
     algorithm_id   = "bboa"
     algorithm_name = "Brown-Bear Optimization Algorithm"
-    family         = "bio"
+    family         = "swarm"
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,
