@@ -837,7 +837,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'chameleon_sa'          : 'swarm',
     'cgo'                   : 'math',
     'cddo'                  : 'human',
-    'cdo'                   : 'physics',
+    'cdo'                   : 'swarm',
     'chicken_so'            : 'swarm',
     'choa'                  : 'swarm',
     'circle_sa'             : 'math',
