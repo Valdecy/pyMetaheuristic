@@ -574,7 +574,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'ego'               : 'Efficient Global Optimization',
     'esoa'              : 'Egret Swarm Optimization Algorithm',
     'ecpo'              : 'Electric Charged Particles Optimization',
-    'eso'               : 'Electric Squirrel Optimizer',
+    'eso'               : 'Electrical Storm Optimization',
     'efo'               : 'Electromagnetic Field Optimization',
     'eho'               : 'Elephant Herding Optimization',
     'elk_ho'            : 'Elk Herd Optimizer',

@@ -1,13 +1,13 @@
-"""pyMetaheuristic src — Electric Squirrel Optimizer Engine"""
+"""pyMetaheuristic src — Electrical Storm Optimization Engine"""
 from __future__ import annotations
 import numpy as np
 from .protocol import CapabilityProfile
 from ._ported_common import PortedPopulationEngine
 
 class ESOEngine(PortedPopulationEngine):
-    """Electric Squirrel Optimizer — field-resistance ionization and conductivity model."""
+    """Electrical Storm Optimization — field-resistance ionization and conductivity model."""
     algorithm_id   = "eso"
-    algorithm_name = "Electric Squirrel Optimizer"
+    algorithm_name = "Electrical Storm Optimization"
     family         = "physics"
     _REFERENCE     = {"doi": "10.3390/make7010024"}
     capabilities   = CapabilityProfile(
