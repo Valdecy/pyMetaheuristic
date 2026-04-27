@@ -350,10 +350,7 @@ REGISTRY: dict[str, type[BaseEngine]] = {
     for cls in _ENGINE_CLASSES
 }
 
-for _old_id, _new_id in _REGISTRY_ALIASES.items():
-    if _new_id not in REGISTRY and _old_id in REGISTRY:
-        REGISTRY[_new_id] = REGISTRY[_old_id]
-
+_REGISTRY_ALIASES: dict[str, str] = {}
 
 __all__ = [
     "REGISTRY",
