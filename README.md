@@ -922,7 +922,7 @@ The table below summarizes the optimization engines currently available in the l
 | Social Spider Swarm Optimizer | `sso` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.eswa.2013.05.041) |
 | Sparrow Search Algorithm | `sparrow_sa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1080/21642583.2019.1708830) |
 | Spider Monkey Optimization | `smo` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s12293-013-0128-0) |
-| Spotted Hyena Inspired Optimizer | `shio` | math | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
+| Spotted Hyena Inspired Optimizer | `shio` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
 | Spotted Hyena Optimizer | `sho` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
 | Squirrel Search Algorithm | `squirrel_sa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.swevo.2018.02.013) |
 | Star Oscillator Optimization | `soo` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10586-024-04976-5) |
