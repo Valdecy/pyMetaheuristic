@@ -130,7 +130,7 @@ class MFEA2Engine(BaseEngine):
     family         = "evolutionary"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30)
-    _REFERENCE     = dict(doi="10.1109/TEVC.2019.2904771")
+    _REFERENCE     = dict(doi="10.1109/TEVC.2019.2906927")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

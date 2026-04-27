@@ -8,7 +8,7 @@ class ESCEngine(PortedPopulationEngine):
     algorithm_id   = "esc"
     algorithm_name = "Escape Algorithm"
     family         = "human"
-    _REFERENCE     = {"doi": "10.1007/s13748-024-00351-6"}
+    _REFERENCE     = {"doi": "10.1007/s10462-024-11008-6"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

@@ -9,7 +9,7 @@ class BCOEngine(PortedPopulationEngine):
     algorithm_id   = "bco"
     algorithm_name = "Bacterial Chemotaxis Optimizer"
     family         = "nature"
-    _REFERENCE     = {"doi": "10.1109/MCS.2002.1004010"}
+    _REFERENCE     = {"doi": "10.1007/s13369-025-10749-y"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

@@ -15,7 +15,7 @@ class ALAEngine(PortedPopulationEngine):
     algorithm_id   = "ala"
     algorithm_name = "Artificial Lemming Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s10462-025-11108-5"}
+    _REFERENCE     = {"doi": "10.1007/s10462-024-11023-7"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

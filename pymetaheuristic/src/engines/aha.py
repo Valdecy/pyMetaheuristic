@@ -10,7 +10,7 @@ class AHAEngine(PortedPopulationEngine):
     algorithm_id   = "aha"
     algorithm_name = "Artificial Hummingbird Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1016/j.cma.2022.114194"}
+    _REFERENCE     = {"doi": "10.1016/j.cma.2021.114194"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

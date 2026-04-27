@@ -14,7 +14,7 @@ class PDOEngine(PortedPopulationEngine):
     algorithm_id   = "pdo"
     algorithm_name = "Prairie Dog Optimization Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s00521-022-07530-5"}
+    _REFERENCE     = {"doi": "10.1007/s00521-022-07530-9"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, rho=0.005, epsPD=0.1)

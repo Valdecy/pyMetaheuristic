@@ -9,7 +9,7 @@ class SFOAEngine(PortedPopulationEngine):
     algorithm_id   = "sfoa"
     algorithm_name = "Starfish Optimization Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1016/j.swevo.2023.101262"}
+    _REFERENCE     = {"doi": "10.1007/s00521-024-10694-1"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, gp=0.5)

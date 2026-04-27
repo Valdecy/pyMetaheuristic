@@ -16,7 +16,7 @@ class WaveOptEngine(PortedPopulationEngine):
     algorithm_id   = "wo_wave"
     algorithm_name = "Wave Optimization Algorithm"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1016/j.knosys.2021.107760"}
+    _REFERENCE     = {"doi": "10.1016/j.cor.2014.10.008"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, P=0.4)

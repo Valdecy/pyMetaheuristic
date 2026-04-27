@@ -8,7 +8,7 @@ class PoliticalOEngine(PortedPopulationEngine):
     algorithm_id   = "political_o"
     algorithm_name = "Political Optimizer"
     family         = "human"
-    _REFERENCE     = {"doi": "10.1016/j.knosys.2020.106376"}
+    _REFERENCE     = {"doi": "10.1016/j.knosys.2020.105709"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, NC=5)

@@ -9,7 +9,7 @@ class SRSREngine(PortedPopulationEngine):
     algorithm_id   = "srsr"
     algorithm_name = "Shuffle-based Runner-Root Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1016/j.asoc.2017.02.028"}
+    _REFERENCE     = {"doi": "10.1007/978-3-319-70139-4_16"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

@@ -8,7 +8,7 @@ class MEMETIC_AEngine(BaseEngine):
     algorithm_id   = "memetic_a"
     algorithm_name = "Memetic Algorithm"
     family         = "evolutionary"
-    _REFERENCE     = {"doi": "10.1162/evco.1991.1.1.67"}
+    _REFERENCE     = {"doi": "10.1007/978-3-540-92910-9_29"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=5, mutation_rate=0.1, elite=1, eta=1, mu=1, std=0.1)
 

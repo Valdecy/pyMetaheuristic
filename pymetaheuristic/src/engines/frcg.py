@@ -31,7 +31,7 @@ class FRCGEngine(BaseEngine):
     family         = "math"
     capabilities   = CapabilityProfile(has_population=False, supports_candidate_injection=False)
     _DEFAULTS      = dict(beta=0.6, sigma=0.4, max_ls=20)
-    _REFERENCE     = dict(doi="10.1093/comjnl/7.2.149")
+    _REFERENCE     = dict(doi="10.1002/er.8067")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

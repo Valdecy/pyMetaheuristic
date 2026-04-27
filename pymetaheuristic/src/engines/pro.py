@@ -8,7 +8,7 @@ class PROEngine(PortedPopulationEngine):
     algorithm_id   = "pro"
     algorithm_name = "Poor and Rich Optimization Algorithm"
     family         = "human"
-    _REFERENCE     = {"doi": "10.1016/j.engappai.2019.06.016"}
+    _REFERENCE     = {"doi": "10.1016/j.engappai.2019.08.025"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, pmut=0.06)

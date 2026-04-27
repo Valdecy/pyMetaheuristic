@@ -16,7 +16,7 @@ class GazelleOAEngine(PortedPopulationEngine):
     algorithm_id   = "gazelle_oa"
     algorithm_name = "Gazelle Optimization Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s00521-022-07224-4"}
+    _REFERENCE     = {"doi": "10.1007/s00521-022-07854-6"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

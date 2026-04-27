@@ -16,7 +16,7 @@ class HippoEngine(PortedPopulationEngine):
     algorithm_id   = "ho_hippo"
     algorithm_name = "Hippopotamus Optimization Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1038/s41598-024-55040-6"}
+    _REFERENCE     = {"doi": "10.1038/s41598-024-54910-3"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

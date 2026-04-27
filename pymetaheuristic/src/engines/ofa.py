@@ -16,7 +16,7 @@ class OFAEngine(BaseEngine):
     family         = "swarm"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30)
-    _REFERENCE     = dict(doi="10.1016/j.asoc.2017.01.006")
+    _REFERENCE     = dict(doi="10.1016/j.eswa.2022.117735")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

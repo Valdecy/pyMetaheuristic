@@ -12,7 +12,7 @@ class MTSEngine(PortedPopulationEngine):
     algorithm_id = "mts"
     algorithm_name = "Multiple Trajectory Search"
     family = "trajectory"
-    _REFERENCE     = {"doi": "10.5555/1689599.1689856"}
+    _REFERENCE     = {"doi": "10.1109/CEC.2008.4631210"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=40, num_tests=5, num_searches=5, num_searches_best=5, num_enabled=17, bonus1=10, bonus2=1, search_range=0.2)
 

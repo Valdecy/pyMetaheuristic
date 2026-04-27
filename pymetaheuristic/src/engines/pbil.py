@@ -8,7 +8,7 @@ class PBILEngine(BaseEngine):
     algorithm_id   = "pbil"
     algorithm_name = "Population-Based Incremental Learning"
     family         = "distribution"
-    _REFERENCE     = {"doi": "10.5555/865146"}
+    _REFERENCE     = {"doi": "10.1109/SSE62657.2024.00022"}
     capabilities   = CapabilityProfile(has_population=False)
     _DEFAULTS = dict(size=15, mut_factor=0.05, l_rate=0.1)
 

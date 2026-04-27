@@ -9,7 +9,7 @@ class EFOEngine(PortedPopulationEngine):
     algorithm_id   = "efo"
     algorithm_name = "Electromagnetic Field Optimization"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1016/j.asoc.2015.10.048"}
+    _REFERENCE     = {"doi": "10.1016/j.swevo.2015.07.002"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

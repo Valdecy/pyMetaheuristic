@@ -9,7 +9,7 @@ class GBOEngine(PortedPopulationEngine):
     algorithm_id   = "gbo"
     algorithm_name = "Gradient-Based Optimizer"
     family         = "math"
-    _REFERENCE     = {"doi": "10.1007/s00500-020-05180-6"}
+    _REFERENCE     = {"doi": "10.1007/s11831-022-09872-y"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

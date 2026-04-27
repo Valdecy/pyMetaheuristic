@@ -8,7 +8,7 @@ class FloodAEngine(PortedPopulationEngine):
     algorithm_id   = "flood_a"
     algorithm_name = "Flood Algorithm"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1007/s11227-024-06054-6"}
+    _REFERENCE     = {"doi": "10.1007/s11227-024-06291-7"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, Ne=5)

@@ -8,7 +8,7 @@ class AFSAEngine(BaseEngine):
     algorithm_id   = "afsa"
     algorithm_name = "Artificial Fish Swarm Algorithm"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.12011/1000-6788(2002)11-32"}
+    _REFERENCE     = {"doi": "10.1007/s10462-012-9342-2"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(school_size=25, attempts=100, visual=0.3, step=0.5, delta=0.5)
 
