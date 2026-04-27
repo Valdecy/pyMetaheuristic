@@ -18,7 +18,7 @@ class AutoVEngine(BaseEngine):
     family         = "evolutionary"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, n_operators=10)
-    _REFERENCE     = dict(doi="10.23919/CJE.2022.00.038")
+    _REFERENCE     = dict(doi="10.1145/3712256.3726456")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class ACOREngine(PortedPopulationEngine):
     """ACOR — Gaussian kernel mixture sampled from ranked archive."""
     algorithm_id = "acor"; algorithm_name = "Ant Colony Optimization (Continuous)"; family = "swarm"
-    _REFERENCE   = {"doi": "10.1007/s10732-008-9062-4"}
+    _REFERENCE   = {"doi": "10.1016/j.ejor.2006.06.046"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, sample_count=25, intent_factor=0.5, zeta=1.0)

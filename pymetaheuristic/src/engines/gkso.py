@@ -16,7 +16,7 @@ class GKSOEngine(PortedPopulationEngine):
     algorithm_id   = "gkso"
     algorithm_name = "Genghis Khan Shark Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s10462-023-10618-w"}
+    _REFERENCE     = {"doi": "10.1016/j.aei.2023.102210"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

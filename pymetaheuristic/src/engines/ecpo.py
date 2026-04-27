@@ -15,7 +15,7 @@ class ECPOEngine(BaseEngine):
     algorithm_id   = "ecpo"
     algorithm_name = "Electric Charged Particles Optimization"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1007/s10462-020-09920-8"}
+    _REFERENCE     = {"doi": "10.1007/s10462-020-09890-x"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, strategy=2, n_interact=3, archive_frac=None)
 

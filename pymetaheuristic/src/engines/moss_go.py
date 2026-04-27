@@ -16,7 +16,7 @@ class MossGOEngine(PortedPopulationEngine):
     algorithm_id   = "moss_go"
     algorithm_name = "Moss Growth Optimization"
     family         = "nature"
-    _REFERENCE     = {"doi": "10.1007/s10489-024-05673-7"}
+    _REFERENCE     = {"doi": "10.1093/jcde/qwae080"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

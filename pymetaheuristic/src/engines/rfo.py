@@ -8,7 +8,7 @@ class RFOEngine(PortedPopulationEngine):
     algorithm_id   = "rfo"
     algorithm_name = "Rüppell's Fox Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s10586-024-04823-3"}
+    _REFERENCE     = {"doi": "10.1007/s10586-024-04950-1"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

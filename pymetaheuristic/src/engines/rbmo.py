@@ -8,7 +8,7 @@ class RBMOEngine(PortedPopulationEngine):
     algorithm_id   = "rbmo"
     algorithm_name = "Red-billed Blue Magpie Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s10462-024-10894-0"}
+    _REFERENCE     = {"doi": "10.1007/s10462-024-10716-3"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30, Epsilon=0.5)

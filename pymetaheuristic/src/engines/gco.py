@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class GCOEngine(PortedPopulationEngine):
     """Germinal Center Optimization — DE-like mutation weighted by adaptive life-signal."""
     algorithm_id = "gco"; algorithm_name = "Germinal Center Optimization"; family = "human"
-    _REFERENCE   = {"doi": "10.1002/int.21892"}
+    _REFERENCE   = {"doi": "10.1016/j.ifacol.2018.07.300"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, wf=0.1, cr=0.9)

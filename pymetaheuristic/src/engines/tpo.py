@@ -9,7 +9,7 @@ class TPOEngine(PortedPopulationEngine):
     algorithm_id   = "tpo"
     algorithm_name = "Tree Physiology Optimization"
     family         = "nature"
-    _REFERENCE     = {"doi": "10.1080/0305215X.2017.1305421"}
+    _REFERENCE     = {"doi": "10.1515/jisys-2017-0156"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, alpha=0.3, beta=50.0, theta=0.9, n_leafs=5)

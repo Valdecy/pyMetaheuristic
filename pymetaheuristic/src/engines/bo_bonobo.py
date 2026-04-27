@@ -10,7 +10,7 @@ class BonobOEngine(PortedPopulationEngine):
     algorithm_id   = "bono"
     algorithm_name = "Bonobo Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s10489-021-02830-0"}
+    _REFERENCE     = {"doi": "10.1007/s10489-021-02444-w"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

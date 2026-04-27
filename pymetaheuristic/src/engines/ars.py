@@ -8,7 +8,7 @@ class ARSEngine(BaseEngine):
     algorithm_id   = "ars"
     algorithm_name = "Adaptive Random Search"
     family         = "trajectory"
-    _REFERENCE     = {"doi": "10.1287/ijoc.1110.0494"}
+    _REFERENCE     = {"doi": "https://algorithmafternoon.com/stochastic/adaptive_random_search/"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(solutions=25, step_size_factor=0.05, factor_1=3.0, factor_2=1.5,
                      large_step_threshold=10, improvement_threshold=25)

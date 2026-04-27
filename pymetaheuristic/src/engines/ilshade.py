@@ -12,7 +12,7 @@ class ILSHADEEngine(PortedPopulationEngine):
     algorithm_id = "ilshade"
     algorithm_name = "Improved L-SHADE"
     family = "evolutionary"
-    _REFERENCE     = {"doi": "10.1109/CEC.2016.7744312"}
+    _REFERENCE     = {"doi": "10.1109/CEC.2016.7743922"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True, supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=100, min_population_size=4, extern_arc_rate=2.6, pbest_start=0.2, pbest_end=0.1, hist_mem_size=6)
 

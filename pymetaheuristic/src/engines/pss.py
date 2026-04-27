@@ -7,7 +7,7 @@ from ._ported_common import PortedPopulationEngine
 class PSSEngine(PortedPopulationEngine):
     """Pareto Sequential Sampling — acceptance-rate-guided prominent vs full-domain sampling."""
     algorithm_id = "pss"; algorithm_name = "Pareto Sequential Sampling"; family = "math"
-    _REFERENCE     = {"doi": "10.1007/s00500-020-05274-3"}
+    _REFERENCE     = {"doi": "10.1007/s00500-021-05853-8"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=50, acceptance_rate=0.9, steps=0.0)

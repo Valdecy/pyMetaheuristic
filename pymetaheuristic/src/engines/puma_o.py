@@ -8,7 +8,7 @@ class PumaOEngine(PortedPopulationEngine):
     algorithm_id   = "puma_o"
     algorithm_name = "Puma Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1016/j.knosys.2024.111257"}
+    _REFERENCE     = {"doi": "10.1007/s10586-023-04221-5"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

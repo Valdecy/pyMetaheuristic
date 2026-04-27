@@ -16,7 +16,7 @@ class ACOEngine(BaseEngine):
     algorithm_id   = "aco"
     algorithm_name = "Ant Colony Optimization"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1109/CEC.1999.782657"}
+    _REFERENCE     = {"doi": "10.1109/3477.484436"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=False)
     _DEFAULTS      = dict(population_size=20, rho=0.5, alpha=1.0, beta=2.0)
 

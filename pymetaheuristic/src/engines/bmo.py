@@ -9,7 +9,7 @@ class BMOEngine(PortedPopulationEngine):
     algorithm_id   = "bmo"
     algorithm_name = "Barnacles Mating Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1109/ICOICA.2019.8895393"}
+    _REFERENCE     = {"doi": "10.1016/j.engappai.2019.103330"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

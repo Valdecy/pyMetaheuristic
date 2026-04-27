@@ -16,7 +16,7 @@ class CSOEngine(BaseEngine):
     family         = "swarm"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, phi=0.1)
-    _REFERENCE     = dict(doi="10.1109/TCYB.2014.2314537")
+    _REFERENCE     = dict(doi="10.1016/j.swevo.2024.101543")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

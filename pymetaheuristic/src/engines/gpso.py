@@ -31,7 +31,7 @@ class GPSOEngine(BaseEngine):
     family         = "swarm"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=30, w=0.7, c1=1.5, c2=1.5, ls_steps=5, ls_alpha=0.01)
-    _REFERENCE     = dict(doi="10.1016/j.asoc.2011.10.007")
+    _REFERENCE     = dict(doi="10.48550/arXiv.2312.09703")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

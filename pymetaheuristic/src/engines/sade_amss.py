@@ -16,7 +16,7 @@ class SADEAMSSEngine(BaseEngine):
     algorithm_id   = "sade_amss"
     algorithm_name = "Surrogate-Assisted Differential Evolution with Adaptive Multi-Subspace Search"
     family         = "evolutionary"
-    _REFERENCE     = {"doi": "10.1109/TEVC.2022.3168745"}
+    _REFERENCE     = {"doi": "10.1109/TEVC.2022.3226837"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=20, K=20, maxd=100, Gm=5)
 

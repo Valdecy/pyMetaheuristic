@@ -15,7 +15,7 @@ class ECOEngine(PortedPopulationEngine):
     algorithm_id   = "eco"
     algorithm_name = "Educational Competition Optimizer"
     family         = "human"
-    _REFERENCE     = {"doi": "10.1080/00207721.2024.2308282"}
+    _REFERENCE     = {"doi": "10.3390/biomimetics10030176"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

@@ -8,7 +8,7 @@ class EDOEngine(PortedPopulationEngine):
     algorithm_id   = "edo"
     algorithm_name = "Exponential Distribution Optimizer"
     family         = "math"
-    _REFERENCE     = {"doi": "10.1007/s10462-022-10317-4"}
+    _REFERENCE     = {"doi": "10.1007/s10462-023-10403-9"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

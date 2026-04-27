@@ -16,7 +16,7 @@ class SADESammonEngine(BaseEngine):
     algorithm_id   = "sade_sammon"
     algorithm_name = "Sammon Mapping Assisted Differential Evolution"
     family         = "evolutionary"
-    _REFERENCE     = {"doi": "10.1109/TEVC.2016.2590750"}
+    _REFERENCE     = {"doi": "10.1016/j.petrol.2019.106633"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=None, F=0.5, CR=0.5, lammda=50)
 

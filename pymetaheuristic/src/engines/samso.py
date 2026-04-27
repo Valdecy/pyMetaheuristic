@@ -17,7 +17,7 @@ class SAMSOEngine(BaseEngine):
     family         = "swarm"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=40, Wnc=1, Pr=0.5)
-    _REFERENCE     = dict(doi="10.1109/TCYB.2019.2950169")
+    _REFERENCE     = dict(doi="10.1109/TCYB.2020.2967553")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)
@@ -215,7 +215,7 @@ class MiSACOEngine(BaseEngine):
     family         = "swarm"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=60, No=100)
-    _REFERENCE     = dict(doi="10.1109/TCYB.2020.3035521")
+    _REFERENCE     = dict(doi="10.1109/TCYB.2021.3064676")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)
@@ -317,7 +317,7 @@ class SAPOEngine(BaseEngine):
     family         = "evolutionary"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=100, F=0.5, CR=0.9, initsize1=100, initsize2=200)
-    _REFERENCE     = dict(doi="10.1007/978-3-031-70085-9_22")
+    _REFERENCE     = dict(doi="10.1007/978-3-031-70068-2_24")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

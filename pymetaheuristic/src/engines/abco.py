@@ -13,7 +13,7 @@ class ABCOEngine(BaseEngine):
     algorithm_id   = "abco"
     algorithm_name = "Artificial Bee Colony Optimization"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/978-3-540-72950-1_77"}
+    _REFERENCE     = {"doi": "10.1007/s10898-007-9149-x"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS = dict(food_sources=20, employed_bees=5, outlookers_bees=5, limit=10)
 

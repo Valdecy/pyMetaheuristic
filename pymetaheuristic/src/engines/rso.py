@@ -8,7 +8,7 @@ class RSOEngine(PortedPopulationEngine):
     algorithm_id   = "rso"
     algorithm_name = "Rat Swarm Optimizer"
     family         = "swarm"
-    _REFERENCE     = {"doi": "10.1007/s12652-020-02073-6"}
+    _REFERENCE     = {"doi": "10.1007/s12652-020-02580-0"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

@@ -8,7 +8,7 @@ class TOCEngine(PortedPopulationEngine):
     algorithm_id   = "toc"
     algorithm_name = "Tornado Optimizer with Coriolis Force"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1016/j.eswa.2023.120701"}
+    _REFERENCE     = {"doi": "10.1007/s10462-025-11118-9"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)

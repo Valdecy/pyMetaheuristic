@@ -18,7 +18,7 @@ class CMAESEngine(BaseEngine):
     family         = "evolutionary"
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
     _DEFAULTS      = dict(population_size=20)
-    _REFERENCE     = dict(doi="10.1162/106365602760972767")
+    _REFERENCE     = dict(doi="10.1109/ICEC.1996.542381")
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
         super().__init__(problem, config)

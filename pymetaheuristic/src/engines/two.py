@@ -9,7 +9,7 @@ class TWOEngine(PortedPopulationEngine):
     algorithm_id   = "two"
     algorithm_name = "Tug of War Optimization"
     family         = "physics"
-    _REFERENCE     = {"doi": "10.1016/j.procs.2020.03.063"}
+    _REFERENCE     = {"doi": "10.1007/978-3-030-04067-3_11"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

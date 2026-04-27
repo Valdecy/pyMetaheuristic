@@ -9,7 +9,7 @@ class EAOEngine(PortedPopulationEngine):
     algorithm_id   = "eao"
     algorithm_name = "Enzyme Activity Optimizer"
     family         = "nature"
-    _REFERENCE     = {"doi": "10.3390/math12213326"}
+    _REFERENCE     = {"doi": "10.1007/s11227-025-07052-w"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True,

@@ -8,7 +8,7 @@ class ETOEngine(PortedPopulationEngine):
     algorithm_id   = "eto"
     algorithm_name = "Exponential-Trigonometric Optimization"
     family         = "math"
-    _REFERENCE     = {"doi": "10.1016/j.asoc.2023.110148"}
+    _REFERENCE     = {"doi": "10.1016/j.cma.2024.117411"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
     _DEFAULTS = dict(population_size=30)
