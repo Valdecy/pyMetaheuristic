@@ -6,7 +6,7 @@ from ._ported_common import PortedPopulationEngine
 
 class SHIOEngine(PortedPopulationEngine):
     """Spotted Hyena Inspired Optimizer — three-best encircling attack (CDO-like) with shrinking a."""
-    algorithm_id = "shio"; algorithm_name = "Spotted Hyena Inspired Optimizer"; family = "math"
+    algorithm_id = "shio"; algorithm_name = "Spotted Hyena Inspired Optimizer"; family = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.advengsoft.2017.05.014"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)
