@@ -1,12 +1,12 @@
-"""pyMetaheuristic src — Prominent Space Search Engine"""
+"""pyMetaheuristic src — Pareto Sequential Sampling Engine"""
 from __future__ import annotations
 import numpy as np
 from .protocol import CapabilityProfile
 from ._ported_common import PortedPopulationEngine
 
 class PSSEngine(PortedPopulationEngine):
-    """Prominent Space Search — acceptance-rate-guided prominent vs full-domain sampling."""
-    algorithm_id = "pss"; algorithm_name = "Prominent Space Search"; family = "math"
+    """Pareto Sequential Sampling — acceptance-rate-guided prominent vs full-domain sampling."""
+    algorithm_id = "pss"; algorithm_name = "Pareto Sequential Sampling"; family = "math"
     _REFERENCE     = {"doi": "10.1007/s00500-020-05274-3"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

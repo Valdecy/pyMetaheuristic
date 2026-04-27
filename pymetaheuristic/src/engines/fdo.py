@@ -1,4 +1,4 @@
-"""pyMetaheuristic src — Flying Dobsonflies Optimizer Engine"""
+"""pyMetaheuristic src — Fitness Dependent Optimizer Engine"""
 from __future__ import annotations
 import math, numpy as np
 from .protocol import CapabilityProfile
@@ -9,7 +9,7 @@ def _levy_fdo(dim):
     return 0.01*np.random.normal(0,s,dim)/np.abs(np.random.normal(0,1,dim))**(1/beta)
 
 class FDOEngine(PortedPopulationEngine):
-    """Flying Dobsonflies Optimizer — fitness-weighted Lévy steps toward global best."""
+    """Fitness Dependent Optimizer — fitness-weighted Lévy steps toward global best."""
     algorithm_id = "fdo"; algorithm_name = "Flying Dobsonflies Optimizer"; family = "swarm"
     _REFERENCE     = {"doi": "10.1016/j.knosys.2020.105574"}
     capabilities = CapabilityProfile(has_population=True, supports_candidate_injection=True,
