@@ -1018,7 +1018,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'sso'               : 'swarm',
     'sparrow_sa'        : 'swarm',
     'smo'               : 'swarm',
-    'shio'              : 'math',
+    'shio'              : 'swarm',
     'sho'               : 'swarm',
     'squirrel_sa'       : 'swarm',
     'soo'               : 'physics',
