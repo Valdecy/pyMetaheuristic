@@ -41,7 +41,20 @@ from .src.schemas import (
     OrchestratorSnapshot,
     RulesConfig,
 )
-from .src.test_functions import FUNCTIONS, get_test_function
+from .src.test_functions import (
+    FUNCTIONS,
+    TEST_FUNCTIONS,
+    ENGINEERING_BENCHMARKS,
+    get_test_function,
+    get_test_function_info,
+    list_test_functions,
+    get_engineering_benchmark,
+    list_engineering_benchmarks,
+    validate_known_optima,
+    validate_engineering_benchmarks,
+    get_cec2022_optimum,
+    validate_cec2022_optima,
+)
 from .src.actions import estimate_action_cost
 from .src.telemetry import (
     convergence_data,
@@ -73,6 +86,7 @@ from .src.utils import (
     ChaoticMap,
     FloatVar,
     FunctionalProblem,
+    ConstrainedFunctionalProblem,
     IntegerVar,
     PermutationVar,
     Problem,
@@ -92,6 +106,10 @@ from .src.utils import (
     get_init_function,
     get_repair_function,
     get_test_problem,
+    list_test_problems,
+    list_engineering_problems,
+    get_engineering_problem,
+    get_engineering_problem_spec,
     lhs_population,
     levy_flight,
     limit,
@@ -115,10 +133,20 @@ from .src.io import (
     save_result,
 )
 
-__version__ = "5.7.9"
+__version__ = "5.8.0"
 
 __all__ = [
     "FUNCTIONS",
+    "TEST_FUNCTIONS",
+    "ENGINEERING_BENCHMARKS",
+    "list_test_functions",
+    "get_test_function_info",
+    "get_engineering_benchmark",
+    "list_engineering_benchmarks",
+    "validate_known_optima",
+    "validate_engineering_benchmarks",
+    "get_cec2022_optimum",
+    "validate_cec2022_optima",
     "ActionOutcome", "ActionSpec", "AgentSnapshot",
     "ARGUMENT_REFERENCE",
     "Callback", "CallbackList", "EarlyStopping", "HistoryRecorder", "ProgressPrinter",
@@ -155,9 +183,12 @@ __all__ = [
     "rand", "reflect", "wang",
     "AVAILABLE_INIT_STRATEGIES", "get_init_function", "uniform_population",
     "lhs_population", "obl_population", "sobol_population", "chaotic_init_function",
-    "Problem", "FunctionalProblem", "SphereProblem", "RastriginProblem",
+    "Problem", "FunctionalProblem", "ConstrainedFunctionalProblem",
+    "SphereProblem", "RastriginProblem",
     "AckleyProblem", "RosenbrockProblem", "ZakharovProblem", "full_array",
     "levy_flight",
+    "list_test_problems", "list_engineering_problems",
+    "get_engineering_problem", "get_engineering_problem_spec",
     "HyperparameterTuner", "BenchmarkRunner",
     "load_checkpoint", "load_result",
     "result_from_json", "result_to_json",
