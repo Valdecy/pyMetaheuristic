@@ -15,6 +15,7 @@ from .protocol import (
     ProblemSpec,
 )
 
+from .aaa                import AAAEngine
 from .adam               import AdamEngine
 from .acgwo              import ACGWOEngine
 from .aesspso            import AESSPSOEngine
@@ -302,7 +303,7 @@ from .zoa                import ZOAEngine
 
 
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
-    AdamEngine, ACGWOEngine, AESSPSOEngine, ARSEngine, AFTEngine, AVOAEngine, ASOEngine,
+    AAAEngine, AdamEngine, ACGWOEngine, AESSPSOEngine, ARSEngine, AFTEngine, AVOAEngine, ASOEngine,
     ACOEngine, ACOREngine, ALOEngine, AOEngine, ARCHOAEngine, AOAEngine, ArtemisininOEngine,
     ABCOEngine, AEOEngine, AEFAEngine, AFSAEngine, AGTOEngine, AHAEngine, ALAEngine, APOEngine,
     AROEngine, AutoVEngine, BCOEngine, BFOEngine, BESEngine, BMOEngine, BATAEngine, BROEngine,
@@ -366,7 +367,7 @@ __all__ = [
 
 # Table-derived algorithm IDs.
 _TABLE_ALGORITHM_IDS: set[str] = {
-    'adam', 'acgwo', 'aesspso', 'ars', 'aft', 'avoa', 'aso', 'aco', 'acor', 'alo', 'ao', 'arch_oa',
+    'aaa', 'adam', 'acgwo', 'aesspso', 'ars', 'aft', 'avoa', 'aso', 'aco', 'acor', 'alo', 'ao', 'arch_oa',
     'aoa', 'artemisinin_o', 'abco', 'aeo', 'aefa', 'afsa', 'agto', 'aha', 'ala', 'apo', 'aro',
     'autov', 'bco', 'bfo', 'bes', 'bmo', 'bat_a', 'bro', 'bea', 'bfgs', 'bspga', 'bbo', 'bsa',
     'bwo', 'bka', 'bono', 'bso', 'bboa', 'boa', 'camel', 'capsa', 'cat_so', 'chameleon_sa', 'cgo',
@@ -396,7 +397,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
 
 # Algorithms marked as population-based in the table.
 _POPULATION_BASED: set[str] = {
-    'acgwo', 'aesspso', 'ars', 'aft', 'avoa', 'aso', 'aco', 'acor', 'alo', 'ao', 'arch_oa', 'aoa',
+    'aaa', 'acgwo', 'aesspso', 'ars', 'aft', 'avoa', 'aso', 'aco', 'acor', 'alo', 'ao', 'arch_oa', 'aoa',
     'artemisinin_o', 'abco', 'aeo', 'aefa', 'afsa', 'agto', 'aha', 'ala', 'apo', 'aro', 'autov',
     'bco', 'bfo', 'bes', 'bmo', 'bat_a', 'bro', 'bea', 'bspga', 'bbo', 'bsa', 'bwo', 'bka', 'bono',
     'bso', 'bboa', 'boa', 'camel', 'capsa', 'cat_so', 'chameleon_sa', 'cgo', 'cddo', 'cdo',
@@ -488,6 +489,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
 
 # Optional descriptive metadata from the table.
 _ALGORITHM_NAMES: dict[str, str] = {
+    'aaa'               : 'Artificial Algae Algorithm',
     'adam'              : 'Adam (Adaptive Moment Estimation)',
     'acgwo'             : 'Adaptive Chaotic Grey Wolf Optimizer',
     'aesspso'           : 'Adaptive Exploration State-Space Particle Swarm Optimization',
@@ -775,6 +777,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
 }
 
 _ALGORITHM_FAMILIES: dict[str, str] = {
+    'aa'                : 'swarm',
     'adam'              : 'math',
     'acgwo'             : 'swarm',
     'aesspso'           : 'swarm',
@@ -1062,6 +1065,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
 }
 
 _ALGORITHM_DOIS: dict[str, str] = {
+    'aaa'               : '10.1016/j.asoc.2015.03.003',
     'adam'              : '10.48550/arXiv.1412.6980',
     'acgwo'             : '10.1007/s42835-023-01621-w',
     'aesspso'           : '10.1016/j.swevo.2025.101868',
