@@ -61,7 +61,20 @@ from .telemetry import (
     summarize_result,
 )
 from .termination import Termination
-from .test_functions import FUNCTIONS, get_test_function
+from .test_functions import (
+    FUNCTIONS,
+    TEST_FUNCTIONS,
+    ENGINEERING_BENCHMARKS,
+    get_test_function,
+    get_test_function_info,
+    list_test_functions,
+    get_engineering_benchmark,
+    list_engineering_benchmarks,
+    validate_known_optima,
+    validate_engineering_benchmarks,
+    get_cec2022_optimum,
+    validate_cec2022_optima,
+)
 from .actions import estimate_action_cost
 from .tuner import BenchmarkRunner, HyperparameterTuner
 from .utils import (
@@ -76,6 +89,7 @@ from .utils import (
     ChaoticMap,
     FloatVar,
     FunctionalProblem,
+    ConstrainedFunctionalProblem,
     IntegerVar,
     PermutationVar,
     Problem,
@@ -95,6 +109,10 @@ from .utils import (
     get_init_function,
     get_repair_function,
     get_test_problem,
+    list_test_problems,
+    list_engineering_problems,
+    get_engineering_problem,
+    get_engineering_problem_spec,
     lhs_population,
     levy_flight,
     limit,
@@ -139,6 +157,16 @@ from .graphs import (
 
 __all__ = [
     "FUNCTIONS",
+    "TEST_FUNCTIONS",
+    "ENGINEERING_BENCHMARKS",
+    "list_test_functions",
+    "get_test_function_info",
+    "get_engineering_benchmark",
+    "list_engineering_benchmarks",
+    "validate_known_optima",
+    "validate_engineering_benchmarks",
+    "get_cec2022_optimum",
+    "validate_cec2022_optima",
     "ActionOutcome", "ActionSpec", "AgentSnapshot",
     "ARGUMENT_REFERENCE",
     "Callback", "CallbackList", "EarlyStopping", "HistoryRecorder", "ProgressPrinter", "callbacks",
@@ -178,12 +206,15 @@ __all__ = [
     "vstf_01", "vstf_02", "vstf_03", "vstf_04",
     "sstf_01", "sstf_02", "sstf_03", "sstf_04",
     "HyperparameterTuner", "BenchmarkRunner", "tuner",
-    "Problem", "FunctionalProblem", "SphereProblem", "RastriginProblem",
+    "Problem", "FunctionalProblem", "ConstrainedFunctionalProblem",
+    "SphereProblem", "RastriginProblem",
     "AckleyProblem", "RosenbrockProblem", "ZakharovProblem", "full_array",
     "get_init_function", "uniform_population", "lhs_population", "obl_population",
     "sobol_population", "chaotic_init_function",
     "get_repair_function", "limit", "limit_inverse", "rand", "reflect", "wang",
     "levy_flight",
+    "list_test_problems", "list_engineering_problems",
+    "get_engineering_problem", "get_engineering_problem_spec",
     "io", "load_checkpoint", "load_result",
     "result_from_json", "result_to_json",
     "save_checkpoint", "save_result",
