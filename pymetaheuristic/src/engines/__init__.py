@@ -734,7 +734,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'shio'              : 'Spotted Hyena Inspired Optimizer',
     'sho'               : 'Spotted Hyena Optimizer',
     'squirrel_sa'       : 'Squirrel Search Algorithm',
-    'soo'               : 'Star Oscillator Optimization',
+    'soo'               : 'Stellar Oscillator Optimization',
     'sfoa'              : 'Starfish Optimization Algorithm',
     'sd'                : 'Steepest Descent',
     'spbo'              : 'Student Psychology Based Optimization',

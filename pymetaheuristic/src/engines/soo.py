@@ -1,13 +1,13 @@
-"""pyMetaheuristic src — Star Oscillator Optimization Engine"""
+"""pyMetaheuristic src — Stellar Oscillator Optimization Engine"""
 from __future__ import annotations
 import numpy as np
 from .protocol import CapabilityProfile
 from ._ported_common import PortedPopulationEngine
 
 class SOOEngine(PortedPopulationEngine):
-    """Star Oscillator Optimization — sine/cosine oscillation around top-3 stars."""
+    """Stellar Oscillator Optimization — sine/cosine oscillation around top-3 stars."""
     algorithm_id   = "soo"
-    algorithm_name = "Star Oscillator Optimization"
+    algorithm_name = "Stellar Oscillator Optimization"
     family         = "physics"
     _REFERENCE     = {"doi": "10.1007/s10586-024-04976-5"}
     capabilities   = CapabilityProfile(
