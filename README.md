@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **284 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families. 
+A Python library for metaheuristic optimization and collaborative search, bringing together **285 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, bio-inspired, human-inspired, and mathematical families. 
 
 ## A. **Version Note**
 
@@ -22,6 +22,8 @@ For legacy, the old library can still be installed with:
 ```bash
 pip install pymetaheuristic==1.9.5
 ```
+
+## B. **pymetaheuristic Lab**
 
 New to Python or prefer a graphical interface? The **pymetaheuristic Lab** provides a convenient Web App to run optimizations without writing extensive code.
 
@@ -41,9 +43,9 @@ pymetaheuristic.web.web_stop()
 
 * [Preview -- **pyMetaheuristic Lab** -- in Google Colab](https://colab.research.google.com/drive/1ouIGIrD0QNMuTPC2diTqGoY4v6gxb0xt?usp=sharing)
 
-_Colab mode is intended for quick demos only. For the best experience, run the Web UI locally or open it directly in a full browser._
+_This Google Colab Demo is intended for quick demos only. For the best experience, run the Web UI locally or open it directly in a full browser._
 
-## B. **Summary** 
+## C. **Summary** 
 
 1. [Introduction](#1-introduction)
 2. [Installation and Package Overview](#2-installation-and-package-overview)
@@ -322,7 +324,7 @@ def easom(x = [0, 0]):
     x1, x2 = x
     return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
-result = pymetaheuristic.coperative_optimize(
+result = pymetaheuristic.cooperative_optimize(
 					islands            = [
 											{"algorithm": "pso",  "config": {"swarm_size": 25}},
 											{"algorithm": "ga",   "config": {}},
@@ -693,6 +695,7 @@ The table below summarizes the optimization engines currently available in the l
 | Archimedes Optimization Algorithm | `arch_oa` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10489-020-01893-z) |
 | Arithmetic Optimization Algorithm | `aoa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.cma.2020.113609) |
 | Artemisinin Optimization | `artemisinin_o` | nature | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.displa.2024.102740) |
+| Artificial Algae Algorithm | `aaa` | swarm | Yes | No | Yes | Yes | [Paper](https://doi.org/10.1016/j.asoc.2015.03.003) |
 | Artificial Bee Colony Optimization | `abco` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10898-007-9149-x) |
 | Artificial Ecosystem Optimization | `aeo` | human | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s00521-019-04452-x) |
 | Artificial Electric Field Algorithm | `aefa` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.swevo.2019.03.013) |
@@ -925,9 +928,9 @@ The table below summarizes the optimization engines currently available in the l
 | Spotted Hyena Inspired Optimizer | `shio` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
 | Spotted Hyena Optimizer | `sho` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2017.05.014) |
 | Squirrel Search Algorithm | `squirrel_sa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.swevo.2018.02.013) |
-| Star Oscillator Optimization | `soo` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10586-024-04976-5) |
 | Starfish Optimization Algorithm | `sfoa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s00521-024-10694-1) |
 | Steepest Descent | `sd` | math | No | No | No | No | [Paper](https://doi.org/10.1006/hmat.1996.2146) |
+| Stellar Oscillator Optimization | `soo` | physics | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10586-024-04976-5) |
 | Student Psychology Based Optimization | `spbo` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1016/j.advengsoft.2020.102804) |
 | Success-History Adaptive Differential Evolution | `shade` | evolutionary | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1109/CEC.2014.6900380) |
 | Superb Fairy-wren Optimization Algorithm | `superb_foa` | swarm | Yes | Yes | No | Yes | [Paper](https://doi.org/10.1007/s10586-024-04901-w) |
@@ -1000,112 +1003,144 @@ pymetaheuristic.plot_function_3d(
 							    )
 ```
 
-The table below summarizes the benchmark functions currently available in the library. The **Test Function** column reports the conventional function name, **ID** gives the callable identifier used in the codebase (when importing from `pymetaheuristic.src.test_functions`), **Optimal Solution** describes the known global optimum in terms of objective value and, when applicable, the corresponding decision vector, and **Origin** points to the main reference or official source associated with that benchmark.
+The table below summarizes the benchmark functions currently available in the library. The **Function** column reports the conventional function name, **ID** gives the callable identifier used in the codebase (when importing from `pymetaheuristic.src.test_functions`), **Domain** and  **Global Minimum** describes, when applicable, the corresponding decision vector, and the known global optimum in terms of objective value.
 
-| Test Function | ID | Optimal Solution | Origin |
+### Benchmark Function Optima
+
+All functions below use the **minimization** convention.
+**Notation**
+
+| Symbol | Meaning |
+|---|---|
+| *D* | Number of decision variables. |
+| *x*<sup>*</sup> | Global minimizer. |
+| *f*<sup>*</sup> | Global minimum value. |
+| 0<sub>D</sub> | *D*-dimensional vector of zeros. |
+| 1<sub>D</sub> | *D*-dimensional vector of ones. |
+
+### 2-Dimensional Functions
+
+| Function | ID | Domain | Global Minimum |
 |---|---|---|---|
-| Ackley | `ackley` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Alpine 1 | `alpine_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
+| Ackley | `ackley` | [-32.768, 32.768]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Beale | `beale` | [-4.5, 4.5]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (3, 0.5) |
+| Bohachevsky F1 | `bohachevsky_1` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Bohachevsky F2 | `bohachevsky_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Bohachevsky F3 | `bohachevsky_3` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Booth | `booth` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 3) |
+| Branin RCOS | `branin_rcos` | *x<sub>1</sub>* ∈ [-5, 10], *x<sub>2</sub>* ∈ [0, 15] | *f*<sup>*</sup> = 0.3978873577 at (-π, 12.275), (π, 2.275), (3π, 2.475) |
+| Bukin F6 | `bukin_6` | *x<sub>1</sub>* ∈ [-15, -5], *x<sub>2</sub>* ∈ [-3, 3] | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (-10, 1) |
+| Cross-in-Tray | `cross_in_tray` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -2.0626118708 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±1.349406609, ±1.349406609) |
+| Drop-Wave | `drop_wave` | [-5.12, 5.12]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Easom | `easom` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (π, π) |
+| Eggholder | `eggholder` | [-512, 512]<sup>2</sup> | *f*<sup>*</sup> ≈ -959.6407; *(x<sub>1</sub>, x<sub>2</sub>)* ≈ (512, 404.2319) |
+| Goldstein-Price | `goldstein_price` | [-2, 2]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 3; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, -1) |
+| Himmelblau | `himmelblau` | [-5, 5]<sup>2</sup> | *f*<sup>*</sup> = 0 at (3, 2), (-2.805118, 3.131312), (-3.779310, -3.283186), (3.584428, -1.848126) |
+| Hölder Table | `holder_table` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -19.208502568 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±8.055023472, ±9.664590029) |
+| Levi F13 | `levi_13` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 1) |
+| Matyas | `matyas` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| McCormick | `mccormick` | *x<sub>1</sub>* ∈ [-1.5, 4], *x<sub>2</sub>* ∈ [-3, 4] | *f*<sup>*</sup> ≈ -1.913222955; *(x<sub>1</sub>, x<sub>2</sub>)* ≈ (-0.54719756, -1.54719756) |
+| Schaffer F2 | `schaffer_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Schaffer F4 | `schaffer_4` | [-100, 100]<sup>2</sup> | *f*<sup>*</sup> ≈ 0.292578632 at (0, ±1.25313), (±1.25313, 0) |
+| Schaffer F6 | `schaffer_6` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
+| Six-Hump Camel Back | `six_hump_camel_back` | *x<sub>1</sub>* ∈ [-3, 3], *x<sub>2</sub>* ∈ [-2, 2] | *f*<sup>*</sup> ≈ -1.031628453 at (0.089842, -0.712656), (-0.089842, 0.712656) |
+| Three-Hump Camel Back | `three_hump_camel_back` | [-5, 5]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 
-<details>
-<summary><b>🔍 View complete Test Functions reference table</b></summary>
-<br/>
+### D-Dimensional Functions
 
-
-| Test Function | ID | Optimal Solution | Origin |
+| Function | ID | Domain | Global Minimum |
 |---|---|---|---|
-| Ackley | `ackley` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Alpine 1 | `alpine_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Alpine 2 | `alpine_2` | *f(x<sub>i</sub>)* = (2.808)<sup>n</sup>; *x<sub>i</sub>* ≈ 7.917 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Axis Parallel Hyper-Ellipsoid | `axis_parallel_hyper_ellipsoid` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Beale | `beale` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (3,0.5) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bent Cigar | `bent_cigar` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Bohachevsky F1 | `bohachevsky_1` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bohachevsky F2 | `bohachevsky_2` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bohachevsky F3 | `bohachevsky_3` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Booth | `booth` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (1,3) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Branin RCOS | `branin_rcos` | *f(x<sub>i</sub>)* ≈ 0.397887 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Bukin F6 | `bukin_6` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (-10,1) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Chung-Reynolds | `chung_reynolds` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Cosine Mixture | `cosine_mixture` | **Note<sup>1</sup>** | [Paper](http://infinity77.net/global_optimization/test_functions_nd_C.html#go_benchmark.CosineMixture) |
-| Cross in Tray | `cross_in_tray` | *f(x<sub>i</sub>)* = -2.06261 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Csendes | `csendes` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| De Jong F1 | `de_jong_1` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Discus | `discus` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Dixon-Price | `dixon_price` | **Note<sup>2</sup>** | [Paper](https://www.sfu.ca/~ssurjano/dixonpr.html) |
-| Drop Wave | `drop_wave` | *f(x<sub>i</sub>)* = -1; *x<sub>i</sub>* = 0 | [Paper](https://robertmarks.org/Classes/ENGR5358/Papers/functions.pdf) |
-| Easom | `easom` | *f(x<sub>i</sub>)* = -1; (π,π) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Eggholder | `eggholder` | *f(x<sub>i</sub>)* = -959.64 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Elliptic | `elliptic` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Expanded Griewank plus Rosenbrock | `expanded_griewank_plus_rosenbrock` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Goldstein-Price | `goldstein_price` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 3; (0,-1) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Griewangk F8 | `griewangk_8` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Happy Cat | `happy_cat` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -1 | [Paper](http://bee22.com/manual/tf_images/Liang%20CEC2014.pdf) |
-| HGBat | `hgbat` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -1 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Himmelblau | `himmelblau` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (3,2) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Holder Table | `holder_table` | *f(x<sub>i</sub>)* ≈ -19.2085 | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
-| Katsuura | `katsuura` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.geocities.ws/eadorio/mvf.pdf) |
-| Levi | `levy` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://www.sfu.ca/~ssurjano/levy.html) |
-| Levi F13 | `levi_13` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (1,1) | [Paper](https://mpra.ub.uni-muenchen.de/2718/1/MPRA_paper_2718.pdf) |
-| Matyas | `matyas` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| McCormick | `mccormick` | *f(x<sub>i</sub>)* ≈ -1.9133 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Michalewicz | `michalewicz` | **Note<sup>3</sup>** | [Paper](https://www.sfu.ca/~ssurjano/michal.html) |
-| Modified Schwefel | `modified_schwefel` | **Note<sup>4</sup>** | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Perm | `perm` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1/*i* | [Paper](https://www.sfu.ca/~ssurjano/perm0db.html) |
-| Pinter | `pinter` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Powell | `powell` | **Note<sup>5</sup>** | [Paper](https://www.sfu.ca/~ssurjano/powell.html) |
-| Qing | `qing` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = ±√*i* | [Paper](https://arxiv.org/abs/1308.4008) |
-| Quintic | `quintic` | **Note<sup>6</sup>** | [Paper](https://arxiv.org/abs/1308.4008) |
-| Rastrigin | `rastrigin` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://doi.org/10.1007/978-3-031-14721-0_35) |
-| Ridge | `ridge` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www.cs.unm.edu/~neal.holts/dga/benchmarkFunction/ridge.html) |
-| Rosenbrocks Valley | `rosenbrocks_valley` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Salomon | `salomon` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schaffer F2 | `schaffer_2` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schaffer F4 | `schaffer_4` | *f(x<sub>i</sub>)* = 0.292579 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schaffer F6 | `schaffer_6` | *f(x<sub>1</sub>,x<sub>2</sub>)* = 0; (0,0) | [Paper](http://dx.doi.org/10.1016/j.cam.2017.04.047) |
-| Schumer-Steiglitz | `schumer_steiglitz` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schwefel | `schwefel` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* ≈ 420.97 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Schwefel 2.21 | `schwefel_221` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Schwefel 2.22 | `schwefel_222` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Six Hump Camel Back | `six_hump_camel_back` | *f(x<sub>i</sub>)* ≈ -1.0316 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Sphere 2 (Sum of Different Powers) | `sphere_2` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.sfu.ca/~ssurjano/sumpow.html) |
-| Sphere 3 (Rotated Hyper-Ellipsoid) | `sphere_3` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://www.sfu.ca/~ssurjano/rothyp.html) |
-| Step | `step` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Step 2 | `step_2` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = -0.5 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Step 3 | `step_3` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Stepint | `stepint` | **Note<sup>7</sup>** | [Paper](https://arxiv.org/abs/1308.4008) |
-| Styblinski-Tang | `styblinski_tang` | *f(x<sub>i</sub>)* ≈ -39.166*n*; *x<sub>i</sub>* ≈ -2.904 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Three Hump Camel Back | `three_hump_camel_back` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| Trid | `trid` | **Note<sup>8</sup>** | [Paper](https://www.sfu.ca/~ssurjano/trid.html) |
-| Weierstrass | `weierstrass` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](http://www5.zzu.edu.cn/__local/A/69/BC/D3B5DFE94CD2574B38AD7CD1D12_C802DAFE_BC0C0.pdf) |
-| Whitley | `whitley` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 1 | [Paper](https://arxiv.org/abs/1308.4008) |
-| Zakharov | `zakharov` | *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = 0 | [Paper](https://arxiv.org/pdf/1308.4008.pdf) |
-| CEC 2022 F1 | `cec_2022_f01` | *f(x<sub>i</sub>)* = 300; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F2 | `cec_2022_f02` | *f(x<sub>i</sub>)* = 400; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F3 | `cec_2022_f03` | *f(x<sub>i</sub>)* = 600; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F4 | `cec_2022_f04` | *f(x<sub>i</sub>)* = 800; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F5 | `cec_2022_f05` | *f(x<sub>i</sub>)* = 900; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F6 | `cec_2022_f06` | *f(x<sub>i</sub>)* = 1800; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F7 | `cec_2022_f07` | *f(x<sub>i</sub>)* = 2000; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F8 | `cec_2022_f08` | *f(x<sub>i</sub>)* = 2200; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F9 | `cec_2022_f09` | *f(x<sub>i</sub>)* = 2300; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F10| `cec_2022_f10` | *f(x<sub>i</sub>)* = 2400; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F11| `cec_2022_f11` | *f(x<sub>i</sub>)* = 2500; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
-| CEC 2022 F12| `cec_2022_f12` | *f(x<sub>i</sub>)* = 2700; **Note<sup>9</sup>** | [Paper](https://github.com/P-N-Suganthan/2022-SO-BO) |
+| Alpine 1 | `alpine_1` | [-10, 10]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* = 0, *i* = 1, ..., *D* |
+| Alpine 2 | `alpine_2` | [0, 10]<sup>D</sup> | *f*<sup>*</sup> ≈ -(2.808131180)<sup>D</sup>; *x<sub>i</sub>* ≈ 7.917052698 [N1] |
+| Axis Parallel Hyper-Ellipsoid | `axis_parallel_hyper_ellipsoid` | [-5.12, 5.12]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* = 0, *i* = 1, ..., *D* |
+| Bent Cigar | `bent_cigar` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Chung-Reynolds | `chung_reynolds` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Cosine Mixture | `cosine_mixture` | [-1, 1]<sup>D</sup> | *f(x)* = -0.1*D*; *x* = 0<sub>D</sub> [N1] |
+| Csendes | `csendes` | [-1, 1]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| De Jong F1 / Sphere | `de_jong_1` | [-5.12, 5.12]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Discus | `discus` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Dixon-Price | `dixon_price` | [-10, 10]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* = 2<sup>-((2<sup>i</sup> - 2) / 2<sup>i</sup>)</sup>, *i* = 1, ..., *D* |
+| Elliptic | `elliptic` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Expanded Griewank plus Rosenbrock | `expanded_griewank_plus_rosenbrock` | [-5, 5]<sup>D</sup> | *f(x)* = 0; *x* = 1<sub>D</sub> |
+| Griewank | `griewangk_8` | [-600, 600]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Happy Cat | `happy_cat` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = -1<sub>D</sub> |
+| HGBat | `hgbat` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = -1<sub>D</sub> |
+| Katsuura | `katsuura` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> [N2] |
+| Levy | `levy` | [-10, 10]<sup>D</sup> | *f(x)* = 0; *x* = 1<sub>D</sub> |
+| Michalewicz | `michalewicz` | [0, π]<sup>D</sup> | Dimension- and *m*-dependent [N3] |
+| Modified Schwefel | `modified_schwefel` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> [N4] |
+| Perm 0,d,beta | `perm` | [-D, D]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* = 1 / *i*, *i* = 1, ..., *D* |
+| Pinter | `pinter` | [-10, 10]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Powell | `powell` | [-4, 5]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> [N5] |
+| Qing | `qing` | [-500, 500]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* = ±√*i*, *i* = 1, ..., *D* |
+| Quintic | `quintic` | [-10, 10]<sup>D</sup> | *f(x)* = 0; each *x<sub>i</sub>* ∈ {-1, 2} |
+| Rastrigin | `rastrigin` | [-5.12, 5.12]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Ridge | `ridge` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> [N6] |
+| Rosenbrock Valley | `rosenbrocks_valley` | [-5, 10]<sup>D</sup> | *f(x)* = 0; *x* = 1<sub>D</sub> |
+| Salomon | `salomon` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Schumer-Steiglitz | `schumer_steiglitz` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Schwefel | `schwefel` | [-500, 500]<sup>D</sup> | *f(x)* = 0; *x<sub>i</sub>* ≈ 420.968746228, *i* = 1, ..., *D* |
+| Schwefel 2.21 | `schwefel_221` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Schwefel 2.22 | `schwefel_222` | [-100, 100]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Sphere 2 / Sum of Different Powers | `sphere_2` | [-1, 1]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Sphere 3 / Rotated Hyper-Ellipsoid | `sphere_3` | [-65.536, 65.536]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Step | `step` | [-100, 100]<sup>D</sup> | *f(x)* = 0; abs(*x<sub>i</sub>*) < 1 [N7] |
+| Step 2 | `step_2` | [-100, 100]<sup>D</sup> | *f(x)* = 0; -0.5 ≤ *x<sub>i</sub>* < 0.5 [N7] |
+| Step 3 | `step_3` | [-100, 100]<sup>D</sup> | *f(x)* = 0; abs(*x<sub>i</sub>*) < 1 [N7] |
+| Stepint | `stepint` | [-5.12, 5.12]<sup>D</sup> | *f*<sup>*</sup> = 25 - 6*D*; *x<sub>i</sub>* ∈ [-5.12, -5) [N8] |
+| Styblinski-Tang | `styblinski_tang` | [-5, 5]<sup>D</sup> | *f*<sup>*</sup> ≈ -39.166165704*D*; *x<sub>i</sub>* ≈ -2.903534028 |
+| Trid | `trid` | [-D<sup>2</sup>, D<sup>2</sup>]<sup>D</sup> | *f*<sup>*</sup> = -*D*(*D* + 4)(*D* - 1) / 6; *x<sub>i</sub>* = *i*(*D* + 1 - *i*) |
+| Weierstrass | `weierstrass` | [-0.5, 0.5]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
+| Whitley | `whitley` | [-10.24, 10.24]<sup>D</sup> | *f(x)* = 0; *x* = 1<sub>D</sub> |
+| Zakharov | `zakharov` | [-5, 10]<sup>D</sup> | *f(x)* = 0; *x* = 0<sub>D</sub> |
 
-#### Notes:
-* **Note<sup>1</sup>:** *f(x<sub>i</sub>)* = multimodal; *x<sub>i</sub>* = peak-seeking style test
-* **Note<sup>2</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = follows recursive optimum
-* **Note<sup>3</sup>:** *f(x<sub>i</sub>)* < 0; *x<sub>i</sub>* = known minima depend on *n* and *m*
-* **Note<sup>4</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = shifted Schwefel optimum
-* **Note<sup>5</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = blockwise optimum at zero
-* **Note<sup>6</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = multiple roots
-* **Note<sup>7</sup>:** *f(x<sub>i</sub>)* = 0; *x<sub>i</sub>* = piecewise integer floor optimum
-* **Note<sup>8</sup>:** *f(x<sub>i</sub>)* = depends on dimension
-* **Note<sup>9</sup>:** CEC 2022 functions are shifted and biased benchmark instances. The optimum point *x<sub>i</sub>* is defined by the official benchmark shift data. F1–F5 and F9–F12 support dimensions {2,10,20}; F6–F8 support only {10,20}.
+### CEC 2022 Functions
 
-<br/>
-</details>
+| Function | ID | Domain | Global Minimum |
+|---|---|---:|---:|
+| CEC 2022 F1 | `cec_2022_f01` | 2, 10, 20 | *f*<sup>*</sup> = 300 |
+| CEC 2022 F2 | `cec_2022_f02` | 2, 10, 20 | *f*<sup>*</sup> = 400 |
+| CEC 2022 F3 | `cec_2022_f03` | 2, 10, 20 | *f*<sup>*</sup> = 600 |
+| CEC 2022 F4 | `cec_2022_f04` | 2, 10, 20 | *f*<sup>*</sup> = 800 |
+| CEC 2022 F5 | `cec_2022_f05` | 2, 10, 20 | *f*<sup>*</sup> = 900 |
+| CEC 2022 F6 | `cec_2022_f06` | 10, 20 | *f*<sup>*</sup> = 1800 |
+| CEC 2022 F7 | `cec_2022_f07` | 10, 20 | *f*<sup>*</sup> = 2000 |
+| CEC 2022 F8 | `cec_2022_f08` | 10, 20 | *f*<sup>*</sup> = 2200 |
+| CEC 2022 F9 | `cec_2022_f09` | 2, 10, 20 | *f*<sup>*</sup> = 2300 |
+| CEC 2022 F10 | `cec_2022_f10` | 2, 10, 20 | *f*<sup>*</sup> = 2400 |
+| CEC 2022 F11 | `cec_2022_f11` | 2, 10, 20 | *f*<sup>*</sup> = 2600 |
+| CEC 2022 F12 | `cec_2022_f12` | 2, 10, 20 | *f*<sup>*</sup> = 2700 |
+
+### Engineering Design Benchmarks
+
+Engineering benchmarks expose an objective function, along with bounds and constraints. Use `get_engineering_benchmark("<id>")` to retrieve `objective`, `constraints`, `min_values`, `max_values`, and best-known metadata. Constraint functions follow the package convention *g(x)* ≤ 0.
+
+| Function | ID | Domain | Global Minimum | Constraints |
+|---|---|---|---|---|
+| Tension/compression spring design | `tension_spring` | *d* ∈ [0.05, 2], *D* ∈ [0.25, 1.30], *N* ∈ [2, 15] | *f*<sup>*</sup> ≈ 0.012665; *(d, D, N)* ≈ (0.05169, 0.35675, 11.2871) [N9] | 4 inequalities |
+| Welded beam design | `welded_beam` | *h* ∈ [0.1, 2], *l* ∈ [0.1, 10], *t* ∈ [0.1, 10], *b* ∈ [0.1, 2] | *f*<sup>*</sup> ≈ 1.724852; *(h, l, t, b)* ≈ (0.20573, 3.47049, 9.03662, 0.20573) | 7 inequalities |
+| Pressure vessel design, continuous relaxation | `pressure_vessel` | *T<sub>s</sub>*, *T<sub>h</sub>* ∈ [0, 99], *R* ∈ [10, 200], *L* ∈ [10, 240] | *f*<sup>*</sup> ≈ 5804.376217; *(T<sub>s</sub>, T<sub>h</sub>, R, L)* ≈ (0.727591, 0.359649, 37.699012, 240) [N10] | 4 inequalities |
+| Pressure vessel design, discrete thickness | `pressure_vessel_discrete` | *T<sub>s</sub>*, *T<sub>h</sub>* rounded upward to multiples of 1/16; *R* ∈ [10, 200], *L* ∈ [10, 240] | *f*<sup>*</sup> ≈ 6059.714335; *(T<sub>s</sub>, T<sub>h</sub>, R, L)* ≈ (0.8125, 0.4375, 42.098446, 176.636596) [N10] | 4 inequalities |
+| Speed reducer design | `speed_reducer` | 7 bounded design variables | *f*<sup>*</sup> ≈ 2994.471066; *x* ≈ (3.5, 0.7, 17, 7.3, 7.71532, 3.35021, 5.28665) | 11 inequalities |
+| Three-bar truss design | `three_bar_truss` | *A<sub>1</sub>*, *A<sub>2</sub>* ∈ [0, 1] | *f*<sup>*</sup> ≈ 263.895843; *(A<sub>1</sub>, A<sub>2</sub>)* ≈ (0.788675, 0.408248) | 3 inequalities |
+| Cantilever beam design | `cantilever_beam` | *x<sub>i</sub>* ∈ [0.01, 100], *i* = 1, ..., 5 | *f*<sup>*</sup> ≈ 1.339956; *x* ≈ (6.016016, 5.309173, 4.494330, 3.501475, 2.152665) | 1 inequality |
+| Gear train design | `gear_train` | integer *x<sub>i</sub>* ∈ [12, 60], *i* = 1, ..., 4 | *f*<sup>*</sup> ≈ 2.700857 × 10<sup>-12</sup>; *x* = (16, 19, 43, 49) [N11] | box + integrality |
+
+### Notes
+
+| Note | Meaning |
+|---|---|
+| N1 | Alpine 2 and Cosine Mixture have sign-convention traps in the literature. This package uses minimization-compatible signs. |
+| N2 | Katsuura is implemented as the product expression minus 1, so the exposed minimum is 0 at the origin. |
+| N3 | Michalewicz has no single dimension-free closed-form optimum. For *m* = 10, common reference values are approximately: *D* = 2, *f*<sup>*</sup> = -1.8013; *D* = 5, *f*<sup>*</sup> = -4.6877; *D* = 10, *f*<sup>*</sup> = -9.6602. |
+| N4 | Modified Schwefel is exposed in shifted CEC-style coordinates, so the visible optimizer is 0<sub>D</sub>. |
+| N5 | Powell requires *D* to be a multiple of 4. |
+| N6 | This is the cumulative ridge implementation, not the BBOB sharp-ridge function. |
+| N7 | Step functions have optimizer intervals, not isolated optimizer points. |
+| N8 | Stepint is bound-dependent. With bounds [-5.12, 5.12]<sup>D</sup>, *f*<sup>*</sup> = 25 - 6*D*; without bounds, it is unbounded below. |
+| N9 | Engineering-design rows are constrained benchmarks. The Python module exposes `get_engineering_benchmark(id)` so users can pass the returned objective, bounds, and constraints directly to `pymetaheuristic.optimize`. |
+| N10 | Pressure vessel has two common variants. `pressure_vessel` is the continuous relaxation; `pressure_vessel_discrete` rounds shell/head thickness upward to multiples of 1/16 before objective and constraint evaluation. |
+| N11 | Gear train is a discrete integer benchmark. The implementation rounds variables to the nearest integer tooth counts by default. |
 
 ## 5. **Other Libraries**
 
