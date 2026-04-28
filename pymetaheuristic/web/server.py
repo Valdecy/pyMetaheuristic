@@ -126,11 +126,19 @@ _EXCLUDE = {"get_test_function", "list_test_functions"}
 
 def _catalogue() -> list[dict]:
     names: list[str] = []
-    if hasattr(_tf, "FUNCTIONS") and isinstance(_tf.FUNCTIONS, dict):
-        names = list(_tf.FUNCTIONS.keys())
-    elif hasattr(_tf, "list_test_functions"):
+    if hasattr(_tf, "list_test_functions"):
         try:
+            names = list(_tf.list_test_functions(include_engineering=False))
+        except TypeError:
             names = list(_tf.list_test_functions())
+        except Exception:
+            pass
+    if not names and hasattr(_tf, "FUNCTIONS") and isinstance(_tf.FUNCTIONS, dict):
+        names = list(_tf.FUNCTIONS.keys())
+    if hasattr(_tf, "list_engineering_benchmarks"):
+        try:
+            engineering_ids = set(_tf.list_engineering_benchmarks())
+            names = [name for name in names if name not in engineering_ids]
         except Exception:
             pass
     if not names:
