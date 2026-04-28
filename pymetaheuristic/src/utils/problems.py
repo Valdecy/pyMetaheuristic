@@ -9,6 +9,7 @@ __all__ = [
     "full_array",
     "Problem",
     "FunctionalProblem",
+    "ConstrainedFunctionalProblem",
     "SphereProblem",
     "RastriginProblem",
     "AckleyProblem",
@@ -16,6 +17,10 @@ __all__ = [
     "ZakharovProblem",
     "TEST_PROBLEM_REGISTRY",
     "get_test_problem",
+    "list_test_problems",
+    "list_engineering_problems",
+    "get_engineering_problem",
+    "get_engineering_problem_spec",
 ]
 
 
@@ -38,8 +43,8 @@ class Problem(ABC):
 
     def __post_init__(self) -> None:
         self.dimension = int(self.dimension)
-        self.lower     = full_array(self.lower, self.dimension)
-        self.upper     = full_array(self.upper, self.dimension)
+        self.lower = full_array(self.lower, self.dimension)
+        self.upper = full_array(self.upper, self.dimension)
 
     def __call__(self, x) -> float:
         values = np.asarray(x, dtype=float).tolist()
@@ -80,6 +85,24 @@ class FunctionalProblem(Problem):
 
     def latex_expression(self) -> str:
         return str(self.latex)
+
+
+@dataclass
+class ConstrainedFunctionalProblem(FunctionalProblem):
+    """Functional benchmark wrapper with optional constraints and variable types."""
+
+    constraints: list[Callable[[list[float]], float]] = field(default_factory=list)
+    constraint_handler: str | None = "deb"
+    variable_types: list[str] | None = None
+
+    def to_problem_spec(self, objective: str = "min", constraints=None, constraint_handler=None, variable_types=None, metadata=None):
+        return super().to_problem_spec(
+            objective=objective,
+            constraints=self.constraints if constraints is None else constraints,
+            constraint_handler=self.constraint_handler if constraint_handler is None else constraint_handler,
+            variable_types=self.variable_types if variable_types is None else variable_types,
+            metadata=metadata,
+        )
 
 
 @dataclass
@@ -231,8 +254,64 @@ def _build_functional_problem(key: str, dimension: int, lower=None, upper=None):
     )
 
 
-def list_test_problems():
-    return sorted(set(TEST_PROBLEM_REGISTRY) | set(TEST_FUNCTION_PROBLEM_SPECS))
+def list_engineering_problems():
+    """Return engineering benchmark IDs available as constrained problem objects."""
+    from ..test_functions import list_engineering_benchmarks
+    return list_engineering_benchmarks()
+
+
+def get_engineering_problem_spec(name: str) -> dict[str, Any]:
+    """Return a copy of the engineering benchmark metadata used to build a Problem."""
+    from ..test_functions import get_engineering_benchmark
+    return get_engineering_benchmark(name)
+
+
+def _build_engineering_problem(key: str, lower=None, upper=None):
+    spec = get_engineering_problem_spec(key)
+    min_values = list(spec["min_values"] if lower is None else lower)
+    max_values = list(spec["max_values"] if upper is None else upper)
+    metadata = {
+        "source": "Engineering benchmark",
+        "benchmark_type": "engineering",
+        "best_known_position": spec.get("best_known_position"),
+        "best_known_fitness": spec.get("best_known_fitness"),
+        "notes": spec.get("notes"),
+    }
+    variable_types = None
+    if key == "gear_train":
+        variable_types = ["int"] * len(min_values)
+        metadata["discrete"] = True
+    elif key == "pressure_vessel_discrete":
+        metadata["discrete_thickness"] = True
+
+    return ConstrainedFunctionalProblem(
+        dimension=len(min_values),
+        lower=min_values,
+        upper=max_values,
+        name=key,
+        function=spec["objective"],
+        latex=str(spec.get("latex", key)),
+        constraints=list(spec.get("constraints", [])),
+        constraint_handler="deb" if spec.get("constraints") else None,
+        variable_types=variable_types,
+        metadata=metadata,
+    )
+
+
+def get_engineering_problem(name: str, lower=None, upper=None):
+    """Return an engineering design benchmark as a constrained FunctionalProblem."""
+    key = str(name).strip().lower()
+    names = list_engineering_problems()
+    if key not in names:
+        raise KeyError(f"Unknown engineering problem: {name}. Available: {', '.join(names)}")
+    return _build_engineering_problem(key, lower=lower, upper=upper)
+
+
+def list_test_problems(include_engineering: bool = True):
+    names = set(TEST_PROBLEM_REGISTRY) | set(TEST_FUNCTION_PROBLEM_SPECS)
+    if include_engineering:
+        names.update(list_engineering_problems())
+    return sorted(names)
 
 
 def get_test_problem(name: str, dimension: int = 2, lower=None, upper=None):
@@ -247,4 +326,6 @@ def get_test_problem(name: str, dimension: int = 2, lower=None, upper=None):
         return cls(**kwargs)
     if key in TEST_FUNCTION_PROBLEM_SPECS:
         return _build_functional_problem(key, dimension=dimension, lower=lower, upper=upper)
+    if key in list_engineering_problems():
+        return _build_engineering_problem(key, lower=lower, upper=upper)
     raise KeyError(f"Unknown problem class: {name}. Available: {', '.join(list_test_problems())}")

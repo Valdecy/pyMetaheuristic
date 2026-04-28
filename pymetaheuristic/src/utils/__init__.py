@@ -24,6 +24,7 @@ from .initialization import (
 from .problems import (
     Problem,
     FunctionalProblem,
+    ConstrainedFunctionalProblem,
     SphereProblem,
     RastriginProblem,
     AckleyProblem,
@@ -31,6 +32,10 @@ from .problems import (
     ZakharovProblem,
     full_array,
     get_test_problem,
+    list_test_problems,
+    list_engineering_problems,
+    get_engineering_problem,
+    get_engineering_problem_spec,
 )
 from .random import levy_flight
 from .repair import (
@@ -71,9 +76,11 @@ __all__ = [
     # random
     "levy_flight",
     # problems
-    "Problem", "FunctionalProblem", "SphereProblem", "RastriginProblem",
+    "Problem", "FunctionalProblem", "ConstrainedFunctionalProblem",
+    "SphereProblem", "RastriginProblem",
     "AckleyProblem", "RosenbrockProblem", "ZakharovProblem",
-    "full_array", "get_test_problem",
+    "full_array", "get_test_problem", "list_test_problems",
+    "list_engineering_problems", "get_engineering_problem", "get_engineering_problem_spec",
     # space
     "BaseVar", "BinaryVar", "CategoricalVar", "FloatVar",
     "IntegerVar", "PermutationVar",
