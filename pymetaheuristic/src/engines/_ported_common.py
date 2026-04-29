@@ -1,6 +1,7 @@
 """Shared utilities for native NumPy ports of additional engines."""
 from __future__ import annotations
 
+import math
 import warnings
 import numpy as np
 
@@ -16,6 +17,46 @@ from .protocol import (
 
 def _as_array(values) -> np.ndarray:
     return np.asarray(values, dtype=float)
+
+
+def safe_norm(x) -> float:
+    return float(np.linalg.norm(np.asarray(x, dtype=float)) + 1.0e-12)
+
+
+def levy_flight(dim: int, beta: float = 1.5, scale: float = 1.0) -> np.ndarray:
+    beta = float(beta)
+    sigma_u = (
+        math.gamma(1.0 + beta)
+        * math.sin(math.pi * beta / 2.0)
+        / (math.gamma((1.0 + beta) / 2.0) * beta * 2.0 ** ((beta - 1.0) / 2.0))
+    ) ** (1.0 / beta)
+    u = np.random.normal(0.0, sigma_u, int(dim))
+    v = np.random.normal(0.0, 1.0, int(dim))
+    step = u / (np.abs(v) ** (1.0 / beta) + 1.0e-12)
+    return float(scale) * step
+
+
+def cosine_distance_matrix(x: np.ndarray, y: np.ndarray | None = None) -> np.ndarray:
+    x = np.asarray(x, dtype=float)
+    y = x if y is None else np.asarray(y, dtype=float)
+    xn = np.linalg.norm(x, axis=1, keepdims=True)
+    yn = np.linalg.norm(y, axis=1, keepdims=True).T
+    sim = (x @ y.T) / (xn * yn + 1.0e-12)
+    return 1.0 - np.clip(sim, -1.0, 1.0)
+
+
+def weighted_mean_rows(rows: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    rows = np.asarray(rows, dtype=float)
+    w = np.asarray(weights, dtype=float).reshape(-1, 1)
+    denom = float(np.sum(w)) + 1.0e-12
+    return np.sum(rows * w, axis=0) / denom
+
+
+def top_indices(fit: np.ndarray, objective: str, k: int) -> np.ndarray:
+    idx = np.argsort(np.asarray(fit, dtype=float))
+    if str(objective).lower() == "max":
+        idx = idx[::-1]
+    return idx[:max(1, int(k))]
 
 
 class PortedPopulationEngine(BaseEngine):

@@ -301,6 +301,26 @@ from .wdo                import WDOEngine
 from .ydse               import YDSEEngine
 from .zoa                import ZOAEngine
 
+from .aho                import AHOEngine
+from .aso_atom           import ASOAtomEngine
+from .cddo_child         import CDDOChildEngine
+from .cdo_chernobyl      import CDOChornobylEngine
+from .ceo_cosmic         import CEOCosmicEngine
+from .foa_fossa          import FOAFossaEngine
+from .gja                import GJAEngine
+from .hba_honey          import HBAHoneyEngine
+from .loa_lyrebird       import LOALyrebirdEngine
+from .lshade_cnepsin     import LSHADECnEpSinEngine
+from .lso_spectrum       import LSOSpectrumEngine
+from .mgoa_market        import MGOAMarketEngine
+from .nwoa               import NWOAEngine
+from .shio_success       import SHIOSuccessEngine
+
+from .deo_dolphin        import DEODolphinEngine
+from .ikoa               import IKOAEngine
+
+
+
 
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AAAEngine, AdamEngine, ACGWOEngine, AESSPSOEngine, ARSEngine, AFTEngine, AVOAEngine, ASOEngine,
@@ -344,6 +364,10 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     TSOEngine, TSAEngine, VCSEngine, WAOAEngine, WARSOEngine, WCAEngine, WUTPEngine,
     WaveOptEngine, INFOEngine, WOAEngine, WSOEngine, WHOEngine, WDOEngine, YDSEEngine,
     ZOAEngine,
+    AHOEngine, ASOAtomEngine, CDDOChildEngine, CDOChornobylEngine, CEOCosmicEngine,
+    FOAFossaEngine, GJAEngine, HBAHoneyEngine, LOALyrebirdEngine, LSHADECnEpSinEngine,
+    LSOSpectrumEngine, MGOAMarketEngine, NWOAEngine, SHIOSuccessEngine,
+    DEODolphinEngine, IKOAEngine,
 )
 
 REGISTRY: dict[str, type[BaseEngine]] = {
@@ -393,6 +417,22 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'sacoso', 'sade_amss', 'sade_atdsc', 'sapo', 'sos', 'ts', 'tdo', 'tlbo', 'toa', 'tlco', 'thro',
     'toc', 'tpo', 'ttao', 'two', 'tso', 'tsa', 'vcs', 'waoa', 'warso', 'wca', 'wutp', 'wo_wave',
     'info', 'woa', 'wso', 'who', 'wdo', 'ydse', 'zoa',
+    'aho',
+    'aso_atom',
+    'cddo_child',
+    'cdo_chernobyl',
+    'ceo_cosmic',
+    'deo_dolphin',
+    'foa_fossa',
+    'gja',
+    'hba_honey',
+    'ikoa',
+    'loa_lyrebird',
+    'lshade_cnepsin',
+    'lso_spectrum',
+    'mgoa_market',
+    'nwoa',
+    'shio_success',
 }
 
 # Algorithms marked as population-based in the table.
@@ -422,6 +462,22 @@ _POPULATION_BASED: set[str] = {
     'superb_foa', 'supply_do', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sapo', 'sos',
     'tdo', 'tlbo', 'toa', 'tlco', 'thro', 'toc', 'tpo', 'ttao', 'two', 'tso', 'tsa', 'vcs', 'waoa',
     'warso', 'wca', 'wutp', 'wo_wave', 'info', 'woa', 'wso', 'who', 'wdo', 'ydse', 'zoa',
+    'aho',
+    'aso_atom',
+    'cddo_child',
+    'cdo_chernobyl',
+    'ceo_cosmic',
+    'deo_dolphin',
+    'foa_fossa',
+    'gja',
+    'hba_honey',
+    'ikoa',
+    'loa_lyrebird',
+    'lshade_cnepsin',
+    'lso_spectrum',
+    'mgoa_market',
+    'nwoa',
+    'shio_success',
 }
 
 # Algorithms marked as supporting native candidate injection in the table.
@@ -451,6 +507,22 @@ _INJECTION_ENABLED: set[str] = {
     'sacoso', 'sade_amss', 'sade_atdsc', 'sapo', 'sos', 'tdo', 'tlbo', 'toa', 'tlco', 'thro',
     'toc', 'tpo', 'ttao', 'two', 'tso', 'tsa', 'vcs', 'waoa', 'warso', 'wca', 'wutp', 'wo_wave',
     'info', 'woa', 'wso', 'who', 'wdo', 'ydse', 'zoa',
+    'aho',
+    'aso_atom',
+    'cddo_child',
+    'cdo_chernobyl',
+    'ceo_cosmic',
+    'deo_dolphin',
+    'foa_fossa',
+    'gja',
+    'hba_honey',
+    'ikoa',
+    'loa_lyrebird',
+    'lshade_cnepsin',
+    'lso_spectrum',
+    'mgoa_market',
+    'nwoa',
+    'shio_success',
 }
 
 # Algorithms marked as supporting restart in the table.
@@ -485,6 +557,22 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'superb_foa', 'supply_do', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sapo', 'sos',
     'tdo', 'tlbo', 'toa', 'tlco', 'thro', 'toc', 'tpo', 'ttao', 'two', 'tso', 'tsa', 'vcs', 'waoa',
     'warso', 'wca', 'wutp', 'wo_wave', 'info', 'woa', 'wso', 'who', 'wdo', 'ydse', 'zoa',
+    'aho',
+    'aso_atom',
+    'cddo_child',
+    'cdo_chernobyl',
+    'ceo_cosmic',
+    'deo_dolphin',
+    'foa_fossa',
+    'gja',
+    'hba_honey',
+    'ikoa',
+    'loa_lyrebird',
+    'lshade_cnepsin',
+    'lso_spectrum',
+    'mgoa_market',
+    'nwoa',
+    'shio_success',
 }
 
 # Optional descriptive metadata from the table.
@@ -774,10 +862,26 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'wdo'               : 'Wind Driven Optimization',
     'ydse'              : "Young's Double-Slit Experiment Optimizer",
     'zoa'               : 'Zebra Optimization Algorithm',
+    'aho'                : 'Archerfish Hunting Optimizer',
+    'aso_atom'           : 'Atom Search Optimization',
+    'cddo_child'         : 'Child Drawing Development Optimization Algorithm',
+    'cdo_chernobyl'      : 'Chernobyl Disaster Optimizer',
+    'ceo_cosmic'         : 'Cosmic Evolution Optimization',
+    'deo_dolphin'        : 'Dolphin Echolocation Optimization',
+    'foa_fossa'          : 'Fossa Optimization Algorithm',
+    'gja'                : 'Gekko Japonicus Algorithm',
+    'hba_honey'          : 'Honey Badger Algorithm',
+    'ikoa'               : 'Improved Kepler Optimization Algorithm',
+    'loa_lyrebird'       : 'Lyrebird Optimization Algorithm',
+    'lshade_cnepsin'     : 'LSHADE-cnEpSin',
+    'lso_spectrum'       : 'Light Spectrum Optimizer',
+    'mgoa_market'        : 'Market Game Optimization Algorithm',
+    'nwoa'               : 'Narwhal Optimizer',
+    'shio_success'       : 'Success History Intelligent Optimizer',
 }
 
 _ALGORITHM_FAMILIES: dict[str, str] = {
-    'aa'                : 'swarm',
+    'aaa'               : 'swarm',
     'adam'              : 'math',
     'acgwo'             : 'swarm',
     'aesspso'           : 'swarm',
@@ -1062,6 +1166,22 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'wdo'               : 'physics',
     'ydse'              : 'physics',
     'zoa'               : 'swarm',
+    'aho'               : 'swarm',
+    'aso_atom'          : 'physics',
+    'cddo_child'        : 'human',
+    'cdo_chernobyl'     : 'physics',
+    'ceo_cosmic'        : 'physics',
+    'deo_dolphin'       : 'swarm',
+    'foa_fossa'         : 'swarm',
+    'gja'               : 'swarm',
+    'hba_honey'         : 'swarm',
+    'ikoa'              : 'physics',
+    'loa_lyrebird'      : 'swarm',
+    'lshade_cnepsin'    : 'evolutionary',
+    'lso_spectrum'      : 'physics',
+    'mgoa_market'       : 'human',
+    'nwoa'              : 'swarm',
+    'shio_success'      : 'swarm',
 }
 
 _ALGORITHM_DOIS: dict[str, str] = {
@@ -1349,6 +1469,22 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'wdo'               : '10.1109/APS.2010.5562213',
     'ydse'              : '10.1016/j.cma.2022.115652',
     'zoa'               : '10.1109/ACCESS.2022.3172789',
+    'aho'                : '10.1016/j.engappai.2024.108081',
+    'aso_atom'           : '10.1016/j.knosys.2018.08.030',
+    'cddo_child'         : '10.1016/j.knosys.2024.111558',
+    'cdo_chernobyl'      : '10.1016/j.compstruc.2023.107488',
+    'ceo_cosmic'         : '10.1007/s00521-025-11234-6',
+    'deo_dolphin'        : '10.1016/j.advengsoft.2016.05.002',
+    'foa_fossa'          : '10.1007/s10462-024-10953-0',
+    'gja'                : '10.1016/j.eswa.2025.127982',
+    'hba_honey'          : '10.1016/j.matcom.2021.08.013',
+    'ikoa'               : '10.1016/j.eswa.2025.128216',
+    'loa_lyrebird'       : '10.1016/j.cma.2023.116436',
+    'lshade_cnepsin'     : '10.1109/CEC.2016.7744173',
+    'lso_spectrum'       : '10.1016/j.asoc.2024.112318',
+    'mgoa_market'        : '10.1016/j.asoc.2024.112466',
+    'nwoa'               : '10.1038/s41598-024-61278-8',
+    'shio_success'       : '10.1016/j.cma.2024.117272',
 }
 
 
