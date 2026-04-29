@@ -1919,7 +1919,10 @@ function setScaleById(chartId,scale,btn){
 async function pollJob(jid){
   try{
     const r=await fetch(`/api/jobs/${jid}`);
-    if(!r.ok)return;
+    if(!r.ok){
+      const txt=await r.text().catch(()=>r.statusText||'');
+      throw new Error(`Polling failed (${r.status}): ${txt||r.statusText||'Unknown server error'}`);
+    }
     const d=await r.json();
     const selt=document.getElementById('selt');if(selt)selt.textContent=`${d.elapsed??0}s`;
 
@@ -1937,7 +1940,13 @@ async function pollJob(jid){
     if(selectedMode==='single') updateSingleLive(d);
     else if(selectedMode==='benchmark') updateBmLive(d);
     else updateCollabLive(d);
-  }catch(e){}
+  }catch(e){
+    clearPoll();
+    setSt('error','Live update failed');
+    const ec=document.getElementById('err-card');ec?.classList.remove('hidden');
+    const eb=document.getElementById('err-body');if(eb)eb.textContent=e?.message||String(e);
+    setRunBtn(false);
+  }
 }
 
 function updateSingleLive(d){

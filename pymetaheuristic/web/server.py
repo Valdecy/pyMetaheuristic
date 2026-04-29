@@ -384,6 +384,19 @@ def _safe_float(v) -> float | None:
         return None
 
 
+def _json_safe(value):
+    """Recursively convert NumPy/pymetaheuristic scalar outputs into JSON-safe Python types."""
+    if isinstance(value, np.generic):
+        return value.item()
+    if isinstance(value, np.ndarray):
+        return [_json_safe(v) for v in value.tolist()]
+    if isinstance(value, dict):
+        return {k: _json_safe(v) for k, v in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [_json_safe(v) for v in value]
+    return value
+
+
 # ── ① SINGLE ─────────────────────────────────────────────────────────────────
 def _run_single(req: dict, state: dict) -> None:
     try:
@@ -1078,7 +1091,7 @@ def poll(jid: str) -> dict:
     s = _jobs.get(jid)
     if not s:
         raise HTTPException(404, "Job not found")
-    return {
+    return _json_safe({
         "id":               jid,
         "mode":             s["mode"],
         "status":           s["status"],
@@ -1104,7 +1117,7 @@ def poll(jid: str) -> dict:
         "status_text":        s.get("status_text", ""),
         "partial_rows":       s.get("partial_rows", []),
         "request":            s.get("request"),
-    }
+    })
 
 
 @app.delete("/api/jobs/{jid}")
@@ -1123,4 +1136,4 @@ def get_result(jid: str):
         raise HTTPException(404, "Job not found")
     if s["status"] != "done":
         raise HTTPException(409, "Job not finished yet")
-    return s["result"]
+    return _json_safe(s["result"])
