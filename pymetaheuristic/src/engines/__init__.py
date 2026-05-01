@@ -148,6 +148,7 @@ from .gmo                import GMOEngine
 from .gndo               import GNDOEngine
 from .go_growth          import GOGrowthEngine
 from .goa                import GOAEngine
+from .gpoo               import GPOOEngine
 from .gpso               import GPSOEngine
 from .gsa                import GSAEngine
 from .gska               import GSKAEngine
@@ -228,6 +229,7 @@ from .parrot_o           import ParrotOEngine
 from .pbil               import PBILEngine
 from .pcx                import PCXEngine
 from .pdo                import PDOEngine
+from .petio              import PETIOEngine
 from .pfa                import PFAEngine
 from .pfa_polar_fox      import PFAPolarFoxEngine
 from .pko                import PKOEngine
@@ -244,6 +246,7 @@ from .qsa                import QSAEngine
 from .random_s           import RANDOM_SEngine
 from .rbmo               import RBMOEngine
 from .rfo                import RFOEngine
+from .rhso               import RHSOEngine
 from .rime               import RIMEEngine
 from .rmsprop            import RMSPropEngine
 from .roa                import ROAEngine
@@ -337,7 +340,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     FBIOEngine, FDAEngine, FDOEngine, FEPEngine, FFAEngine, FFOEngine, FIREFLY_AEngine, FLAEngine,
     FOAEngine, FOAFossaEngine, FOXEngine, FPAEngine, FRCGEngine, FROFIEngine, FSSEngine, FloodAEngine,
     FWAEngine, GAEngine, GBOEngine, GCOEngine, GEAEngine, GGOEngine, GJAEngine, GJOEngine,
-    GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPSOEngine, GSAEngine, GSKAEngine,
+    GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPOOEngine, GPSOEngine, GSAEngine, GSKAEngine,
     GSOEngine, GSOGliderSnakeEngine, GTOEngine, GazelleOAEngine, GWOEngine, HBAEngine, HBAHoneyEngine, HBOEngine,
     HCEngine, HCOEngine, HDEEngine, HEOAEngine, HGSEngine, HGSOEngine, HHOEngine, HSAEngine,
     HSABAEngine, HUSEngine, HikingOAEngine, HippoEngine, HorseOAEngine, IAGWOEngine, ICAEngine, IKOAEngine,
@@ -347,9 +350,9 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     MFEA2Engine, MFEAEngine, MFAEngine, MGOAMarketEngine, MGOEngine, MKEEngine, MPAEngine, MRFOEngine,
     MSAEngine, MSHOAEngine, MSOEngine, MTSEngine, MVOEngine, MVPAEngine, MiSACOEngine, MossGOEngine,
     NCAEngine, NGOEngine, NMMEngine, NMRAEngine, NNDREASOEngine, NOAEngine, NROEngine, NWOAEngine,
-    OFAEngine, OOAEngine, PBILEngine, PCXEngine, PDOEngine, PFAEngine, PFAPolarFoxEngine, PKOEngine,
+    OFAEngine, OOAEngine, PBILEngine, PCXEngine, PDOEngine, PETIOEngine, PFAEngine, PFAPolarFoxEngine, PKOEngine,
     PLBAEngine, PLOEngine, POAEngine, PROEngine, PSOEngine, PSSEngine, ParrotOEngine, PoliticalOEngine,
-    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RFOEngine, RIMEEngine, RMSPropEngine,
+    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RFOEngine, RHSOEngine, RIMEEngine, RMSPropEngine,
     ROAEngine, RSAEngine, RSOEngine, RUNEngine, SADEAMSSEngine, SADEATDSCEngine, SADESammonEngine, SABAEngine,
     SACCEAMIIEngine, SACOSOEngine, SAMSOEngine, SAPOEngine, SAROEngine, SAEngine, SBOAEngine, SBOEngine,
     SCHOEngine, SCSoEngine, SDEngine, SERVALOAEngine, SFOAEngine, SFOEngine, SHADEEngine, SHIOSuccessEngine,
@@ -358,8 +361,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SSPIDERAEngine, STOEngine, SeaHOEngine, SnakeOptimizerEngine, SnowOAEngine, SparrowSAEngine, SquirrelSAEngine, SuperbFOAEngine,
     SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine,
     TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, WAOAEngine, WARSOEngine,
-    WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEEngine,
-    ZOAEngine,
+    WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEEngine, ZOAEngine,
 )
 
 REGISTRY: dict[str, type[BaseEngine]] = {
@@ -392,15 +394,15 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa',
     'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
     'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa', 'fox', 'fpa', 'frcg', 'frofi', 'fss', 'fwa', 'ga',
-    'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa',
+    'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa','gpoo',
     'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake',  'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hc', 'hco', 'hde', 'heoa', 'hgs',
     'hgso', 'hho', 'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'iagwo',  'i_gwo', 'i_woa', 'ica',
     'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo', 'memetic_a',
     'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
     'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa',
-    'ofa', 'ooa', 'parrot_o', 'pbil', 'pcx', 'pdo', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro',
-    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rime', 'rmsprop', 'roa', 'rsa', 'rso',
+    'ofa', 'ooa', 'parrot_o', 'pbil', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro',
+    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rsa', 'rso',
     'run', 'sa', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo',
     'saro', 'sbo', 'sboa', 'scho', 'scso', 'sd', 'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio',
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
@@ -422,20 +424,20 @@ _POPULATION_BASED: set[str] = {
     'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa', 'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto',
     'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo', 'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa',
     'fox', 'fpa', 'frofi', 'fss', 'fwa', 'ga', 'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso',
-    'gmo', 'gndo', 'go_growth', 'goa', 'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake', 'gto', 'gwo', 'hba', 'hba_honey', 'hbo',
+    'gmo', 'gndo', 'go_growth', 'goa', 'gpoo', 'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake', 'gto', 'gwo', 'hba', 'hba_honey', 'hbo',
     'hco', 'hde', 'heoa', 'hgs', 'hgso', 'hho', 'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'iagwo',
     'i_gwo', 'i_woa', 'ica', 'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma',
     'l2smea', 'lca', 'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
     'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa',
-    'ooa', 'parrot_o', 'pcx', 'pdo', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro', 'pso', 'pss',
-    'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2',
+    'ooa', 'parrot_o', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro', 'pso', 'pss',
+    'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2',
     'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso',
     'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma',
     'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo', 'squirrel_sa', 'srsr', 'ssa', 'ssdo',
     'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc',
     'tpo', 'tsa', 'tso', 'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso',
-    'wutp', 'ydse', 'zoa'
+    'wutp', 'ydse', 'zoa',
 }
 
 # Algorithms marked as supporting native candidate injection in the table.
@@ -486,16 +488,16 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'ego', 'eho', 'elk_ho', 'eo', 'eoa', 'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo',
     'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo', 'firefly_a', 'fla', 'flood_a', 'foa',
     'foa_fossa', 'fox', 'fpa', 'frofi', 'fss', 'fwa', 'ga', 'gazelle_oa', 'gbo', 'gco', 'gea',
-    'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa', 'gpso', 'gsa', 'gska', 'gso',
+    'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa','gpoo', 'gpso', 'gsa', 'gska', 'gso',
     'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hco', 'hde', 'heoa', 'hgs', 'hgso', 'hho',
     'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'i_gwo', 'i_woa', 'ica', 'ikoa',
     'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa',
     'mrfo', 'msa_e', 'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra',
-    'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa', 'ooa', 'parrot_o', 'pcx', 'pdo', 'pfa', 'pko',
+    'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa', 'ooa', 'parrot_o', 'pcx', 'pdo', 'petio', 'pfa', 'pko',
     'plba', 'plo', 'poa', 'political_o', 'pro', 'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s',
-    'rbmo', 'rfo', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss',
+    'rbmo', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss',
     'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso', 'seaho',
     'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo',
     'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo',
@@ -639,6 +641,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'gndo'              : 'Generalized Normal Distribution Optimizer',
     'go_growth'         : 'Growth Optimizer',
     'goa'               : 'Grasshopper Optimization Algorithm',
+    'gpoo'              : 'Giant Pacific Octopus Optimizer',
     'gpso'              : 'Gradient-Based Particle Swarm Optimization',
     'gsa'               : 'Gravitational Search Algorithm',
     'gska'              : 'Gaining-Sharing Knowledge Algorithm',
@@ -719,6 +722,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'pbil'              : 'Population-Based Incremental Learning',
     'pcx'               : 'Parent-Centric Crossover (G3-PCX style)',
     'pdo'               : 'Prairie Dog Optimization Algorithm',
+    'petio'             : 'Physical Education Teacher Inspired Optimization',
     'pfa'               : 'Pathfinder Algorithm',
     'pfa_polar_fox'     : 'Polar Fox Optimization',
     'pko'               : 'Pied Kingfisher Optimizer',
@@ -735,6 +739,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'random_s'          : 'Random Search',
     'rbmo'              : 'Red-billed Blue Magpie Optimizer',
     'rfo'               : "Rüppell's Fox Optimizer",
+    'rhso'              : 'Rock Hyraxes Swarm Optimization',
     'rime'              : 'RIME-ice Algorithm',
     'rmsprop'           : 'RMSProp',
     'roa'               : 'Remora Optimization Algorithm',
@@ -946,6 +951,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'gndo'              : 'math',
     'go_growth'         : 'swarm',
     'goa'               : 'swarm',
+    'gpoo'              : 'swarm',
     'gpso'              : 'swarm',
     'gsa'               : 'physics',
     'gska'              : 'human',
@@ -1026,6 +1032,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'pbil'              : 'distribution',
     'pcx'               : 'evolutionary',
     'pdo'               : 'swarm',
+    'petio'             : 'human',
     'pfa'               : 'swarm',
     'pfa_polar_fox'     : 'swarm',
     'pko'               : 'swarm',
@@ -1042,6 +1049,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'random_s'          : 'trajectory',
     'rbmo'              : 'swarm',
     'rfo'               : 'swarm',
+    'rhso'              : 'swarm',
     'rime'              : 'physics',
     'rmsprop'           : 'math',
     'roa'               : 'swarm',
@@ -1253,6 +1261,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'gndo'              : '10.1016/j.enconman.2020.113301',
     'go_growth'         : '10.1016/j.knosys.2022.110206',
     'goa'               : '10.1016/j.advengsoft.2017.01.004',
+    'gpoo'              : '10.1007/s12065-024-00945-4',
     'gpso'              : '10.48550/arXiv.2312.09703',
     'gsa'               : '10.1016/j.ins.2009.03.004',
     'gska'              : '10.1007/s13042-019-01053-x',
@@ -1333,6 +1342,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'pbil'              : '10.1109/SSE62657.2024.00022',
     'pcx'               : '10.1109/CEC.2004.1331141',
     'pdo'               : '10.1007/s00521-022-07530-9',
+    'petio'             : '10.13140/RG.2.2.12097.06245',
     'pfa'               : '10.1016/j.asoc.2019.03.012',
     'pfa_polar_fox'     : '10.1007/s00521-024-10346-4',
     'pko'               : '10.1007/s00521-024-09879-5',
@@ -1349,6 +1359,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'random_s'          : '10.1016/j.advengsoft.2022.103141',
     'rbmo'              : '10.1007/s10462-024-10716-3',
     'rfo'               : '10.1007/s10586-024-04950-1',
+    'rhso'              : '10.32604/cmc.2021.013648',
     'rime'              : '10.1016/j.neucom.2023.02.010',
     'roa'               : '10.1016/j.eswa.2021.115665',
     'rsa'               : '10.1016/j.eswa.2021.116158',
