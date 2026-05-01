@@ -851,15 +851,45 @@ function readIntById(id,fallback=null){
   return n==null?fallback:Math.trunc(n);
 }
 function algInfo(id){return allAlgs.find(a=>a.id===id)||null;}
-function paramInputHTML(k,v,extraClass='',extraAttrs=''){
-  return `<div class="prm"><div class="prm-name">${esc(k).replace(/_/g,' ')}</div><input class="prm-inp ${extraClass}" ${extraAttrs} data-param="${esc(k)}" type="text" inputmode="decimal" value="${esc(v)}"/><div class="prm-def">default: ${esc(v)}</div></div>`;
+function paramValueToText(v){
+  if (Array.isArray(v) || (v && typeof v === 'object')) {
+    try { return JSON.stringify(v); }
+    catch (_) { return String(v ?? ''); }
+  }
+  return String(v ?? '');
 }
+
+function parseParamValue(raw){
+  const s = String(raw ?? '').trim();
+  if (s === '') return undefined;
+
+  if (s[0] === '[' || s[0] === '{') {
+    try { return JSON.parse(s); } catch (_) {}
+  }
+
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  if (s === 'null') return null;
+
+  const n = Number(s);
+  if (Number.isFinite(n)) return n;
+
+  return s;
+}
+
+function paramInputHTML(k,v,extraClass='',extraAttrs=''){
+  const txt = paramValueToText(v);
+  return `<div class="prm"><div class="prm-name">${esc(k).replace(/_/g,' ')}</div><input class="prm-inp ${extraClass}" ${extraAttrs} data-param="${esc(k)}" type="text" inputmode="text" value="${esc(txt)}"/><div class="prm-def">default: ${esc(txt)}</div></div>`;
+}
+
 function paramsGridHTML(defaults,emptyText,extraClass='',extraAttrs=''){
   const entries=Object.entries(defaults||{});
   if(!entries.length)return `<div class="no-prm">${emptyText||'No configurable parameters.'}</div>`;
   return `<div class="params-grid">${entries.map(([k,v])=>paramInputHTML(k,v,extraClass,extraAttrs)).join('')}</div>`;
 }
+
 function selectedAlgIds(){return [...selectedAlgs];}
+
 function applyConfigStepVisibility(anchor){
   const active=anchor||defaultConfigureAnchor();
   const visible={
@@ -880,15 +910,17 @@ function applyConfigStepVisibility(anchor){
   });
   activeConfigAnchor=active;
 }
+
 function collectInputsAsConfig(selector){
   const cfg={};
   document.querySelectorAll(selector).forEach(inp=>{
     const key=inp.dataset.param;
     if(!key)return;
-    const raw=(inp.value||'').trim();
-    if(raw==='')return;
-    const n=readNumValue(raw,null);
-    cfg[key]=n==null?raw:n;
+
+    const val=parseParamValue(inp.value);
+    if(val===undefined)return;
+
+    cfg[key]=val;
   });
   return cfg;
 }
