@@ -160,7 +160,7 @@ from .hba_honey          import HBAHoneyEngine
 from .hbo                import HBOEngine
 from .hc                 import HCEngine
 from .hco                import HCOEngine
-from .hde                import HDEngine
+from .hde                import HDEEngine
 from .heoa               import HEOAEngine
 from .hgs                import HGSEngine
 from .hgso               import HGSOEngine
@@ -317,7 +317,7 @@ from .wo_wave            import WaveOptEngine
 from .woa                import WOAEngine
 from .wso                import WSOEngine
 from .wutp               import WUTPEngine
-from .ydse               import YDSEngine
+from .ydse               import YDSEEngine
 from .zoa                import ZOAEngine
 
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
@@ -339,7 +339,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     FWAEngine, GAEngine, GBOEngine, GCOEngine, GEAEngine, GGOEngine, GJAEngine, GJOEngine,
     GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPSOEngine, GSAEngine, GSKAEngine,
     GSOEngine, GSOGliderSnakeEngine, GTOEngine, GazelleOAEngine, GWOEngine, HBAEngine, HBAHoneyEngine, HBOEngine,
-    HCEngine, HCOEngine, HDEngine, HEOAEngine, HGSEngine, HGSOEngine, HHOEngine, HSAEngine,
+    HCEngine, HCOEngine, HDEEngine, HEOAEngine, HGSEngine, HGSOEngine, HHOEngine, HSAEngine,
     HSABAEngine, HUSEngine, HikingOAEngine, HippoEngine, HorseOAEngine, IAGWOEngine, ICAEngine, IKOAEngine,
     ILSHADEEngine, IMODEEngine, INFOEngine, IVYAEngine, IWOEngine, I_GWOEngine, I_WOAEngine, JDEEngine,
     JSOEngine, JYEngine, KHAEngine, KMAEngine, L2SMEAEngine, LCAEngine, LCOEngine, LFDEngine,
@@ -358,7 +358,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SSPIDERAEngine, STOEngine, SeaHOEngine, SnakeOptimizerEngine, SnowOAEngine, SparrowSAEngine, SquirrelSAEngine, SuperbFOAEngine,
     SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine,
     TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, WAOAEngine, WARSOEngine,
-    WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEngine,
+    WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEEngine,
     ZOAEngine,
 )
 
