@@ -9,7 +9,7 @@ class CEMEngine(BaseEngine):
     algorithm_id   = "cem"
     algorithm_name = "Cross Entropy Method"
     family         = "distribution"
-    _REFERENCE     = {"doi": "10.1016/S0377-2217(96)00385-2"}
+    _REFERENCE     = {"doi": "10.1007/978-1-4757-4321-0"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=5, learning_rate=0.7, k_samples=2)
 
