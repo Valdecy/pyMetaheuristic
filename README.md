@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **304 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. 
+A Python library for metaheuristic optimization and collaborative search, bringing together **307 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. 
 
 ## A. **Version Note**
 
@@ -812,6 +812,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | swarm | Yes | Yes | No | Yes |
 | [Germinal Center Optimization](https://doi.org/10.1016/j.ifacol.2018.07.300) | `gco` | human | Yes | Yes | No | Yes |
 | [Geyser Inspired Algorithm](https://doi.org/10.1007/s42235-023-00437-8) | `gea` | physics | Yes | Yes | No | Yes |
+| [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo`  | swarm  | Yes | No | No | Yes |
 | [Giant Trevally Optimizer](https://doi.org/10.1109/ACCESS.2022.3223388) | `gto` | swarm | Yes | Yes | No | Yes |
 | [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | No |
 | [Glowworm Swarm Optimization](https://doi.org/10.1007/978-3-319-51595-3) | `gso` | swarm | Yes | Yes | No | Yes |
@@ -897,6 +898,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Particle Swarm Optimization](https://doi.org/10.1109/ICNN.1995.488968) | `pso` | swarm | Yes | Yes | No | Yes |
 | [Pathfinder Algorithm](https://doi.org/10.1016/j.asoc.2019.03.012) | `pfa` | swarm | Yes | Yes | No | Yes |
 | [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | Yes |
+| [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245)| `petio` | human  | Yes | No | No | Yes |
 | [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | Yes |
 | [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4)| `pfa_polar_fox` | swarm | Yes | No | No | No |
 | [Polar Lights Optimizer](https://doi.org/10.1016/j.neucom.2024.128427) | `plo` | physics | Yes | Yes | No | Yes |
@@ -914,6 +916,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | Yes |
 | [RIME-ice Algorithm](https://doi.org/10.1016/j.neucom.2023.02.010) | `rime` | physics | Yes | Yes | No | Yes |
 | [RMSProp](https://www.youtube.com/watch?v=defQQqkXEfE) | `rmsprop` | math | No | No | No | No |
+| [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648)   | `rhso`  | swarm  | Yes | No | No | Yes |
 | [RUNge Kutta Optimizer](https://doi.org/10.1016/j.eswa.2021.115079) | `run` | math | Yes | Yes | No | Yes |
 | [Rüppell's Fox Optimizer](https://doi.org/10.1007/s10586-024-04950-1) | `rfo` | swarm | Yes | Yes | No | Yes |
 | [Sailfish Optimizer](https://doi.org/10.1016/j.engappai.2019.01.001) | `sfo` | swarm | Yes | Yes | No | Yes |
