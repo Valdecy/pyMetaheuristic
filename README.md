@@ -750,7 +750,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Covariance Matrix Adaptation Evolution Strategy](https://doi.org/10.1109/ICEC.1996.542381) | `cmaes` | evolutionary | Yes | Yes | No | Yes |
 | [Coyote Optimization Algorithm](https://doi.org/10.1109/CEC.2018.8477769) | `coa` | swarm | Yes | Yes | No | Yes |
 | [Crayfish Optimization Algorithm](https://doi.org/10.1007/s10462-023-10567-4) | `crayfish_oa` | swarm | Yes | Yes | No | Yes |
-| [Cross Entropy Method](https://doi.org/10.1016/S0377-2217(96) | `cem` | distribution | Yes | Yes | No | Yes |
+| [Cross Entropy Method](https://doi.org/10.1016/S0377-2217(96)00385-2) | `cem` | distribution | Yes | Yes | No | Yes |
 | [Crow Search Algorithm](https://doi.org/10.1016/j.compstruc.2016.03.001) | `csa` | swarm | Yes | Yes | No | Yes |
 | [Cuckoo Search](https://doi.org/10.1109/NABIC.2009.5393690) | `cuckoo_s` | swarm | Yes | Yes | No | Yes |
 | [Cultural Algorithm](https://doi.org/10.1080/00207160.2015.1067309) | `ca` | evolutionary | Yes | Yes | No | Yes |
