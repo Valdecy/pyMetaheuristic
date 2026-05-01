@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="pymetaheuristic",
-    version="5.8.5",
+    version="5.8.7",
     license="GNU",
     author="Valdecy Pereira",
     author_email="valdecy.pereira@gmail.com",
