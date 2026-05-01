@@ -133,7 +133,7 @@ from .src.io import (
     save_result,
 )
 
-__version__ = "5.8.5"
+__version__ = "5.8.7"
 
 __all__ = [
     "FUNCTIONS",
