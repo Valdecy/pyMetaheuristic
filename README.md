@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **320 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, and cooperative.
+A Python library for metaheuristic optimization and collaborative search, bringing together **327 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, and cooperative.
 
 ## A. **Version Note**
 
@@ -714,6 +714,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Bacterial Foraging Optimization](https://doi.org/10.1109/MCS.2002.1004010) | `bfo` | swarm | Yes | Yes | No | Yes |
 | [Bald Eagle Search](https://doi.org/10.1007/s10462-019-09732-5) | `bes` | swarm | Yes | Yes | No | Yes |
 | [Barnacles Mating Optimizer](https://doi.org/10.1016/j.engappai.2019.103330) | `bmo` | swarm | Yes | Yes | No | Yes |
+| [Basin Hopping](https://doi.org/10.1021/jp970984n) | `basin_hopping` | trajectory | No | No | Yes | No |
 | [Basketball Team Optimization Algorithm](https://doi.org/10.1038/s41598-025-05477-0) | `btoa` | human | Yes | No | No | Yes |
 | [Bat Algorithm](https://doi.org/10.1007/978-3-642-12538-6_6) | `bat_a` | swarm | Yes | Yes | No | Yes |
 | [Battle Royale Optimization](https://doi.org/10.1007/s00521-020-05004-4) | `bro` | human | Yes | Yes | No | Yes |
@@ -723,6 +724,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Biogeography-Based Optimization](https://doi.org/10.1109/TEVC.2008.919004) | `bbo` | evolutionary | Yes | Yes | No | Yes |
 | [Bird Swarm Algorithm](https://doi.org/10.1080/0952813X.2015.1042530) | `bsa` | swarm | Yes | Yes | No | Yes |
 | [Birds-of-Paradise Search](https://doi.org/10.1007/s00521-026-11887-6) | `bps` | swarm | Yes | No | No | Yes |
+| [BIPOP-CMA-ES](https://doi.org/10.1145/1570256.1570333) | `bipop_cmaes` | evolutionary | Yes | No | Yes | Yes |
 | [Black Widow Optimization](https://doi.org/10.1016/j.engappai.2019.103249) | `bwo` | evolutionary | Yes | Yes | No | Yes |
 | [Black-winged Kite Algorithm](https://doi.org/10.1007/s10462-024-10723-4) | `bka` | swarm | Yes | Yes | No | Yes |
 | [Bonobo Optimizer](https://doi.org/10.1007/s10489-021-02444-w) | `bono` | swarm | Yes | Yes | No | Yes |
@@ -829,6 +831,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | surrogate | No | No | No | No |
 | [Grasshopper Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2017.01.004) | `goa` | swarm | Yes | Yes | No | Yes |
 | [Gravitational Search Algorithm](https://doi.org/10.1016/j.ins.2009.03.004) | `gsa` | physics | Yes | Yes | No | Yes |
+| [Greedy Randomized Adaptive Search Procedure](https://doi.org/10.1007/BF01096763) | `grasp` | trajectory | No | No | Yes | No |
 | [Grey Wolf Optimizer](https://doi.org/10.1016/j.advengsoft.2013.12.007) | `gwo` | swarm | Yes | Yes | No | Yes |
 | [Greylag Goose Optimization](https://doi.org/10.1016/j.eswa.2023.122147) | `ggo` | swarm | Yes | Yes | No | Yes |
 | [Growth Optimizer](https://doi.org/10.1016/j.knosys.2022.110206) | `go_growth` | swarm | Yes | Yes | No | Yes |
@@ -855,6 +858,8 @@ The table below summarizes the optimization engines currently available in the l
 | [Improved Multi-Operator Differential Evolution](https://doi.org/10.1109/CEC48606.2020.9185577) | `imode` | evolutionary | Yes | Yes | No | Yes |
 | [Improved Whale Optimization Algorithm](https://doi.org/10.1016/j.jcde.2019.02.002) | `i_woa` | swarm | Yes | Yes | No | Yes |
 | [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | Yes |
+| [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | No | Yes | No |
+| [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | No | Yes | Yes |
 | [Ivy Algorithm](https://doi.org/10.1016/j.knosys.2024.111850) | `ivya` | nature | Yes | Yes | No | Yes |
 | [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | swarm | Yes | Yes | No | Yes |
 | [Jellyfish Search Optimizer](https://doi.org/10.1016/j.amc.2020.125535) | `jso` | swarm | Yes | Yes | No | Yes |
@@ -888,6 +893,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Multifactorial Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2015.2458037) | `mfea` | evolutionary | Yes | Yes | No | Yes |
 | [Multifactorial Evolutionary Algorithm II](https://doi.org/10.1109/TEVC.2019.2906927) | `mfea2` | evolutionary | Yes | Yes | No | Yes |
 | [Multiple Trajectory Search](https://doi.org/10.1109/CEC.2008.4631210) | `mts` | trajectory | Yes | Yes | No | Yes |
+| [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | No | Yes | No |
 | [Multiswarm-Assisted Expensive Optimization](https://doi.org/10.1109/TCYB.2020.2967553) | `samso` | swarm | Yes | Yes | No | Yes |
 | [Naked Mole-Rat Algorithm](https://doi.org/10.1007/s00521-019-04464-7) | `nmra` | swarm | Yes | Yes | No | Yes |
 | [Narwhal Optimizer](https://doi.org/10.1038/s41598-024-61278-8) | `nwoa` | swarm | Yes | Yes | No | Yes |
@@ -989,6 +995,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Tug of War Optimization](https://doi.org/10.1007/978-3-030-04067-3_11) | `two` | physics | Yes | Yes | No | Yes |
 | [Tuna Swarm Optimization](https://doi.org/10.1155/2021/9210050) | `tso` | swarm | Yes | Yes | No | Yes |
 | [Tunicate Swarm Algorithm](https://doi.org/10.1016/j.engappai.2020.103541) | `tsa` | swarm | Yes | Yes | No | Yes |
+| [Variable Neighborhood Search](https://doi.org/10.1016/S0305-0548(97)00031-2) | `vns` | trajectory | No | No | Yes | No |
 | [Virus Colony Search](https://doi.org/10.1016/j.advengsoft.2015.11.004) | `vcs` | swarm | Yes | Yes | No | Yes |
 | [Walrus Optimization Algorithm](https://doi.org/10.1038/s41598-023-35863-5) | `waoa` | swarm | Yes | Yes | No | Yes |
 | [War Strategy Optimization](https://doi.org/10.1109/ACCESS.2022.3153493) | `warso` | human | Yes | Yes | No | Yes |
