@@ -7,7 +7,7 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 
 setup(
     name="pymetaheuristic",
-    version="5.8.8",
+    version="5.9.0",
     license="GNU",
     author="Valdecy Pereira",
     author_email="valdecy.pereira@gmail.com",
@@ -15,16 +15,16 @@ setup(
     packages=find_packages(include=["pyMetaheuristic", "pyMetaheuristic.*", "pymetaheuristic", "pymetaheuristic.*"]),
     python_requires=">=3.9",
     install_requires=[
+        "fastapi",
         "kaleido",
         "matplotlib",
         "numpy",
         "pandas",
         "plotly",
+        "pydantic",
         "scipy",
         "tabulate",
-        "fastapi",
         "uvicorn[standard]",
-        "pydantic",
     ],
     description="pymetaheuristic: A Python Library for Metaheuristic Optimization and Collaborative Search",
     long_description=long_description,

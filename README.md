@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **307 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. 
+A Python library for metaheuristic optimization and collaborative search, bringing together **320 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, and cooperative.
 
 ## A. **Version Note**
 
@@ -709,10 +709,12 @@ The table below summarizes the optimization engines currently available in the l
 | [Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `aro` | swarm | Yes | Yes | No | Yes |
 | [Atom Search Optimization](https://doi.org/10.1016/j.knosys.2018.08.030) | `aso_atom` | physics | Yes | Yes | No | Yes |
 | [Automated Design of Variation Operators](https://doi.org/10.1145/3712256.3726456) | `autov` | evolutionary | Yes | Yes | No | Yes |
+| [Bacterial Colony Optimization](https://doi.org/10.1155/2012/698057) | `bacterial_colony_o` | nature | Yes | No | No | Yes |
 | [Bacterial Chemotaxis Optimizer](https://doi.org/10.1007/s13369-025-10749-y) | `bco` | nature | Yes | Yes | No | Yes |
 | [Bacterial Foraging Optimization](https://doi.org/10.1109/MCS.2002.1004010) | `bfo` | swarm | Yes | Yes | No | Yes |
 | [Bald Eagle Search](https://doi.org/10.1007/s10462-019-09732-5) | `bes` | swarm | Yes | Yes | No | Yes |
 | [Barnacles Mating Optimizer](https://doi.org/10.1016/j.engappai.2019.103330) | `bmo` | swarm | Yes | Yes | No | Yes |
+| [Basketball Team Optimization Algorithm](https://doi.org/10.1038/s41598-025-05477-0) | `btoa` | human | Yes | No | No | Yes |
 | [Bat Algorithm](https://doi.org/10.1007/978-3-642-12538-6_6) | `bat_a` | swarm | Yes | Yes | No | Yes |
 | [Battle Royale Optimization](https://doi.org/10.1007/s00521-020-05004-4) | `bro` | human | Yes | Yes | No | Yes |
 | [Bees Algorithm](https://doi.org/10.1016/B978-008045157-2/50081-X) | `bea` | swarm | Yes | Yes | No | Yes |
@@ -720,6 +722,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Binary Space Partition Tree Genetic Algorithm](https://doi.org/10.1016/j.ins.2019.10.016) | `bspga` | evolutionary | Yes | Yes | No | Yes |
 | [Biogeography-Based Optimization](https://doi.org/10.1109/TEVC.2008.919004) | `bbo` | evolutionary | Yes | Yes | No | Yes |
 | [Bird Swarm Algorithm](https://doi.org/10.1080/0952813X.2015.1042530) | `bsa` | swarm | Yes | Yes | No | Yes |
+| [Birds-of-Paradise Search](https://doi.org/10.1007/s00521-026-11887-6) | `bps` | swarm | Yes | No | No | Yes |
 | [Black Widow Optimization](https://doi.org/10.1016/j.engappai.2019.103249) | `bwo` | evolutionary | Yes | Yes | No | Yes |
 | [Black-winged Kite Algorithm](https://doi.org/10.1007/s10462-024-10723-4) | `bka` | swarm | Yes | Yes | No | Yes |
 | [Bonobo Optimizer](https://doi.org/10.1007/s10489-021-02444-w) | `bono` | swarm | Yes | Yes | No | Yes |
@@ -743,7 +746,8 @@ The table below summarizes the optimization engines currently available in the l
 | [Coati Optimization Algorithm](https://doi.org/10.1016/j.knosys.2022.110011) | `coati_oa` | swarm | Yes | Yes | No | Yes |
 | [Cockroach Swarm Optimization](https://doi.org/10.1109/ICCET.2010.5485993) | `cockroach_so` | swarm | Yes | Yes | No | Yes |
 | [Competitive Swarm Optimizer](https://doi.org/10.1016/j.swevo.2024.101543) | `cso` | swarm | Yes | Yes | No | Yes |
-| [COOT Bird Optimization](https://doi.org/10.1016/j.eswa.2021.115352) | `coot` | swarm | Yes | Yes | No | Yes |
+| [Compact Genetic Algorithm](https://doi.org/10.1109/4235.797971) | `compact_ga` | distribution | No | No | No | No |
+| [Coot Bird Optimization](https://doi.org/10.1016/j.eswa.2021.115352) | `coot` | swarm | Yes | Yes | No | Yes |
 | [Coral Reefs Optimization](https://doi.org/10.1155/2014/739768) | `cro` | evolutionary | Yes | Yes | No | Yes |
 | [Coronavirus Herd Immunity Optimization](https://doi.org/10.1007/s00521-020-05296-6) | `chio` | human | Yes | Yes | No | Yes |
 | [Cosmic Evolution Optimization](https://doi.org/10.1007/s00521-025-11234-6) | `ceo_cosmic` | physics | Yes | Yes | No | Yes |
@@ -762,6 +766,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Dispersive Fly Optimization](https://doi.org/10.15439/2014F142) | `dfo` | swarm | Yes | Yes | No | Yes |
 | [Dolphin Echolocation Optimization](https://doi.org/10.1016/j.advengsoft.2016.05.002) | `deo_dolphin` | swarm | Yes | Yes | No | Yes |
 | [Dragonfly Algorithm](https://doi.org/10.1007/s00521-015-1920-1) | `da` | swarm | Yes | Yes | No | Yes |
+| [Dream Optimization Algorithm](https://doi.org/10.1016/j.cma.2024.117718) | `dream_oa` | human | Yes | No | No | Yes |
 | [Dung Beetle Optimizer](https://doi.org/10.1007/s11227-022-04959-6) | `dbo` | swarm | Yes | Yes | No | Yes |
 | [Dwarf Mongoose Optimization Algorithm](https://doi.org/10.1016/j.cma.2022.114570) | `dmoa` | swarm | Yes | Yes | No | Yes |
 | [Dynamic Differential Annealed Optimization](https://doi.org/10.1016/j.asoc.2020.106392) | `ddao` | physics | Yes | Yes | No | Yes |
@@ -785,8 +790,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Evolutionary Programming](https://doi.org/10.1007/BF00175356) | `ep` | evolutionary | Yes | Yes | No | Yes |
 | [Exponential Distribution Optimizer](https://doi.org/10.1007/s10462-023-10403-9) | `edo` | math | Yes | Yes | No | Yes |
 | [Exponential-Trigonometric Optimization](https://doi.org/10.1016/j.cma.2024.117411) | `eto` | math | Yes | Yes | No | Yes |
+| [Extra-Trees Bayesian Optimization](https://doi.org/10.1007/s10994-006-6226-1) | `et_bo` | surrogate | No | No | No | No |
 | [Fast Evolutionary Programming](https://doi.org/10.1109/4235.771163) | `fep` | evolutionary | Yes | Yes | No | Yes |
-| [FATA Geophysics Optimizer](https://doi.org/10.1016/j.neucom.2024.128289) | `fata` | physics | Yes | Yes | No | Yes |
+| [Fata Geophysics Optimizer](https://doi.org/10.1016/j.neucom.2024.128289) | `fata` | physics | Yes | Yes | No | Yes |
 | [Feasibility Rule with Objective Function Information](https://doi.org/10.1109/TCYB.2015.2493239) | `frofi` | evolutionary | Yes | Yes | No | Yes |
 | [Fennec Fox Optimizer](https://doi.org/10.1109/ACCESS.2022.3197745) | `ffo` | swarm | Yes | Yes | No | Yes |
 | [Fick's Law Algorithm](https://doi.org/10.1016/j.knosys.2022.110146) | `fla` | physics | Yes | Yes | No | Yes |
@@ -804,6 +810,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Fox Optimizer](https://doi.org/10.1007/s10489-022-03533-0) | `fox` | swarm | Yes | Yes | No | Yes |
 | [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | Yes |
 | [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | Yes |
+| [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | No |
 | [Gazelle Optimization Algorithm](https://doi.org/10.1007/s00521-022-07854-6) | `gazelle_oa` | swarm | Yes | Yes | No | Yes |
 | [Gekko Japonicus Algorithm](https://doi.org/10.1016/j.eswa.2025.127982) | `gja` | swarm | Yes | Yes | No | Yes |
 | [Generalized Normal Distribution Optimizer](https://doi.org/10.1016/j.enconman.2020.113301) | `gndo` | math | Yes | Yes | No | Yes |
@@ -819,6 +826,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Golden Jackal Optimizer](https://doi.org/10.1016/j.eswa.2022.116924) | `gjo` | swarm | Yes | Yes | No | Yes |
 | [Gradient-Based Optimizer](https://doi.org/10.1007/s11831-022-09872-y) | `gbo` | math | Yes | Yes | No | Yes |
 | [Gradient-Based Particle Swarm Optimization](https://doi.org/10.48550/arXiv.2312.09703) | `gpso` | swarm | Yes | Yes | No | Yes |
+| [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | surrogate | No | No | No | No |
 | [Grasshopper Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2017.01.004) | `goa` | swarm | Yes | Yes | No | Yes |
 | [Gravitational Search Algorithm](https://doi.org/10.1016/j.ins.2009.03.004) | `gsa` | physics | Yes | Yes | No | Yes |
 | [Grey Wolf Optimizer](https://doi.org/10.1016/j.advengsoft.2013.12.007) | `gwo` | swarm | Yes | Yes | No | Yes |
@@ -886,6 +894,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Nelder-Mead Method](https://doi.org/10.1093/comjnl/7.4.308) | `nmm` | trajectory | Yes | Yes | No | Yes |
 | [Neural Network-Based Dimensionality Reduction Evolutionary Algorithm (SO)](https://doi.org/10.1109/TEVC.2024.3400398) | `nndrea_so` | evolutionary | Yes | Yes | No | Yes |
 | [Nizar Optimization Algorithm](https://doi.org/10.1007/s11227-023-05579-4) | `noa` | math | Yes | Yes | No | Yes |
+| [NLAPSMjSO-EDA](https://doi.org/10.3390/sym17020153) | `nlapsmjso_eda` | evolutionary | Yes | No | No | Yes |
 | [Northern Goshawk Optimization](https://doi.org/10.1109/ACCESS.2021.3133286) | `ngo` | swarm | Yes | Yes | No | Yes |
 | [Nuclear Reaction Optimization](https://doi.org/10.1109/ACCESS.2019.2918406) | `nro` | physics | Yes | Yes | No | Yes |
 | [Numeric Crunch Algorithm](https://doi.org/10.1007/s00500-023-08925-z) | `nca` | math | Yes | Yes | No | Yes |
@@ -911,6 +920,8 @@ The table below summarizes the optimization engines currently available in the l
 | [Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `qsa` | human | Yes | Yes | No | Yes |
 | [Random Search](https://doi.org/10.1016/j.advengsoft.2022.103141) | `random_s` | trajectory | Yes | Yes | No | Yes |
 | [Rat Swarm Optimizer](https://doi.org/10.1007/s12652-020-02580-0) | `rso` | swarm | Yes | Yes | No | Yes |
+| [Rain-Cloud Condensation Optimizer](https://doi.org/10.3390/eng6100281) | `rcco` | physics | Yes | No | No | Yes |
+| [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | surrogate | No | No | No | No |
 | [Red-billed Blue Magpie Optimizer](https://doi.org/10.1007/s10462-024-10716-3) | `rbmo` | swarm | Yes | Yes | No | Yes |
 | [Remora Optimization Algorithm](https://doi.org/10.1016/j.eswa.2021.115665) | `roa` | swarm | Yes | Yes | No | Yes |
 | [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | Yes |
@@ -954,6 +965,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Steepest Descent](https://doi.org/10.1006/hmat.1996.2146) | `sd` | math | No | No | No | No |
 | [Stellar Oscillator Optimization](https://doi.org/10.1007/s10586-024-04976-5) | `soo` | physics | Yes | Yes | No | Yes |
 | [Student Psychology Based Optimization](https://doi.org/10.1016/j.advengsoft.2020.102804) | `spbo` | swarm | Yes | Yes | No | Yes |
+| [Swarm Robotics Search And Rescue](https://doi.org/10.1016/j.asoc.2017.02.028) | `srsr_robotics` | swarm | Yes | No | No | Yes |
 | [Success-History Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2014.6900380) | `shade` | evolutionary | Yes | Yes | No | Yes |
 | [Success-History Intelligent Optimizer](https://doi.org/10.1016/j.cma.2024.117272) | `shio_success` | swarm | Yes | Yes | No | Yes |
 | [Superb Fairy-wren Optimization Algorithm](https://doi.org/10.1007/s10586-024-04901-w) | `superb_foa` | swarm | Yes | Yes | No | Yes |
@@ -971,6 +983,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Termite Life Cycle Optimizer](https://doi.org/10.1016/j.eswa.2022.119211) | `tlco` | swarm | Yes | Yes | No | Yes |
 | [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | Yes |
 | [Tornado Optimizer with Coriolis Force](https://doi.org/10.1007/s10462-025-11118-9) | `toc` | physics | Yes | Yes | No | Yes |
+| [Tree-Seed Algorithm](https://doi.org/10.1016/j.eswa.2015.04.055) | `tree_seed_a` | nature | Yes | No | No | Yes |
 | [Tree Physiology Optimization](https://doi.org/10.1515/jisys-2017-0156) | `tpo` | nature | Yes | Yes | No | Yes |
 | [Triangulation Topology Aggregation Optimizer](https://doi.org/10.1016/j.eswa.2023.121744) | `ttao` | math | Yes | Yes | No | Yes |
 | [Tug of War Optimization](https://doi.org/10.1007/978-3-030-04067-3_11) | `two` | physics | Yes | Yes | No | Yes |
