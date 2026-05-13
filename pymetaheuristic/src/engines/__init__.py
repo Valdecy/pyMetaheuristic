@@ -44,11 +44,13 @@ from .autov              import AutoVEngine
 from .avoa               import AVOAEngine
 from .bat_a              import BATAEngine
 from .bacterial_colony_o import BacterialColonyOEngine
+from .basin_hopping      import BasinHoppingEngine
 from .bbo                import BBOEngine
 from .bboa               import BBOAEngine
 from .bco                import BCOEngine
 from .bea                import BEAEngine
 from .bes                import BESEngine
+from .bipop_cmaes        import BIPOPCMAESEngine
 from .bfgs               import BFGSEngine
 from .bfo                import BFOEngine
 from .bka                import BKAEngine
@@ -158,6 +160,7 @@ from .goa                import GOAEngine
 from .gp_bo              import GPBOEngine
 from .gpoo               import GPOOEngine
 from .gpso               import GPSOEngine
+from .grasp              import GRASPEngine
 from .gsa                import GSAEngine
 from .gska               import GSKAEngine
 from .gso                import GSOEngine
@@ -185,9 +188,11 @@ from .i_woa              import I_WOAEngine
 from .iagwo              import IAGWOEngine
 from .ica                import ICAEngine
 from .ikoa               import IKOAEngine
+from .ils                import ILSEngine
 from .ilshade            import ILSHADEEngine
 from .imode              import IMODEEngine
 from .info               import INFOEngine
+from .ipop_cmaes         import IPOPCMAESEngine
 from .ivya               import IVYAEngine
 from .iwo                import IWOEngine
 from .jde                import JDEEngine
@@ -214,6 +219,7 @@ from .mgo                import MGOEngine
 from .mgoa_market        import MGOAMarketEngine
 from .misaco             import MiSACOEngine
 from .mke                import MKEEngine
+from .msls               import MSLSEngine
 from .moss_go            import MossGOEngine
 from .mpa                import MPAEngine
 from .mrfo               import MRFOEngine
@@ -324,6 +330,7 @@ from .tso                import TSOEngine
 from .ttao               import TTAOEngine
 from .two                import TWOEngine
 from .vcs                import VCSEngine
+from .vns                import VNSEngine
 from .waoa               import WAOAEngine
 from .warso              import WARSOEngine
 from .wca                import WCAEngine
@@ -336,12 +343,13 @@ from .wutp               import WUTPEngine
 from .ydse               import YDSEEngine
 from .zoa                import ZOAEngine
 
+
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AAAEngine, ABCOEngine, ACGWOEngine, ACOEngine, ACOREngine, AEFAEngine, AEOEngine, AESSPSOEngine,
     AFSAEngine, AFTEngine, AGTOEngine, AHAEngine, AHOEngine, ALAEngine, ALOEngine, AOAEngine,
     AOEngine, APOEngine, ARCHOAEngine, AROEngine, ARSEngine, ASOAtomEngine, ASOEngine, AVOAEngine,
-    AdamEngine, ArtemisininOEngine, AutoVEngine, BacterialColonyOEngine, BATAEngine, BBOAEngine, BBOEngine, BCOEngine,
-    BEAEngine, BESEngine, BFGSEngine, BFOEngine, BKAEngine, BMOEngine, BOAEngine, BPSEngine, BROEngine,
+    AdamEngine, ArtemisininOEngine, AutoVEngine, BacterialColonyOEngine, BasinHoppingEngine, BATAEngine, BBOAEngine, BBOEngine, BCOEngine,
+    BEAEngine, BESEngine, BFGSEngine, BFOEngine, BIPOPCMAESEngine, BKAEngine, BMOEngine, BOAEngine, BPSEngine, BROEngine,
     BSPGAEngine, BSAEngine, BSOEngine, BTOAEngine, BWOEngine, BonobOEngine, CAEngine, CAT_SOEngine, CDDOChildEngine,
     CDDOEngine, CDOChornobylEngine, CDOEngine, CEOCosmicEngine, CEMEngine, CGOEngine, CHICKEN_SOEngine, CHIOEngine,
     CIRCLESAEngine, CLONALGEngine, CMAESEngine, COAEngine, COATI_OAEngine, COCKROACH_SOEngine, CompactGAEngine, COOTEngine, CROEngine,
@@ -354,13 +362,13 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     FOAEngine, FOAFossaEngine, FOXEngine, FPAEngine, FRCGEngine, FROFIEngine, FSSEngine, FloodAEngine,
     FWAEngine, GAEngine, GBOEngine, GBRTBOEngine, GCOEngine, GEAEngine, GGOEngine, GJAEngine, GJOEngine,
     GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPBOEngine, GPOOEngine, GPSOEngine, GSAEngine, GSKAEngine,
-    GSOEngine, GSOGliderSnakeEngine, GTOEngine, GazelleOAEngine, GWOEngine, HBAEngine, HBAHoneyEngine, HBOEngine,
+    GSOEngine, GSOGliderSnakeEngine, GTOEngine, GazelleOAEngine, GRASPEngine, GWOEngine, HBAEngine, HBAHoneyEngine, HBOEngine,
     HCEngine, HCOEngine, HDEEngine, HEOAEngine, HGSEngine, HGSOEngine, HHOEngine, HSAEngine,
-    HSABAEngine, HUSEngine, HikingOAEngine, HippoEngine, HorseOAEngine, IAGWOEngine, ICAEngine, IKOAEngine,
-    ILSHADEEngine, IMODEEngine, INFOEngine, IVYAEngine, IWOEngine, I_GWOEngine, I_WOAEngine, JDEEngine,
+    HSABAEngine, HUSEngine, HikingOAEngine, HippoEngine, HorseOAEngine, IAGWOEngine, ICAEngine, IKOAEngine, ILSEngine, 
+    ILSHADEEngine, IMODEEngine, INFOEngine, IPOPCMAESEngine, IVYAEngine, IWOEngine, I_GWOEngine, I_WOAEngine, JDEEngine,
     JSOEngine, JYEngine, KHAEngine, KMAEngine, L2SMEAEngine, LCAEngine, LCOEngine, LFDEngine,
     LOAEngine, LOALyrebirdEngine, LPOEngine, LSHADECnEpSinEngine, LSOSpectrumEngine, LiWOEngine, MBOEngine, MEMETIC_AEngine,
-    MFEA2Engine, MFEAEngine, MFAEngine, MGOAMarketEngine, MGOEngine, MKEEngine, MPAEngine, MRFOEngine,
+    MFEA2Engine, MFEAEngine, MFAEngine, MGOAMarketEngine, MGOEngine, MKEEngine, MSLSEngine, MPAEngine, MRFOEngine,
     MSAEngine, MSHOAEngine, MSOEngine, MTSEngine, MVOEngine, MVPAEngine, MiSACOEngine, MossGOEngine,
     NCAEngine, NLAPSMJSOEDAEngine, NGOEngine, NMMEngine, NMRAEngine, NNDREASOEngine, NOAEngine, NROEngine, NWOAEngine,
     OFAEngine, OOAEngine, PBILEngine, PCXEngine, PDOEngine, PETIOEngine, PFAEngine, PFAPolarFoxEngine, PKOEngine,
@@ -373,7 +381,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SOSEngine, SPBOEngine, SQPEngine, SRSREngine, SRSRRoboticsEngine, SSAEngine, SSDOEngine, SSIORLEngine, SSOEngine,
     SSPIDERAEngine, STOEngine, SeaHOEngine, SnakeOptimizerEngine, SnowOAEngine, SparrowSAEngine, SquirrelSAEngine, SuperbFOAEngine,
     SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine, TreeSeedAEngine,
-    TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, WAOAEngine, WARSOEngine,
+    TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, VNSEngine, WAOAEngine, WARSOEngine,
     WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEEngine, ZOAEngine,
 )
 
@@ -399,7 +407,8 @@ __all__ = [
 _TABLE_ALGORITHM_IDS: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'adam', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha',
     'aho', 'ala', 'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom',
-    'autov', 'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 'bka', 'bmo', 'boa', 'bono',
+    'autov', 'avoa', 'bacterial_colony_o', 'basin_hopping', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 
+    'bipop_cmaes', 'bka', 'bmo', 'boa', 'bono',
     'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo',
     'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa',
     'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'compact_ga', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
@@ -408,11 +417,11 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'et_bo', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
     'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa', 'fox', 'fpa', 'frcg', 'frofi', 'fss', 'fwa', 'ga',
     'gazelle_oa', 'gbo', 'gbrt_bo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa', 'gp_bo', 'gpoo',
-    'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake',  'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hc', 'hco', 'hde', 'heoa', 'hgs',
+    'gpso', 'grasp', 'gsa', 'gska', 'gso', 'gso_glider_snake',  'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hc', 'hco', 'hde', 'heoa', 'hgs',
     'hgso', 'hho', 'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'iagwo',  'i_gwo', 'i_woa', 'ica',
-    'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
+    'ikoa', 'ilshade', 'imode', 'info', 'ils',  'ipop_cmaes', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo', 'memetic_a',
-    'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
+    'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e', 'msls',
     'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa',
     'ofa', 'ooa', 'parrot_o', 'pbil', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro',
     'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo',  'rf_bo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rcco', 'rsa', 'rso',
@@ -421,7 +430,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
     'sparrow_sa', 'spbo', 'sqp', 'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto',
     'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tree_seed_a',  'ts', 'tsa', 'tso',
-    'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse',
+    'ttao', 'two', 'vcs', 'vns', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse',
     'zoa',
 }
 
@@ -430,7 +439,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
 _POPULATION_BASED: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
     'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov', 'avoa', 'bacterial_colony_o', 
-    'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo', 'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga',
+    'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bipop_cmaes', 'bka', 'bmo', 'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga',
     'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic',
     'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa',
     'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo', 'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de',
@@ -440,7 +449,7 @@ _POPULATION_BASED: set[str] = {
     'fox', 'fpa', 'frofi', 'fss', 'fwa', 'ga', 'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso',
     'gmo', 'gndo', 'go_growth', 'goa', 'gpoo', 'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake', 'gto', 'gwo', 'hba', 'hba_honey', 'hbo',
     'hco', 'hde', 'heoa', 'hgs', 'hgso', 'hho', 'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'iagwo',
-    'i_gwo', 'i_woa', 'ica', 'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma',
+    'i_gwo', 'ipop_cmaes', 'i_woa', 'ica', 'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma',
     'l2smea', 'lca', 'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
     'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa',
@@ -486,14 +495,14 @@ _INJECTION_ENABLED: set[str] = {
 
 # Algorithms marked as supporting restart in the table.
 _RESTART_ENABLED: set[str] = {
-    'sa',
+    'basin_hopping', 'bipop_cmaes', 'grasp', 'ils', 'ipop_cmaes', 'msls', 'sa', 'vns',
 }
 
 # Algorithms marked as snapshot-fit compatible in the table.
 _SNAPSHOT_FIT_ENABLED: set[str] = {
     'abco', 'acgwo', 'aco', 'acor', 'aeo', 'aefa', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
     'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov',
-    'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo',
+    'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bipop_cmaes', 'bka', 'bmo',
     'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo',
     'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so',
     'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'cro',
@@ -505,7 +514,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa','gpoo', 'gpso', 'gsa', 'gska', 'gso',
     'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hco', 'hde', 'heoa', 'hgs', 'hgso', 'hho',
     'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'i_gwo', 'i_woa', 'ica', 'ikoa',
-    'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
+    'ilshade', 'imode', 'info', 'ipop_cmaes', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa',
     'mrfo', 'msa_e', 'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra',
@@ -550,6 +559,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'autov'             : 'Automated Design of Variation Operators',
     'avoa'              : 'African Vultures Optimization Algorithm',
     'bacterial_colony_o': 'Bacterial Colony Optimization',
+    'basin_hopping'     : 'Basin Hopping',
     'bat_a'             : 'Bat Algorithm',
     'bbo'               : 'Biogeography-Based Optimization',
     'bboa'              : 'Brown-Bear Optimization Algorithm',
@@ -557,6 +567,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'bea'               : 'Bees Algorithm',
     'bes'               : 'Bald Eagle Search',
     'bfgs'              : 'BFGS Quasi-Newton Method',
+    'bipop_cmaes'       : 'BIPOP-CMA-ES',
     'bfo'               : 'Bacterial Foraging Optimization',
     'bka'               : 'Black-winged Kite Algorithm',
     'bmo'               : 'Barnacles Mating Optimizer',
@@ -665,6 +676,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'gp_bo'             : 'Gaussian Process Bayesian Optimization',
     'gpoo'              : 'Giant Pacific Octopus Optimizer',
     'gpso'              : 'Gradient-Based Particle Swarm Optimization',
+    'grasp'             : 'Greedy Randomized Adaptive Search Procedure',
     'gsa'               : 'Gravitational Search Algorithm',
     'gska'              : 'Gaining-Sharing Knowledge Algorithm',
     'gso'               : 'Glowworm Swarm Optimization',
@@ -692,9 +704,11 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'i_woa'             : 'Improved Whale Optimization Algorithm',
     'ica'               : 'Imperialist Competitive Algorithm',
     'ikoa'              : 'Improved Kepler Optimization Algorithm',
+    'ils'               : 'Iterated Local Search',
     'ilshade'           : 'Improved L-SHADE',
     'imode'             : 'Improved Multi-Operator Differential Evolution',
     'info'              : 'Weighting and Inertia Random Walk Optimizer',
+    'ipop_cmaes'        : 'IPOP-CMA-ES',
     'ivya'              : 'Ivy Algorithm',
     'iwo'               : 'Invasive Weed Optimization',
     'jde'               : 'Self-Adaptive Differential Evolution',
@@ -721,6 +735,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'mgoa_market'       : 'Market Game Optimization Algorithm',
     'misaco'            : 'Multi-Surrogate-Assisted Ant Colony Optimization',
     'mke'               : 'Monkey King Evolution V1',
+    'msls'              : 'Multi-Start Local Search',
     'moss_go'           : 'Moss Growth Optimization',
     'mpa'               : 'Marine Predators Algorithm',
     'mrfo'              : 'Manta Ray Foraging Optimization',
@@ -831,6 +846,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'ttao'              : 'Triangulation Topology Aggregation Optimizer',
     'two'               : 'Tug of War Optimization',
     'vcs'               : 'Virus Colony Search',
+    'vns'               : 'Variable Neighborhood Search',
     'waoa'              : 'Walrus Optimization Algorithm',
     'warso'             : 'War Strategy Optimization',
     'wca'               : 'Water Cycle Algorithm',
@@ -873,6 +889,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'autov'             : 'evolutionary',
     'avoa'              : 'swarm',
     'bacterial_colony_o': 'nature',
+    'basin_hopping'     : 'trajectory',
     'bat_a'             : 'swarm',
     'bbo'               : 'evolutionary',
     'bboa'              : 'swarm',
@@ -881,6 +898,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'bes'               : 'swarm',
     'bfgs'              : 'math',
     'bfo'               : 'swarm',
+    'bipop_cmaes'       : 'evolutionary',
     'bka'               : 'swarm',
     'bmo'               : 'swarm',
     'boa'               : 'swarm',
@@ -989,6 +1007,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'gpoo'              : 'swarm',
     'gpso'              : 'swarm',
     'gsa'               : 'physics',
+    'grasp'             : 'trajectory',
     'gska'              : 'human',
     'gso'               : 'swarm',
     'gso_glider_snake'  : 'swarm',
@@ -1015,9 +1034,11 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'i_woa'             : 'swarm',
     'ica'               : 'human',
     'ikoa'              : 'physics',
+    'ils'               : 'trajectory',
     'ilshade'           : 'evolutionary',
     'imode'             : 'evolutionary',
     'info'              : 'math',
+    'ipop_cmaes'        : 'evolutionary',
     'ivya'              : 'nature',
     'iwo'               : 'nature',
     'jde'               : 'evolutionary',
@@ -1049,6 +1070,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'mrfo'              : 'swarm',
     'msa_e'             : 'swarm',
     'mshoa'             : 'swarm',
+    'msls'              : 'trajectory',
     'mso'               : 'physics',
     'mts'               : 'trajectory',
     'mvo'               : 'swarm',
@@ -1154,6 +1176,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'ttao'              : 'math',
     'two'               : 'physics',
     'vcs'               : 'swarm',
+    'vns'               : 'trajectory',
     'waoa'              : 'swarm',
     'warso'             : 'human',
     'wca'               : 'nature',
@@ -1196,6 +1219,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'autov'             : '10.1145/3712256.3726456',
     'avoa'              : '10.1016/j.cie.2021.107408',
     'bacterial_colony_o': '10.1155/2012/698057',
+    'basin_hopping'     : '10.1021/jp970984n',
     'bat_a'             : '10.1007/978-3-642-12538-6_6',
     'bbo'               : '10.1109/TEVC.2008.919004',
     'bboa'              : '10.1201/9781003337003-6',
@@ -1204,6 +1228,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'bes'               : '10.1007/s10462-019-09732-5',
     'bfgs'              : '10.1090/S0025-5718-1970-0274029-X',
     'bfo'               : '10.1109/MCS.2002.1004010',
+    'bipop_cmaes'       : '10.1145/1570256.1570333',
     'bka'               : '10.1007/s10462-024-10723-4',
     'bmo'               : '10.1016/j.engappai.2019.103330',
     'boa'               : '10.1007/s00500-018-3102-4',
@@ -1311,6 +1336,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'gp_bo'             : '10.1023/A:1008306431147',
     'gpoo'              : '10.1007/s12065-024-00945-4',
     'gpso'              : '10.48550/arXiv.2312.09703',
+    'grasp'             : '10.1007/BF01096763',
     'gsa'               : '10.1016/j.ins.2009.03.004',
     'gska'              : '10.1007/s13042-019-01053-x',
     'gso'               : '10.1007/978-3-319-51595-3',
@@ -1338,10 +1364,12 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'i_woa'             : '10.1016/j.jcde.2019.02.002',
     'ica'               : '10.1109/CEC.2007.4425083',
     'ikoa'              : '10.1016/j.eswa.2025.128216',
+    'ils'               : '10.1007/0-306-48056-5_11',
     'ilshade'           : '10.1109/CEC.2016.7743922',
     'imode'             : '10.1109/CEC48606.2020.9185577',
     'info'              : '10.1016/j.eswa.2022.116516',
     'ivya'              : '10.1016/j.knosys.2024.111850',
+    'ipop_cmaes'        : '10.1109/CEC.2005.1554902',
     'iwo'               : '10.1016/j.ecoinf.2006.07.003',
     'jde'               : '10.1109/TEVC.2006.872133',
     'jso'               : '10.1016/j.amc.2020.125535',
@@ -1372,6 +1400,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'mrfo'              : '10.1016/j.engappai.2019.103300',
     'msa_e'             : '10.1007/s12293-016-0212-3',
     'mshoa'             : '10.3390/math13091500',
+    'msls'              : '10.1007/0-306-48056-5_12',
     'mso'               : '10.1016/j.advengsoft.2025.103883',
     'mts'               : '10.1109/CEC.2008.4631210',
     'mvo'               : '10.1007/s00521-015-1870-7',
@@ -1476,6 +1505,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'ttao'              : '10.1016/j.eswa.2023.121744',
     'two'               : '10.1007/978-3-030-04067-3_11',
     'vcs'               : '10.1016/j.advengsoft.2015.11.004',
+    'vns'               : '10.1016/S0305-0548(97)00031-2',
     'waoa'              : '10.1038/s41598-023-35863-5',
     'warso'             : '10.1109/ACCESS.2022.3153493',
     'wca'               : '10.1016/j.compstruc.2012.07.010',
