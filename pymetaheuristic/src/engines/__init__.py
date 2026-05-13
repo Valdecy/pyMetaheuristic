@@ -120,6 +120,7 @@ from .es                 import ESEngine
 from .esc                import ESCEngine
 from .eso                import ESOEngine
 from .esoa               import ESOAEngine
+from .et_bo              import ETBOEngine
 from .eto                import ETOEngine
 from .evo                import EVOEngine
 from .fata               import FATAEngine
@@ -143,6 +144,7 @@ from .fwa                import FWAEngine
 from .ga                 import GAEngine
 from .gazelle_oa         import GazelleOAEngine
 from .gbo                import GBOEngine
+from .gbrt_bo            import GBRTBOEngine
 from .gco                import GCOEngine
 from .gea                import GEAEngine
 from .ggo                import GGOEngine
@@ -153,6 +155,7 @@ from .gmo                import GMOEngine
 from .gndo               import GNDOEngine
 from .go_growth          import GOGrowthEngine
 from .goa                import GOAEngine
+from .gp_bo              import GPBOEngine
 from .gpoo               import GPOOEngine
 from .gpso               import GPSOEngine
 from .gsa                import GSAEngine
@@ -252,6 +255,7 @@ from .qsa                import QSAEngine
 from .random_s           import RANDOM_SEngine
 from .rbmo               import RBMOEngine
 from .rcco               import RCCOEngine
+from .rf_bo              import RFBOEngine
 from .rfo                import RFOEngine
 from .rhso               import RHSOEngine
 from .rime               import RIMEEngine
@@ -344,11 +348,11 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     CrayfishOAEngine, DAEngine, DBOEngine, DDAOEngine, DEEngine, DEODolphinEngine, DFOEngine, DMOAEngine,
     DOAEngine, DVBAEngine, DreamOAEngine, DSOEngine, DandelionOEngine, EAOEngine, ECOEngine, ECPOEngine, EDOEngine,
     EFOEngine, EGOEngine, EHOEngine, EOEngine, EOAEngine, EPCEngine, EPEngine, ESCEngine,
-    ESEngine, ESOAEngine, ESOEngine, ETOEngine, EVOEngine, EcologicalCycleOEngine, ElkHOEngine, FATAEngine,
+    ESEngine, ESOAEngine, ESOEngine, ETBOEngine, ETOEngine, EVOEngine, EcologicalCycleOEngine, ElkHOEngine, FATAEngine,
     FBIOEngine, FDAEngine, FDOEngine, FEPEngine, FFAEngine, FFOEngine, FIREFLY_AEngine, FLAEngine,
     FOAEngine, FOAFossaEngine, FOXEngine, FPAEngine, FRCGEngine, FROFIEngine, FSSEngine, FloodAEngine,
-    FWAEngine, GAEngine, GBOEngine, GCOEngine, GEAEngine, GGOEngine, GJAEngine, GJOEngine,
-    GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPOOEngine, GPSOEngine, GSAEngine, GSKAEngine,
+    FWAEngine, GAEngine, GBOEngine, GBRTBOEngine, GCOEngine, GEAEngine, GGOEngine, GJAEngine, GJOEngine,
+    GKSOEngine, GMOEngine, GNDOEngine, GOAEngine, GOGrowthEngine, GPBOEngine, GPOOEngine, GPSOEngine, GSAEngine, GSKAEngine,
     GSOEngine, GSOGliderSnakeEngine, GTOEngine, GazelleOAEngine, GWOEngine, HBAEngine, HBAHoneyEngine, HBOEngine,
     HCEngine, HCOEngine, HDEEngine, HEOAEngine, HGSEngine, HGSOEngine, HHOEngine, HSAEngine,
     HSABAEngine, HUSEngine, HikingOAEngine, HippoEngine, HorseOAEngine, IAGWOEngine, ICAEngine, IKOAEngine,
@@ -360,7 +364,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     NCAEngine, NLAPSMJSOEDAEngine, NGOEngine, NMMEngine, NMRAEngine, NNDREASOEngine, NOAEngine, NROEngine, NWOAEngine,
     OFAEngine, OOAEngine, PBILEngine, PCXEngine, PDOEngine, PETIOEngine, PFAEngine, PFAPolarFoxEngine, PKOEngine,
     PLBAEngine, PLOEngine, POAEngine, PROEngine, PSOEngine, PSSEngine, ParrotOEngine, PoliticalOEngine,
-    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RCCOEngine, RFOEngine, RHSOEngine, RIMEEngine, RMSPropEngine,
+    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RCCOEngine, RFOEngine, RFBOEngine, RHSOEngine, RIMEEngine, RMSPropEngine,
     ROAEngine, RSAEngine, RSOEngine, RUNEngine, SADEAMSSEngine, SADEATDSCEngine, SADESammonEngine, SABAEngine,
     SACCEAMIIEngine, SACOSOEngine, SAMSOEngine, SAPOEngine, SAROEngine, SAEngine, SBOAEngine, SBOEngine,
     SCHOEngine, SCSoEngine, SDEngine, SERVALOAEngine, SFOAEngine, SFOEngine, SHADEEngine, SHIOSuccessEngine,
@@ -391,7 +395,6 @@ __all__ = [
 ]
 
 # Table-derived algorithm IDs.
-
 _TABLE_ALGORITHM_IDS: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'adam', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha',
     'aho', 'ala', 'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom',
@@ -401,9 +404,9 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'compact_ga', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
     'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dream_oa', 'dso',
     'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa',
-    'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
+    'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'et_bo', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
     'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa', 'fox', 'fpa', 'frcg', 'frofi', 'fss', 'fwa', 'ga',
-    'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa','gpoo',
+    'gazelle_oa', 'gbo', 'gbrt_bo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso', 'gmo', 'gndo', 'go_growth', 'goa', 'gp_bo', 'gpoo',
     'gpso', 'gsa', 'gska', 'gso', 'gso_glider_snake',  'gto', 'gwo', 'hba', 'hba_honey', 'hbo', 'hc', 'hco', 'hde', 'heoa', 'hgs',
     'hgso', 'hho', 'hiking_oa', 'ho_hippo', 'horse_oa', 'hsa', 'hsaba', 'hus', 'iagwo',  'i_gwo', 'i_woa', 'ica',
     'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
@@ -411,7 +414,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
     'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa',
     'ofa', 'ooa', 'parrot_o', 'pbil', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro',
-    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rcco', 'rsa', 'rso',
+    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo',  'rf_bo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rcco', 'rsa', 'rso',
     'run', 'sa', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo',
     'saro', 'sbo', 'sboa', 'scho', 'scso', 'sd', 'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio',
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
@@ -623,6 +626,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'esc'               : 'Escape Algorithm',
     'eso'               : 'Electrical Storm Optimization',
     'esoa'              : 'Egret Swarm Optimization Algorithm',
+    'et_bo'             : 'Extra-Trees Bayesian Optimization',
     'eto'               : 'Exponential-Trigonometric Optimization',
     'evo'               : 'Energy Valley Optimizer',
     'fata'              : 'FATA Geophysics Optimizer',
@@ -646,6 +650,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'ga'                : 'Genetic Algorithm',
     'gazelle_oa'        : 'Gazelle Optimization Algorithm',
     'gbo'               : 'Gradient-Based Optimizer',
+    'gbrt_bo'           : 'Gradient-Boosted Regression Trees Bayesian Optimization',
     'gco'               : 'Germinal Center Optimization',
     'gea'               : 'Geyser Inspired Algorithm',
     'ggo'               : 'Greylag Goose Optimization',
@@ -656,6 +661,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'gndo'              : 'Generalized Normal Distribution Optimizer',
     'go_growth'         : 'Growth Optimizer',
     'goa'               : 'Grasshopper Optimization Algorithm',
+    'gp_bo'             : 'Gaussian Process Bayesian Optimization',
     'gpoo'              : 'Giant Pacific Octopus Optimizer',
     'gpso'              : 'Gradient-Based Particle Swarm Optimization',
     'gsa'               : 'Gravitational Search Algorithm',
@@ -755,6 +761,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'random_s'          : 'Random Search',
     'rbmo'              : 'Red-billed Blue Magpie Optimizer',
     'rcco'              : 'Rain-Cloud Condensation Optimizer',
+    'rf_bo'             : 'Random Forest Bayesian Optimization',
     'rfo'               : "Rüppell's Fox Optimizer",
     'rhso'              : 'Rock Hyraxes Swarm Optimization',
     'rime'              : 'RIME-ice Algorithm',
@@ -941,6 +948,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'esc'               : 'human',
     'eso'               : 'physics',
     'esoa'              : 'swarm',
+    'et_bo'             : 'math',
     'eto'               : 'math',
     'evo'               : 'physics',
     'fata'              : 'physics',
@@ -963,6 +971,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'fwa'               : 'swarm',
     'ga'                : 'evolutionary',
     'gazelle_oa'        : 'swarm',
+    'gbrt_bo'           : 'math',
     'gbo'               : 'math',
     'gco'               : 'human',
     'gea'               : 'physics',
@@ -974,6 +983,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'gndo'              : 'math',
     'go_growth'         : 'swarm',
     'goa'               : 'swarm',
+    'gp_bo'             : 'math',
     'gpoo'              : 'swarm',
     'gpso'              : 'swarm',
     'gsa'               : 'physics',
@@ -1072,6 +1082,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'qsa'               : 'human',
     'random_s'          : 'trajectory',
     'rbmo'              : 'swarm',
+    'rf_bo'             : 'math',
     'rfo'               : 'swarm',
     'rhso'              : 'swarm',
     'rime'              : 'physics',
@@ -1259,6 +1270,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'esc'               : '10.1007/s10462-024-11008-6',
     'eso'               : '10.3390/make7010024',
     'esoa'              : '10.3390/biomimetics7040144',
+    'et_bo'             : '10.1007/s10994-006-6226-1',
     'eto'               : '10.1016/j.cma.2024.117411',
     'evo'               : '10.1038/s41598-022-27344-y',
     'fata'              : '10.1016/j.neucom.2024.128289',
@@ -1282,6 +1294,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'ga'                : '10.7551/mitpress/1090.001.0001',
     'gazelle_oa'        : '10.1007/s00521-022-07854-6',
     'gbo'               : '10.1007/s11831-022-09872-y',
+    'gbrt_bo'           : '10.1214/aos/1013203451',
     'gco'               : '10.1016/j.ifacol.2018.07.300',
     'gea'               : '10.1007/s42235-023-00437-8',
     'ggo'               : '10.1016/j.eswa.2023.122147',
@@ -1292,6 +1305,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'gndo'              : '10.1016/j.enconman.2020.113301',
     'go_growth'         : '10.1016/j.knosys.2022.110206',
     'goa'               : '10.1016/j.advengsoft.2017.01.004',
+    'gp_bo'             : '10.1023/A:1008306431147',
     'gpoo'              : '10.1007/s12065-024-00945-4',
     'gpso'              : '10.48550/arXiv.2312.09703',
     'gsa'               : '10.1016/j.ins.2009.03.004',
@@ -1391,6 +1405,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'random_s'          : '10.1016/j.advengsoft.2022.103141',
     'rbmo'              : '10.1007/s10462-024-10716-3',
     'rcco'              : '10.3390/eng6100281',
+    'rf_bo'             : '10.1023/A:1010933404324',
     'rfo'               : '10.1007/s10586-024-04950-1',
     'rhso'              : '10.32604/cmc.2021.013648',
     'rime'              : '10.1016/j.neucom.2023.02.010',
