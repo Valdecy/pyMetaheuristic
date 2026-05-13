@@ -43,6 +43,7 @@ from .aso_atom           import ASOAtomEngine
 from .autov              import AutoVEngine
 from .avoa               import AVOAEngine
 from .bat_a              import BATAEngine
+from .bacterial_colony_o import BacterialColonyOEngine
 from .bbo                import BBOEngine
 from .bboa               import BBOAEngine
 from .bco                import BCOEngine
@@ -98,6 +99,7 @@ from .dfo                import DFOEngine
 from .dmoa               import DMOAEngine
 from .do_dandelion       import DandelionOEngine
 from .doa                import DOAEngine
+from .dream_oa           import DreamOAEngine
 from .dso                import DSOEngine
 from .dvba               import DVBAEngine
 from .eao                import EAOEngine
@@ -294,6 +296,7 @@ from .spbo               import SPBOEngine
 from .sqp                import SQPEngine
 from .squirrel_sa        import SquirrelSAEngine
 from .srsr               import SRSREngine
+from .srsr_robotics      import SRSRRoboticsEngine
 from .ssa                import SSAEngine
 from .ssdo               import SSDOEngine
 from .ssio_rl            import SSIORLEngine
@@ -331,14 +334,14 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AAAEngine, ABCOEngine, ACGWOEngine, ACOEngine, ACOREngine, AEFAEngine, AEOEngine, AESSPSOEngine,
     AFSAEngine, AFTEngine, AGTOEngine, AHAEngine, AHOEngine, ALAEngine, ALOEngine, AOAEngine,
     AOEngine, APOEngine, ARCHOAEngine, AROEngine, ARSEngine, ASOAtomEngine, ASOEngine, AVOAEngine,
-    AdamEngine, ArtemisininOEngine, AutoVEngine, BATAEngine, BBOAEngine, BBOEngine, BCOEngine,
+    AdamEngine, ArtemisininOEngine, AutoVEngine, BacterialColonyOEngine, BATAEngine, BBOAEngine, BBOEngine, BCOEngine,
     BEAEngine, BESEngine, BFGSEngine, BFOEngine, BKAEngine, BMOEngine, BOAEngine, BPSEngine, BROEngine,
     BSPGAEngine, BSAEngine, BSOEngine, BTOAEngine, BWOEngine, BonobOEngine, CAEngine, CAT_SOEngine, CDDOChildEngine,
     CDDOEngine, CDOChornobylEngine, CDOEngine, CEOCosmicEngine, CEMEngine, CGOEngine, CHICKEN_SOEngine, CHIOEngine,
     CIRCLESAEngine, CLONALGEngine, CMAESEngine, COAEngine, COATI_OAEngine, COCKROACH_SOEngine, COOTEngine, CROEngine,
     CSAEngine, CSBOEngine, CSOEngine, CUCKOO_SEngine, CamelEngine, CapSAEngine, ChOAEngine, ChameleonSAEngine,
     CrayfishOAEngine, DAEngine, DBOEngine, DDAOEngine, DEEngine, DEODolphinEngine, DFOEngine, DMOAEngine,
-    DOAEngine, DVBAEngine, DSOEngine, DandelionOEngine, EAOEngine, ECOEngine, ECPOEngine, EDOEngine,
+    DOAEngine, DVBAEngine, DreamOAEngine, DSOEngine, DandelionOEngine, EAOEngine, ECOEngine, ECPOEngine, EDOEngine,
     EFOEngine, EGOEngine, EHOEngine, EOEngine, EOAEngine, EPCEngine, EPEngine, ESCEngine,
     ESEngine, ESOAEngine, ESOEngine, ETOEngine, EVOEngine, EcologicalCycleOEngine, ElkHOEngine, FATAEngine,
     FBIOEngine, FDAEngine, FDOEngine, FEPEngine, FFAEngine, FFOEngine, FIREFLY_AEngine, FLAEngine,
@@ -361,7 +364,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SACCEAMIIEngine, SACOSOEngine, SAMSOEngine, SAPOEngine, SAROEngine, SAEngine, SBOAEngine, SBOEngine,
     SCHOEngine, SCSoEngine, SDEngine, SERVALOAEngine, SFOAEngine, SFOEngine, SHADEEngine, SHIOSuccessEngine,
     SHIOEngine, SHOEngine, SINE_COSINE_AEngine, SLOEngine, SMAEngine, SMOEngine, SOAEngine, SOOEngine,
-    SOSEngine, SPBOEngine, SQPEngine, SRSREngine, SSAEngine, SSDOEngine, SSIORLEngine, SSOEngine,
+    SOSEngine, SPBOEngine, SQPEngine, SRSREngine, SRSRRoboticsEngine, SSAEngine, SSDOEngine, SSIORLEngine, SSOEngine,
     SSPIDERAEngine, STOEngine, SeaHOEngine, SnakeOptimizerEngine, SnowOAEngine, SparrowSAEngine, SquirrelSAEngine, SuperbFOAEngine,
     SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine,
     TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, WAOAEngine, WARSOEngine,
@@ -387,14 +390,15 @@ __all__ = [
 ]
 
 # Table-derived algorithm IDs.
+
 _TABLE_ALGORITHM_IDS: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'adam', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha',
     'aho', 'ala', 'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom',
-    'autov', 'avoa', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 'bka', 'bmo', 'boa', 'bono',
+    'autov', 'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 'bka', 'bmo', 'boa', 'bono',
     'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo',
     'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa',
     'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
-    'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dso',
+    'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dream_oa', 'dso',
     'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa',
     'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
     'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa', 'fox', 'fpa', 'frcg', 'frofi', 'fss', 'fwa', 'ga',
@@ -410,21 +414,22 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'run', 'sa', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo',
     'saro', 'sbo', 'sboa', 'scho', 'scso', 'sd', 'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio',
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
-    'sparrow_sa', 'spbo', 'sqp', 'squirrel_sa', 'srsr', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto',
+    'sparrow_sa', 'spbo', 'sqp', 'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto',
     'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'ts', 'tsa', 'tso',
     'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse',
     'zoa',
 }
 
+
 # Algorithms marked as population-based in the table.
 _POPULATION_BASED: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
-    'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov', 'avoa',
+    'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov', 'avoa', 'bacterial_colony_o', 
     'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo', 'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga',
     'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic',
     'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa',
     'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo', 'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de',
-    'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dso', 'dvba', 'eao', 'eco', 'ecological_cycle_o',
+    'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dream_oa', 'dso', 'dvba', 'eao', 'eco', 'ecological_cycle_o',
     'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa', 'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto',
     'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo', 'firefly_a', 'fla', 'flood_a', 'foa', 'foa_fossa',
     'fox', 'fpa', 'frofi', 'fss', 'fwa', 'ga', 'gazelle_oa', 'gbo', 'gco', 'gea', 'ggo', 'gja', 'gjo', 'gkso',
@@ -438,7 +443,7 @@ _POPULATION_BASED: set[str] = {
     'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rcco', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2',
     'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso',
     'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma',
-    'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo', 'squirrel_sa', 'srsr', 'ssa', 'ssdo',
+    'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo', 'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo',
     'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc',
     'tpo', 'tsa', 'tso', 'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso',
     'wutp', 'ydse', 'zoa',
@@ -483,12 +488,12 @@ _RESTART_ENABLED: set[str] = {
 _SNAPSHOT_FIT_ENABLED: set[str] = {
     'abco', 'acgwo', 'aco', 'acor', 'aeo', 'aefa', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
     'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov',
-    'avoa', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo',
+    'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo',
     'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo',
     'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so',
     'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'cro',
     'csa', 'csbo', 'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa',
-    'do_dandelion', 'doa', 'dso', 'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo',
+    'do_dandelion', 'doa', 'dream_oa', 'dso', 'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo',
     'ego', 'eho', 'elk_ho', 'eo', 'eoa', 'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo',
     'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo', 'firefly_a', 'fla', 'flood_a', 'foa',
     'foa_fossa', 'fox', 'fpa', 'frofi', 'fss', 'fwa', 'ga', 'gazelle_oa', 'gbo', 'gco', 'gea',
@@ -505,7 +510,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso', 'seaho',
     'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo',
     'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo',
-    'squirrel_sa', 'srsr', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa',
+    'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa',
     'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tsa', 'tso', 'ttao', 'two',
     'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse', 'zoa',
 }
@@ -539,6 +544,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'aso_atom'          : 'Atom Search Optimization',
     'autov'             : 'Automated Design of Variation Operators',
     'avoa'              : 'African Vultures Optimization Algorithm',
+    'bacterial_colony_o': 'Bacterial Colony Optimization',
     'bat_a'             : 'Bat Algorithm',
     'bbo'               : 'Biogeography-Based Optimization',
     'bboa'              : 'Brown-Bear Optimization Algorithm',
@@ -595,6 +601,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'dmoa'              : 'Dwarf Mongoose Optimization Algorithm',
     'do_dandelion'      : 'Dandelion Optimizer',
     'doa'               : 'Deer Hunting Optimization Algorithm',
+    'dream_oa'          : 'Dream Optimization Algorithm',
     'dso'               : 'Deep Sleep Optimiser',
     'dvba'              : 'Dynamic Virtual Bats Algorithm',
     'eao'               : 'Enzyme Activity Optimizer',
@@ -791,6 +798,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'sqp'               : 'Sequential Quadratic Programming',
     'squirrel_sa'       : 'Squirrel Search Algorithm',
     'srsr'              : 'Shuffle-based Runner-Root Algorithm',
+    'srsr_robotics'     : 'Swarm Robotics Search And Rescue',
     'ssa'               : 'Salp Swarm Algorithm',
     'ssdo'              : 'Social Ski-Driver Optimization',
     'ssio_rl'           : 'Search Space Independent Operator Based Deep Reinforcement Learning',
@@ -853,6 +861,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'aso_atom'          : 'physics',
     'autov'             : 'evolutionary',
     'avoa'              : 'swarm',
+    'bacterial_colony_o': 'nature',
     'bat_a'             : 'swarm',
     'bbo'               : 'evolutionary',
     'bboa'              : 'swarm',
@@ -909,6 +918,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'dmoa'              : 'swarm',
     'do_dandelion'      : 'physics',
     'doa'               : 'human',
+    'dream_oa'          : 'human',
     'dso'               : 'human',
     'dvba'              : 'swarm',
     'eao'               : 'nature',
@@ -1105,6 +1115,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'sqp'               : 'math',
     'squirrel_sa'       : 'swarm',
     'srsr'              : 'swarm',
+    'srsr_robotics'     : 'swarm',
     'ssa'               : 'swarm',
     'ssdo'              : 'human',
     'ssio_rl'           : 'evolutionary',
@@ -1139,7 +1150,6 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'zoa'               : 'swarm',
 }
 
-
 _ALGORITHM_DOIS: dict[str, str] = {
     'aaa'               : '10.1016/j.asoc.2015.03.003',
     'abco'              : '10.1007/s10898-007-9149-x',
@@ -1168,6 +1178,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'aso_atom'          : '10.1016/j.knosys.2018.08.030',
     'autov'             : '10.1145/3712256.3726456',
     'avoa'              : '10.1016/j.cie.2021.107408',
+    'bacterial_colony_o': '10.1155/2012/698057',
     'bat_a'             : '10.1007/978-3-642-12538-6_6',
     'bbo'               : '10.1109/TEVC.2008.919004',
     'bboa'              : '10.1201/9781003337003-6',
@@ -1224,6 +1235,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'dmoa'              : '10.1016/j.cma.2022.114570',
     'do_dandelion'      : '10.1016/j.engappai.2022.105075',
     'doa'               : '10.1093/comjnl/bxy133',
+    'dream_oa'          : '10.1016/j.cma.2024.117718',
     'dso'               : '10.1109/ACCESS.2023.3298105',
     'dvba'              : '10.1109/INCoS.2014.40',
     'eao'               : '10.1007/s11227-025-07052-w',
@@ -1419,6 +1431,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'sqp'               : '10.1017/S0962492900002518',
     'squirrel_sa'       : '10.1016/j.swevo.2018.02.013',
     'srsr'              : '10.1007/978-3-319-70139-4_16',
+    'srsr_robotics'     : '10.1016/j.asoc.2017.02.028',
     'ssa'               : '10.1016/j.advengsoft.2017.07.002',
     'ssdo'              : '10.1007/s00521-019-04159-z',
     'ssio_rl'           : 'https://www.ieee-jas.net/en/article/doi/10.1109/JAS.2025.125444',
