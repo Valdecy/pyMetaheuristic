@@ -317,6 +317,7 @@ from .tlco               import TLCOEngine
 from .toa                import TOAEngine
 from .toc                import TOCEngine
 from .tpo                import TPOEngine
+from .tree_seed_a        import TreeSeedAEngine
 from .ts                 import TSEngine
 from .tsa                import TSAEngine
 from .tso                import TSOEngine
@@ -371,7 +372,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SHIOEngine, SHOEngine, SINE_COSINE_AEngine, SLOEngine, SMAEngine, SMOEngine, SOAEngine, SOOEngine,
     SOSEngine, SPBOEngine, SQPEngine, SRSREngine, SRSRRoboticsEngine, SSAEngine, SSDOEngine, SSIORLEngine, SSOEngine,
     SSPIDERAEngine, STOEngine, SeaHOEngine, SnakeOptimizerEngine, SnowOAEngine, SparrowSAEngine, SquirrelSAEngine, SuperbFOAEngine,
-    SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine,
+    SupplyDOEngine, TDOEngine, THROEngine, TLBOEngine, TLCOEngine, TOAEngine, TOCEngine, TPOEngine, TreeSeedAEngine,
     TSAEngine, TSEngine, TSOEngine, TTAOEngine, TWOEngine, VCSEngine, WAOAEngine, WARSOEngine,
     WCAEngine, WDOEngine, WHOEngine, WOAEngine, WSOEngine, WUTPEngine, WaveOptEngine, YDSEEngine, ZOAEngine,
 )
@@ -419,7 +420,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'saro', 'sbo', 'sboa', 'scho', 'scso', 'sd', 'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio',
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
     'sparrow_sa', 'spbo', 'sqp', 'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto',
-    'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'ts', 'tsa', 'tso',
+    'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tree_seed_a',  'ts', 'tsa', 'tso',
     'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse',
     'zoa',
 }
@@ -449,7 +450,7 @@ _POPULATION_BASED: set[str] = {
     'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma',
     'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo', 'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo',
     'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa', 'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc',
-    'tpo', 'tsa', 'tso', 'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso',
+    'tpo', 'tree_seed_a', 'tsa', 'tso', 'ttao', 'two', 'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso',
     'wutp', 'ydse', 'zoa',
 }
 
@@ -515,7 +516,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo',
     'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo',
     'squirrel_sa', 'srsr', 'srsr_robotics', 'ssa', 'ssdo', 'ssio_rl', 'sso', 'sspider_a', 'sto', 'superb_foa',
-    'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tsa', 'tso', 'ttao', 'two',
+    'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tree_seed_a', 'tsa', 'tso', 'ttao', 'two',
     'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse', 'zoa',
 }
     
@@ -823,6 +824,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'toa'               : 'Teamwork Optimization Algorithm',
     'toc'               : 'Tornado Optimizer with Coriolis Force',
     'tpo'               : 'Tree Physiology Optimization',
+    'tree_seed_a'       : 'Tree-Seed Algorithm',
     'ts'                : 'Tabu Search',
     'tsa'               : 'Tunicate Swarm Algorithm',
     'tso'               : 'Tuna Swarm Optimization',
@@ -1145,6 +1147,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'toa'               : 'human',
     'toc'               : 'physics',
     'tpo'               : 'nature',
+    'tree_seed_a'       : 'nature',
     'ts'                : 'trajectory',
     'tsa'               : 'swarm',
     'tso'               : 'swarm',
@@ -1466,6 +1469,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'toa'               : '10.3390/s21134567',
     'toc'               : '10.1007/s10462-025-11118-9',
     'tpo'               : '10.1515/jisys-2017-0156',
+    'tree_seed_a'       : '10.1016/j.eswa.2015.04.055',
     'ts'                : '10.1287/ijoc.1.3.190',
     'tsa'               : '10.1016/j.engappai.2020.103541',
     'tso'               : '10.1155/2021/9210050',
