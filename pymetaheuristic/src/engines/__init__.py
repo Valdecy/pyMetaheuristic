@@ -83,6 +83,7 @@ from .cmaes              import CMAESEngine
 from .coa                import COAEngine
 from .coati_oa           import COATI_OAEngine
 from .cockroach_so       import COCKROACH_SOEngine
+from .compact_ga         import CompactGAEngine
 from .coot               import COOTEngine
 from .crayfish_oa        import CrayfishOAEngine
 from .cro                import CROEngine
@@ -338,7 +339,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     BEAEngine, BESEngine, BFGSEngine, BFOEngine, BKAEngine, BMOEngine, BOAEngine, BPSEngine, BROEngine,
     BSPGAEngine, BSAEngine, BSOEngine, BTOAEngine, BWOEngine, BonobOEngine, CAEngine, CAT_SOEngine, CDDOChildEngine,
     CDDOEngine, CDOChornobylEngine, CDOEngine, CEOCosmicEngine, CEMEngine, CGOEngine, CHICKEN_SOEngine, CHIOEngine,
-    CIRCLESAEngine, CLONALGEngine, CMAESEngine, COAEngine, COATI_OAEngine, COCKROACH_SOEngine, COOTEngine, CROEngine,
+    CIRCLESAEngine, CLONALGEngine, CMAESEngine, COAEngine, COATI_OAEngine, COCKROACH_SOEngine, CompactGAEngine, COOTEngine, CROEngine,
     CSAEngine, CSBOEngine, CSOEngine, CUCKOO_SEngine, CamelEngine, CapSAEngine, ChOAEngine, ChameleonSAEngine,
     CrayfishOAEngine, DAEngine, DBOEngine, DDAOEngine, DEEngine, DEODolphinEngine, DFOEngine, DMOAEngine,
     DOAEngine, DVBAEngine, DreamOAEngine, DSOEngine, DandelionOEngine, EAOEngine, ECOEngine, ECPOEngine, EDOEngine,
@@ -397,7 +398,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'autov', 'avoa', 'bacterial_colony_o', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 'bka', 'bmo', 'boa', 'bono',
     'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo',
     'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa',
-    'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
+    'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'compact_ga', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
     'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dream_oa', 'dso',
     'dvba', 'eao', 'eco', 'ecological_cycle_o', 'ecpo', 'edo', 'efo', 'ego', 'eho', 'elk_ho', 'eo', 'eoa',
     'ep', 'epc', 'es', 'esc', 'eso', 'esoa', 'eto', 'evo', 'fata', 'fbio', 'fda', 'fdo', 'fep', 'ffa', 'ffo',
@@ -585,6 +586,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'coa'               : 'Coyote Optimization Algorithm',
     'coati_oa'          : 'Coati Optimization Algorithm',
     'cockroach_so'      : 'Cockroach Swarm Optimization',
+    'compact_ga'        : 'Compact Genetic Algorithm',
     'coot'              : 'COOT Bird Optimization',
     'crayfish_oa'       : 'Crayfish Optimization Algorithm',
     'cro'               : 'Coral Reefs Optimization',
@@ -902,6 +904,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'coa'               : 'swarm',
     'coati_oa'          : 'swarm',
     'cockroach_so'      : 'swarm',
+    'compact_ga'        : 'evolutionary',
     'coot'              : 'swarm',
     'crayfish_oa'       : 'swarm',
     'cro'               : 'evolutionary',
@@ -1219,6 +1222,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'coa'               : '10.1109/CEC.2018.8477769',
     'coati_oa'          : '10.1016/j.knosys.2022.110011',
     'cockroach_so'      : '10.1109/ICCET.2010.5485993',
+    'compact_ga'        : '10.1109/4235.797971',
     'coot'              : '10.1016/j.eswa.2021.115352',
     'crayfish_oa'       : '10.1007/s10462-023-10567-4',
     'cro'               : '10.1155/2014/739768',
