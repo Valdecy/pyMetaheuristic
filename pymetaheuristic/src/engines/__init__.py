@@ -54,10 +54,12 @@ from .bka                import BKAEngine
 from .bmo                import BMOEngine
 from .bo_bonobo          import BonobOEngine
 from .boa                import BOAEngine
+from .bps                import BPSEngine
 from .bro                import BROEngine
 from .bsa                import BSAEngine
 from .bso                import BSOEngine
 from .bspga              import BSPGAEngine
+from .btoa               import BTOAEngine
 from .bwo                import BWOEngine
 from .ca                 import CAEngine
 from .camel              import CamelEngine
@@ -217,6 +219,7 @@ from .mvo                import MVOEngine
 from .mvpa               import MVPAEngine
 from .nca                import NCAEngine
 from .ngo                import NGOEngine
+from .nlapsmjso_eda      import NLAPSMJSOEDAEngine
 from .nmm                import NMMEngine
 from .nmra               import NMRAEngine
 from .nndrea_so          import NNDREASOEngine
@@ -245,6 +248,7 @@ from .qio                import QIOEngine
 from .qsa                import QSAEngine
 from .random_s           import RANDOM_SEngine
 from .rbmo               import RBMOEngine
+from .rcco               import RCCOEngine
 from .rfo                import RFOEngine
 from .rhso               import RHSOEngine
 from .rime               import RIMEEngine
@@ -328,8 +332,8 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AFSAEngine, AFTEngine, AGTOEngine, AHAEngine, AHOEngine, ALAEngine, ALOEngine, AOAEngine,
     AOEngine, APOEngine, ARCHOAEngine, AROEngine, ARSEngine, ASOAtomEngine, ASOEngine, AVOAEngine,
     AdamEngine, ArtemisininOEngine, AutoVEngine, BATAEngine, BBOAEngine, BBOEngine, BCOEngine,
-    BEAEngine, BESEngine, BFGSEngine, BFOEngine, BKAEngine, BMOEngine, BOAEngine, BROEngine,
-    BSPGAEngine, BSAEngine, BSOEngine, BWOEngine, BonobOEngine, CAEngine, CAT_SOEngine, CDDOChildEngine,
+    BEAEngine, BESEngine, BFGSEngine, BFOEngine, BKAEngine, BMOEngine, BOAEngine, BPSEngine, BROEngine,
+    BSPGAEngine, BSAEngine, BSOEngine, BTOAEngine, BWOEngine, BonobOEngine, CAEngine, CAT_SOEngine, CDDOChildEngine,
     CDDOEngine, CDOChornobylEngine, CDOEngine, CEOCosmicEngine, CEMEngine, CGOEngine, CHICKEN_SOEngine, CHIOEngine,
     CIRCLESAEngine, CLONALGEngine, CMAESEngine, COAEngine, COATI_OAEngine, COCKROACH_SOEngine, COOTEngine, CROEngine,
     CSAEngine, CSBOEngine, CSOEngine, CUCKOO_SEngine, CamelEngine, CapSAEngine, ChOAEngine, ChameleonSAEngine,
@@ -349,10 +353,10 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     LOAEngine, LOALyrebirdEngine, LPOEngine, LSHADECnEpSinEngine, LSOSpectrumEngine, LiWOEngine, MBOEngine, MEMETIC_AEngine,
     MFEA2Engine, MFEAEngine, MFAEngine, MGOAMarketEngine, MGOEngine, MKEEngine, MPAEngine, MRFOEngine,
     MSAEngine, MSHOAEngine, MSOEngine, MTSEngine, MVOEngine, MVPAEngine, MiSACOEngine, MossGOEngine,
-    NCAEngine, NGOEngine, NMMEngine, NMRAEngine, NNDREASOEngine, NOAEngine, NROEngine, NWOAEngine,
+    NCAEngine, NLAPSMJSOEDAEngine, NGOEngine, NMMEngine, NMRAEngine, NNDREASOEngine, NOAEngine, NROEngine, NWOAEngine,
     OFAEngine, OOAEngine, PBILEngine, PCXEngine, PDOEngine, PETIOEngine, PFAEngine, PFAPolarFoxEngine, PKOEngine,
     PLBAEngine, PLOEngine, POAEngine, PROEngine, PSOEngine, PSSEngine, ParrotOEngine, PoliticalOEngine,
-    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RFOEngine, RHSOEngine, RIMEEngine, RMSPropEngine,
+    PumaOEngine, QIOEngine, QSAEngine, RANDOM_SEngine, RBMOEngine, RCCOEngine, RFOEngine, RHSOEngine, RIMEEngine, RMSPropEngine,
     ROAEngine, RSAEngine, RSOEngine, RUNEngine, SADEAMSSEngine, SADEATDSCEngine, SADESammonEngine, SABAEngine,
     SACCEAMIIEngine, SACOSOEngine, SAMSOEngine, SAPOEngine, SAROEngine, SAEngine, SBOAEngine, SBOEngine,
     SCHOEngine, SCSoEngine, SDEngine, SERVALOAEngine, SFOAEngine, SFOEngine, SHADEEngine, SHIOSuccessEngine,
@@ -383,11 +387,11 @@ __all__ = [
 ]
 
 # Table-derived algorithm IDs.
-_TABLE_ALGORITHM_IDS: set[str] = {
+_TABLE_ALGORITHM_IDS: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'adam', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha',
     'aho', 'ala', 'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom',
     'autov', 'avoa', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfgs', 'bfo', 'bka', 'bmo', 'boa', 'bono',
-    'bro', 'bsa', 'bso', 'bspga', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo',
+    'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo',
     'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa',
     'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo',
     'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dso',
@@ -400,9 +404,9 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo', 'memetic_a',
     'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
-    'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa',
+    'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa',
     'ofa', 'ooa', 'parrot_o', 'pbil', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro',
-    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rsa', 'rso',
+    'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'rmsprop', 'roa', 'rcco', 'rsa', 'rso',
     'run', 'sa', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo',
     'saro', 'sbo', 'sboa', 'scho', 'scso', 'sd', 'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio',
     'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos',
@@ -413,11 +417,11 @@ _TABLE_ALGORITHM_IDS: set[str] = {
 }
 
 # Algorithms marked as population-based in the table.
-_POPULATION_BASED: set[str] = {
+_POPULATION_BASED: set[str] = { 
     'aaa', 'abco', 'acgwo', 'aco', 'acor', 'aefa', 'aeo', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
     'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov', 'avoa',
-    'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo', 'boa', 'bono', 'bro', 'bsa', 'bso', 'bspga',
-    'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic',
+    'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo', 'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga',
+    'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo', 'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic',
     'cgo', 'chameleon_sa', 'chicken_so', 'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa',
     'cockroach_so', 'coot', 'crayfish_oa', 'cro', 'csa', 'csbo', 'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de',
     'deo_dolphin', 'dfo', 'dmoa', 'do_dandelion', 'doa', 'dso', 'dvba', 'eao', 'eco', 'ecological_cycle_o',
@@ -429,9 +433,9 @@ _POPULATION_BASED: set[str] = {
     'i_gwo', 'i_woa', 'ica', 'ikoa', 'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma',
     'l2smea', 'lca', 'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa', 'mrfo', 'msa_e',
-    'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa',
+    'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra', 'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa',
     'ooa', 'parrot_o', 'pcx', 'pdo', 'petio', 'pfa', 'pfa_polar_fox', 'pko', 'plba', 'plo', 'poa', 'political_o', 'pro', 'pso', 'pss',
-    'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2',
+    'puma_o', 'qio', 'qsa', 'random_s', 'rbmo', 'rcco', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2',
     'sacoso', 'sade_amss', 'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso',
     'seaho', 'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo', 'sma',
     'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo', 'squirrel_sa', 'srsr', 'ssa', 'ssdo',
@@ -480,7 +484,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'abco', 'acgwo', 'aco', 'acor', 'aeo', 'aefa', 'aesspso', 'afsa', 'aft', 'agto', 'aha', 'aho', 'ala',
     'alo', 'ao', 'aoa', 'apo', 'arch_oa', 'aro', 'ars', 'artemisinin_o', 'aso', 'aso_atom', 'autov',
     'avoa', 'bat_a', 'bbo', 'bboa', 'bco', 'bea', 'bes', 'bfo', 'bka', 'bmo',
-    'boa', 'bono', 'bro', 'bsa', 'bso', 'bspga', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo',
+    'boa', 'bono', 'bps', 'bro', 'bsa', 'bso', 'bspga', 'btoa', 'bwo', 'ca', 'camel', 'capsa', 'cat_so', 'cddo',
     'cddo_child', 'cdo', 'cdo_chernobyl', 'cem', 'ceo_cosmic', 'cgo', 'chameleon_sa', 'chicken_so',
     'chio', 'choa', 'circle_sa', 'clonalg', 'cmaes', 'coa', 'coati_oa', 'cockroach_so', 'coot', 'cro',
     'csa', 'csbo', 'cso', 'cuckoo_s', 'da', 'dbo', 'ddao', 'de', 'deo_dolphin', 'dfo', 'dmoa',
@@ -494,10 +498,10 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'ilshade', 'imode', 'info', 'ivya', 'iwo', 'jde', 'jso', 'jy', 'kha', 'kma', 'l2smea', 'lca',
     'lco', 'lfd', 'liwo', 'loa', 'loa_lyrebird', 'lpo', 'lshade_cnepsin', 'lso_spectrum', 'mbo',
     'memetic_a', 'mfa', 'mfea', 'mfea2', 'mgo', 'mgoa_market', 'misaco', 'mke', 'moss_go', 'mpa',
-    'mrfo', 'msa_e', 'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nmm', 'nmra',
+    'mrfo', 'msa_e', 'mshoa', 'mso', 'mts', 'mvo', 'mvpa', 'nca', 'ngo', 'nlapsmjso_eda', 'nmm', 'nmra',
     'nndrea_so', 'noa', 'nro', 'nwoa', 'ofa', 'ooa', 'parrot_o', 'pcx', 'pdo', 'petio', 'pfa', 'pko',
     'plba', 'plo', 'poa', 'political_o', 'pro', 'pso', 'pss', 'puma_o', 'qio', 'qsa', 'random_s',
-    'rbmo', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss',
+    'rbmo', 'rcco', 'rfo', 'rhso', 'rime', 'roa', 'rsa', 'rso', 'run', 'saba', 'sacc_eam2', 'sacoso', 'sade_amss',
     'sade_atdsc', 'sade_sammon', 'samso', 'sapo', 'saro', 'sbo', 'sboa', 'scho', 'scso', 'seaho',
     'serval_oa', 'sfo', 'sfoa', 'shade', 'shio', 'shio_success', 'sho', 'sine_cosine_a', 'slo',
     'sma', 'smo', 'snow_oa', 'so_snake', 'soa', 'soo', 'sos', 'sparrow_sa', 'spbo',
@@ -505,7 +509,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'supply_do', 'tdo', 'thro', 'tlbo', 'tlco', 'toa', 'toc', 'tpo', 'tsa', 'tso', 'ttao', 'two',
     'vcs', 'waoa', 'warso', 'wca', 'wdo', 'who', 'wo_wave', 'woa', 'wso', 'wutp', 'ydse', 'zoa',
 }
-
+    
 # Optional descriptive metadata from the table.
 _ALGORITHM_NAMES: dict[str, str] = {
     'aaa'               : 'Artificial Algae Algorithm',
@@ -547,10 +551,12 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'bmo'               : 'Barnacles Mating Optimizer',
     'boa'               : 'Butterfly Optimization Algorithm',
     'bono'              : 'Bonobo Optimizer',
+    'bps'               : 'Birds-of-Paradise Search',
     'bro'               : 'Battle Royale Optimization',
     'bsa'               : 'Bird Swarm Algorithm',
     'bso'               : 'Brain Storm Optimization',
     'bspga'             : 'Binary Space Partition Tree Genetic Algorithm',
+    'btoa'              : 'Basketball Team Optimization Algorithm',
     'bwo'               : 'Black Widow Optimization',
     'ca'                : 'Cultural Algorithm',
     'camel'             : 'Camel Algorithm',
@@ -710,6 +716,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'mvpa'              : 'Most Valuable Player Algorithm',
     'nca'               : 'Numeric Crunch Algorithm',
     'ngo'               : 'Northern Goshawk Optimization',
+    'nlapsmjso_eda'     : 'NLAPSMjSO-EDA',
     'nmm'               : 'Nelder-Mead Method',
     'nmra'              : 'Naked Mole-Rat Algorithm',
     'nndrea_so'         : 'Neural Network-Based Dimensionality Reduction Evolutionary Algorithm (SO)',
@@ -738,6 +745,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'qsa'               : 'Queuing Search Algorithm',
     'random_s'          : 'Random Search',
     'rbmo'              : 'Red-billed Blue Magpie Optimizer',
+    'rcco'              : 'Rain-Cloud Condensation Optimizer',
     'rfo'               : "Rüppell's Fox Optimizer",
     'rhso'              : 'Rock Hyraxes Swarm Optimization',
     'rime'              : 'RIME-ice Algorithm',
@@ -857,10 +865,12 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'bmo'               : 'swarm',
     'boa'               : 'swarm',
     'bono'              : 'swarm',
+    'bps'               : 'swarm',
     'bro'               : 'human',
     'bsa'               : 'swarm',
     'bso'               : 'human',
     'bspga'             : 'evolutionary',
+    'btoa'              : 'human',
     'bwo'               : 'evolutionary',
     'ca'                : 'evolutionary',
     'camel'             : 'swarm',
@@ -1020,6 +1030,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'mvpa'              : 'human',
     'nca'               : 'math',
     'ngo'               : 'swarm',
+    'nlapsmjso_eda'     : 'evolutionary',
     'nmm'               : 'trajectory',
     'nmra'              : 'swarm',
     'nndrea_so'         : 'evolutionary',
@@ -1053,6 +1064,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'rime'              : 'physics',
     'rmsprop'           : 'math',
     'roa'               : 'swarm',
+    'rcco'              : 'physics',
     'rsa'               : 'swarm',
     'rso'               : 'swarm',
     'run'               : 'math',
@@ -1127,6 +1139,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'zoa'               : 'swarm',
 }
 
+
 _ALGORITHM_DOIS: dict[str, str] = {
     'aaa'               : '10.1016/j.asoc.2015.03.003',
     'abco'              : '10.1007/s10898-007-9149-x',
@@ -1167,10 +1180,12 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'bmo'               : '10.1016/j.engappai.2019.103330',
     'boa'               : '10.1007/s00500-018-3102-4',
     'bono'              : '10.1007/s10489-021-02444-w',
+    'bps'               : '10.1007/s00521-026-11887-6',
     'bro'               : '10.1007/s00521-020-05004-4',
     'bsa'               : '10.1080/0952813X.2015.1042530',
     'bso'               : '10.1007/978-3-642-21515-5_36',
     'bspga'             : '10.1016/j.ins.2019.10.016',
+    'btoa'              : '10.1038/s41598-025-05477-0',
     'bwo'               : '10.1016/j.engappai.2019.103249',
     'ca'                : '10.1080/00207160.2015.1067309',
     'camel'             : '10.13140/RG.2.2.21814.56649',
@@ -1330,6 +1345,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'mvpa'              : '10.1007/s12351-017-0320-y',
     'nca'               : '10.1007/s00500-023-08925-z',
     'ngo'               : '10.1109/ACCESS.2021.3133286',
+    'nlapsmjso_eda'     : '10.3390/sym17020153',
     'nmm'               : '10.1093/comjnl/7.4.308',
     'nmra'              : '10.1007/s00521-019-04464-7',
     'nndrea_so'         : '10.1109/TEVC.2024.3400398',
@@ -1358,6 +1374,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'qsa'               : '10.1007/s12652-020-02849-4',
     'random_s'          : '10.1016/j.advengsoft.2022.103141',
     'rbmo'              : '10.1007/s10462-024-10716-3',
+    'rcco'              : '10.3390/eng6100281',
     'rfo'               : '10.1007/s10586-024-04950-1',
     'rhso'              : '10.32604/cmc.2021.013648',
     'rime'              : '10.1016/j.neucom.2023.02.010',
