@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-ControllerMode = Literal["fixed", "rules"]
+ControllerMode = Literal["fixed", "rules", "bandit", "portfolio_adaptive"]
 
 ActionType = Literal[
     "wait",
@@ -61,9 +61,50 @@ class RulesConfig:
 
 
 @dataclass
+class BanditConfig:
+    """Configuration for adaptive action selection using a small bandit model.
+
+    The bandit controller treats each orchestration action pattern as an arm.
+    Rewards are computed from the observed before/after fitness change minus a
+    small action-cost penalty.  It intentionally reuses the rule-based candidate
+    generator so it remains safe and interpretable.
+    """
+
+    policy: Literal["ucb", "epsilon_greedy", "greedy"] = "ucb"
+    exploration: float = 1.0
+    epsilon: float = 0.10
+    reward_window: int = 10
+    action_cost_penalty: float = 0.05
+    min_reward_to_act: float = -1.0e-12
+    use_rule_candidates: bool = True
+    include_wait_arm: bool = True
+
+
+@dataclass
+class PortfolioConfig:
+    """Configuration for portfolio-adaptive orchestration.
+
+    This controller changes its intervention preference as the budget is used:
+    exploration/diversity early, balanced transfer in the middle, and best-basin
+    exploitation late.
+    """
+
+    early_budget_ratio: float = 0.35
+    late_budget_ratio: float = 0.75
+    diversity_threshold: float = 0.10
+    stagnation_threshold: int = 5
+    perturbation_sigma: float = 0.05
+    rebalance_fraction: float = 0.20
+    prefer_heterogeneous_donors: bool = True
+    allow_restarts: bool = True
+
+
+@dataclass
 class CollaborativeConfig:
     orchestration: OrchestrationSpec = field(default_factory=OrchestrationSpec)
     rules: RulesConfig = field(default_factory=RulesConfig)
+    bandit: BanditConfig = field(default_factory=BanditConfig)
+    portfolio: PortfolioConfig = field(default_factory=PortfolioConfig)
 
 
 @dataclass

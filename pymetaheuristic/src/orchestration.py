@@ -6,7 +6,7 @@ from typing import Any
 from .api import create_optimizer
 from .cooperation import CooperativeRunner, IslandSpec
 from .actions import execute_decision_plan, outcome_to_dict
-from .controllers import FixedMigrationController, RuleBasedController
+from .controllers import BanditController, FixedMigrationController, PortfolioAdaptiveController, RuleBasedController
 from .schemas import (
     AgentSnapshot,
     CollaborativeConfig,
@@ -25,7 +25,7 @@ def _cfg_to_dataclass(config):
     if not isinstance(config, dict):
         raise TypeError("config must be None, CollaborativeConfig, or dict")
     cfg = CollaborativeConfig()
-    for section_name in ("orchestration", "rules"):
+    for section_name in ("orchestration", "rules", "bandit", "portfolio"):
         section = config.get(section_name)
         if isinstance(section, dict):
             obj = getattr(cfg, section_name)
@@ -193,8 +193,8 @@ class OrchestratedRunner:
         self.execution_backend = execution_backend
         self.n_jobs = n_jobs
         self.parallel_fallback_to_serial = parallel_fallback_to_serial
-        if self.config.orchestration.mode not in {"fixed", "rules"}:
-            raise ValueError("orchestration.mode must be 'fixed' or 'rules'.")
+        if self.config.orchestration.mode not in {"fixed", "rules", "bandit", "portfolio_adaptive"}:
+            raise ValueError("orchestration.mode must be 'fixed', 'rules', 'bandit', or 'portfolio_adaptive'.")
 
     def _build_controller(self):
         mode = self.config.orchestration.mode
@@ -202,6 +202,10 @@ class OrchestratedRunner:
             return FixedMigrationController()
         if mode == "rules":
             return RuleBasedController(self.config.orchestration, self.config.rules)
+        if mode == "bandit":
+            return BanditController(self.config.orchestration, self.config.rules, self.config.bandit)
+        if mode == "portfolio_adaptive":
+            return PortfolioAdaptiveController(self.config.orchestration, self.config.rules, self.config.portfolio)
         raise ValueError(f"Unsupported orchestration mode: {mode}")
 
     def run(self) -> OrchestratedCooperativeResult:
@@ -411,9 +415,19 @@ def orchestrated_optimize(*args, **kwargs) -> OrchestratedCooperativeResult:
             resample_attempts=kwargs.get("resample_attempts", 25),
             max_steps=kwargs.get("max_steps", 100),
             migration_interval=cfg.orchestration.checkpoint_interval,
-            migration_size=1,
-            migration_mode="elite",
-            topology="ring",
+            migration_size=cfg.orchestration.migration_size,
+            migration_mode=cfg.orchestration.migration_mode,
+            topology=cfg.orchestration.topology,
+            topology_config=dict(cfg.orchestration.topology_config or {}),
+            custom_topology=dict(cfg.orchestration.custom_topology or {}),
+            migration_policy=cfg.orchestration.migration_policy,
+            donor_strategy=cfg.orchestration.donor_strategy,
+            receiver_strategy=cfg.orchestration.receiver_strategy,
+            adaptive_checkpointing=cfg.orchestration.adaptive_checkpointing,
+            checkpoint_strategy=cfg.orchestration.checkpoint_strategy,
+            min_migration_interval=cfg.orchestration.min_migration_interval,
+            max_migration_interval=cfg.orchestration.max_migration_interval,
+            checkpoint_patience=cfg.orchestration.checkpoint_patience,
             seed=kwargs.get("seed"),
             verbose=kwargs.get("verbose", False),
             execution_backend=kwargs.get("execution_backend", "serial"),
