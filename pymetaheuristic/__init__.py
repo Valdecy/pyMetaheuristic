@@ -152,7 +152,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "5.9.1"
+__version__ = "5.9.3"
 
 __all__ = [
     "FUNCTIONS",
