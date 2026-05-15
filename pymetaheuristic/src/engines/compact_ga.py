@@ -18,7 +18,7 @@ class CompactGAEngine(BaseEngine):
 
     algorithm_id = "compact_ga"
     algorithm_name = "Compact Genetic Algorithm"
-    family = "evolutionary"
+    family = "distribution"
     _REFERENCE = {
         "doi": "10.1109/4235.797971",
         "title": "The Compact Genetic Algorithm",
