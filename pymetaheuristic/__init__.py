@@ -56,6 +56,16 @@ from .src.test_functions import (
     validate_cec2022_optima,
 )
 from .src.actions import estimate_action_cost
+from .src.diagnostics import (
+    action_effectiveness,
+    diagnostics_summary,
+    island_contribution,
+    island_roles,
+    migration_matrix,
+    plot_island_fitness,
+    plot_migration_network,
+    topology_summary,
+)
 from .src.telemetry import (
     convergence_data,
     export_history_csv,
@@ -132,8 +142,17 @@ from .src.io import (
     save_checkpoint,
     save_result,
 )
+from .src.islands import (
+    ExecutionConfig,
+    Island,
+    IslandConfig,
+    IslandSystem,
+    MigrationConfig,
+    OrchestrationConfig,
+    TopologyConfig,
+)
 
-__version__ = "5.9.2"
+__version__ = "5.9.1"
 
 __all__ = [
     "FUNCTIONS",
@@ -156,6 +175,9 @@ __all__ = [
     "compare_convergence", "cooperative_optimize", "replay_cooperative_result",
     "convergence_data",
     "create_optimizer", "estimate_action_cost",
+    "action_effectiveness", "diagnostics_summary", "island_contribution",
+    "island_roles", "migration_matrix", "plot_island_fitness",
+    "plot_migration_network", "topology_summary",
     "export_history_csv", "export_island_telemetry_csv",
     "export_population_snapshots_json", "export_replay_manifest_json",
     "get_algorithm_info", "get_test_function", "get_test_problem",
@@ -190,6 +212,8 @@ __all__ = [
     "list_test_problems", "list_engineering_problems",
     "get_engineering_problem", "get_engineering_problem_spec",
     "HyperparameterTuner", "BenchmarkRunner",
+    "Island", "IslandConfig", "IslandSystem", "TopologyConfig",
+    "MigrationConfig", "ExecutionConfig", "OrchestrationConfig",
     "load_checkpoint", "load_result",
     "result_from_json", "result_to_json",
     "save_checkpoint", "save_result",

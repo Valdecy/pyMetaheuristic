@@ -30,6 +30,24 @@ class OrchestrationSpec:
     allow_disruptive_actions: bool = True
     fallback_action: str = "wait"
 
+    # Fixed/cooperative migration fields.  These are used when
+    # orchestrated_optimize(..., mode="fixed") delegates to CooperativeRunner,
+    # and they make orchestration and cooperation share the same island-system
+    # vocabulary.
+    migration_size: int = 1
+    migration_mode: str = "elite"
+    topology: str = "ring"
+    topology_config: dict[str, Any] = field(default_factory=dict)
+    custom_topology: dict[str, list[str]] = field(default_factory=dict)
+    migration_policy: str = "push"
+    donor_strategy: str = "neighbors"
+    receiver_strategy: str = "neighbors"
+    adaptive_checkpointing: bool = False
+    checkpoint_strategy: str = "fixed"
+    min_migration_interval: int | None = None
+    max_migration_interval: int | None = None
+    checkpoint_patience: int = 3
+
 
 @dataclass
 class RulesConfig:
@@ -140,3 +158,35 @@ class OrchestratedCooperativeResult:
     decisions: list[DecisionPlan]
     outcomes: list[list[ActionOutcome]]
     metadata: dict[str, Any] = field(default_factory=dict)
+
+    def migration_matrix(self, value: str = "migrants", include_zero: bool = True, objective: str | None = None) -> dict[str, dict[str, float]]:
+        from .diagnostics import migration_matrix
+        return migration_matrix(self, value=value, include_zero=include_zero, objective=objective)
+
+    def topology_summary(self) -> dict[str, Any]:
+        from .diagnostics import topology_summary
+        return topology_summary(self)
+
+    def island_contribution(self, objective: str | None = None) -> dict[str, dict[str, Any]]:
+        from .diagnostics import island_contribution
+        return island_contribution(self, objective=objective)
+
+    def island_roles(self, objective: str | None = None) -> dict[str, dict[str, Any]]:
+        from .diagnostics import island_roles
+        return island_roles(self, objective=objective)
+
+    def action_effectiveness(self, objective: str | None = None) -> dict[str, Any]:
+        from .diagnostics import action_effectiveness
+        return action_effectiveness(self, objective=objective)
+
+    def diagnostics_summary(self, objective: str | None = None) -> dict[str, Any]:
+        from .diagnostics import diagnostics_summary
+        return diagnostics_summary(self, objective=objective)
+
+    def plot_migration_network(self, ax=None, value: str = "migrants", **kwargs):
+        from .diagnostics import plot_migration_network
+        return plot_migration_network(self, ax=ax, value=value, **kwargs)
+
+    def plot_island_fitness(self, ax=None, objective: str | None = None, **kwargs):
+        from .diagnostics import plot_island_fitness
+        return plot_island_fitness(self, ax=ax, objective=objective, **kwargs)

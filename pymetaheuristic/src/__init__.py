@@ -9,8 +9,10 @@ from . import (
     engines,
     examples,
     execution,
+    diagnostics,
     graphs,
     io,
+    islands,
     orchestration,
     reference,
     schemas,
@@ -32,6 +34,15 @@ from .io import (
     result_to_json,
     save_checkpoint,
     save_result,
+)
+from .islands import (
+    ExecutionConfig,
+    Island,
+    IslandConfig,
+    IslandSystem,
+    MigrationConfig,
+    OrchestrationConfig,
+    TopologyConfig,
 )
 from .orchestration import orchestrated_optimize
 from .reference import (
@@ -76,6 +87,16 @@ from .test_functions import (
     validate_cec2022_optima,
 )
 from .actions import estimate_action_cost
+from .diagnostics import (
+    action_effectiveness,
+    diagnostics_summary,
+    island_contribution,
+    island_roles,
+    migration_matrix,
+    plot_island_fitness,
+    plot_migration_network,
+    topology_summary,
+)
 from .tuner import BenchmarkRunner, HyperparameterTuner
 from .utils import (
     AVAILABLE_CHAOTIC_MAPS,
@@ -175,7 +196,7 @@ __all__ = [
     "OrchestratorSnapshot", "RulesConfig",
     "actions", "api", "controllers", "cooperation",
     "cooperative_optimize", "convergence_data", "create_optimizer",
-    "engines", "estimate_action_cost", "examples", "execution",
+    "diagnostics", "engines", "estimate_action_cost", "examples", "execution",
     "export_history_csv", "export_island_telemetry_csv",
     "export_population_snapshots_json", "export_replay_manifest_json",
     "get_algorithm_info", "get_test_function", "get_test_problem",
@@ -206,6 +227,11 @@ __all__ = [
     "vstf_01", "vstf_02", "vstf_03", "vstf_04",
     "sstf_01", "sstf_02", "sstf_03", "sstf_04",
     "HyperparameterTuner", "BenchmarkRunner", "tuner",
+    "action_effectiveness", "diagnostics_summary", "island_contribution",
+    "island_roles", "migration_matrix", "plot_island_fitness",
+    "plot_migration_network", "topology_summary",
+    "Island", "IslandConfig", "IslandSystem", "TopologyConfig",
+    "MigrationConfig", "ExecutionConfig", "OrchestrationConfig", "islands",
     "Problem", "FunctionalProblem", "ConstrainedFunctionalProblem",
     "SphereProblem", "RastriginProblem",
     "AckleyProblem", "RosenbrockProblem", "ZakharovProblem", "full_array",
