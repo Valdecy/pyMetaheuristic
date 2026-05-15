@@ -1,6 +1,14 @@
 """Public package for pymetaheuristic."""
 
 from .src.api import create_optimizer, get_algorithm_info, list_algorithms, optimize
+from .src.benchmarks import (
+    BenchmarkProblem,
+    BenchmarkResult,
+    BenchmarkStudy,
+    ExperimentRecord,
+    ProblemSuite,
+    load_benchmark,
+)
 from .src.callbacks import Callback, CallbackList, EarlyStopping, HistoryRecorder, ProgressPrinter
 from .src.cooperation import cooperative_optimize, replay_cooperative_result
 from .src.graphs import (
@@ -154,7 +162,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "5.9.3"
+__version__ = "5.9.4"
 
 __all__ = [
     "FUNCTIONS",
@@ -169,6 +177,8 @@ __all__ = [
     "get_cec2022_optimum",
     "validate_cec2022_optima",
     "ActionOutcome", "ActionSpec", "AgentSnapshot", "BanditConfig",
+    "BenchmarkProblem", "BenchmarkResult", "BenchmarkStudy", "ExperimentRecord",
+    "ProblemSuite", "load_benchmark",
     "ARGUMENT_REFERENCE",
     "Callback", "CallbackList", "EarlyStopping", "HistoryRecorder", "ProgressPrinter",
     "CollaborativeConfig", "DecisionPlan",

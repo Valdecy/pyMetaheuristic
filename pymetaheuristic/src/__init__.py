@@ -3,6 +3,7 @@
 from . import (
     actions,
     api,
+    benchmarks,
     callbacks,
     controllers,
     cooperation,
@@ -25,6 +26,14 @@ from . import (
 )
 
 from .api import create_optimizer, get_algorithm_info, list_algorithms, optimize
+from .benchmarks import (
+    BenchmarkProblem,
+    BenchmarkResult,
+    BenchmarkStudy,
+    ExperimentRecord,
+    ProblemSuite,
+    load_benchmark,
+)
 from .callbacks import Callback, CallbackList, EarlyStopping, HistoryRecorder, ProgressPrinter
 from .cooperation import cooperative_optimize, replay_cooperative_result
 from .io import (
@@ -191,12 +200,14 @@ __all__ = [
     "get_cec2022_optimum",
     "validate_cec2022_optima",
     "ActionOutcome", "ActionSpec", "AgentSnapshot", "BanditConfig",
+    "BenchmarkProblem", "BenchmarkResult", "BenchmarkStudy", "ExperimentRecord",
+    "ProblemSuite", "load_benchmark",
     "ARGUMENT_REFERENCE",
     "Callback", "CallbackList", "EarlyStopping", "HistoryRecorder", "ProgressPrinter", "callbacks",
     "CollaborativeConfig", "DecisionPlan",
     "OrchestratedCooperativeResult", "OrchestrationSpec",
     "OrchestratorSnapshot", "PortfolioConfig", "RulesConfig",
-    "actions", "api", "controllers", "cooperation",
+    "actions", "api", "benchmarks", "controllers", "cooperation",
     "cooperative_optimize", "convergence_data", "create_optimizer",
     "diagnostics", "engines", "estimate_action_cost", "examples", "execution",
     "export_history_csv", "export_island_telemetry_csv",
