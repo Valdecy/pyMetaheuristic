@@ -931,7 +931,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'coa'               : 'swarm',
     'coati_oa'          : 'swarm',
     'cockroach_so'      : 'swarm',
-    'compact_ga'        : 'evolutionary',
+    'compact_ga'        : 'distribution',
     'coot'              : 'swarm',
     'crayfish_oa'       : 'swarm',
     'cro'               : 'evolutionary',
