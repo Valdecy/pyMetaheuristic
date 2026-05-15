@@ -21,7 +21,7 @@ class BIPOPCMAESEngine(RestartCMAESBase):
     }
     capabilities = CapabilityProfile(
         has_population=True,
-        supports_candidate_injection=False,
+        supports_candidate_injection=True,
         supports_restart=True,
         supports_checkpoint=True,
         supports_framework_constraints=True,
@@ -40,7 +40,7 @@ class BIPOPCMAESEngine(RestartCMAESBase):
         p_small = min(1.0, max(0.0, p_small))
         large_count = int((restart_index + 1) // 2)
         large_lambda = int(round(self._base_lambda * (self._population_multiplier ** max(1, large_count))))
-        if np.random.rand() < p_small:
+        if self._rng.random() < p_small:
             upper = max(self._base_lambda, large_lambda // 2)
-            return int(np.random.randint(max(4, self._base_lambda // 2), upper + 1))
+            return int(self._rng.integers(max(4, self._base_lambda // 2), upper + 1))
         return large_lambda

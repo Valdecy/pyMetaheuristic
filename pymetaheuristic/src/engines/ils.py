@@ -22,7 +22,7 @@ class ILSEngine(RestartLocalSearchEngine):
     }
     capabilities = CapabilityProfile(
         has_population=False,
-        supports_candidate_injection=False,
+        supports_candidate_injection=True,
         supports_restart=True,
         supports_checkpoint=True,
         supports_framework_constraints=True,
@@ -39,14 +39,17 @@ class ILSEngine(RestartLocalSearchEngine):
         current_fit = float(state.payload["current_fit"])
         strength = float(self._params.get("perturbation_strength", 0.25))
         temperature = max(1.0e-300, float(self._params.get("acceptance_temperature", 0.05)))
-        start = self._clip(current + np.random.normal(0.0, strength, self.problem.dimension) * self._span)
-        cand, cand_fit, evals, delta = self._local_search(start)
+        remaining = self._remaining_evaluations(state)
+        if remaining is not None and remaining <= 0:
+            return state
+        start = self._clip(current + self._rng.normal(0.0, strength, self.problem.dimension) * self._span)
+        cand, cand_fit, evals, delta = self._local_search(start, max_evaluations=remaining)
         accepted = False
         if self._is_better(cand_fit, current_fit):
             accepted = True
         else:
             de = self._energy(cand_fit) - self._energy(current_fit)
-            accepted = np.random.rand() < math.exp(-max(0.0, de) / temperature)
+            accepted = self._rng.random() < math.exp(-max(0.0, de) / temperature)
         if accepted:
             current, current_fit = cand, float(cand_fit)
         if self._is_better(cand_fit, state.best_fitness):
@@ -56,7 +59,8 @@ class ILSEngine(RestartLocalSearchEngine):
         else:
             stagnation = int(state.payload.get("stagnation", 0)) + 1
         if stagnation >= int(self._params.get("restart_stagnation_steps", 20)):
-            current, current_fit, extra, delta = self._restart_current(state)
+            extra_budget = self._remaining_evaluations(state, used=evals)
+            current, current_fit, extra, delta = self._restart_current(state, max_evaluations=extra_budget)
             evals += extra
             stagnation = 0
         state.payload.update(current=current, current_fit=float(current_fit), delta=float(delta), stagnation=stagnation, last_accepted=bool(accepted))

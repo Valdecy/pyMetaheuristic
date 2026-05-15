@@ -21,7 +21,7 @@ class VNSEngine(RestartLocalSearchEngine):
     }
     capabilities = CapabilityProfile(
         has_population=False,
-        supports_candidate_injection=False,
+        supports_candidate_injection=True,
         supports_restart=True,
         supports_checkpoint=True,
         supports_framework_constraints=True,
@@ -44,8 +44,11 @@ class VNSEngine(RestartLocalSearchEngine):
         k_max = max(1, int(self._params.get("k_max", 5)))
         k = max(1, min(k_max, int(state.payload.get("k", 1))))
         shake = float(self._params.get("shake_step_size", 0.10)) * k
-        start = self._clip(current + np.random.normal(0.0, shake, self.problem.dimension) * self._span)
-        cand, cand_fit, evals, delta = self._local_search(start)
+        remaining = self._remaining_evaluations(state)
+        if remaining is not None and remaining <= 0:
+            return state
+        start = self._clip(current + self._rng.normal(0.0, shake, self.problem.dimension) * self._span)
+        cand, cand_fit, evals, delta = self._local_search(start, max_evaluations=remaining)
         if self._is_better(cand_fit, current_fit):
             current, current_fit = cand, float(cand_fit)
             k = 1
@@ -57,7 +60,8 @@ class VNSEngine(RestartLocalSearchEngine):
             state.best_position = cand.tolist()
             state.best_fitness = float(cand_fit)
         if k > k_max:
-            current, current_fit, extra, delta = self._restart_current(state)
+            extra_budget = self._remaining_evaluations(state, used=evals)
+            current, current_fit, extra, delta = self._restart_current(state, max_evaluations=extra_budget)
             evals += extra
             k = 1
             stagnation = 0

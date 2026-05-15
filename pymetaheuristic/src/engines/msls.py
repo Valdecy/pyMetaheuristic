@@ -19,7 +19,7 @@ class MSLSEngine(RestartLocalSearchEngine):
     }
     capabilities = CapabilityProfile(
         has_population=False,
-        supports_candidate_injection=False,
+        supports_candidate_injection=True,
         supports_restart=True,
         supports_checkpoint=True,
         supports_framework_constraints=True,
@@ -37,11 +37,17 @@ class MSLSEngine(RestartLocalSearchEngine):
         best_local_fit = None
         best_delta = float(state.payload.get("delta", self._params.get("step_size", 0.12)))
         for _ in range(starts):
-            pos, fit, local_evals, delta = self._new_local_optimum()
+            remaining = self._remaining_evaluations(state, used=evals)
+            if remaining is not None and remaining <= 0:
+                break
+            pos, fit, local_evals, delta = self._new_local_optimum(max_evaluations=remaining)
             evals += local_evals
+            if local_evals <= 0:
+                break
             if best_local_fit is None or self._is_better(fit, best_local_fit):
                 best_local_pos, best_local_fit, best_delta = pos, float(fit), float(delta)
-        assert best_local_pos is not None and best_local_fit is not None
+        if best_local_pos is None or best_local_fit is None:
+            return state
         if self._is_better(best_local_fit, state.best_fitness):
             state.best_position = best_local_pos.tolist()
             state.best_fitness = float(best_local_fit)

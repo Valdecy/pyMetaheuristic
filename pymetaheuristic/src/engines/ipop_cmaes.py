@@ -19,7 +19,7 @@ class IPOPCMAESEngine(RestartCMAESBase):
     }
     capabilities = CapabilityProfile(
         has_population=True,
-        supports_candidate_injection=False,
+        supports_candidate_injection=True,
         supports_restart=True,
         supports_checkpoint=True,
         supports_framework_constraints=True,
