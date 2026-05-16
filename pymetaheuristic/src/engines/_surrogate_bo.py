@@ -203,7 +203,22 @@ class SimpleRegressionTree:
 
     def predict(self, X: np.ndarray) -> np.ndarray:
         X = np.asarray(X, dtype=float)
-        return np.asarray([self._predict_one(row, self.root_) for row in X], dtype=float)
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+        out = np.empty(X.shape[0], dtype=float)
+
+        def _fill(indices: np.ndarray, node: _TreeNode) -> None:
+            if indices.size == 0:
+                return
+            if node.feature is None or node.threshold is None:
+                out[indices] = float(node.value)
+                return
+            mask = X[indices, node.feature] <= node.threshold
+            _fill(indices[mask], node.left)
+            _fill(indices[~mask], node.right)
+
+        _fill(np.arange(X.shape[0]), self.root_)
+        return out
 
 
 class SimpleTreeEnsembleRegressor:
@@ -219,6 +234,7 @@ class SimpleTreeEnsembleRegressor:
         max_features: int | str | None = "sqrt",
         n_thresholds: int = 8,
         bootstrap: bool = True,
+        max_samples: int | None = None,
         random_state: int | None = None,
     ) -> None:
         self.kind = kind
@@ -228,6 +244,7 @@ class SimpleTreeEnsembleRegressor:
         self.max_features = max_features
         self.n_thresholds = max(1, int(n_thresholds))
         self.bootstrap = bool(bootstrap)
+        self.max_samples = None if max_samples is None else max(2, int(max_samples))
         self.rng = np.random.default_rng(random_state)
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> "SimpleTreeEnsembleRegressor":
@@ -236,11 +253,15 @@ class SimpleTreeEnsembleRegressor:
         n = X.shape[0]
         self.estimators_: list[SimpleRegressionTree] = []
         splitter = "extra" if self.kind == "extra_trees" else "best"
+        sample_n = n if self.max_samples is None else min(n, self.max_samples)
         for _ in range(self.n_estimators):
             if self.bootstrap:
-                idx = self.rng.integers(0, n, size=n)
+                idx = self.rng.integers(0, n, size=sample_n)
             else:
-                idx = np.arange(n)
+                if sample_n < n:
+                    idx = self.rng.choice(n, size=sample_n, replace=False)
+                else:
+                    idx = np.arange(n)
             tree = SimpleRegressionTree(
                 max_depth=self.max_depth,
                 min_samples_leaf=self.min_samples_leaf,
@@ -339,6 +360,10 @@ class SurrogateBOEngine(BaseEngine):
         local_search_fraction=0.35,
         local_search_scale=0.15,
         avoid_duplicate_tolerance=1.0e-12,
+        batch_size=1,
+        polish_points=0,
+        polish_scale=0.08,
+        surrogate_train_size=None,
     )
     _ESTIMATOR_KIND = "base"
 
@@ -360,6 +385,11 @@ class SurrogateBOEngine(BaseEngine):
         self._local_fraction = float(params.get("local_search_fraction", 0.35))
         self._local_scale = float(params.get("local_search_scale", 0.15))
         self._duplicate_tol = float(params.get("avoid_duplicate_tolerance", 1.0e-12))
+        self._batch_size = max(1, int(params.get("batch_size", 1)))
+        self._polish_points = max(0, int(params.get("polish_points", 0)))
+        self._polish_scale = max(0.0, float(params.get("polish_scale", 0.08)))
+        train_size = params.get("surrogate_train_size", None)
+        self._surrogate_train_size = None if train_size is None else max(2, int(train_size))
         self._rng = np.random.default_rng(config.seed)
         if config.seed is not None:
             np.random.seed(config.seed)
@@ -395,6 +425,10 @@ class SurrogateBOEngine(BaseEngine):
             raise ValueError(f"{self.algorithm_id} local_search_scale must be non-negative.")
         if self._duplicate_tol < 0.0:
             raise ValueError(f"{self.algorithm_id} avoid_duplicate_tolerance must be non-negative.")
+        if self._batch_size < 1:
+            raise ValueError(f"{self.algorithm_id} batch_size must be at least 1.")
+        if self._polish_points < 0:
+            raise ValueError(f"{self.algorithm_id} polish_points must be non-negative.")
 
     def _unit_to_position(self, unit: np.ndarray) -> np.ndarray:
         unit = np.clip(np.asarray(unit, dtype=float), 0.0, 1.0)
@@ -425,13 +459,26 @@ class SurrogateBOEngine(BaseEngine):
 
     def _fit_estimator(self, X_unit: np.ndarray, loss: np.ndarray):
         estimator = self._make_estimator(self._next_seed())
-        y_mean = float(np.mean(loss))
-        y_std = float(np.std(loss))
+        X_train = np.asarray(X_unit, dtype=float)
+        y_train_raw = np.asarray(loss, dtype=float)
+        if self._surrogate_train_size is not None and X_train.shape[0] > self._surrogate_train_size:
+            best_idx = int(np.argmin(y_train_raw))
+            pool = np.array([i for i in range(X_train.shape[0]) if i != best_idx], dtype=int)
+            take = self._surrogate_train_size - 1
+            extra = self._rng.choice(pool, size=take, replace=False) if take > 0 else np.empty(0, dtype=int)
+            idx = np.concatenate(([best_idx], extra))
+            X_train = X_train[idx]
+            y_train_raw = y_train_raw[idx]
+        y_mean = float(np.mean(y_train_raw))
+        y_std = float(np.std(y_train_raw))
         if y_std <= 1.0e-30:
             y_std = 1.0
-        y_scaled = (loss - y_mean) / y_std
-        estimator.fit(X_unit, y_scaled)
-        return estimator, y_mean, y_std, y_scaled
+        y_scaled_train = (y_train_raw - y_mean) / y_std
+        estimator.fit(X_train, y_scaled_train)
+        # Return scaled values for the complete history as acquisition needs the
+        # current best on the same standardized scale.
+        y_scaled_all = (np.asarray(loss, dtype=float) - y_mean) / y_std
+        return estimator, y_mean, y_std, y_scaled_all
 
     def _next_seed(self) -> int:
         return int(self._rng.integers(0, np.iinfo(np.int32).max))
@@ -540,29 +587,45 @@ class SurrogateBOEngine(BaseEngine):
         pool = self._candidate_pool(X_unit, best_unit)
         mean, std = self._predict_scaled(estimator, pool)
         acquisition = self._acquisition_values(mean, std, float(np.min(y_scaled)))
-        chosen_idx = int(np.argmax(acquisition))
-        x_unit_new = pool[chosen_idx]
-        x_new = self._unit_to_position(x_unit_new)
-        y_new = float(self.problem.evaluate(x_new.copy()))
-        loss_new = float(self._fitness_to_loss(y_new))
 
-        X = np.vstack((X, x_new.reshape(1, -1)))
-        X_unit = np.vstack((X_unit, x_unit_new.reshape(1, -1)))
+        # Evaluate a small acquisition batch when requested.  This is especially
+        # useful for tree surrogates, whose acquisition surface is piecewise
+        # constant and otherwise tends to stall after one candidate per step.
+        batch = min(self._batch_size, pool.shape[0])
+        chosen = np.argsort(acquisition)[-batch:][::-1]
+        X_unit_new = pool[chosen]
+
+        # Optional local polish candidates around the current best.  They are
+        # still counted as normal evaluations and are disabled by default in the
+        # shared base class.
+        if self._polish_points > 0:
+            scale = self._polish_scale * max(0.05, 1.0 - min(1.0, state.step / max(1, self.config.max_steps or 100)))
+            local = best_unit + self._rng.normal(0.0, scale, size=(self._polish_points, self.problem.dimension))
+            local = np.clip(local, 0.0, 1.0)
+            X_unit_new = np.vstack((X_unit_new, local))
+
+        X_new = self._unit_to_position(X_unit_new)
+        y_new = self._evaluate_positions(X_new)
+        loss_new = np.asarray(self._fitness_to_loss(y_new), dtype=float)
+
+        X = np.vstack((X, X_new))
+        X_unit = np.vstack((X_unit, X_unit_new))
         fitness = np.append(fitness, y_new)
         loss = np.append(loss, loss_new)
 
         state.step += 1
-        state.evaluations += 1
-        if state.best_fitness is None or self._is_better(y_new, state.best_fitness):
-            state.best_fitness = float(y_new)
-            state.best_position = x_new.tolist()
+        state.evaluations += int(X_new.shape[0])
+        new_best_idx = self._best_index(y_new)
+        if state.best_fitness is None or self._is_better(float(y_new[new_best_idx]), state.best_fitness):
+            state.best_fitness = float(y_new[new_best_idx])
+            state.best_position = X_new[new_best_idx].tolist()
         state.payload = {
             "X": X,
             "X_unit": X_unit,
             "fitness": fitness,
             "loss": loss,
-            "last_candidate": x_new.copy(),
-            "last_acquisition": float(acquisition[chosen_idx]),
+            "last_candidate": X_new[new_best_idx].copy(),
+            "last_acquisition": float(acquisition[chosen[0]]),
         }
         return state
 

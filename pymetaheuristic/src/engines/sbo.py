@@ -25,13 +25,15 @@ class SBOEngine(PortedPopulationEngine):
 
         sigma  = psw * self._span
 
-        # Fitness-proportionate roulette (minimisation → invert)
+        # Fitness-proportionate roulette. Raw objective values can be
+        # negative (e.g. Easom) or all near-identical, so reciprocal/raw-fitness
+        # probabilities are numerically invalid. Convert fitness to a bounded
+        # non-negative quality score where larger means better.
         fit = pop[:, -1].copy()
-        if self.problem.objective == "min":
-            inverted = 1.0 / (fit + 1e-30)
-            prob = inverted / inverted.sum()
-        else:
-            prob = fit / (fit.sum() + 1e-30)
+        quality = np.asarray(self._quality(fit), dtype=float)
+        quality = np.nan_to_num(quality, nan=0.0, posinf=0.0, neginf=0.0)
+        quality = np.maximum(quality, 0.0) + 1.0e-12
+        prob = quality / np.sum(quality)
 
         order    = self._order(fit)
         best_pos = pop[order[0], :-1].copy()

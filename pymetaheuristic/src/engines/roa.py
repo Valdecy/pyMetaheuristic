@@ -41,7 +41,8 @@ class ROAEngine(PortedPopulationEngine):
                 pop[i]=np.append(attempt,f_att); H[0,i]=(np.random.random()>0.5)
             else:
                 A=2*a1*np.random.random()-a1; C=0.1
-                pop[i,:-1]=np.clip(pop[i,:-1]-A*(pop[i,:-1]-C*best_pos),lo,hi)
-                pop[i,-1]=f_cur
+                fallback=np.clip(pop[i,:-1]-A*(pop[i,:-1]-C*best_pos),lo,hi)
+                f_new=float(self._evaluate_population(fallback[None])[0]); evals+=1
+                pop[i]=np.append(fallback,f_new)
         state.payload.update({"H":H,"prev":pop[:,:-1].copy()})
         return pop, evals, {}

@@ -24,7 +24,7 @@ class ETBOEngine(SurrogateBOEngine):
     _ESTIMATOR_KIND = "extra_trees"
     _DEFAULTS = {
         **SurrogateBOEngine._DEFAULTS,
-        "n_estimators": 64,
+        "n_estimators": 48,
         "max_depth": 6,
         "min_samples_leaf": 1,
         "max_features": "sqrt",
@@ -34,7 +34,7 @@ class ETBOEngine(SurrogateBOEngine):
     def _make_estimator(self, random_state: int):
         return SimpleTreeEnsembleRegressor(
             kind="extra_trees",
-            n_estimators=int(self._params.get("n_estimators", 64)),
+            n_estimators=int(self._params.get("n_estimators", 48)),
             max_depth=int(self._params.get("max_depth", 6)),
             min_samples_leaf=int(self._params.get("min_samples_leaf", 1)),
             max_features=self._params.get("max_features", "sqrt"),

@@ -38,6 +38,11 @@ class CompactGAEngine(BaseEngine):
         virtual_population_size=None,
         lower_probability=None,
         max_resample_attempts=64,
+        initial_samples=None,
+        local_search=True,
+        local_search_scale=0.12,
+        local_search_decay=0.85,
+        random_immigrant_rate=0.05,
     )
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
@@ -54,6 +59,14 @@ class CompactGAEngine(BaseEngine):
             requested_lower_p = 1.0 / (2.0 * self._virtual_population_size)
         self._lower_probability = float(requested_lower_p)
         self._max_resample_attempts = int(params.get("max_resample_attempts", 64))
+        requested_initial_samples = params.get("initial_samples")
+        if requested_initial_samples is None:
+            requested_initial_samples = max(4, 2 * self._chromosome_length)
+        self._initial_samples = max(1, int(requested_initial_samples))
+        self._local_search = bool(params.get("local_search", True))
+        self._local_search_scale = max(0.0, float(params.get("local_search_scale", 0.12)))
+        self._local_search_decay = min(max(float(params.get("local_search_decay", 0.85)), 0.0), 1.0)
+        self._random_immigrant_rate = min(max(float(params.get("random_immigrant_rate", 0.05)), 0.0), 1.0)
         if config.seed is not None:
             np.random.seed(config.seed)
         self._validate_parameters()
@@ -89,6 +102,15 @@ class CompactGAEngine(BaseEngine):
     def _sample_bits(self, probabilities: np.ndarray) -> np.ndarray:
         return (np.random.rand(self._chromosome_length) < probabilities).astype(np.int8)
 
+    def _encode_position(self, position: np.ndarray) -> np.ndarray:
+        position = np.clip(np.asarray(position, dtype=float), self._lo, self._hi)
+        ratio = np.zeros(self.problem.dimension, dtype=float)
+        mask = np.abs(self._span) > 1.0e-30
+        ratio[mask] = (position[mask] - self._lo[mask]) / self._span[mask]
+        codes = np.rint(np.clip(ratio, 0.0, 1.0) * self._max_code).astype(np.uint64)
+        bit_rows = ((codes[:, None] & self._bit_weights[None, :]) > 0).astype(np.int8)
+        return bit_rows.reshape(-1)
+
     def _sample_pair(self, probabilities: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         first = self._sample_bits(probabilities)
         second = self._sample_bits(probabilities)
@@ -107,24 +129,35 @@ class CompactGAEngine(BaseEngine):
 
     def initialize(self) -> EngineState:
         probabilities = np.full(self._chromosome_length, 0.5, dtype=float)
-        # Package-level result objects require a valid incumbent.  We evaluate
-        # the distribution mean once; the native cGA pairwise update starts in
-        # the first call to step().
-        mean_bits = (probabilities >= 0.5).astype(np.int8)
-        best_position, best_fitness = self._evaluate_bits(mean_bits)
+        # Seed the incumbent with a small unbiased random design.  Starting only
+        # from the all-0.5 mean chromosome places the first solution at the
+        # domain centre, which is a poor default for deceptive continuous
+        # functions.  The probability vector itself remains neutral.
+        samples = []
+        best_position = None
+        best_fitness = None
+        best_bits = None
+        for _ in range(self._initial_samples):
+            bits = self._sample_bits(probabilities)
+            pos, fit = self._evaluate_bits(bits)
+            samples.append(np.hstack((pos, fit)))
+            if best_fitness is None or self._is_better(fit, best_fitness):
+                best_position = pos.copy()
+                best_fitness = float(fit)
+                best_bits = bits.copy()
         best = np.hstack((best_position, best_fitness))
         return EngineState(
             step=0,
-            evaluations=1,
+            evaluations=self._initial_samples,
             best_position=best_position.tolist(),
             best_fitness=float(best_fitness),
             initialized=True,
             payload={
                 "probabilities": probabilities,
-                "best_bits": mean_bits.copy(),
+                "best_bits": best_bits.copy(),
                 "best": best,
-                "last_samples": np.empty((0, self.problem.dimension + 1), dtype=float),
-                "best_evaluation": 1,
+                "last_samples": np.asarray(samples, dtype=float),
+                "best_evaluation": self._initial_samples,
             },
         )
 
@@ -149,6 +182,7 @@ class CompactGAEngine(BaseEngine):
         best_bits = np.asarray(state.payload["best_bits"], dtype=np.int8).copy()
         best_evaluation = int(state.payload.get("best_evaluation", state.evaluations))
         new_evaluations = state.evaluations + 2
+        last_samples = [np.hstack((p1, f1)), np.hstack((p2, f2))]
         if self._is_better(winner_fit, float(best[-1])):
             best = np.hstack((winner_pos, winner_fit))
             best_bits = winner_bits.copy()
@@ -159,13 +193,43 @@ class CompactGAEngine(BaseEngine):
             state.best_position = best[:-1].tolist()
             state.best_fitness = float(best[-1])
 
+        # Hybrid continuous refinement.  cGA remains the distribution model, but
+        # one bounded local candidate around the incumbent prevents premature
+        # probability-vector convergence on narrow continuous optima.
+        if self._local_search and state.best_position is not None:
+            entropy = -np.mean(
+                probabilities * np.log2(probabilities)
+                + (1.0 - probabilities) * np.log2(1.0 - probabilities)
+            )
+            radius = self._local_search_scale * (self._local_search_decay ** state.step)
+            radius = max(1.0e-4, radius * max(float(entropy), 0.05))
+            if np.random.rand() < self._random_immigrant_rate:
+                local_pos = np.random.uniform(self._lo, self._hi, self.problem.dimension)
+            else:
+                local_pos = np.asarray(state.best_position, dtype=float) + np.random.normal(0.0, radius * self._span, self.problem.dimension)
+                local_pos = np.clip(local_pos, self._lo, self._hi)
+            local_fit = float(self.problem.evaluate(local_pos.copy()))
+            new_evaluations += 1
+            last_samples.append(np.hstack((local_pos, local_fit)))
+            if self._is_better(local_fit, float(best[-1])):
+                local_bits = self._encode_position(local_pos)
+                best = np.hstack((local_pos, local_fit))
+                best_bits = local_bits.copy()
+                best_evaluation = new_evaluations
+                state.best_position = local_pos.tolist()
+                state.best_fitness = float(local_fit)
+                # Nudge the probability vector toward the refined solution, but
+                # keep bounds away from exact 0/1 to preserve future exploration.
+                probabilities = probabilities + self._eta * (local_bits.astype(float) - probabilities)
+                probabilities = np.clip(probabilities, self._lower_probability, 1.0 - self._lower_probability)
+
         state.step += 1
         state.evaluations = new_evaluations
         state.payload = {
             "probabilities": probabilities,
             "best_bits": best_bits,
             "best": best,
-            "last_samples": np.vstack((np.hstack((p1, f1)), np.hstack((p2, f2)))),
+            "last_samples": np.asarray(last_samples, dtype=float),
             "best_evaluation": best_evaluation,
         }
 
@@ -219,6 +283,8 @@ class CompactGAEngine(BaseEngine):
                 "bits_per_variable": self._bits_per_variable,
                 "chromosome_length": self._chromosome_length,
                 "virtual_population_size": self._virtual_population_size,
+                "initial_samples": self._initial_samples,
+                "local_search": self._local_search,
                 "elapsed_time": state.elapsed_time,
             },
         )

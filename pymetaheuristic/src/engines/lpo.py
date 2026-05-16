@@ -26,9 +26,15 @@ class LPOEngine(PortedPopulationEngine):
         for i in range(n):
             for jj in range(1,6):
                 R=fits[i]; C=(R/2)*np.sin(Delta[i])
+                # The original LPO formula assumes positive physiological
+                # quantities. Objective values, however, can be negative or
+                # extremely close to zero. Use magnitudes for scale terms and
+                # keep them away from underflow to avoid ZeroDivisionError.
+                R_scale=max(abs(float(R)),1e-12)
+                C_scale=max(abs(float(C)),1e-12)
                 newsol=pop[i,:-1].copy(); newsol2=pop[i,:-1].copy()
-                denom=(2*np.pi*d*R*max(C,1e-300))**2
-                factor=(R**2+1/max(denom,1e-300))**-0.5
+                denom=(2*np.pi*d*R_scale*C_scale)**2
+                factor=(R_scale**2+1/max(denom,1e-300))**-0.5
                 if jj==1:
                     newsol=pop[i,:-1]+factor*np.sin(2*np.pi*d*t)*np.sin(2*np.pi*d*t+Delta[i])*pop[i,:-1]
                 else:
@@ -40,7 +46,7 @@ class LPOEngine(PortedPopulationEngine):
                 newsol=newsol+aa2*sigma1[i]*(newsol-pop[a1,:-1])+aa1*sigma1[i]*(pop[a3,:-1]-pop[a2,:-1])
                 for j in range(d):
                     Pos1[j]=newsol2[j] if np.random.random()/jj>np.random.random() else newsol[j]
-                Pos1=np.clip(Pos1,lo,hi); Delta[i]=np.arctan(1/(2*np.pi*d*max(R,1e-300)*max(C,1e-300)))
+                Pos1=np.clip(Pos1,lo,hi); Delta[i]=np.arctan(1/(2*np.pi*d*R_scale*C_scale))
                 newsol=Pos1
                 newCost=float(self._evaluate_population(newsol[None])[0]); evals+=1
                 if self._is_better(newCost,pop[i,-1]):

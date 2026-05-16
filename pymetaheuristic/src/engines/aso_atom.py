@@ -8,9 +8,12 @@ from ._ported_common import PortedPopulationEngine
 
 
 class ASOAtomEngine(PortedPopulationEngine):
-    """
-    Atom Search Optimization (ASO).
+    """Atom Search Optimization (ASO).
 
+    Robust bounded port.  The previous force model used ``(-h)**negative`` for
+    positive distances, producing unstable signed potentials and very large
+    accelerations.  This version uses a stable mass-weighted attraction/repulsion
+    model with velocity clipping and greedy selection.
     """
 
     algorithm_id = "aso_atom"
@@ -29,7 +32,7 @@ class ASOAtomEngine(PortedPopulationEngine):
         supports_framework_constraints=True,
         supports_diversity_metrics=True,
     )
-    _DEFAULTS = dict(population_size=30, alpha=50.0, beta=0.2)
+    _DEFAULTS = dict(population_size=40, alpha=20.0, beta=0.2, velocity_limit=0.25, elite_fraction=0.08, local_refinement_fraction=0.20, local_refinement_scale=0.12)
 
     def _initialize_payload(self, pop):
         return {"velocity": np.zeros((pop.shape[0], self.problem.dimension), dtype=float)}
@@ -38,26 +41,44 @@ class ASOAtomEngine(PortedPopulationEngine):
         fit = np.asarray(fit, dtype=float)
         best = np.min(fit) if self.problem.objective == "min" else np.max(fit)
         worst = np.max(fit) if self.problem.objective == "min" else np.min(fit)
-        denom = abs(best - worst) + 1.0e-12
+        denom = abs(worst - best) + 1.0e-12
         if self.problem.objective == "min":
-            m = np.exp(-(fit - best) / denom)
+            raw = (worst - fit) / denom
         else:
-            m = np.exp(-(best - fit) / denom)
-        return m / (np.sum(m) + 1.0e-12)
+            raw = (fit - worst) / denom
+        raw = np.maximum(raw, 0.0)
+        if np.sum(raw) <= 1.0e-30:
+            return np.full_like(raw, 1.0 / max(1, raw.size))
+        return raw / (np.sum(raw) + 1.0e-12)
 
     def _step_impl(self, state, pop):
         n, dim = pop.shape[0], self.problem.dimension
-        T = max(1, self.config.max_steps or 100)
+        T = max(1, self.config.max_steps or int(self._params.get("max_iterations", 500)))
         t = state.step + 1
-        velocity = np.asarray(state.payload.get("velocity", np.zeros((n, dim))), dtype=float)
+        progress = min(1.0, t / T)
+        velocity = np.asarray(state.payload.get("velocity", np.zeros((n, dim))), dtype=float).copy()
+        if velocity.shape != (n, dim):
+            velocity = np.zeros((n, dim), dtype=float)
+
         masses = self._masses(pop[:, -1])
         order = self._order(pop[:, -1])
         best = pop[order[0], :-1].copy()
-        K = max(2, int(n - (n - 2) * (t / T) ** 0.5))
-        beta = float(self._params.get("beta", 0.2))
-        alpha = float(self._params.get("alpha", 50.0)) * np.exp(-20.0 * t / T)
+        worst = pop[order[-1], :-1].copy()
 
-        new_pop = pop.copy()
+        # Number of active neighbours decreases over time; early iterations are
+        # exploratory, late iterations emphasize the best atoms.
+        K = max(2, int(round(n - (n - 2) * np.sqrt(progress))))
+        alpha = float(self._params.get("alpha", 20.0)) * np.exp(-4.0 * progress)
+        beta = float(self._params.get("beta", 0.2))
+        vmax = max(1.0e-12, float(self._params.get("velocity_limit", 0.25))) * self._span
+        elite_fraction = min(max(float(self._params.get("elite_fraction", 0.08)), 0.0), 0.5)
+        elite_n = max(1, int(round(elite_fraction * n)))
+        local_fraction = min(max(float(self._params.get("local_refinement_fraction", 0.20)), 0.0), 0.5)
+        local_n = max(1, int(round(local_fraction * n))) if local_fraction > 0.0 else 0
+        local_scale = max(0.0, float(self._params.get("local_refinement_scale", 0.12)))
+
+        trial = pop[:, :-1].copy()
+        mean_span = float(np.mean(self._span)) + 1.0e-12
         for i in range(n):
             xi = pop[i, :-1]
             force = np.zeros(dim, dtype=float)
@@ -65,17 +86,38 @@ class ASOAtomEngine(PortedPopulationEngine):
                 if j == i:
                     continue
                 xj = pop[j, :-1]
-                dist = np.linalg.norm(xj - xi) + 1.0e-12
-                h = dist / (np.mean(self._span) + 1.0e-12)
+                diff = xj - xi
+                dist = np.linalg.norm(diff) + 1.0e-12
+                h = np.clip(dist / mean_span, 1.0e-6, 10.0)
+
+                # Smooth bounded approximation of ASO interaction: repulsive at
+                # very small distances, attractive otherwise, with decaying gain.
                 if h < beta:
-                    potential = alpha * (12.0 * (-h) ** -13 - 6.0 * (-h) ** -7) if h > 1.0e-6 else alpha
+                    interaction = -alpha * (beta - h) / max(beta, 1.0e-12)
                 else:
-                    potential = -alpha / (h ** 2 + 1.0e-12)
-                direction = (xj - xi) / dist
-                force += np.random.rand(dim) * potential * direction * masses[j]
-            acc = force / (masses[i] + 1.0e-12) + np.random.rand(dim) * (best - xi)
-            velocity[i] = np.random.rand(dim) * velocity[i] + acc
-            new_pop[i, :-1] = np.clip(xi + velocity[i], self._lo, self._hi)
-        fit = self._evaluate_population(new_pop[:, :-1])
-        new_pop[:, -1] = fit
+                    interaction = alpha / (h * h + 1.0e-12)
+                force += np.random.random(dim) * interaction * diff / dist * masses[j]
+
+            best_pull = np.random.random(dim) * (best - xi)
+            diversity_push = 0.05 * (1.0 - progress) * np.random.random(dim) * (xi - worst)
+            acc = force / (masses[i] + 1.0e-6) + best_pull + diversity_push
+            velocity[i] = 0.65 * np.random.random(dim) * velocity[i] + acc
+            velocity[i] = np.clip(velocity[i], -vmax, vmax)
+            trial[i] = np.clip(xi + velocity[i], self._lo, self._hi)
+
+        # Refine around the best by replacing a few worst trial points with a
+        # shrinking Gaussian neighbourhood.  This gives ASO a stable exploitation
+        # mechanism on narrow continuous optima.
+        if local_n > 0:
+            radius = (local_scale * (1.0 - progress) + 1.0e-4) * self._span
+            worst_ids = order[-local_n:]
+            trial[worst_ids] = np.clip(best + np.random.normal(0.0, radius, size=(local_n, dim)), self._lo, self._hi)
+
+        # Do not move the current elites unless a strictly better trial appears.
+        trial[order[:elite_n]] = pop[order[:elite_n], :-1]
+        trial_fit = self._evaluate_population(trial)
+        new_pop = pop.copy()
+        mask = self._better_mask(trial_fit, pop[:, -1])
+        new_pop[mask, :-1] = trial[mask]
+        new_pop[mask, -1] = trial_fit[mask]
         return new_pop, n, {"velocity": velocity}

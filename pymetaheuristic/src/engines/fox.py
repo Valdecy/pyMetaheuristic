@@ -4,8 +4,16 @@ import numpy as np
 from .protocol import CapabilityProfile
 from ._ported_common import PortedPopulationEngine
 
+
 class FOXEngine(PortedPopulationEngine):
-    """Fox Optimizer — jump-distance hunting model of foxes."""
+    """Fox Optimizer — robust bounded implementation.
+
+    The earlier port replaced the entire population by positions derived mostly
+    from the absolute best coordinate.  That collapses diversity and performs
+    poorly when coordinates can be negative or near zero.  This implementation
+    keeps the FOX exploration/exploitation spirit but uses current-position
+    movements, greedy replacement, and explicit elite preservation.
+    """
     algorithm_id   = "fox"
     algorithm_name = "Fox Optimizer"
     family         = "swarm"
@@ -15,42 +23,57 @@ class FOXEngine(PortedPopulationEngine):
         supports_checkpoint=True, supports_framework_constraints=True,
         supports_diversity_metrics=True,
     )
-    _DEFAULTS = dict(population_size=50, c1=0.18, c2=0.82)
+    _DEFAULTS = dict(population_size=50, c1=0.18, c2=0.82, walk_scale=0.25, elite_fraction=0.05)
 
     def _initialize_payload(self, pop: np.ndarray) -> dict:
-        return {"mint": 1e7}
+        return {"mint": 1.0}
 
     def _step_impl(self, state, pop: np.ndarray):
-        n, dim  = pop.shape[0], self.problem.dimension
-        T       = max(1, self.config.max_steps or 500)
-        t       = state.step + 1
-        c1      = float(self._params.get("c1", 0.18))
-        c2      = float(self._params.get("c2", 0.82))
-        mint    = float(state.payload.get("mint", 1e7))
+        n, dim = pop.shape[0], self.problem.dimension
+        T = max(1, self.config.max_steps or int(self._params.get("max_iterations", 500)))
+        t = state.step + 1
+        progress = min(1.0, t / T)
+        c1 = float(self._params.get("c1", 0.18))
+        c2 = float(self._params.get("c2", 0.82))
+        walk_scale = max(0.0, float(self._params.get("walk_scale", 0.25)))
+        elite_fraction = min(max(float(self._params.get("elite_fraction", 0.05)), 0.0), 0.5)
+        mint = float(state.payload.get("mint", 1.0))
 
-        order    = self._order(pop[:, -1])
+        order = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
-        aa       = 2.0 * (1.0 - 1.0 / T)
+        elite_n = max(1, int(round(elite_fraction * n)))
+        span = self._span
+        contraction = 1.0 - progress
+        jump_decay = 0.15 + 0.85 * contraction
 
-        new_pos = np.empty_like(pop[:, :-1])
+        trial = pop[:, :-1].copy()
         for i in range(n):
-            if np.random.random() >= 0.5:
-                t1   = np.random.random(dim)
-                sps  = best_pos / (t1 + 1e-30)
-                dis  = 0.5 * sps * t1
-                tt   = float(np.mean(t1))
-                t_   = tt / 2.0
-                jump = 0.5 * 9.81 * t_ ** 2
-                if np.random.random() > 0.18:
-                    pos = dis * jump * c1
-                else:
-                    pos = dis * jump * c2
-                if mint > tt:
-                    mint = tt
-            else:
-                pos = best_pos * np.random.random(dim) * (mint * aa)
-            new_pos[i] = np.clip(pos, self._lo, self._hi)
+            xi = pop[i, :-1]
+            r = np.random.random(dim)
+            mean_time = float(np.mean(r))
+            mint = min(mint, mean_time)
 
-        new_fit = self._evaluate_population(new_pos)
-        pop     = np.hstack([new_pos, new_fit[:, None]])   # replaces all (original)
-        return pop, n, {"mint": mint}
+            if np.random.random() < 0.5:
+                # Exploitation: jump from the current position toward the prey
+                # (best), scaled by a FOX-like jump factor.
+                gravity_jump = 0.5 * 9.81 * (0.5 * mean_time) ** 2
+                step = (c1 + (c2 - c1) * np.random.random()) * gravity_jump
+                candidate = xi + step * r * (best_pos - xi)
+            else:
+                # Exploration: bounded random walk around the best and current
+                # positions.  The radius decreases with progress.
+                direction = np.random.uniform(-1.0, 1.0, dim)
+                candidate = best_pos + direction * span * walk_scale * jump_decay * (0.5 + mint)
+                if np.random.random() < 0.5:
+                    candidate = xi + np.random.random(dim) * (candidate - xi)
+
+            trial[i] = np.clip(candidate, self._lo, self._hi)
+
+        # Preserve the best few individuals explicitly.
+        trial[order[:elite_n]] = pop[order[:elite_n], :-1]
+        trial_fit = self._evaluate_population(trial)
+        new_pop = pop.copy()
+        mask = self._better_mask(trial_fit, pop[:, -1])
+        new_pop[mask, :-1] = trial[mask]
+        new_pop[mask, -1] = trial_fit[mask]
+        return new_pop, n, {"mint": mint}
