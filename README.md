@@ -262,10 +262,10 @@ def tension_spring(x = [0, 0, 0]):
     return (N + 2) * D * d**2
 
 constraints = [
-                  lambda x: 1 - (x[1]**3 * x[2]) / (71785 * x[0]**4),
-                  lambda x: (4*x[1]**2 - x[0]*x[1]) / (12566*(x[1]*x[0]**3 - x[0]**4)) + 1/(5108*x[0]**2) - 1,
-                  lambda x: 1 - 140.45*x[0] / (x[1]**2 * x[2]),
-                  lambda x: (x[0] + x[1]) / 1.5 - 1,
+			  lambda x: 1 - (x[1]**3 * x[2]) / (71785 * x[0]**4),
+			  lambda x: (4*x[1]**2 - x[0]*x[1]) / (12566*(x[1]*x[0]**3 - x[0]**4)) + 1/(5108*x[0]**2) - 1,
+			  lambda x: 1 - 140.45*x[0] / (x[1]**2 * x[2]),
+			  lambda x: (x[0] + x[1]) / 1.5 - 1,
               ]
 
 result = pymetaheuristic.optimize(
@@ -512,7 +512,6 @@ Diagnostic plots are also available:
 
 ```python
 result.plot_migration_network(value = "migrants", show = True, renderer = "colab")
-
 result.plot_island_fitness(show = True, renderer = "colab")
 ```
 
@@ -524,6 +523,24 @@ result.plot_island_fitness(show = True, renderer = "colab")
 The orchestration layer supports multiple coordination policies. The `"cooperative"` mode uses fixed migration, `"rules"` applies checkpoint-based rules, `"bandit"` uses a multi-armed bandit controller to select actions based on previous rewards, and `"portfolio_adaptive"` changes behavior according to the optimization phase and island-state indicators.
 
 ```python
+import numpy as np
+import pymetaheuristic
+
+def easom(x = [0, 0]):
+    x1, x2 = x
+    return -np.cos(x1) * np.cos(x2) * np.exp
+
+
+system = pymetaheuristic.IslandSystem(
+    islands=[
+        {"label": "pso", "algorithm": "pso", "config": {"swarm_size": 25}},
+        {"label": "ga",  "algorithm": "ga",  "config": {"population_size": 30}},
+        {"label": "sa",  "algorithm": "sa",  "config": {"temperature": 10.0}},
+    ],
+    max_steps = 250,
+    seed      = 42,
+)
+
 modes   = ["cooperative", "rules", "bandit", "portfolio_adaptive"]
 results = {}
 
@@ -952,6 +969,7 @@ benchmark_result.plot_ecdf(show = True, renderer = "colab")
 benchmark_result.plot_performance_profile(show = True, renderer = "colab")
 benchmark_result.plot_rank_heatmap(show = True, renderer = "colab")
 ```
+
 
 Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem sweep and a compact DataFrame summary. Use `BenchmarkStudy` when you need a scientific experimental protocol with repeated trials, fixed budgets, algorithm and island-system candidates, rank tables, statistical tests, convergence plots, ECDFs, performance profiles, rank heatmaps, and save/load support.
 
