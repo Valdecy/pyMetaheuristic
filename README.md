@@ -954,6 +954,8 @@ benchmark_result.plot_rank_heatmap(show = True, renderer = "colab")
 ```
 
 Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem sweep and a compact DataFrame summary. Use `BenchmarkStudy` when you need a scientific experimental protocol with repeated trials, fixed budgets, algorithm and island-system candidates, rank tables, statistical tests, convergence plots, ECDFs, performance profiles, rank heatmaps, and save/load support.
+
+
 ---
 ## 3. **Algorithm Details**
 
