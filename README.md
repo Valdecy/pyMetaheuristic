@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **327 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, and cooperative.
+A Python library for metaheuristic optimization and collaborative search, bringing together **332 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -56,14 +56,18 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
    - [2.5 Constraint Handling Example](#25-constraint-handling-example) --- [[Colab Demo]](https://colab.research.google.com/drive/1T8ltBcunERKd7N3q12rW2MdnzSTdsOGs?usp=sharing) ---  
    - [2.6 Cooperative Multi-island Example](#26-cooperative-multi-island-example) --- [[Colab Demo] ](https://colab.research.google.com/drive/1DteFWUIqpZZNV4nUM7FGAHfqZN5Vabse?usp=sharing) ---
    - [2.7 Orchestrated Cooperation Example](#27-orchestrated-cooperation-example) --- [[Colab Demo]](https://colab.research.google.com/drive/1j4RbtBjFyxAVuVTMNaJw9ALbREWiIBmn?usp=sharing) --- 
-   - [2.8 Chaotic Maps and Transfer Functions](#28-chaotic-maps-and-transfer-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/1cvrahJ5Bp4E4vU7I-O6Uqru9SK2hxMXX?usp=sharing) ---
-   - [2.9 Hyperparameter Tuner](#29-hyperparameter-tuner) --- [[Colab Demo] ](https://colab.research.google.com/drive/13pZQyrMDyegRAcYUJRO6cSwvQ7pZvDKs?usp=sharing) ---
-   - [2.10 Save, Load, and Checkpoint](#210-save-load-and-checkpoint) --- [[Colab Demo] ](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing) ---
-   - [2.11 Benchmark Runner](#211-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
+   - [2.8 Island System Unified Interface](#28-island-system-unified-interface) --- [[Colab Demo] ](https://colab.research.google.com/drive/15tidtz3PuVvBVUpO11RDpnRS6sjoVSD1?usp=sharing) --- 
+   - [2.9 Adaptive Orchestration Policies](#29-adaptive-orchestration-policies)
+   - [2.10 Chaotic Maps and Transfer Functions](#210-chaotic-maps-and-transfer-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/1cvrahJ5Bp4E4vU7I-O6Uqru9SK2hxMXX?usp=sharing) ---
+   - [2.11 Hyperparameter Tuner](#211-hyperparameter-tuner) --- [[Colab Demo] ](https://colab.research.google.com/drive/13pZQyrMDyegRAcYUJRO6cSwvQ7pZvDKs?usp=sharing) ---
+   - [2.12 Save, Load, and Checkpoint](#212-save-load-and-checkpoint) --- [[Colab Demo] ](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing) ---
+   - [2.13 Benchmark Runner](#213-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
+   - [2.14 Benchmark Study](#214-benchmark-study) --- [[Colab Demo] ](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing) ---
 3. [Algorithm Details](#3-algorithm-details)
 4. [Test Functions](#4-test-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/132-yqoaJKkJ4gf6yqjrV1siXVvZ3ZgE7?usp=sharing) ---
 5. [Other Libraries](#5-other-libraries)
 
+---
 ## 1. **Introduction** 
 
 [Back to Summary](#b-summary)
@@ -74,17 +78,20 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
 - benchmark functions for testing and visualization
 - a stepwise engine API for controlled execution
 - telemetry, export helpers, evaluation-indexed convergence data, and save/load for experiments
-- cooperative multi-island optimization
-- rule-based orchestration for collaborative optimization
+- cooperative multi-island optimization through `cooperative_optimize`
+- clean object-based island systems through `IslandSystem`, `Island`, `TopologyConfig`, and `MigrationConfig`
+- adaptive orchestration through fixed, rule-based, bandit, and portfolio-adaptive controllers
+- island diagnostics, including migration matrices, contribution tables, island roles, action effectiveness, and topology summaries
 - built-in constrained optimization support plus named repair strategies (`clip`, `wang`, `reflect`, `rand`, `limit_inverse`)
 - composable `Termination` object with four independent stopping conditions
 - automatic per-step diversity and exploration/exploitation tracking in history
-- matplotlib-based diversity, convergence, runtime, and explore/exploit charts, including evaluation-indexed convergence plots
+- plotly-based diversity, convergence, runtime, and explore/exploit charts, including evaluation-indexed convergence plots
 - typed variable space (`FloatVar`, `IntegerVar`, `CategoricalVar`, `PermutationVar`, `BinaryVar`)
 - ten chaotic maps plus `lhs`, `obl`, and `sobol` population initialization presets
 - eight transfer functions and `BinaryAdapter` for binary/discrete optimization
 - `HyperparameterTuner` for grid/random hyperparameter search
-- `BenchmarkRunner` for multi-algorithm × multi-problem sweeps
+- `BenchmarkRunner` for lightweight multi-algorithm × multi-problem sweeps
+- `BenchmarkStudy` for scientific benchmarking of algorithms, island systems, and orchestration controllers, with rank tables, statistical tests, convergence plots, ECDFs, performance profiles, and result persistence
 - `save_result`, `load_result`, `save_checkpoint`, `load_checkpoint` for persistence
 - callback system with lifecycle hooks and callback-driven early stopping
 - object-based `Problem` API with parametrized bounds, `latex_code()`, and curated test-problem wrappers
@@ -93,6 +100,7 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
 ---
 ## 2. **Installation and Package Overview**
 
+---
 ### 2.1 **Installation**
 
 Standard installation:
@@ -100,7 +108,7 @@ Standard installation:
 ```bash
 pip install pymetaheuristic
 ```
-
+---
 ### 2.2 **Package Overview**
 
 [Back to Summary](#b-summary)
@@ -110,8 +118,8 @@ pip install pymetaheuristic
 | Core Optimization | `optimize`, `list_algorithms`, `get_algorithm_info`, `create_optimizer` | Single-algorithm optimization, algorithm discovery, and inspection of default parameters |
 | Termination | `Termination`, `EarlyStopping`, callbacks | Composable stopping criteria: max_steps, max_evaluations, max_time, max_early_stop, target_fitness, and callback-driven stops |
 | Constraints and Feasibility | `optimize(..., constraints=..., constraint_handler=...)` | Constrained optimization with inequality/equality constraints, feasibility-aware evaluation |
-| Benchmarks and Plots (Plotly) | `FUNCTIONS`, `get_test_function`, `plot_function`, `plot_convergence`, `compare_convergence`, `plot_benchmark_summary`, `plot_island_dynamics`, `plot_collaboration_network`, `plot_population_snapshot` | Built-in benchmark functions and Plotly-based landscape, convergence, and cooperation visualizations |
-| History Charts (Matplotlib) | `plot_global_best_chart`, `plot_diversity_chart`, `plot_explore_exploit_chart`, `plot_runtime_chart`, `plot_run_dashboard`, `plot_diversity_comparison` | Per-step diversity, exploration/exploitation, runtime, and convergence charts using matplotlib |
+| Benchmarks and Plots (Plotly) | `FUNCTIONS`, `get_test_function`, `plot_function`, `plot_convergence`, `compare_convergence`, `plot_benchmark_summary`, `plot_island_dynamics`, `plot_collaboration_network`, `plot_population_snapshot` | Built-in benchmark functions and plotly-based landscape, convergence, and cooperation visualizations |
+| History Charts (Plotly) | `plot_global_best_chart`, `plot_diversity_chart`, `plot_explore_exploit_chart`, `plot_runtime_chart`, `plot_run_dashboard`, `plot_diversity_comparison` | Per-step diversity, exploration/exploitation, runtime, and convergence charts using plotly |
 | Telemetry and Export | `summarize_result`, `export_history_csv`, `export_population_snapshots_json`, `convergence_data` | Experiment summarization, evaluation-indexed convergence extraction, and export of history and snapshots |
 | IO (Persistence) | `save_result`, `load_result`, `save_checkpoint`, `load_checkpoint`, `result_to_json`, `result_from_json` | Save and restore results; checkpoint-and-resume for long runs |
 | Typed Variable Space | `FloatVar`, `IntegerVar`, `BinaryVar`, `CategoricalVar`, `PermutationVar`, `build_problem_spec`, `decode_position`, `encode_position` | Define mixed-type search spaces; automatic encode/decode to/from continuous representation |
@@ -121,9 +129,11 @@ pip install pymetaheuristic
 | Transfer Functions | `apply_transfer`, `binarize`, `BinaryAdapter`, `vstf_01`–`vstf_04`, `sstf_01`–`sstf_04`, `AVAILABLE_TRANSFER_FUNCTIONS` | Eight transfer functions mapping continuous positions to binary probabilities for binary optimization |
 | Repair and Random Utilities | `limit`, `limit_inverse`, `wang`, `rand`, `reflect`, `get_repair_function`, `levy_flight` | Named bound-repair policies and a reusable Lévy-flight sampler |
 | Hyperparameter Tuner | `HyperparameterTuner` | Grid or random search over algorithm hyperparameters across multiple trials |
-| Benchmark Runner | `BenchmarkRunner` | Multi-algorithm × multi-problem sweeps with statistical aggregation |
-| Cooperation | `cooperative_optimize`, `replay_cooperative_result` | Multi-island cooperative optimization |
-| Orchestration | `orchestrated_optimize`, `OrchestrationSpec`, `CollaborativeConfig`, `RulesConfig` | Checkpoint-driven cooperation with fixed or rule-based orchestration |
+| Benchmark Runner | `BenchmarkRunner` | Lightweight multi-algorithm × multi-problem sweeps with summary aggregation and plotly-based benchmark charts |
+| Benchmark Study | `BenchmarkStudy`, `BenchmarkResult`, `BenchmarkProblem`, `ProblemSuite`, `ExperimentRecord`, `load_benchmark` | Scientific benchmarking of algorithms, island systems, and orchestration controllers with long-format records, ranks, statistical tests, convergence plots, ECDFs, performance profiles, rank heatmaps, and JSON persistence |
+| Cooperation | `cooperative_optimize`, `replay_cooperative_result`, `IslandSystem`, `Island`, `TopologyConfig`, `MigrationConfig`, `ExecutionConfig` | Direct and object-based multi-island cooperative optimization with configurable topology, migration interval, migration size, and migration policy |
+| Orchestration | `orchestrated_optimize`, `OrchestrationSpec`, `CollaborativeConfig`, `RulesConfig`, `BanditConfig`, `PortfolioConfig`, `OrchestrationConfig` | Checkpoint-driven cooperation with fixed, rule-based, bandit, and portfolio-adaptive orchestration |
+| Island Diagnostics | `migration_matrix`, `topology_summary`, `island_contribution`, `island_roles`, `action_effectiveness`, `diagnostics_summary` | Post-run interpretation of island systems, including communication patterns, donor/receiver behavior, island roles, and controller action effectiveness |
 | Reference | `print_root_exports`, `print_reference`, `search_reference` | Programmatic argument reference for all callables |
 
 To quickly inspect parameters:
@@ -137,7 +147,7 @@ pymetaheuristic.print_root_exports()
 # Detail
 pymetaheuristic.print_reference("optimize")
 ```
-
+---
 ### 2.3 **Optimization, Telemetry, Export, and Plotting Example**
 
 [Back to Summary](#b-summary)
@@ -181,9 +191,8 @@ print(pymetaheuristic.summarize_result(result))
 pymetaheuristic.export_history_csv(result, "population_history.csv")
 pymetaheuristic.export_population_snapshots_json(result, "population_snapshots.json")
 fig = pymetaheuristic.plot_convergence(result)
-fig.show()
 ```
-
+---
 ### 2.4 **Termination Criteria**
 
 [Back to Summary](#b-summary)
@@ -209,21 +218,21 @@ def easom(x = [0, 0]):
 # Build a composable termination with multiple conditions
 # The run stops as soon as ANY condition is triggered.
 term = pymetaheuristic.Termination(
-									max_steps       = 1000,
-									max_evaluations = 50000,
-									max_time        = 30.0,       # 30-second wall-clock limit
-									max_early_stop  = 25,         # stop if no improvement for 25 steps
-									epsilon         = 1e-8,
-								   )
+		max_steps       = 1000,
+		max_evaluations = 50000,
+		max_time        = 30.0,       # 30-second wall-clock limit
+		max_early_stop  = 25,         # stop if no improvement for 25 steps
+		epsilon         = 1e-8,
+	   )
 
 result = pymetaheuristic.optimize(
-									algorithm       = "pso",
-									target_function = easom,
-									min_values      = (-5, -5),
-									max_values      = ( 5,  5),
-									termination     = term,
-									seed            = 42,
-								 )
+		algorithm       = "pso",
+		target_function = easom,
+		min_values      = (-5, -5),
+		max_values      = ( 5,  5),
+		termination     = term,
+		seed            = 42,
+	 )
 
 print(f"Best fitness:        {result.best_fitness:.6f}")
 print(f"Steps run:           {result.steps}")
@@ -231,7 +240,7 @@ print(f"Evaluations:         {result.evaluations}")
 print(f"Termination reason:  {result.termination_reason}")
 
 ```
-
+---
 ### 2.5 **Constraint Handling Example**
 
 [Back to Summary](#b-summary)
@@ -260,14 +269,14 @@ constraints = [
               ]
 
 result = pymetaheuristic.optimize(
-					algorithm          = "pso",
-					target_function    = tension_spring,
-                    min_values         = (0.05, 0.25,  2.0),
-                    max_values         = (2.00, 1.30, 15.0),
-					constraints        = constraints,
-					constraint_handler = "deb",
-					max_steps          = 2500,
-					seed               = 42,
+			algorithm          = "pso",
+			target_function    = tension_spring,
+			min_values         = (0.05, 0.25,  2.0),
+			max_values         = (2.00, 1.30, 15.0),
+			constraints        = constraints,
+			constraint_handler = "deb",
+			max_steps          = 2500,
+			seed               = 42,
 				 )
 
 print(result.best_position)
@@ -307,7 +316,6 @@ constraints = [c1, c2, c3]
 ```
 
 ---
-
 ### 2.6 **Cooperative Multi-island Example**
 
 [Back to Summary](#b-summary)
@@ -325,26 +333,26 @@ def easom(x = [0, 0]):
     return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
 result = pymetaheuristic.cooperative_optimize(
-					islands            = [
-											{"algorithm": "pso",  "config": {"swarm_size": 25}},
-											{"algorithm": "ga",   "config": {}},
-											{"algorithm": "sa",   "config": {"temperature_iterations": 20}},
-											{"algorithm": "abco", "config": {}},
-										  ],
-					target_function    = easom,
-					min_values         = (-5, -5),
-					max_values         = ( 5,  5),
-					max_steps          = 20,
-					migration_interval = 5,
-					migration_size     = 2,
-					topology           = "ring",
-					seed               = 42,
+	islands            = [
+							{"algorithm": "pso",  "config": {"swarm_size": 25}},
+							{"algorithm": "ga",   "config": {}},
+							{"algorithm": "sa",   "config": {"temperature_iterations": 20}},
+							{"algorithm": "abco", "config": {}},
+						  ],
+	target_function    = easom,
+	min_values         = (-5, -5),
+	max_values         = ( 5,  5),
+	max_steps          = 20,
+	migration_interval = 5,
+	migration_size     = 2,
+	topology           = "ring",
+	seed               = 42,
 			   )
 
 print(result.best_fitness)
 print(len(result.events))
 ```
-
+---
 ### 2.7 **Orchestrated Cooperation Example**
 
 [Back to Summary](#b-summary)
@@ -362,33 +370,33 @@ def easom(x = [0, 0]):
     return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
 config = pymetaheuristic.CollaborativeConfig(
-					orchestration = pymetaheuristic.OrchestrationSpec(
-																		mode                       = "rules",
-																		checkpoint_interval        = 5,
-																		max_actions_per_checkpoint = 2,
-																		warmup_checkpoints         = 1,
-																	 ),
-					rules         = pymetaheuristic.RulesConfig(
-																	stagnation_threshold     = 4,
-																	low_diversity_threshold  = 0.05,
-																	high_diversity_threshold = 0.25,
-																	perturbation_sigma       = 0.05,
-															   ),
-				)
+	orchestration = pymetaheuristic.OrchestrationSpec(
+														mode                       = "rules",
+														checkpoint_interval        = 5,
+														max_actions_per_checkpoint = 2,
+														warmup_checkpoints         = 1,
+													 ),
+	rules         = pymetaheuristic.RulesConfig(
+													stagnation_threshold     = 4,
+													low_diversity_threshold  = 0.05,
+													high_diversity_threshold = 0.25,
+													perturbation_sigma       = 0.05,
+											   ),
+	)
 
 result    = pymetaheuristic.orchestrated_optimize(
-					islands         = [
-										{"label": "pso", "algorithm": "pso", "config": {"swarm_size": 20}},
-										{"label": "ga",  "algorithm": "ga",  "config": {"population_size": 20}},
-										{"label": "sa",  "algorithm": "sa",  "config": {"temperature": 10.0}},
-									  ],
-					target_function = easom,
-					min_values      = (-5, -5),
-					max_values      = ( 5,  5),
-					max_steps       = 20,
-					seed            = 42,
-					config          = config,
-				  )
+	islands         = [
+						{"label": "pso", "algorithm": "pso", "config": {"swarm_size": 20}},
+						{"label": "ga",  "algorithm": "ga",  "config": {"population_size": 20}},
+						{"label": "sa",  "algorithm": "sa",  "config": {"temperature": 10.0}},
+					  ],
+	target_function = easom,
+	min_values      = (-5, -5),
+	max_values      = ( 5,  5),
+	max_steps       = 20,
+	seed            = 42,
+	config          = config,
+	)
 
 print(result.best_fitness)
 print(len(result.checkpoints))
@@ -396,8 +404,188 @@ print(len(result.decisions))
 ```
 
 ---
+### 2.8 **Island System Unified Interface**
 
-### 2.8 **Chaotic Maps and Transfer Functions**
+[Back to Summary](#b-summary)
+
+`IslandSystem` is the object-based interface for defining collaborative optimization systems. It wraps the direct APIs `cooperative_optimize` and `orchestrated_optimize` into a cleaner architecture where islands, topology, migration, orchestration, and execution settings are declared as reusable configuration objects. This interface is recommended when the same island portfolio must be reused across cooperative, rule-based, bandit, portfolio-adaptive, or benchmarked runs.
+
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/15tidtz3PuVvBVUpO11RDpnRS6sjoVSD1?usp=sharing)
+
+```python
+import numpy as np
+import pymetaheuristic
+
+def easom(x = [0, 0]):
+    x1, x2 = x
+    return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
+
+system      = pymetaheuristic.IslandSystem(
+    islands = [
+        pymetaheuristic.Island(
+            label     = "pso_explorer",
+            algorithm = "pso",
+            role      = "explorer",
+            config    = {"swarm_size": 25},
+        ),
+        pymetaheuristic.Island(
+            label     = "ga_diversity",
+            algorithm = "ga",
+            role      = "diversity_keeper",
+            config    = {"population_size": 30},
+        ),
+        pymetaheuristic.Island(
+            label     = "sa_refiner",
+            algorithm = "sa",
+            role      = "local_refiner",
+            config    = {"temperature": 10.0},
+        ),
+        pymetaheuristic.Island(
+            label     = "abco_explorer",
+            algorithm = "abco",
+            role      = "swarm_explorer",
+            config    = {},
+        ),
+    ],
+    topology     = pymetaheuristic.TopologyConfig(name = "ring",),
+    migration    = pymetaheuristic.MigrationConfig(
+        interval = 5,
+        size     = 2,
+        mode     = "elite",
+        policy   = "push",
+    ),
+    orchestration = pymetaheuristic.OrchestrationConfig(
+        checkpoint_interval        = 5,
+        warmup_checkpoints         = 1,
+        max_actions_per_checkpoint = 2,
+    ),
+    rules = pymetaheuristic.RulesConfig(
+        stagnation_threshold     = 4,
+        low_diversity_threshold  = 0.05,
+        high_diversity_threshold = 0.25,
+        perturbation_sigma       = 0.05,
+    ),
+    objective = "min",
+    max_steps = 250,
+    seed      = 42,
+)
+
+result = system.optimize(
+    target_function = easom,
+    min_values      = (-5, -5),
+    max_values      = ( 5,  5),
+    mode            = "cooperative",
+)
+
+print(result.best_fitness)
+print(result.best_position)
+print(len(result.events))
+
+```
+Island diagnostics transform cooperative and orchestrated runs into interpretable collaborative-search reports. After a run, the result object can summarize migration flows, topology structure, island contributions, island roles, and the effectiveness of orchestration actions. These diagnostics are useful for understanding whether cooperation helped, which island acted as the best refiner, which island donated useful candidates, and whether adaptive interventions were beneficial.
+
+```python
+import pandas as pd
+
+# Migration matrix: how many candidates moved between islands.
+migration_df = pd.DataFrame(result.migration_matrix(value = "migrants")).fillna(0)
+print(migration_df)
+
+# Contribution table: final fitness, improvement, donor/receiver behavior.
+contribution_df = pd.DataFrame(result.island_contribution()).T
+print(contribution_df)
+
+# Interpretable island roles.
+roles_df = pd.DataFrame(result.island_roles()).T
+print(roles_df)
+
+# Topology and communication summary.
+topology = result.topology_summary()
+print(topology)
+
+# Action effectiveness for cooperative migration or orchestrated decisions.
+actions = result.action_effectiveness()
+print(actions)
+```
+
+Diagnostic plots are also available:
+
+```python
+result.plot_migration_network(value = "migrants", show = True, renderer = "colab")
+
+result.plot_island_fitness(show = True, renderer = "colab")
+```
+
+---
+### 2.9 **Adaptive Orchestration Policies**
+
+[Back to Summary](#b-summary)
+
+The orchestration layer supports multiple coordination policies. The `"cooperative"` mode uses fixed migration, `"rules"` applies checkpoint-based rules, `"bandit"` uses a multi-armed bandit controller to select actions based on previous rewards, and `"portfolio_adaptive"` changes behavior according to the optimization phase and island-state indicators.
+
+```python
+modes   = ["cooperative", "rules", "bandit", "portfolio_adaptive"]
+results = {}
+
+for mode in modes:
+    results[mode] = system.optimize(
+        target_function = easom,
+        min_values      = (-5, -5),
+        max_values      = ( 5,  5),
+        mode            = mode,
+    )
+
+for mode, res in results.items():
+    print(mode,
+         "best_fitness = ", res.best_fitness,
+         "events       = ", len(getattr(res, "events", []) or []),
+         "checkpoints  = ", len(getattr(res, "checkpoints", []) or []),
+         "decisions    = ", len(getattr(res, "decisions", []) or []),
+    )
+```
+
+Bandit orchestration can be configured explicitly:
+
+```python
+config = pymetaheuristic.CollaborativeConfig(
+    orchestration = pymetaheuristic.OrchestrationSpec(
+        mode                       = "bandit",
+        checkpoint_interval        = 5,
+        max_actions_per_checkpoint = 2,
+        warmup_checkpoints         = 1,
+    ),
+    rules = pymetaheuristic.RulesConfig(
+        stagnation_threshold       = 3,
+        low_diversity_threshold    = 0.10,
+        perturbation_sigma         = 0.05,
+    ),
+    bandit = pymetaheuristic.BanditConfig(
+        policy                     = "ucb",
+        exploration                = 0.5,
+        action_cost_penalty        = 0.05,
+    ),
+)
+
+result = pymetaheuristic.orchestrated_optimize(
+    islands = [
+        {"label": "pso", "algorithm": "pso", "config": {"swarm_size": 25}},
+        {"label": "ga",  "algorithm": "ga",  "config": {"population_size": 30}},
+        {"label": "sa",  "algorithm": "sa",  "config": {"temperature": 10.0}},
+    ],
+    target_function = easom,
+    min_values      = (-5, -5),
+    max_values      = ( 5,  5),
+    max_steps       = 25,
+    seed            = 42,
+    config          = config,
+)
+
+print(result.best_fitness)
+print(result.action_effectiveness())
+```
+
+---
+### 2.10 **Chaotic Maps and Transfer Functions**
 
 [Back to Summary](#b-summary)
 
@@ -453,8 +641,7 @@ print("Binary solution reported:", result.metadata.get("binary_best_position"))
 ```
 
 ---
-
-### 2.9 **Hyperparameter Tuner**
+### 2.11 **Hyperparameter Tuner**
 
 [Back to Summary](#b-summary)
 
@@ -471,23 +658,23 @@ def easom(x = [0, 0]):
     return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
 tuner = pymetaheuristic.HyperparameterTuner(
-                                            algorithm       = "pso",
-                                            param_grid      = {
-                                                                  "swarm_size": [20, 50, 100],
-                                                                  "w":          [0.4, 0.7, 0.9],
-                                                                  "c1":         [1.5, 2.0],
-                                                                  "c2":         [1.5, 2.0],
-                                                                  "init_name":  ["uniform", "chaotic:tent"],
-                                                              },
-                                            target_function = easom,
-                                            min_values      = [-5, -5],
-                                            max_values      = [ 5,  5],
-                                            termination     = pymetaheuristic.Termination(max_steps = 200),
-                                            n_trials        = 5,
-                                            objective       = "min",
-                                            seed            = 42,
-                                            search          = "grid",
-                                         )
+		algorithm       = "pso",
+		param_grid      = {
+							  "swarm_size": [20, 50, 100],
+							  "w":          [0.4, 0.7, 0.9],
+							  "c1":         [1.5, 2.0],
+							  "c2":         [1.5, 2.0],
+							  "init_name":  ["uniform", "chaotic:tent"],
+						  },
+		target_function = easom,
+		min_values      = [-5, -5],
+		max_values      = [ 5,  5],
+		termination     = pymetaheuristic.Termination(max_steps = 200),
+		n_trials        = 5,
+		objective       = "min",
+		seed            = 42,
+		search          = "grid",
+		)
 
 df      = tuner.run()
 summary = tuner.summary()
@@ -499,8 +686,7 @@ print(summary.head())
 ```
 
 ---
-
-### 2.10 **Save, Load, and Checkpoint**
+### 2.12 **Save, Load, and Checkpoint**
 
 [Back to Summary](#b-summary)
 
@@ -523,7 +709,7 @@ def easom(x = [0, 0]):
 
 # Optimize - Run
 result = pymetaheuristic.optimize(
-                                  algorithm                  = algorithm_id,
+                                  algorithm                  = 'pso',
                                   target_function            = easom,
                                   min_values                 = (-5, -5),
                                   max_values                 = ( 5,  5),
@@ -577,11 +763,12 @@ print(f"Resumed best fitness:  {result_resumed.best_fitness:.6f}")
 print(f"Resumed best position: {result_resumed.best_position}")
 ```
 
-### 2.11 **Benchmark Runner**
+---
+### 2.13 **Benchmark Runner**
 
 [Back to Summary](#b-summary)
 
-`BenchmarkRunner` performs multi-algorithm × multi-problem comparative sweeps. It executes every algorithm on every problem for a configurable number of independent trials, records the best fitness and wall-clock time for each run, and captures failed trials without interrupting the sweep. The raw results are returned as a tidy DataFrame that can be aggregated into summary statistics, rank tables, and publication-quality compact tables. Parallel execution across trials is available through the `n_jobs` argument. After calling `.run()`, the five dedicated Plotly-based visualisation functions — `plot_benchmark_barplots`, `plot_benchmark_boxplots`, `plot_benchmark_rank_heatmap`, `plot_benchmark_runtime`, and `plot_benchmark_convergence` — produce interactive charts. All five return `go.Figure` objects that can be further customised, displayed inline in Jupyter or Colab, or saved to HTML, PNG, SVG, or PDF.
+`BenchmarkRunner` is the lightweight benchmark interface for multi-algorithm × multi-problem comparative sweeps. It executes every algorithm on every problem for a configurable number of independent trials, records the best fitness and wall-clock time for each run, and captures failed trials without interrupting the sweep. The raw results are returned as a tidy DataFrame that can be aggregated into summary statistics, rank tables, and publication-quality compact tables. For a more complete scientific benchmarking workflow involving algorithms, island systems, orchestration controllers, statistical tests, convergence plots, ECDFs, performance profiles, and persistence, use `BenchmarkStudy`.
 
 * [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing)
 
@@ -638,6 +825,136 @@ rank_table                 = rank_table.sort_values("average_rank")
 ```
 
 ---
+### 2.14 **Benchmark Study**
+
+[Back to Summary](#b-summary)
+
+`BenchmarkStudy` is the scientific benchmarking interface. Unlike `BenchmarkRunner`, which focuses on lightweight algorithm sweeps, `BenchmarkStudy` can compare ordinary algorithms, island systems, and orchestration controllers under the same experimental protocol. It stores long-format experiment records, supports repeated trials, computes rank tables and statistical tests, and provides benchmark plots such as convergence curves, ECDFs, performance profiles, and rank heatmaps.
+
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing)
+
+```python
+import pymetaheuristic
+
+# Benchmark problems.
+problems = pymetaheuristic.ProblemSuite.from_names(["sphere", "rastrigin", "ackley", "rosenbrock"], dimensions = 2)
+
+system      = pymetaheuristic.IslandSystem(
+    islands = [
+        pymetaheuristic.Island(
+            label     = "pso_explorer",
+            algorithm = "pso",
+            role      = "explorer",
+            config    = {"swarm_size": 25},
+        ),
+        pymetaheuristic.Island(
+            label     = "ga_diversity",
+            algorithm = "ga",
+            role      = "diversity_keeper",
+            config    = {"population_size": 30},
+        ),
+        pymetaheuristic.Island(
+            label     = "sa_refiner",
+            algorithm = "sa",
+            role      = "local_refiner",
+            config    = {"temperature": 10.0},
+        ),
+        pymetaheuristic.Island(
+            label     = "abco_explorer",
+            algorithm = "abco",
+            role      = "swarm_explorer",
+            config    = {},
+        ),
+    ],
+    topology     = pymetaheuristic.TopologyConfig(name = "ring",),
+    migration    = pymetaheuristic.MigrationConfig(
+        interval = 5,
+        size     = 2,
+        mode     = "elite",
+        policy   = "push",
+    ),
+    orchestration = pymetaheuristic.OrchestrationConfig(
+        checkpoint_interval        = 5,
+        warmup_checkpoints         = 1,
+        max_actions_per_checkpoint = 2,
+    ),
+    rules = pymetaheuristic.RulesConfig(
+        stagnation_threshold     = 4,
+        low_diversity_threshold  = 0.05,
+        high_diversity_threshold = 0.25,
+        perturbation_sigma       = 0.05,
+    ),
+    objective = "min",
+    max_steps = 250,
+    seed      = 42,
+)
+
+benchmark_system_rules     = {"type": "island_system", "name": "islands_rules",              "system": system, "mode": "rules",}
+benchmark_system_bandit    = {"type": "island_system", "name": "islands_bandit",             "system": system, "mode": "bandit",}
+benchmark_system_portfolio = {"type": "island_system", "name": "islands_portfolio_adaptive", "system": system, "mode": "portfolio_adaptive",}
+
+study = pymetaheuristic.BenchmarkStudy(
+    candidates = [
+        {
+            "name":      "pso",
+            "type":      "algorithm",
+            "algorithm": "pso",
+            "config":    {"swarm_size": 30},
+        },
+        {
+            "name":      "ga",
+            "type":      "algorithm",
+            "algorithm": "ga",
+            "config":    {"population_size": 40},
+        },
+        {
+            "name":      "de",
+            "type":      "algorithm",
+            "algorithm": "de",
+            "config":    {"population_size": 40},
+        },
+		  benchmark_system_rules,
+		  benchmark_system_bandit,
+		  benchmark_system_portfolio,
+    ],
+    problems        = problems,
+    n_trials        = 5,
+    max_evaluations = 5000,
+    seed            = 42,
+)
+
+benchmark_result = study.run()
+
+# Long-format experiment table.
+df = benchmark_result.to_dataframe()
+print(df.head())
+
+# Summary and ranking.
+print(benchmark_result.summary())
+print(benchmark_result.rank_table())
+print(benchmark_result.scientific_summary())
+
+# Statistical tests.
+print(benchmark_result.friedman_test())
+print(benchmark_result.wilcoxon_pairwise())
+
+# Save and reload.
+benchmark_result.save("benchmark_demo.json")
+loaded = pymetaheuristic.load_benchmark("benchmark_demo.json")
+print(loaded.summary())
+```
+
+Benchmark plots:
+
+```python
+benchmark_result.plot_convergence(show = True, renderer = "colab")
+benchmark_result.plot_ecdf(show = True, renderer = "colab")
+benchmark_result.plot_performance_profile(show = True, renderer = "colab")
+benchmark_result.plot_rank_heatmap(show = True, renderer = "colab")
+```
+
+Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem sweep and a compact DataFrame summary. Use `BenchmarkStudy` when you need a scientific experimental protocol with repeated trials, fixed budgets, algorithm and island-system candidates, rank tables, statistical tests, convergence plots, ECDFs, performance profiles, rank heatmaps, and save/load support.
+---
 ## 3. **Algorithm Details**
 
 [Back to Summary](#b-summary)
@@ -650,7 +967,7 @@ from pprint import pprint
 
 # Get Info
 algorithm_id = "pso"   # change this to any ID from the table, e.g. "de", "ga", "gwo", "woa"
-info         = pymetaheuristic.get_algorithm_info(algorithm_id)
+algo_iinfo   = pymetaheuristic.get_algorithm_info(algorithm_id)
 
 # Results
 print("Algorithm ID:",   algo_info["algorithm_id"])
@@ -759,6 +1076,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Cross Entropy Method](https://doi.org/10.1007/978-1-4757-4321-0) | `cem` | distribution | Yes | Yes | No | Yes |
 | [Crow Search Algorithm](https://doi.org/10.1016/j.compstruc.2016.03.001) | `csa` | swarm | Yes | Yes | No | Yes |
 | [Cuckoo Search](https://doi.org/10.1109/NABIC.2009.5393690) | `cuckoo_s` | swarm | Yes | Yes | No | Yes |
+| [Cuckoo Catfish Optimizer](https://doi.org/10.1007/s10462-025-11291-x) | `cco` | swarm | Yes | Yes | No | Yes |
 | [Cultural Algorithm](https://doi.org/10.1080/00207160.2015.1067309) | `ca` | evolutionary | Yes | Yes | No | Yes |
 | [Dandelion Optimizer](https://doi.org/10.1016/j.engappai.2022.105075) | `do_dandelion` | physics | Yes | Yes | No | Yes |
 | [Deep Sleep Optimiser](https://doi.org/10.1109/ACCESS.2023.3298105) | `dso` | human | Yes | Yes | No | Yes |
@@ -810,6 +1128,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Forest Optimization Algorithm](https://doi.org/10.1016/j.eswa.2014.05.009) | `foa` | swarm | Yes | Yes | No | Yes |
 | [Fossa Optimization Algorithm](https://doi.org/10.1007/s10462-024-10953-0) | `foa_fossa` | swarm | Yes | Yes | No | Yes |
 | [Fox Optimizer](https://doi.org/10.1007/s10489-022-03533-0) | `fox` | swarm | Yes | Yes | No | Yes |
+| [Frilled Lizard Optimization](https://doi.org/10.32604/cmc.2024.053189) | `flo` | swarm | Yes | Yes | No | Yes |
 | [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | Yes |
 | [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | Yes |
 | [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | No |
@@ -954,7 +1273,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Shuffle-based Runner-Root Algorithm](https://doi.org/10.1007/978-3-319-70139-4_16) | `srsr` | swarm | Yes | Yes | No | Yes |
 | [Siberian Tiger Optimization](https://doi.org/10.1109/ACCESS.2022.3229964) | `sto` | swarm | Yes | Yes | No | Yes |
 | [Simulated Annealing](https://doi.org/10.1126/science.220.4598.671) | `sa` | trajectory | No | Yes | Yes | No |
+| [Simple Optimization Algorithm](https://scispace.com/pdf/an-efficient-metaheuristic-algorithm-for-engineering-2vvsafbir9.pdf) | `sopt` | distribution | Yes | Yes | No | Yes |
 | [Sine Cosine Algorithm](https://doi.org/10.1016/j.knosys.2015.12.022) | `sine_cosine_a` | swarm | Yes | Yes | No | Yes |
+| [Singer Optimization Algorithm](https://doi.org/10.22266/ijies2025.0630.09) | `singer_oa` | human | Yes | Yes | No | Yes |
 | [Sinh Cosh Optimizer](https://doi.org/10.1016/j.knosys.2023.111081) | `scho` | math | Yes | Yes | No | Yes |
 | [Slime Mould Algorithm](https://doi.org/10.1016/j.future.2020.03.055) | `sma` | nature | Yes | Yes | No | Yes |
 | [Snake Optimizer](https://doi.org/10.1016/j.knosys.2022.108320) | `so_snake` | swarm | Yes | Yes | No | Yes |
@@ -1007,6 +1328,7 @@ The table below summarizes the optimization engines currently available in the l
 | [White Shark Optimizer](https://doi.org/10.1016/j.knosys.2022.108457) | `wso` | swarm | Yes | Yes | No | Yes |
 | [Wildebeest Herd Optimization](https://doi.org/10.3233/JIFS-190495) | `who` | swarm | Yes | Yes | No | Yes |
 | [Wind Driven Optimization](https://doi.org/10.1109/APS.2010.5562213) | `wdo` | physics | Yes | Yes | No | Yes |
+| [Wolverine Optimization Algorithm](https://doi.org/10.32604/cmes.2024.055171) | `wooa` | swarm | Yes | Yes | No | Yes |
 | [Young's Double-Slit Experiment Optimizer](https://doi.org/10.1016/j.cma.2022.115652) | `ydse` | physics | Yes | Yes | No | Yes |
 | [Zebra Optimization Algorithm](https://doi.org/10.1109/ACCESS.2022.3172789) | `zoa` | swarm | Yes | Yes | No | Yes |
 
@@ -1185,6 +1507,7 @@ Engineering benchmarks expose an objective function, along with bounds and const
 | N10 | Pressure vessel has two common variants. `pressure_vessel` is the continuous relaxation; `pressure_vessel_discrete` rounds shell/head thickness upward to multiples of 1/16 before objective and constraint evaluation. |
 | N11 | Gear train is a discrete integer benchmark. The implementation rounds variables to the nearest integer tooth counts by default. |
 
+---
 ## 5. **Other Libraries**
 
 [Back to Summary](#b-summary)
