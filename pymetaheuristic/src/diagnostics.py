@@ -12,6 +12,72 @@ from math import cos, pi, sin
 from typing import Any, Iterable
 
 
+
+# Plotly style helpers -------------------------------------------------------
+import numpy as _np
+import plotly.graph_objects as _go
+import plotly.io as _pio
+
+_DARK_BG   = "#0d1117"
+_PANEL_BG  = "#161b22"
+_GRID_CLR  = "#21262d"
+_TEXT_CLR  = "#e6edf3"
+_ACCENT    = "#58a6ff"
+_SOL_CLR   = "#f78166"
+_DISCRETE_PALETTE = [
+    "#3BC9DB", "#F0A500", "#3FB950", "#F85149",
+    "#C084FC", "#FB923C", "#34D399", "#60A5FA",
+    "#F472B6", "#A3E635", "#FBBF24", "#818CF8",
+]
+_FONT = dict(family="Inter, Arial, sans-serif", color=_TEXT_CLR, size=13)
+_LAYOUT_BASE = dict(
+    paper_bgcolor=_DARK_BG,
+    plot_bgcolor=_PANEL_BG,
+    font=_FONT,
+    margin=dict(l=60, r=40, t=70, b=60),
+    hoverlabel=dict(bgcolor=_PANEL_BG, font_color=_TEXT_CLR, bordercolor=_GRID_CLR),
+)
+_AXIS_STYLE = dict(
+    showgrid=True,
+    gridcolor=_GRID_CLR,
+    zeroline=False,
+    linecolor=_GRID_CLR,
+    tickfont=dict(color=_TEXT_CLR, size=11),
+    title_font=dict(color=_TEXT_CLR, size=13),
+)
+
+def _hex_to_rgba(hex_color: str, alpha: float) -> str:
+    color = str(hex_color).strip()
+    if color.startswith("#"):
+        color = color[1:]
+    if len(color) != 6:
+        return str(hex_color)
+    r, g, b = int(color[0:2], 16), int(color[2:4], 16), int(color[4:6], 16)
+    return f"rgba({r},{g},{b},{float(alpha):.3g})"
+
+def _save_plotly(fig: _go.Figure, filepath, scale: int = 2) -> None:
+    if filepath is None:
+        return
+    from pathlib import Path
+    p = Path(str(filepath))
+    p.parent.mkdir(parents=True, exist_ok=True)
+    ext = p.suffix.lower()
+    if ext in {"", ".html"}:
+        if ext == "":
+            p = p.with_suffix(".html")
+        fig.write_html(str(p))
+    elif ext in {".png", ".jpg", ".jpeg", ".svg", ".pdf", ".webp"}:
+        fig.write_image(str(p), scale=scale)
+    else:
+        fig.write_html(str(p.with_suffix(".html")))
+
+def _show_plotly_if_needed(fig: _go.Figure, show: bool = False, renderer: str = "browser") -> _go.Figure:
+    if show:
+        if renderer:
+            _pio.renderers.default = renderer
+        fig.show()
+    return fig
+
 def _to_dict(obj: Any) -> dict[str, Any]:
     if obj is None:
         return {}
@@ -548,62 +614,130 @@ def diagnostics_summary(result: Any, objective: str | None = None) -> dict[str, 
     }
 
 
-def plot_migration_network(result: Any, ax: Any = None, value: str = "migrants", node_size: float = 800.0, **kwargs: Any):
-    """Plot a lightweight circular island communication network.
+def plot_migration_network(
+    result: Any,
+    value: str = "migrants",
+    node_size: float = 36.0,
+    filepath: Any = None,
+    show: bool = False,
+    renderer: str = "browser",
+    title: str | None = None,
+    **kwargs: Any,
+):
+    """Plot a circular island communication network using Plotly.
 
-    Returns the Matplotlib axis.  Matplotlib is imported lazily so the core
-    package keeps a small import footprint.
+    Returns
+    -------
+    plotly.graph_objects.Figure
     """
-    import matplotlib.pyplot as plt
-
     labels = _labels(result)
     matrix = migration_matrix(result, value=value, include_zero=False)
-    if ax is None:
-        _, ax = plt.subplots(figsize=kwargs.pop("figsize", (6, 5)))
-    ax.set_aspect("equal")
-    ax.axis("off")
+    if not labels:
+        fig = _go.Figure()
+        fig.add_annotation(x=0.5, y=0.5, xref="paper", yref="paper", text="No island labels available", showarrow=False, font=dict(color=_TEXT_CLR, size=15))
+        fig.update_layout(**_LAYOUT_BASE, title=dict(text=title or f"Island communication network ({value})", x=0.04), xaxis=dict(visible=False), yaxis=dict(visible=False), width=850, height=620)
+        _save_plotly(fig, filepath)
+        return _show_plotly_if_needed(fig, show=show, renderer=renderer)
+
     n = max(1, len(labels))
     pos = {label: (cos(2 * pi * i / n), sin(2 * pi * i / n)) for i, label in enumerate(labels)}
-    max_weight = max([w for row in matrix.values() for w in row.values()] or [1.0])
+    max_weight = max([float(w) for row in matrix.values() for w in row.values()] or [1.0])
+    fig = _go.Figure()
+
     for src, row in matrix.items():
         for tgt, weight in row.items():
+            weight = float(weight or 0.0)
             if weight <= 0 or src not in pos or tgt not in pos:
                 continue
             x1, y1 = pos[src]
             x2, y2 = pos[tgt]
-            lw = 0.5 + 4.0 * float(weight) / float(max_weight)
-            ax.annotate(
-                "",
-                xy=(x2, y2),
-                xytext=(x1, y1),
-                arrowprops=dict(arrowstyle="->", linewidth=lw, alpha=0.55, shrinkA=18, shrinkB=18),
-            )
-    for label, (x, y) in pos.items():
-        ax.scatter([x], [y], s=node_size, zorder=3)
-        ax.text(x, y, label, ha="center", va="center", zorder=4)
-    ax.set_title(f"Island communication network ({value})")
-    return ax
+            color = _hex_to_rgba(_ACCENT, 0.24 + 0.48 * weight / max_weight)
+            width = 1.0 + 5.0 * weight / max_weight
+            fig.add_trace(_go.Scatter(
+                x=[x1, x2], y=[y1, y2], mode="lines", showlegend=False,
+                line=dict(color=color, width=width),
+                hoverinfo="text",
+                text=[f"{src} → {tgt}<br>{value}: {weight:g}", f"{src} → {tgt}<br>{value}: {weight:g}"],
+            ))
+            # Arrowhead as an annotation in data coordinates.
+            dx, dy = x2 - x1, y2 - y1
+            norm = max((dx * dx + dy * dy) ** 0.5, 1.0e-12)
+            shrink = 0.18
+            ax = x2 - shrink * dx / norm
+            ay = y2 - shrink * dy / norm
+            bx = x2 - 0.30 * dx / norm
+            by = y2 - 0.30 * dy / norm
+            fig.add_annotation(x=ax, y=ay, ax=bx, ay=by, xref="x", yref="y", axref="x", ayref="y", showarrow=True,
+                               arrowhead=3, arrowsize=1.1, arrowwidth=max(1.0, width * 0.55), arrowcolor=color)
+
+    algo = _algorithm_by_label(result)
+    contrib = island_contribution(result)
+    node_x, node_y, node_text, hover_text, node_color = [], [], [], [], []
+    for i, label in enumerate(labels):
+        x, y = pos[label]
+        node_x.append(x)
+        node_y.append(y)
+        node_text.append(str(label))
+        c = contrib.get(label, {}) if isinstance(contrib, dict) else {}
+        donated = c.get("donated_migrants", 0)
+        received = c.get("received_migrants", 0)
+        final_fit = c.get("final_fitness")
+        hover_text.append(
+            f"<b>{label}</b><br>algorithm: {algo.get(label, '')}<br>"
+            f"final fitness: {final_fit}<br>donated: {donated}<br>received: {received}"
+        )
+        node_color.append(_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)])
+
+    fig.add_trace(_go.Scatter(
+        x=node_x, y=node_y, mode="markers+text", text=node_text, textposition="middle center",
+        marker=dict(size=node_size, color=node_color, line=dict(color="white", width=1.4)),
+        textfont=dict(color="white", size=11), hovertext=hover_text, hoverinfo="text", name="Islands",
+    ))
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=title or f"Island communication network ({value})", x=0.04, font=dict(color=_TEXT_CLR, size=17)),
+        xaxis=dict(visible=False, range=[-1.35, 1.35]),
+        yaxis=dict(visible=False, range=[-1.35, 1.35], scaleanchor="x", scaleratio=1),
+        width=int(kwargs.pop("width", 850)),
+        height=int(kwargs.pop("height", 650)),
+        showlegend=False,
+    )
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
-def plot_island_fitness(result: Any, ax: Any = None, objective: str | None = None, **kwargs: Any):
-    """Plot best-fitness traces by island using telemetry/checkpoints/history."""
-    import matplotlib.pyplot as plt
-
+def plot_island_fitness(
+    result: Any,
+    objective: str | None = None,
+    filepath: Any = None,
+    show: bool = False,
+    renderer: str = "browser",
+    title: str | None = None,
+    **kwargs: Any,
+):
+    """Plot best-fitness traces by island using Plotly."""
     telemetry = _telemetry_by_label(result)
-    if ax is None:
-        _, ax = plt.subplots(figsize=kwargs.pop("figsize", (7, 4)))
+    fig = _go.Figure()
     if telemetry:
-        for label, records in telemetry.items():
-            xs = []
-            ys = []
+        for i, (label, records) in enumerate(telemetry.items()):
+            xs, ys, hover = [], [], []
             for idx, rec in enumerate(records):
                 fit = _get(rec, "best_fitness")
                 if fit is None:
                     continue
-                xs.append(_get(rec, "global_step", idx))
+                x = _get(rec, "global_step", idx)
+                xs.append(x)
                 ys.append(float(fit))
+                hover.append(
+                    f"<b>{label}</b><br>step/checkpoint: {x}<br>fitness: {float(fit):.6g}<br>"
+                    f"diversity: {_get(rec, 'diversity')}<br>stagnation: {_get(rec, 'stagnation_steps')}<br>health: {_get(rec, 'health')}"
+                )
             if xs:
-                ax.plot(xs, ys, marker="o", linewidth=1.5, label=label)
+                fig.add_trace(_go.Scatter(
+                    x=xs, y=ys, mode="lines+markers", name=str(label),
+                    line=dict(color=_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)], width=2.2),
+                    marker=dict(size=8), hovertext=hover, hoverinfo="text",
+                ))
     else:
         history = _get(result, "history", []) or []
         by_label: dict[str, list[tuple[int, float]]] = defaultdict(list)
@@ -612,14 +746,25 @@ def plot_island_fitness(result: Any, ax: Any = None, objective: str | None = Non
             fit = _get(obs, "best_fitness")
             if label and fit is not None:
                 by_label[label].append((i, float(fit)))
-        for label, series in by_label.items():
-            ax.plot([x for x, _ in series], [y for _, y in series], marker="o", linewidth=1.5, label=label)
-    ax.set_xlabel("global step / checkpoint")
-    ax.set_ylabel("best fitness")
-    ax.set_title("Island best-fitness traces")
-    if ax.lines:
-        ax.legend()
-    return ax
+        for i, (label, series) in enumerate(by_label.items()):
+            fig.add_trace(_go.Scatter(
+                x=[x for x, _ in series], y=[y for _, y in series], mode="lines+markers", name=str(label),
+                line=dict(color=_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)], width=2.2),
+                hovertemplate=f"{label}<br>step=%{{x}}<br>fitness=%{{y:.6g}}<extra></extra>",
+            ))
+    if not fig.data:
+        fig.add_annotation(x=0.5, y=0.5, xref="paper", yref="paper", text="No island fitness telemetry available", showarrow=False, font=dict(color=_TEXT_CLR, size=15))
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=title or "Island best-fitness traces", x=0.04, font=dict(color=_TEXT_CLR, size=17)),
+        xaxis=dict(**_AXIS_STYLE, title="Global step / checkpoint"),
+        yaxis=dict(**_AXIS_STYLE, title="Best fitness"),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)),
+        width=int(kwargs.pop("width", 900)),
+        height=int(kwargs.pop("height", 540)),
+    )
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 __all__ = [

@@ -1,62 +1,24 @@
 """
-pyMetaheuristic src — History Visualization Utilities
-=====================================================
-Feature 3: Convergence, diversity, runtime, and explore/exploit charts.
+pyMetaheuristic src — Plotly History Visualization Utilities
+=============================================================
 
-These are matplotlib-based chart functions that operate on the history
-stored in an ``OptimizationResult`` object.  matplotlib is an optional
-dependency; if it is not installed, a clear ImportError is raised at
-call time rather than at import time.
-
-All functions return the ``matplotlib.figure.Figure`` object so the
-caller can further customise, embed, or save it.
-
-Usage
------
-::
-
-    import pymetaheuristic
-    from pymetaheuristic.src.viz import (
-        plot_diversity_chart,
-        plot_explore_exploit_chart,
-        plot_runtime_chart,
-        plot_global_best_chart,
-    )
-
-    result = pymetaheuristic.optimize("pso", fn, lb, ub, max_steps=200,
-                                      store_history=True)
-
-    fig = plot_global_best_chart(result, show=True)
-    fig = plot_diversity_chart(result, show=True)
-    fig = plot_explore_exploit_chart(result, show=True)
-    fig = plot_runtime_chart(result, show=True)
-
-    # Or the all-in-one dashboard:
-    from pymetaheuristic.src.viz import plot_run_dashboard
-    fig = plot_run_dashboard(result, show=True)
+Plotly-based convergence, diversity, runtime, and explore/exploit charts for
+``OptimizationResult`` objects.  All functions return a
+``plotly.graph_objects.Figure`` and accept ``show``/``renderer`` for notebook,
+Colab, browser, or static export workflows.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
+
+import numpy as np
+import plotly.graph_objects as go
+import plotly.io as pio
+from plotly.subplots import make_subplots
 
 from .telemetry import convergence_data
-
-
-# ── Lazy matplotlib import ─────────────────────────────────────────────────
-
-def _mpl():
-    try:
-        import matplotlib
-        matplotlib.use("Agg")  # non-interactive backend by default
-        import matplotlib.pyplot as plt
-        return plt
-    except ImportError:
-        raise ImportError(
-            "matplotlib is required for pymetaheuristic.src.viz. "
-            "Install it with:  pip install matplotlib"
-        )
 
 
 # ── Shared style ─────────────────────────────────────────────────────────
@@ -71,33 +33,90 @@ _GREEN      = "#3fb950"
 _RED        = "#f85149"
 _ORANGE     = "#d29922"
 
+_DISCRETE_PALETTE = [
+    "#3BC9DB", "#F0A500", "#3FB950", "#F85149",
+    "#C084FC", "#FB923C", "#34D399", "#60A5FA",
+    "#F472B6", "#A3E635", "#FBBF24", "#818CF8",
+]
 
-def _apply_dark_style(ax, plt, title: str, xlabel: str, ylabel: str) -> None:
-    ax.set_facecolor(_PANEL_BG)
-    ax.figure.set_facecolor(_DARK_BG)
-    ax.set_title(title, color=_TEXT_CLR, fontsize=11, pad=8)
-    ax.set_xlabel(xlabel, color=_TEXT_CLR, fontsize=9)
-    ax.set_ylabel(ylabel, color=_TEXT_CLR, fontsize=9)
-    ax.tick_params(colors=_TEXT_CLR, labelsize=8)
-    ax.spines["bottom"].set_color(_GRID_CLR)
-    ax.spines["top"].set_color(_GRID_CLR)
-    ax.spines["left"].set_color(_GRID_CLR)
-    ax.spines["right"].set_color(_GRID_CLR)
-    ax.grid(True, color=_GRID_CLR, linestyle="--", linewidth=0.5)
+_FONT = dict(family="Inter, Arial, sans-serif", color=_TEXT_CLR, size=13)
+_LAYOUT_BASE = dict(
+    paper_bgcolor=_DARK_BG,
+    plot_bgcolor=_PANEL_BG,
+    font=_FONT,
+    margin=dict(l=60, r=40, t=70, b=60),
+    hoverlabel=dict(bgcolor=_PANEL_BG, font_color=_TEXT_CLR, bordercolor=_GRID_CLR),
+)
+_AXIS_STYLE = dict(
+    showgrid=True,
+    gridcolor=_GRID_CLR,
+    zeroline=False,
+    linecolor=_GRID_CLR,
+    tickfont=dict(color=_TEXT_CLR, size=11),
+    title_font=dict(color=_TEXT_CLR, size=13),
+)
 
 
-def _save_or_show(fig, filepath, show: bool, plt) -> None:
-    if filepath is not None:
-        fig.savefig(str(filepath), dpi=150, bbox_inches="tight",
-                    facecolor=fig.get_facecolor())
-    if show:
-        plt.show()
+def _hex_to_rgba(hex_color: str, alpha: float) -> str:
+    color = str(hex_color).strip()
+    if color.startswith("#"):
+        color = color[1:]
+    if len(color) != 6:
+        return str(hex_color)
+    r = int(color[0:2], 16)
+    g = int(color[2:4], 16)
+    b = int(color[4:6], 16)
+    return f"rgba({r},{g},{b},{float(alpha):.3g})"
+
+
+def _save_plotly(fig: go.Figure, filepath: str | Path | None, scale: int = 2) -> None:
+    if filepath is None:
+        return
+    p = Path(str(filepath))
+    p.parent.mkdir(parents=True, exist_ok=True)
+    ext = p.suffix.lower()
+    if ext in {"", ".html"}:
+        if ext == "":
+            p = p.with_suffix(".html")
+        fig.write_html(str(p))
+    elif ext in {".png", ".jpg", ".jpeg", ".svg", ".pdf", ".webp"}:
+        fig.write_image(str(p), scale=scale)
     else:
-        plt.close(fig)
+        fig.write_html(str(p.with_suffix(".html")))
 
 
-def _extract(history: list[dict], key: str) -> list[float | None]:
-    return [h.get(key) for h in history]
+def _show_plotly_if_needed(fig: go.Figure, show: bool = False, renderer: str = "browser") -> go.Figure:
+    if show:
+        if renderer:
+            pio.renderers.default = renderer
+        fig.show()
+    return fig
+
+
+def _base_layout(fig: go.Figure, title: str, width: int = 900, height: int = 520) -> go.Figure:
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=title, font=dict(color=_TEXT_CLR, size=16), x=0.04),
+        xaxis=dict(**_AXIS_STYLE),
+        yaxis=dict(**_AXIS_STYLE),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)),
+        width=width,
+        height=height,
+    )
+    return fig
+
+
+def _message_figure(title: str, message: str, filepath=None, show: bool = False, renderer: str = "browser") -> go.Figure:
+    fig = go.Figure()
+    fig.add_annotation(x=0.5, y=0.5, xref="paper", yref="paper", text=message, showarrow=False,
+                       font=dict(color=_TEXT_CLR, size=15))
+    fig.update_layout(**_LAYOUT_BASE, title=dict(text=title, x=0.04), xaxis=dict(visible=False), yaxis=dict(visible=False), width=900, height=520)
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
+
+
+def _history(result) -> list[dict]:
+    return list(getattr(result, "history", []) or [])
 
 
 # ===========================================================================
@@ -111,37 +130,26 @@ def plot_global_best_chart(
     show: bool = False,
     color: str = _ACCENT,
     x_axis: str = "steps",
-) -> Any:
-    """
-    Plot the global-best fitness curve over steps.
-
-    Parameters
-    ----------
-    result   : OptimizationResult from optimize() / create_optimizer().run()
-    filepath : Optional path to save the figure (.png / .pdf / .svg).
-    title    : Optional plot title.
-    show     : If True, call plt.show() immediately.
-    color    : Line colour.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
-    plt = _mpl()
-    history = getattr(result, "history", []) or []
-    alg_id  = getattr(result, "algorithm_id", "algorithm")
-
+    renderer: str = "browser",
+) -> go.Figure:
+    """Plot the global-best fitness curve. Returns a Plotly figure."""
+    alg_id = getattr(result, "algorithm_id", "algorithm")
     x, y = convergence_data(result, x_axis=x_axis)
-
-    fig, ax = plt.subplots(figsize=(8, 4))
     xlabel = "Evaluations" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "Step"
-    _apply_dark_style(ax, plt, title or f"Global-Best Convergence — {alg_id}",
-                      xlabel, "Fitness")
-    ax.plot(x, y, color=color, linewidth=1.5, label="Global best", drawstyle="steps-post" if xlabel == "Evaluations" else "default")
-    ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR, labelcolor=_TEXT_CLR, fontsize=8)
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+    if len(x) == 0:
+        return _message_figure(title or f"Global-Best Convergence — {alg_id}", "No history stored in result.", filepath, show, renderer)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=list(x), y=list(y), mode="lines", name="Global best",
+        line=dict(color=color, width=2.4, shape="hv" if xlabel == "Evaluations" else "linear"),
+        fill="tozeroy", fillcolor=_hex_to_rgba(color, 0.12),
+        hovertemplate=f"{xlabel}=%{{x}}<br>fitness=%{{y:.6g}}<extra></extra>",
+    ))
+    _base_layout(fig, title or f"Global-Best Convergence — {alg_id}")
+    fig.update_xaxes(title_text=xlabel)
+    fig.update_yaxes(title_text="Fitness")
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 # ===========================================================================
@@ -154,39 +162,26 @@ def plot_diversity_chart(
     title: str | None = None,
     show: bool = False,
     color: str = _GREEN,
-) -> Any:
-    """
-    Plot population diversity over steps.
-
-    Diversity is the mean normalised distance of population members from
-    their centroid (computed automatically during the run when
-    ``store_history=True``).
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
-    plt = _mpl()
-    history = getattr(result, "history", []) or []
-    alg_id  = getattr(result, "algorithm_id", "algorithm")
-
-    divs = [h.get("diversity") for h in history]
-    divs = [v for v in divs if v is not None]
-    x    = list(range(1, len(divs) + 1))
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-    _apply_dark_style(ax, plt, title or f"Population Diversity — {alg_id}",
-                      "Step", "Diversity (normalised)")
-    if divs:
-        ax.fill_between(x, divs, alpha=0.25, color=color)
-        ax.plot(x, divs, color=color, linewidth=1.5, label="Diversity")
-        ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR, labelcolor=_TEXT_CLR, fontsize=8)
-    else:
-        ax.text(0.5, 0.5, "No diversity data in history.\nRun with store_history=True.",
-                ha="center", va="center", transform=ax.transAxes, color=_TEXT_CLR, fontsize=9)
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+    renderer: str = "browser",
+) -> go.Figure:
+    """Plot population diversity over steps. Returns a Plotly figure."""
+    history = _history(result)
+    alg_id = getattr(result, "algorithm_id", "algorithm")
+    rows = [(i + 1, h.get("diversity")) for i, h in enumerate(history) if h.get("diversity") is not None]
+    if not rows:
+        return _message_figure(title or f"Population Diversity — {alg_id}", "No diversity data in history. Run with store_history=True.", filepath, show, renderer)
+    x, y = zip(*rows)
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=list(x), y=list(y), mode="lines", name="Diversity",
+        line=dict(color=color, width=2.2), fill="tozeroy", fillcolor=_hex_to_rgba(color, 0.22),
+        hovertemplate="step=%{x}<br>diversity=%{y:.6g}<extra></extra>",
+    ))
+    _base_layout(fig, title or f"Population Diversity — {alg_id}")
+    fig.update_xaxes(title_text="Step")
+    fig.update_yaxes(title_text="Diversity")
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 # ===========================================================================
@@ -198,38 +193,28 @@ def plot_explore_exploit_chart(
     filepath: str | Path | None = None,
     title: str | None = None,
     show: bool = False,
-) -> Any:
-    """
-    Stacked area chart showing the proportion of steps that produced an
-    improvement (exploitation) vs. those that did not (exploration).
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
-    plt = _mpl()
-    history = getattr(result, "history", []) or []
-    alg_id  = getattr(result, "algorithm_id", "algorithm")
-
-    exploit = [h.get("exploitation", 0.0) for h in history if "exploitation" in h]
-    explore = [h.get("exploration", 1.0)  for h in history if "exploration"  in h]
-    x       = list(range(1, len(exploit) + 1))
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-    _apply_dark_style(ax, plt, title or f"Exploration vs Exploitation — {alg_id}",
-                      "Step", "Fraction")
-    if exploit:
-        ax.stackplot(x, explore, exploit,
-                     labels=["Exploration", "Exploitation"],
-                     colors=[_AMBER, _ACCENT], alpha=0.80)
-        ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR, labelcolor=_TEXT_CLR, fontsize=8)
-        ax.set_ylim(0, 1)
-    else:
-        ax.text(0.5, 0.5, "No exploration/exploitation data.\nRun with store_history=True.",
-                ha="center", va="center", transform=ax.transAxes, color=_TEXT_CLR, fontsize=9)
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+    renderer: str = "browser",
+) -> go.Figure:
+    """Stacked Plotly area chart of exploration and exploitation fractions."""
+    history = _history(result)
+    alg_id = getattr(result, "algorithm_id", "algorithm")
+    rows = []
+    for i, h in enumerate(history):
+        if "exploration" in h or "exploitation" in h:
+            rows.append((i + 1, float(h.get("exploration", 1.0)), float(h.get("exploitation", 0.0))))
+    if not rows:
+        return _message_figure(title or f"Exploration vs Exploitation — {alg_id}", "No exploration/exploitation data. Run with store_history=True.", filepath, show, renderer)
+    x = [r[0] for r in rows]
+    explore = [r[1] for r in rows]
+    exploit = [r[2] for r in rows]
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=x, y=explore, mode="lines", stackgroup="one", name="Exploration", line=dict(color=_AMBER, width=1.5), hovertemplate="step=%{x}<br>exploration=%{y:.3f}<extra></extra>"))
+    fig.add_trace(go.Scatter(x=x, y=exploit, mode="lines", stackgroup="one", name="Exploitation", line=dict(color=_ACCENT, width=1.5), hovertemplate="step=%{x}<br>exploitation=%{y:.3f}<extra></extra>"))
+    _base_layout(fig, title or f"Exploration vs Exploitation — {alg_id}")
+    fig.update_xaxes(title_text="Step")
+    fig.update_yaxes(title_text="Fraction", range=[0, 1])
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 # ===========================================================================
@@ -242,35 +227,22 @@ def plot_runtime_chart(
     title: str | None = None,
     show: bool = False,
     color: str = _ORANGE,
-) -> Any:
-    """
-    Bar chart of cumulative elapsed time recorded in the history.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
-    plt = _mpl()
-    history = getattr(result, "history", []) or []
-    alg_id  = getattr(result, "algorithm_id", "algorithm")
-
-    times = [h.get("elapsed_time") for h in history]
-    times = [v for v in times if v is not None]
-    # Convert cumulative → per-step deltas
-    deltas = [times[0]] + [times[i] - times[i-1] for i in range(1, len(times))]
+    renderer: str = "browser",
+) -> go.Figure:
+    """Plot per-step runtime deltas using Plotly bars."""
+    history = _history(result)
+    alg_id = getattr(result, "algorithm_id", "algorithm")
+    times = [h.get("elapsed_time") for h in history if h.get("elapsed_time") is not None]
+    if not times:
+        return _message_figure(title or f"Runtime per Step — {alg_id}", "No elapsed_time data in history. Run with store_history=True.", filepath, show, renderer)
+    deltas = [float(times[0])] + [float(times[i]) - float(times[i - 1]) for i in range(1, len(times))]
     x = list(range(1, len(deltas) + 1))
-
-    fig, ax = plt.subplots(figsize=(8, 4))
-    _apply_dark_style(ax, plt, title or f"Runtime per Step — {alg_id}",
-                      "Step", "Seconds")
-    if deltas:
-        ax.bar(x, deltas, color=color, alpha=0.80, width=0.8)
-    else:
-        ax.text(0.5, 0.5, "No elapsed_time data in history.\nRun with store_history=True.",
-                ha="center", va="center", transform=ax.transAxes, color=_TEXT_CLR, fontsize=9)
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+    fig = go.Figure(go.Bar(x=x, y=deltas, name="Runtime", marker=dict(color=color, opacity=0.85), hovertemplate="step=%{x}<br>seconds=%{y:.6g}<extra></extra>"))
+    _base_layout(fig, title or f"Runtime per Step — {alg_id}")
+    fig.update_xaxes(title_text="Step")
+    fig.update_yaxes(title_text="Seconds")
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 # ===========================================================================
@@ -282,69 +254,42 @@ def plot_run_dashboard(
     filepath: str | Path | None = None,
     title: str | None = None,
     show: bool = False,
-) -> Any:
-    """
-    2×2 dashboard combining convergence, diversity, explore/exploit, and
-    runtime charts in a single figure.
-
-    Returns
-    -------
-    matplotlib.figure.Figure
-    """
-    plt = _mpl()
-    history = getattr(result, "history", []) or []
-    alg_id  = getattr(result, "algorithm_id", "algorithm")
+    renderer: str = "browser",
+) -> go.Figure:
+    """2×2 Plotly dashboard: convergence, diversity, explore/exploit, runtime."""
+    history = _history(result)
+    alg_id = getattr(result, "algorithm_id", "algorithm")
     dash_title = title or f"Run Dashboard — {alg_id}"
-
-    fig, axes = plt.subplots(2, 2, figsize=(14, 8))
-    fig.set_facecolor(_DARK_BG)
-    fig.suptitle(dash_title, color=_TEXT_CLR, fontsize=13, y=1.01)
-
-    # ── panel helpers ────────────────────────────────────────────────────
-    def _fill(ax, x, y, label, color):
-        ax.fill_between(x, y, alpha=0.20, color=color)
-        ax.plot(x, y, color=color, linewidth=1.5, label=label)
-        ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR,
-                  labelcolor=_TEXT_CLR, fontsize=7)
-
-    # 1. Convergence
-    ax = axes[0, 0]
-    _apply_dark_style(ax, plt, "Global-Best Convergence", "Step", "Fitness")
-    y = [h.get("global_best_fitness") or h.get("best_fitness") for h in history]
-    y = [v for v in y if v is not None]
-    if y: _fill(ax, range(1, len(y)+1), y, "Global best", _ACCENT)
-
-    # 2. Diversity
-    ax = axes[0, 1]
-    _apply_dark_style(ax, plt, "Population Diversity", "Step", "Diversity")
-    divs = [h.get("diversity") for h in history if h.get("diversity") is not None]
-    if divs: _fill(ax, range(1, len(divs)+1), divs, "Diversity", _GREEN)
-
-    # 3. Explore / Exploit
-    ax = axes[1, 0]
-    _apply_dark_style(ax, plt, "Exploration vs Exploitation", "Step", "Fraction")
-    exploit = [h.get("exploitation", 0.0) for h in history if "exploitation" in h]
-    explore = [h.get("exploration",  1.0) for h in history if "exploration"  in h]
-    x = list(range(1, len(exploit) + 1))
-    if exploit:
-        ax.stackplot(x, explore, exploit,
-                     labels=["Exploration", "Exploitation"],
-                     colors=[_AMBER, _ACCENT], alpha=0.80)
-        ax.set_ylim(0, 1)
-        ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR,
-                  labelcolor=_TEXT_CLR, fontsize=7)
-
-    # 4. Runtime per step
-    ax = axes[1, 1]
-    _apply_dark_style(ax, plt, "Runtime per Step", "Step", "Seconds")
+    fig = make_subplots(
+        rows=2, cols=2,
+        subplot_titles=("Global-Best Convergence", "Population Diversity", "Exploration vs Exploitation", "Runtime per Step"),
+        vertical_spacing=0.14,
+        horizontal_spacing=0.10,
+    )
+    x_conv, y_conv = convergence_data(result, x_axis="steps")
+    if len(x_conv) > 0:
+        fig.add_trace(go.Scatter(x=list(x_conv), y=list(y_conv), mode="lines", name="Global best", line=dict(color=_ACCENT, width=2)), row=1, col=1)
+    divs = [(i + 1, h.get("diversity")) for i, h in enumerate(history) if h.get("diversity") is not None]
+    if divs:
+        x, y = zip(*divs)
+        fig.add_trace(go.Scatter(x=list(x), y=list(y), mode="lines", name="Diversity", fill="tozeroy", fillcolor=_hex_to_rgba(_GREEN, 0.20), line=dict(color=_GREEN, width=2)), row=1, col=2)
+    rows = [(i + 1, float(h.get("exploration", 1.0)), float(h.get("exploitation", 0.0))) for i, h in enumerate(history) if "exploration" in h or "exploitation" in h]
+    if rows:
+        x = [r[0] for r in rows]
+        fig.add_trace(go.Scatter(x=x, y=[r[1] for r in rows], mode="lines", stackgroup="one", name="Exploration", line=dict(color=_AMBER, width=1.5)), row=2, col=1)
+        fig.add_trace(go.Scatter(x=x, y=[r[2] for r in rows], mode="lines", stackgroup="one", name="Exploitation", line=dict(color=_ACCENT, width=1.5)), row=2, col=1)
     times = [h.get("elapsed_time") for h in history if h.get("elapsed_time") is not None]
     if times:
-        deltas = [times[0]] + [times[i] - times[i-1] for i in range(1, len(times))]
-        ax.bar(range(1, len(deltas)+1), deltas, color=_ORANGE, alpha=0.80, width=0.8)
-
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+        deltas = [float(times[0])] + [float(times[i]) - float(times[i - 1]) for i in range(1, len(times))]
+        fig.add_trace(go.Bar(x=list(range(1, len(deltas) + 1)), y=deltas, name="Runtime", marker=dict(color=_ORANGE, opacity=0.85)), row=2, col=2)
+    fig.update_layout(**_LAYOUT_BASE, title=dict(text=dash_title, x=0.04, font=dict(color=_TEXT_CLR, size=17)), width=1100, height=760, legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)))
+    for axis_name in fig.layout:
+        if str(axis_name).startswith("xaxis"):
+            fig.layout[axis_name].update(**_AXIS_STYLE, title_text="Step")
+        elif str(axis_name).startswith("yaxis"):
+            fig.layout[axis_name].update(**_AXIS_STYLE)
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 # ===========================================================================
@@ -356,33 +301,34 @@ def plot_diversity_comparison(
     filepath: str | Path | None = None,
     title: str = "Diversity Comparison",
     show: bool = False,
-) -> Any:
-    """
-    Overlay diversity curves from multiple runs / algorithms.
-
-    Parameters
-    ----------
-    results : dict mapping label → OptimizationResult
-    """
-    plt = _mpl()
-    import matplotlib.cm as cm
-    import numpy as np
-
-    colors = [_ACCENT, _GREEN, _AMBER, _RED, _ORANGE,
-              "#bc8cff", "#79c0ff", "#56d364"]
-
-    fig, ax = plt.subplots(figsize=(9, 5))
-    _apply_dark_style(ax, plt, title, "Step", "Diversity (normalised)")
-
+    renderer: str = "browser",
+) -> go.Figure:
+    """Overlay diversity curves from multiple runs / algorithms."""
+    if not results:
+        return _message_figure(title, "No results provided.", filepath, show, renderer)
+    fig = go.Figure()
     for i, (label, result) in enumerate(results.items()):
-        history = getattr(result, "history", []) or []
-        divs    = [h.get("diversity") for h in history if h.get("diversity") is not None]
-        if divs:
-            color = colors[i % len(colors)]
-            ax.plot(range(1, len(divs)+1), divs,
-                    color=color, linewidth=1.5, label=label)
+        history = _history(result)
+        rows = [(j + 1, h.get("diversity")) for j, h in enumerate(history) if h.get("diversity") is not None]
+        if not rows:
+            continue
+        x, y = zip(*rows)
+        color = _DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)]
+        fig.add_trace(go.Scatter(x=list(x), y=list(y), mode="lines", name=str(label), line=dict(color=color, width=2.2), hovertemplate="step=%{x}<br>diversity=%{y:.6g}<extra></extra>"))
+    if not fig.data:
+        return _message_figure(title, "No diversity data available. Run with store_history=True.", filepath, show, renderer)
+    _base_layout(fig, title)
+    fig.update_xaxes(title_text="Step")
+    fig.update_yaxes(title_text="Diversity")
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
-    ax.legend(facecolor=_PANEL_BG, edgecolor=_GRID_CLR, labelcolor=_TEXT_CLR, fontsize=8)
-    fig.tight_layout()
-    _save_or_show(fig, filepath, show, plt)
-    return fig
+
+__all__ = [
+    "plot_global_best_chart",
+    "plot_diversity_chart",
+    "plot_explore_exploit_chart",
+    "plot_runtime_chart",
+    "plot_run_dashboard",
+    "plot_diversity_comparison",
+]

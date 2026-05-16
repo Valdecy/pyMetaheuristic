@@ -1,7 +1,5 @@
 import os
 
-import matplotlib
-matplotlib.use("Agg")
 
 import pymetaheuristic as pmh
 

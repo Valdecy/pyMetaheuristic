@@ -22,11 +22,6 @@ from typing import Callable, Iterable, List, Optional, Sequence, Union
 import numpy as np
 import pandas as pd
 
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.pyplot as plt
-from matplotlib.colors import LinearSegmentedColormap
-
 import plotly.graph_objects as go
 import plotly.io as pio
 from plotly.subplots import make_subplots
@@ -72,25 +67,6 @@ _AXIS_STYLE = dict(
     linecolor=_GRID_CLR,
     tickfont=dict(color=_TEXT_CLR, size=11),
     title_font=dict(color=_TEXT_CLR, size=13),
-)
-
-_MPL_STYLE = {
-    "figure.facecolor":  _DARK_BG,
-    "axes.facecolor":    _PANEL_BG,
-    "axes.edgecolor":    _GRID_CLR,
-    "axes.labelcolor":   _TEXT_CLR,
-    "axes.grid":         True,
-    "grid.color":        _GRID_CLR,
-    "grid.linewidth":    0.6,
-    "text.color":        _TEXT_CLR,
-    "xtick.color":       _TEXT_CLR,
-    "ytick.color":       _TEXT_CLR,
-    "lines.linewidth":   2.2,
-    "savefig.facecolor": _DARK_BG,
-}
-
-_MPL_CMAP = LinearSegmentedColormap.from_list(
-    "pym", ["#0d1b4b", "#0e7490", "#059669", "#d97706", "#dc2626", "#7f1d1d"]
 )
 
 # Discrete palette for benchmark bar/box/convergence charts
@@ -158,13 +134,6 @@ def _save_plotly(fig: go.Figure, filepath, scale: int = 2):
         fig.write_html(str(p.with_suffix(".html")))
 
 
-def _maybe_save_mpl(fig, filepath, dpi: int = 160):
-    p = _as_path(filepath)
-    if p is not None:
-        p.parent.mkdir(parents=True, exist_ok=True)
-        fig.savefig(str(p), dpi=dpi, bbox_inches="tight")
-    return fig
-
 
 def _history_series(result, key: str = "best_fitness"):
     history = list(getattr(result, "history", []) or [])
@@ -206,10 +175,6 @@ def _sol_array(solutions) -> Optional[np.ndarray]:
     if arr.ndim == 1:
         arr = arr[np.newaxis, :]
     return arr
-
-
-def _apply_dark_mpl():
-    plt.rcParams.update(_MPL_STYLE)
 
 
 
@@ -747,34 +712,43 @@ def plot_function(
 
 
 ############################################################################
-# History / benchmark  (matplotlib, kept for backward-compat)
+# History / benchmark  (Plotly)
 ############################################################################
 
-def plot_convergence(result, filepath=None, title=None, show=False, x_axis: str = "steps"):
-    """Convergence curve for a single optimisation run."""
-    _apply_dark_mpl()
+def plot_convergence(
+    result,
+    filepath=None,
+    title=None,
+    show=False,
+    x_axis: str = "steps",
+    renderer: str = "browser",
+):
+    """Plotly convergence curve for a single optimisation run."""
     x, y = convergence_data(result, x_axis=x_axis)
-    fig, ax = plt.subplots(figsize=(9, 4.5))
-    if len(x) == 0:
-        ax.text(0.5, 0.5, "No history stored in result",
-                ha="center", va="center", color=_TEXT_CLR)
-        ax.set_axis_off()
-    else:
-        draw_style = "steps-post" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "default"
-        ax.plot(x, y, color=_ACCENT, linewidth=2.2, drawstyle=draw_style)
-        ax.fill_between(x, y, min(y), alpha=0.10, color=_ACCENT, step="post" if draw_style == "steps-post" else None)
-        ax.set_xlabel("Evaluations" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "Step")
-        ax.set_ylabel("Best Fitness")
-        ax.grid(True, color=_GRID_CLR, linewidth=0.6)
     algo = getattr(result, "algorithm_id", "run")
-    ax.set_title(title or f"Convergence - {algo}", pad=12)
-    fig.tight_layout()
-    _maybe_save_mpl(fig, filepath)
-    if show:
-        plt.show()
-    else:
-        plt.close(fig)
-    return fig
+    plot_title = title or f"Convergence - {algo}"
+    if len(x) == 0:
+        return _empty_plotly_figure(plot_title, "No history stored in result", filepath=filepath, show=show, renderer=renderer)
+    xlabel = "Evaluations" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "Step"
+    style = "hv" if xlabel == "Evaluations" else "linear"
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(
+        x=list(x), y=list(y), mode="lines", name="Best fitness",
+        line=dict(color=_ACCENT, width=2.5, shape=style),
+        fill="tozeroy", fillcolor=_hex_to_rgba(_ACCENT, 0.12),
+        hovertemplate=f"{xlabel}=%{{x}}<br>best fitness=%{{y:.6g}}<extra></extra>",
+    ))
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=plot_title, font=dict(color=_TEXT_CLR, size=16), x=0.04),
+        xaxis=dict(**_AXIS_STYLE, title=xlabel),
+        yaxis=dict(**_AXIS_STYLE, title="Best Fitness"),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)),
+        width=900,
+        height=500,
+    )
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 def compare_convergence(
@@ -784,32 +758,38 @@ def compare_convergence(
     title="Convergence comparison",
     show=False,
     x_axis: str = "steps",
+    renderer: str = "browser",
 ):
-    """Overlay convergence curves for multiple runs."""
-    _apply_dark_mpl()
+    """Overlay multiple Plotly convergence curves."""
     results = list(results)
     if labels is None:
         labels = [getattr(r, "algorithm_id", f"run_{i+1}") for i, r in enumerate(results)]
-    palette = plt.cm.plasma(np.linspace(0.15, 0.85, max(len(results), 1)))
-    fig, ax = plt.subplots(figsize=(9.5, 4.8))
-    for result, label, colour in zip(results, labels, palette):
+    if not results:
+        return _empty_plotly_figure(title, "No results provided", filepath=filepath, show=show, renderer=renderer)
+    xlabel = "Evaluations" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "Step"
+    style = "hv" if xlabel == "Evaluations" else "linear"
+    fig = go.Figure()
+    for i, (result, label) in enumerate(zip(results, labels)):
         x, y = convergence_data(result, x_axis=x_axis)
         if len(x) > 0:
-            style = "steps-post" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "default"
-            ax.plot(x, y, linewidth=2.2, label=label, color=colour, drawstyle=style)
-    ax.set_xlabel("Evaluations" if str(x_axis).lower() in {"evaluations", "evals", "evaluation"} else "Step")
-    ax.set_ylabel("Best Fitness")
-    ax.set_title(title, pad=12)
-    ax.grid(True, color=_GRID_CLR, linewidth=0.6)
-    if results:
-        ax.legend(frameon=False)
-    fig.tight_layout()
-    _maybe_save_mpl(fig, filepath)
-    if show:
-        plt.show()
-    else:
-        plt.close(fig)
-    return fig
+            fig.add_trace(go.Scatter(
+                x=list(x), y=list(y), mode="lines", name=str(label),
+                line=dict(color=_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)], width=2.4, shape=style),
+                hovertemplate=f"{label}<br>{xlabel}=%{{x}}<br>best fitness=%{{y:.6g}}<extra></extra>",
+            ))
+    if not fig.data:
+        return _empty_plotly_figure(title, "No history stored in supplied results", filepath=filepath, show=show, renderer=renderer)
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=title, font=dict(color=_TEXT_CLR, size=16), x=0.04),
+        xaxis=dict(**_AXIS_STYLE, title=xlabel),
+        yaxis=dict(**_AXIS_STYLE, title="Best Fitness"),
+        legend=dict(bgcolor="rgba(0,0,0,0)", font=dict(color=_TEXT_CLR)),
+        width=940,
+        height=520,
+    )
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 def plot_population_snapshot(
@@ -837,41 +817,12 @@ def plot_population_snapshot(
     -----
     * ``dims`` is honoured for 2-D / 3-D projections.
     * For 4+ variables the full decision vector is shown automatically.
-    * Set ``backend='matplotlib'`` to keep the legacy 2-D scatter behaviour.
+    * The ``backend`` argument is accepted for backward compatibility, but all
+      rendering is Plotly-only.
     """
     snapshots, snap = _resolve_snapshot(result, snapshot)
 
-    if backend.lower() == "matplotlib":
-        _apply_dark_mpl()
-        fig, ax = plt.subplots(figsize=(6.8, 5.5))
-        if not snapshots or snap is None:
-            ax.text(0.5, 0.5, "No snapshots stored", ha="center", va="center")
-            ax.set_axis_off()
-        else:
-            positions, fitness = _snapshot_arrays(snap)
-            if positions.size == 0:
-                ax.text(0.5, 0.5, "Empty snapshot", ha="center", va="center")
-                ax.set_axis_off()
-            elif positions.shape[1] < 2:
-                ax.scatter(positions[:, 0], fitness, c=fitness, cmap=_MPL_CMAP, s=45, edgecolors="none", alpha=0.85)
-                ax.set_xlabel("x1")
-                ax.set_ylabel("Fitness")
-                ax.set_title(f"{title}  (step={snap.get('step', '?')})", pad=12)
-            else:
-                i, j = _normalise_dims(positions.shape[1], dims=dims, max_dims=2)
-                sc = ax.scatter(positions[:, i], positions[:, j], c=fitness, cmap=_MPL_CMAP, s=45, edgecolors="none", alpha=0.85)
-                cb = fig.colorbar(sc, ax=ax, shrink=0.85)
-                cb.set_label("Fitness")
-                ax.set_xlabel(f"x{i+1}")
-                ax.set_ylabel(f"x{j+1}")
-                ax.set_title(f"{title}  (step={snap.get('step', '?')})", pad=12)
-        fig.tight_layout()
-        _maybe_save_mpl(fig, filepath)
-        if show:
-            plt.show()
-        else:
-            plt.close(fig)
-        return fig
+    # Matplotlib backend was removed; all population snapshots use Plotly.
 
     if not snapshots or snap is None:
         return _empty_plotly_figure(title, "No snapshots stored", filepath=filepath, show=show, renderer=renderer)
@@ -1063,27 +1014,30 @@ def plot_benchmark_summary(
     filepath=None,
     title: str = "Benchmark Summary",
     show: bool = False,
+    renderer: str = "browser",
 ):
-    """Bar chart comparing a scalar metric across algorithms."""
+    """Plotly bar chart comparing a scalar metric across algorithms."""
     if not results:
         raise ValueError("results must be a non-empty dict of label -> OptimizationResult")
-    _apply_dark_mpl()
-    labels  = list(results.keys())
-    values  = [getattr(results[k], metric) for k in labels]
-    palette = plt.cm.plasma(np.linspace(0.2, 0.8, len(labels)))
-    fig, ax = plt.subplots(figsize=(max(7, len(labels) * 0.95), 4.8))
-    ax.bar(labels, values, color=palette, edgecolor="none", width=0.55)
-    ax.set_ylabel(metric.replace("_", " ").title())
-    ax.set_title(title, pad=12)
-    ax.tick_params(axis="x", rotation=40)
-    ax.grid(True, axis="y", color=_GRID_CLR, linewidth=0.6)
-    fig.tight_layout()
-    _maybe_save_mpl(fig, filepath)
-    if show:
-        plt.show()
-    else:
-        plt.close(fig)
-    return fig
+    labels = list(results.keys())
+    values = [getattr(results[k], metric) for k in labels]
+    fig = go.Figure(go.Bar(
+        x=labels,
+        y=values,
+        marker=dict(color=[_DISCRETE_PALETTE[i % len(_DISCRETE_PALETTE)] for i in range(len(labels))], opacity=0.9),
+        hovertemplate="candidate=%{x}<br>" + metric.replace("_", " ") + "=%{y:.6g}<extra></extra>",
+    ))
+    fig.update_layout(
+        **_LAYOUT_BASE,
+        title=dict(text=title, font=dict(color=_TEXT_CLR, size=16), x=0.04),
+        xaxis=dict(**_AXIS_STYLE, title="Algorithm / candidate", tickangle=-35),
+        yaxis=dict(**_AXIS_STYLE, title=metric.replace("_", " ").title()),
+        width=max(850, 110 * len(labels)),
+        height=520,
+        showlegend=False,
+    )
+    _save_plotly(fig, filepath)
+    return _show_plotly_if_needed(fig, show=show, renderer=renderer)
 
 
 ############################################################################

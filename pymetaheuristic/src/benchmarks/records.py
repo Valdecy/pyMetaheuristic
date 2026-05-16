@@ -110,21 +110,38 @@ class BenchmarkResult:
         }
 
     def scientific_summary(self, metric: str | None = None) -> dict[str, Any]:
-        df = self.summary()
+        """Return a compact scientific summary of the benchmark study.
+
+        The descriptive summary table is candidate-level, so it does not
+        contain problem-level columns.  Counts of candidates, problems,
+        dimensions and trials must therefore be computed from the raw
+        long-format records instead of from ``self.summary()``.
+        """
+        raw_df = self.to_dataframe()
+        summary_df = self.summary()
         ranks = self.rank_table(metric=metric)
+
         best_candidate = None
         best_mean_rank = None
-        if not ranks.empty:
+        if not ranks.empty and "mean_rank" in ranks.columns:
             best = ranks.sort_values("mean_rank", ascending=True).iloc[0]
-            best_candidate = best["candidate"]
-            best_mean_rank = float(best["mean_rank"])
+            best_candidate = best.get("candidate")
+            best_mean_rank = float(best.get("mean_rank"))
+
+        def _nunique(column: str) -> int:
+            if raw_df.empty or column not in raw_df.columns:
+                return 0
+            return int(raw_df[column].nunique(dropna=True))
+
         return {
             "n_records": len(self.records),
-            "n_candidates": int(df["candidate"].nunique()) if not df.empty else 0,
-            "n_problems": int(df["problem"].nunique()) if not df.empty else 0,
+            "n_candidates": _nunique("candidate"),
+            "n_problems": _nunique("problem"),
+            "n_dimensions": _nunique("dimension"),
+            "n_trials": _nunique("trial"),
             "best_mean_rank_candidate": best_candidate,
             "best_mean_rank": best_mean_rank,
-            "summary": df,
+            "summary": summary_df,
             "rank_table": ranks,
         }
 
