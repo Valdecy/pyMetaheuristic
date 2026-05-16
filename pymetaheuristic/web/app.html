@@ -145,6 +145,7 @@ header{position:relative;z-index:100;height:var(--hdr);display:flex;align-items:
 .mode-proceed{margin-top:auto;display:flex;justify-content:flex-end}
 .mc-single{--accent:var(--gold);--accent-glow:radial-gradient(circle at 0 0,rgba(232,150,30,.08) 0%,transparent 60%)}
 .mc-bench{--accent:var(--cyan);--accent-glow:radial-gradient(circle at 0 0,rgba(56,189,248,.08) 0%,transparent 60%)}
+.mc-study{--accent:var(--lime);--accent-glow:radial-gradient(circle at 0 0,rgba(134,239,172,.08) 0%,transparent 60%)}
 .mc-collab{--accent:var(--violet);--accent-glow:radial-gradient(circle at 0 0,rgba(167,139,250,.08) 0%,transparent 60%)}
 .mc-orch{--accent:var(--green);--accent-glow:radial-gradient(circle at 0 0,rgba(52,211,153,.08) 0%,transparent 60%)}
 
@@ -331,6 +332,8 @@ table.bmt td.best{color:var(--green);font-weight:600}
 table.bmt td.worst{color:var(--rose)}
 table.bmt td.alg-col{color:var(--t1);font-weight:500}
 table.dtbl td.td-reasoning{max-width:320px;white-space:normal;line-height:1.4;color:var(--t3);font-size:.62rem}
+.role-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid var(--bd);background:var(--s2);font-family:var(--fm);font-size:.60rem;color:var(--violet)}
+.exchange-pill{display:inline-flex;align-items:center;padding:2px 8px;border-radius:999px;border:1px solid rgba(56,189,248,.20);background:var(--cyan-dim);font-family:var(--fm);font-size:.60rem;color:var(--cyan)}
 table.dtbl td.td-executed.yes{color:var(--green)}
 table.dtbl td.td-executed.no{color:var(--rose)}
 
@@ -464,44 +467,43 @@ mark{background:rgba(232,150,30,.2);color:var(--gold-lt);border-radius:2px;paddi
           <div class="mode-icon" style="background:rgba(56,189,248,.10)">📊</div>
           <div class="mode-card-titles">
             <div class="mode-name">Benchmark Runner</div>
-            <div class="mode-tag" style="color:var(--cyan)">Many algorithms · Many functions</div>
+            <div class="mode-tag" style="color:var(--cyan)">Fast sweeps · Tables · Timing</div>
           </div>
         </div>
-        <div class="mode-desc">Compare multiple algorithms across benchmark functions with repeated trials. Statistical summaries, compact mean±std tables, global rankings, timing analysis.</div>
+        <div class="mode-desc">Run a lightweight multi-algorithm × multi-problem sweep. Best when you need quick comparison tables, rankings, timing analysis, and CSV export.</div>
         <div class="mode-features">
-          <span class="mf">Mean±std table</span><span class="mf">Rankings</span><span class="mf">Global ranking</span><span class="mf">Timing</span><span class="mf">CSV export</span>
+          <span class="mf">Mean±std table</span><span class="mf">Rankings</span><span class="mf">Timing</span><span class="mf">CSV export</span>
         </div>
         <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('benchmark');goPage('browse')" style="background:linear-gradient(135deg,#38bdf8,#0ea5e9)">Select →</div></div>
       </div>
-      <div class="mode-card mc-collab" data-mode="collaborative" onclick="selectMode('collaborative');goPage('browse')">
+      <div class="mode-card mc-study" data-mode="benchmark_study" onclick="selectMode('benchmark_study');goPage('browse')">
         <div class="mode-card-top">
-          <div class="mode-icon" style="background:rgba(167,139,250,.10)">🏝️</div>
+          <div class="mode-icon" style="background:rgba(134,239,172,.10)">📈</div>
           <div class="mode-card-titles">
-            <div class="mode-name">Collaborative Islands</div>
-            <div class="mode-tag" style="color:var(--violet)">Islands · Migration · Cooperation</div>
+            <div class="mode-name">Benchmark Study</div>
+            <div class="mode-tag" style="color:var(--lime)">Scientific protocol · Ranks · Tests</div>
           </div>
         </div>
-        <div class="mode-desc">Multiple algorithm instances exchange best solutions via migration. Ring, star, full, and other topologies. Migration log, hall of fame, per-island convergence.</div>
+        <div class="mode-desc">Run a reproducible benchmark study with long-format records, rank tables, scientific summaries, Friedman/Wilcoxon tests, and convergence data.</div>
         <div class="mode-features">
-          <span class="mf">Global convergence</span><span class="mf">Per-island charts</span><span class="mf">Migration log</span><span class="mf">Hall of fame</span>
+          <span class="mf">Rank table</span><span class="mf">Statistical tests</span><span class="mf">Scientific summary</span><span class="mf">Raw records</span>
         </div>
-        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('collaborative');goPage('browse')" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">Select →</div></div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('benchmark_study');goPage('browse')" style="background:linear-gradient(135deg,#86efac,#22c55e)">Select →</div></div>
       </div>
       <div class="mode-card mc-orch" data-mode="orchestrated" onclick="selectMode('orchestrated');goPage('browse')">
         <div class="mode-card-top">
-          <div class="mode-icon" style="background:rgba(52,211,153,.10)">🎯</div>
+          <div class="mode-icon" style="background:rgba(167,139,250,.10)">🏝️</div>
           <div class="mode-card-titles">
-            <div class="mode-name">Orchestrated Islands</div>
-            <div class="mode-tag" style="color:var(--green)">Rules/Fixed · Checkpoints · Decisions</div>
+            <div class="mode-name">Island System</div>
+            <div class="mode-tag" style="color:var(--violet)">Cooperative · Rules · Bandit · Portfolio</div>
           </div>
         </div>
-        <div class="mode-desc">Full cooperative engine with adaptive checkpointing and a heuristic or fixed controller. Inspect decisions at every checkpoint, action outcomes, island health and diversity telemetry.</div>
+        <div class="mode-desc">Build a heterogeneous island system and choose the coordination policy: fixed cooperation, rule-based orchestration, bandit controller, or portfolio-adaptive controller.</div>
         <div class="mode-features">
-          <span class="mf">Controller decisions</span><span class="mf">Action outcomes</span><span class="mf">Telemetry</span><span class="mf">Checkpoints</span>
+          <span class="mf">Migration network</span><span class="mf">Island convergence</span><span class="mf">Controller decisions</span><span class="mf">Problem table</span>
         </div>
-        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('orchestrated');goPage('browse')" style="background:linear-gradient(135deg,#34d399,#059669)">Select →</div></div>
-      </div>
-    </div>
+        <div class="mode-proceed"><div class="btn btn-gold btn-sm" onclick="selectMode('orchestrated');goPage('browse')" style="background:linear-gradient(135deg,#a78bfa,#7c3aed)">Select →</div></div>
+      </div>    </div>
   </div>
 </div>
 
@@ -600,8 +602,8 @@ const FC={swarm:'#38bdf8',evolutionary:'#34d399',physics:'#a78bfa',math:'#e8961e
 function fc(f){return FC[(f||'').toLowerCase()]||FC.other}
 
 const CAP={has_population:'Population-based',has_archive:'Archive',supports_candidate_injection:'Candidate Injection',supports_restart:'Restart',supports_checkpoint:'Checkpoint',supports_native_constraints:'Native Constraints',supports_framework_constraints:'Framework Constraints',supports_constraints:'Constraints'};
-const MODE_LABELS={single:'Single Algorithm',benchmark:'Benchmark Runner',collaborative:'Collaborative Islands',orchestrated:'Orchestrated Islands'};
-const MODE_COLORS={single:'var(--gold)',benchmark:'var(--cyan)',collaborative:'var(--violet)',orchestrated:'var(--green)'};
+const MODE_LABELS={single:'Single Algorithm',benchmark:'Benchmark Runner',benchmark_study:'Benchmark Study',collaborative:'Collaborative Islands',orchestrated:'Island System'};
+const MODE_COLORS={single:'var(--gold)',benchmark:'var(--cyan)',benchmark_study:'var(--lime)',collaborative:'var(--violet)',orchestrated:'var(--violet)'};
 const ISLAND_COLORS=['#a78bfa','#38bdf8','#34d399','#fb7185','#fbbf24','#86efac','#e8961e','#f9a8d4','#67e8f9','#bbf7d0'];
 
 /* ════════════════════ BOOT ════════════════════ */
@@ -644,15 +646,28 @@ const WORKFLOWS={
   },
   benchmark:{
     title:'Benchmark Runner',
-    desc:'Many algorithms against many functions.',
-    hint:'No algorithm or test function is selected silently. Choose them explicitly.',
+    desc:'Fast multi-algorithm sweeps.',
+    hint:'Use this for quick comparison tables and timing summaries.',
     steps:[
       {id:'browse',label:'Select algorithms',small:'Choose the candidate set'},
       {id:'configure',anchor:'cfg-multi-params-card',label:'Configure algorithms',small:'Separate parameters per solver'},
       {id:'configure',anchor:'cfg-benchmark-card',label:'Define problem set',small:'Add problems one at a time'},
-      {id:'configure',anchor:'cfg-problem-card',label:'Global settings',small:'Locked algorithms, trials, objective'},
-      {id:'configure',anchor:'cfg-output-card',label:'Result tables',small:'Ranking, timing, CSV'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Global settings',small:'Trials, steps, objective'},
+      {id:'configure',anchor:'cfg-output-card',label:'Result tables',small:'Compact ranks and timing'},
       {id:'run',label:'Run comparison',small:'Monitor and export results'},
+    ]
+  },
+  benchmark_study:{
+    title:'Benchmark Study',
+    desc:'Scientific benchmarking with ranks and tests.',
+    hint:'Use this for reproducible protocols, statistical tests, and long-format records.',
+    steps:[
+      {id:'browse',label:'Select candidates',small:'Choose algorithms for the study'},
+      {id:'configure',anchor:'cfg-multi-params-card',label:'Configure candidates',small:'Separate parameters per algorithm'},
+      {id:'configure',anchor:'cfg-benchmark-card',label:'Define problem suite',small:'Bounds, dimensions, optima'},
+      {id:'configure',anchor:'cfg-problem-card',label:'Study protocol',small:'Trials, budgets, seed'},
+      {id:'configure',anchor:'cfg-output-card',label:'Scientific outputs',small:'Summary, ranks, tests, records'},
+      {id:'run',label:'Run study',small:'Inspect scientific evidence'},
     ]
   },
   collaborative:{
@@ -662,7 +677,7 @@ const WORKFLOWS={
     steps:[
       {id:'browse',label:'Select island solvers',small:'Choose one or more algorithms'},
       {id:'configure',anchor:'cfg-island-param-card',label:'Configure solver parameters',small:'Separate parameters per solver'},
-      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, population'},
+      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, role, seed'},
       {id:'configure',anchor:'cfg-problem-card',label:'Define problem set',small:'Add problems one at a time'},
       {id:'configure',anchor:'cfg-migration-card',label:'Migration policy',small:'Topology, interval, size'},
       {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Charts, logs, exports'},
@@ -670,18 +685,18 @@ const WORKFLOWS={
     ]
   },
   orchestrated:{
-    title:'Orchestrated Islands',
-    desc:'Islands plus an adaptive controller.',
-    hint:'First configure solver parameters, then configure islands and controller rules.',
+    title:'Island System',
+    desc:'Heterogeneous islands with selectable coordination policy.',
+    hint:'Configure island solvers, topology, migration, and controller mode in one workflow.',
     steps:[
       {id:'browse',label:'Select island solvers',small:'Choose one or more algorithms'},
       {id:'configure',anchor:'cfg-island-param-card',label:'Configure solver parameters',small:'Separate parameters per solver'},
-      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, population'},
+      {id:'configure',anchor:'cfg-island-card',label:'Configure islands',small:'Algorithm, label, role, seed'},
       {id:'configure',anchor:'cfg-problem-card',label:'Define problem set',small:'Add problems one at a time'},
       {id:'configure',anchor:'cfg-migration-card',label:'Migration policy',small:'Topology, interval, size'},
-      {id:'configure',anchor:'cfg-orchestration-card',label:'Controller rules',small:'Checkpoints and actions'},
-      {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Telemetry, logs, exports'},
-      {id:'run',label:'Run orchestration',small:'Decisions, outcomes, telemetry'},
+      {id:'configure',anchor:'cfg-orchestration-card',label:'Coordination policy',small:'Cooperative, rules, bandit, portfolio'},
+      {id:'configure',anchor:'cfg-output-card',label:'Outputs',small:'Clean diagnostics and exports'},
+      {id:'run',label:'Run island system',small:'Convergence, migration, decisions'},
     ]
   }
 };
@@ -745,7 +760,7 @@ function selectMode(m){
   }
   selectedMode=m;
   document.querySelectorAll('.mode-card').forEach(c=>c.classList.toggle('selected',c.dataset.mode===m));
-  const multiMode=(m==='benchmark'||m==='collaborative'||m==='orchestrated');
+  const multiMode=(m==='benchmark'||m==='benchmark_study'||m==='collaborative'||m==='orchestrated');
   document.getElementById('det-cta-single').classList.toggle('hidden',multiMode);
   document.getElementById('sel-count-bar').classList.toggle('hidden',!multiMode);
   document.getElementById('det-empty-txt').textContent=multiMode
@@ -782,7 +797,7 @@ function renderAlgList(){
   document.getElementById('browse-ct').textContent=`${filtered.length} / ${allAlgs.length}`;
   const list=document.getElementById('alg-list');
   if(!filtered.length){list.innerHTML='<div style="color:var(--t3);padding:24px;text-align:center;font-size:.78rem">No algorithms match.</div>';return;}
-  const multiMode=(selectedMode==='benchmark'||selectedMode==='collaborative'||selectedMode==='orchestrated');
+  const multiMode=(selectedMode==='benchmark'||selectedMode==='benchmark_study'||selectedMode==='collaborative'||selectedMode==='orchestrated');
   list.innerHTML='';
   filtered.forEach(a=>{
     const div=document.createElement('div');
@@ -986,9 +1001,10 @@ function selectedFunctionPayload(name='bm-fn',scope='bm'){
 
 function renderBenchmarkGlobalSettings(){
   const card=document.getElementById('cfg-problem-card');if(!card)return;
+  const isStudy=selectedMode==='benchmark_study';
   const ids=selectedAlgIds();
   const lockedAlgs=ids.length?ids.map(id=>{const a=algInfo(id);return `<select class="fld fld-sel fld-mono" disabled><option>${esc(a?.name||id)} (${esc(id)})</option></select>`;}).join(''):'<div class="no-prm" style="color:var(--rose)">No algorithms selected.</div>';
-  card.innerHTML=`<div class="chdr"><div class="cico" style="background:var(--cyan-dim);color:var(--cyan)">◎</div><div class="cttl">Benchmark Global Settings</div></div>
+  card.innerHTML=`<div class="chdr"><div class="cico" style="background:${isStudy?'var(--green-dim)':'var(--cyan-dim)'};color:${isStudy?'var(--lime)':'var(--cyan)'}">◎</div><div class="cttl">${isStudy?'Benchmark Study Protocol':'Benchmark Runner Settings'}</div></div>
     <div class="cbdy">
       <div class="f"><label class="flbl">Selected Algorithms (locked)</label><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px">${lockedAlgs}</div><div class="fhint">Change the candidate set only from the “Select algorithms” step.</div></div>
       <div class="f"><label class="flbl">Selected Problem Set (locked)</label><div id="bm-problem-summary" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:8px"><div class="no-prm" style="color:var(--rose)">No benchmark problem added yet.</div></div><div class="fhint">Change functions, dimensions, and bounds only from the “Define problem set” step.</div></div>
@@ -996,6 +1012,7 @@ function renderBenchmarkGlobalSettings(){
         <div class="f"><label class="flbl">Trials per algorithm × problem</label><input class="fld fld-mono" type="number" id="bm-trials" value="5" min="1"/></div>
         <div class="f"><label class="flbl">Max Steps per run</label><input class="fld fld-mono" type="number" id="bm-steps" value="300" min="1"/></div>
       </div>
+      ${isStudy?`<div class="fr fr2" style="margin-top:10px"><div class="f"><label class="flbl">Max Evaluations per run</label><input class="fld fld-mono" type="number" id="bm-evals" placeholder="Optional fixed budget"/></div><div class="f"><label class="flbl">Target Tolerance</label><input class="fld fld-mono" type="text" inputmode="decimal" id="bm-tol" value="1e-8"/></div></div>`:''}
       <div class="fr fr2">
         <div class="f"><label class="flbl">Objective for All Problems</label><div class="obj-tog"><button class="obj-btn active" data-obj="min" onclick="setObj(this)">↓ Minimize</button><button class="obj-btn" data-obj="max" onclick="setObj(this)">↑ Maximize</button></div></div>
         <div class="f"><label class="flbl">Random Seed</label><input class="fld fld-mono" type="number" id="cfg-seed" placeholder="Optional — leave blank for random"/></div>
@@ -1183,9 +1200,17 @@ const OUTPUT_DEFS={
     raw_table:   {name:'Raw Results Table',        desc:'Every individual trial result'},
     csv_export:  {name:'CSV Export',               desc:'Full results as CSV'},
   },
+  benchmark_study:{
+    study_summary:{name:'Scientific Summary',      desc:'Records, candidates, problems, and best mean-rank candidate'},
+    study_ranks:  {name:'Rank Table',              desc:'Mean rank and candidate-level ranking'},
+    study_stats:  {name:'Statistical Tests',       desc:'Friedman and pairwise Wilcoxon/Holm results'},
+    study_raw:    {name:'Long-format Records',     desc:'Every candidate × problem × trial outcome'},
+    csv_export:   {name:'CSV Export',              desc:'Full long-format records as CSV'},
+  },
   collaborative:{
+    island_config:{name:'Island Configuration',    desc:'Algorithms, labels, semantic roles, exchange tags, seeds, and population overrides'},
     global_conv: {name:'Global Convergence',       desc:'Best-so-far fitness across all islands'},
-    island_conv: {name:'Per-Island Convergence',   desc:'Convergence line per island'},
+    island_conv: {name:'Island Convergence',   desc:'Convergence line per island'},
     isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
     mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
     hall_of_fame:{name:'Hall of Fame',             desc:'Top solutions ever found'},
@@ -1195,8 +1220,9 @@ const OUTPUT_DEFS={
     csv_export:  {name:'CSV Convergence',          desc:'Global convergence as CSV'},
   },
   orchestrated:{
+    island_config:{name:'Island Configuration',    desc:'Algorithms, labels, orchestration roles, exchange tags, seeds, and population overrides'},
     global_conv: {name:'Global Convergence',       desc:'Best-so-far fitness across all islands'},
-    island_conv: {name:'Per-Island Convergence',   desc:'Convergence line per island'},
+    island_conv: {name:'Island Convergence',   desc:'Convergence line per island'},
     isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
     telem:       {name:'Island Telemetry',         desc:'Health and diversity sparklines per island'},
     mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
@@ -1211,9 +1237,10 @@ const OUTPUT_DEFS={
 
 const OUTPUT_DEFAULTS={
   single:      ['conv_steps','conv_evals','diversity','exploit','metrics','position','hist_table','snippet','csv_export'],
-  benchmark:   ['cmp_table','compact','rankings','global_rank','timing','csv_export'],
-  collaborative:['global_conv','island_conv','isl_summary','mig_log','hall_of_fame','position','problem_table'],
-  orchestrated: ['global_conv','island_conv','isl_summary','telem','decisions','outcomes','hall_of_fame','position','problem_table'],
+  benchmark:   ['compact','global_rank','timing','csv_export'],
+  benchmark_study:['study_summary','study_ranks','study_stats','csv_export'],
+  collaborative:['island_config','global_conv','island_conv','isl_summary','mig_log','position','problem_table'],
+  orchestrated: ['island_config','global_conv','island_conv','isl_summary','mig_log','decisions','position','problem_table'],
 };
 
 /* ════════════════════ CONFIGURE ════════════════════ */
@@ -1362,7 +1389,7 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
     </div>`;
   }
 
-  if(mode==='benchmark'){
+  if(mode==='benchmark'||mode==='benchmark_study'){
     const ids=selectedAlgIds();
     const paramBlocks=ids.length?ids.map(id=>{
       const a=algInfo(id)||{id,name:id,defaults:{}};
@@ -1393,7 +1420,7 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
     <div class="card cfg-rel cfg-anchor" id="cfg-island-card">
       <div class="chdr"><div class="cico" style="background:var(--violet-dim);color:var(--violet)">⬡</div><div class="cttl">Island Layout</div></div>
       <div class="cbdy">
-        <div class="fhint" style="margin-bottom:10px">This step defines island labels and population overrides. Solver parameters are configured in the previous sidebar step.</div>
+        <div class="fhint" style="margin-bottom:10px">Define island labels, semantic orchestration roles, exchange tags, optional island seeds, and population overrides. Solver parameters are configured in the previous sidebar step.</div>
         <div class="island-list" id="island-list"></div>
         <button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="addIsland()">+ Add Island</button>
       </div>
@@ -1418,7 +1445,7 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
         <div class="chdr"><div class="cico" style="background:rgba(52,211,153,.10);color:var(--green)">🧠</div><div class="cttl">Orchestration Config</div></div>
         <div class="cbdy">
           <div class="fr fr3">
-            <div class="f"><label class="flbl">Controller Mode</label><select class="fld fld-sel fld-mono" id="orch-mode"><option value="rules">Rules (heuristic)</option><option value="fixed">Fixed (no adaptation)</option></select></div>
+            <div class="f"><label class="flbl">Controller Mode</label><select class="fld fld-sel fld-mono" id="orch-mode"><option value="cooperative">Cooperative migration</option><option value="rules" selected>Rules controller</option><option value="bandit">Bandit controller</option><option value="portfolio_adaptive">Portfolio-adaptive</option><option value="fixed">Fixed orchestrated</option></select></div>
             <div class="f"><label class="flbl">Checkpoint Interval</label><input class="fld fld-mono" type="number" id="orch-chk-interval" value="5" min="1"/></div>
             <div class="f"><label class="flbl">Max Actions / Checkpoint</label><input class="fld fld-mono" type="number" id="orch-max-actions" value="2" min="1"/></div>
           </div>
@@ -1452,7 +1479,7 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
   </div>`;
 
   wrap.innerHTML=html;
-  if(mode==='benchmark'){renderSharedProblemCard('cfg-benchmark-card','Benchmark Problem Set',false);renderBenchmarkGlobalSettings();}
+  if(mode==='benchmark'||mode==='benchmark_study'){renderSharedProblemCard('cfg-benchmark-card',mode==='benchmark_study'?'Benchmark Study Problem Suite':'Benchmark Problem Set',false);renderBenchmarkGlobalSettings();}
   if(mode==='collaborative'||mode==='orchestrated')renderSharedProblemCard('cfg-problem-card','Shared Problem Set',true);
   document.getElementById('cfg-fn')?.addEventListener('change',onFnChange);
   document.querySelectorAll('.chk-item input').forEach(cb=>cb.addEventListener('change',e=>{
@@ -1520,12 +1547,30 @@ function addIsland(algId=null){
   const id=_islandCnt;
   const algOpts=['<option value="" '+(!algId?'selected':'')+'>Choose algorithm…</option>']
     .concat(allAlgs.map(a=>`<option value="${esc(a.id)}" ${a.id===algId?'selected':''}>${esc(a.name)}</option>`)).join('');
+  const roleOpts=[
+    ['auto','Auto / diagnostic'],
+    ['explorer','Explorer'],
+    ['fast_explorer','Fast explorer'],
+    ['swarm_explorer','Swarm explorer'],
+    ['diversity_keeper','Diversity keeper'],
+    ['local_refiner','Local refiner'],
+    ['global_refiner','Global refiner'],
+    ['exploiter','Exploiter'],
+    ['donor','Donor'],
+    ['receiver','Receiver'],
+  ].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
+  const exchangeOpts=[
+    ['both','Both'],['donor','Donor tag'],['receiver','Receiver tag'],['protected','Protected tag']
+  ].map(([v,l])=>`<option value="${v}">${l}</option>`).join('');
   const div=document.createElement('div');div.className='island-row';div.id=`isle-${id}`;
-  div.style.gridTemplateColumns='auto 1.2fr 1fr 110px 28px';
+  div.style.gridTemplateColumns='auto minmax(150px,1.2fr) minmax(130px,1fr) 135px 115px 95px 90px 28px';
   div.innerHTML=`<div class="isle-n">#${id}</div>
     <div><div class="isle-lbl-txt">Algorithm</div><select class="fld fld-sel fld-mono island-alg" onchange="renderIslandParams(${id},this.value)" style="font-size:.72rem">${algOpts}</select></div>
     <div><div class="isle-lbl-txt">Label</div><input class="fld fld-mono island-label" placeholder="Island ${id}" value="${algId?esc(algId+' island '+id):''}" style="font-size:.78rem"/></div>
-    <div><div class="isle-lbl-txt">Pop. Size</div><input class="fld fld-mono island-pop" type="number" placeholder="Default" style="font-size:.78rem"/></div>
+    <div><div class="isle-lbl-txt">Role</div><select class="fld fld-sel fld-mono island-role" title="Semantic orchestration role used in reports and future role-aware controllers" style="font-size:.70rem">${roleOpts}</select></div>
+    <div><div class="isle-lbl-txt">Exchange</div><select class="fld fld-sel fld-mono island-exchange" title="Semantic exchange tag for diagnostics and future role-aware migration" style="font-size:.70rem">${exchangeOpts}</select></div>
+    <div><div class="isle-lbl-txt">Pop. Size</div><input class="fld fld-mono island-pop" type="number" placeholder="Default" style="font-size:.72rem"/></div>
+    <div><div class="isle-lbl-txt">Seed</div><input class="fld fld-mono island-seed" type="number" placeholder="Auto" style="font-size:.72rem"/></div>
     <button class="isle-rm" onclick="removeIsland(${id})" title="Remove">×</button>
     <div id="isle-params-${id}" style="grid-column:2 / -1;margin-top:6px"></div>`;
   list.appendChild(div);
@@ -1537,11 +1582,22 @@ function collectIslands(){
   document.querySelectorAll('#island-list .island-row').forEach(row=>{
     const algSel=row.querySelector('.island-alg');
     const labelInp=row.querySelector('.island-label');
+    const roleSel=row.querySelector('.island-role');
+    const exchangeSel=row.querySelector('.island-exchange');
     const popInp=row.querySelector('.island-pop');
+    const seedInp=row.querySelector('.island-seed');
     if(!algSel?.value)return;
     const cfg=collectIslandSolverConfig(algSel.value);
     if(popInp?.value)cfg.population_size=parseInt(popInp.value);
-    islands.push({algorithm:algSel.value,label:labelInp.value||algSel.value,config:cfg});
+    const island={
+      algorithm:algSel.value,
+      label:labelInp.value||algSel.value,
+      role:roleSel?.value||'auto',
+      exchange_role:exchangeSel?.value||'both',
+      config:cfg,
+    };
+    if(seedInp?.value) island.seed=parseInt(seedInp.value);
+    islands.push(island);
   });
   return islands;
 }
@@ -1560,8 +1616,8 @@ function updateRunBar(){
     document.getElementById('rb-name').textContent=selectedAlg.name;
     const col=fc(selectedAlg.family);
     document.getElementById('rb-meta').innerHTML=`<span class="rb-tag" style="color:${col}">${selectedAlg.family}</span><span class="rb-tag">·</span><span class="rb-tag">${selectedAlg.id}</span><span class="rb-tag">·</span><span class="rb-tag" style="color:var(--gold)">${singleSubMode}</span>`;
-  }else if(mode==='benchmark'){
-    document.getElementById('rb-name').textContent='Benchmark Runner';
+  }else if(mode==='benchmark'||mode==='benchmark_study'){
+    document.getElementById('rb-name').textContent=MODE_LABELS[mode];
     document.getElementById('rb-meta').innerHTML=`<span class="rb-tag">${selectedAlgs.size||getBmAlgs().length||'?'} algorithms</span>`;
   }else{
     document.getElementById('rb-name').textContent=MODE_LABELS[mode];
@@ -1621,7 +1677,7 @@ async function startJob(){
       req.transfer_fn=document.getElementById('b-transfer')?.value||'v2';
       req.init_name=document.getElementById('b-init')?.value||'chaotic:tent';
     }
-  }else if(mode==='benchmark'){
+  }else if(mode==='benchmark'||mode==='benchmark_study'){
     refreshBenchmarkSummaries();
     const algs=getBmAlgs();
     if(!algs.length){alert('Select at least one algorithm.');goPage('browse');return;}
@@ -1633,10 +1689,12 @@ async function startJob(){
       algorithm_configs:collectBenchmarkConfigs(),
       n_trials:readIntById('bm-trials',5)||5,
       max_steps:readIntById('bm-steps',300)||300,
+      max_evaluations:mode==='benchmark_study'?readIntById('bm-evals',null):null,
+      target_tolerance:mode==='benchmark_study'?readFloatById('bm-tol',1e-8):null,
       dimensions:prob.dimensions||10,
       objective:currentObjective(),
       seed:prob.seed};
-    url='/api/jobs/benchmark';
+    url=mode==='benchmark_study'?'/api/jobs/benchmark-study':'/api/jobs/benchmark';
   }else{
     const prob=getSharedProblem();if(!prob)return;
     const islands=collectIslands();
@@ -1648,8 +1706,9 @@ async function startJob(){
       topology:document.getElementById('coop-topo')?.value||'star',
     };
     if(mode==='orchestrated'){
+      const orchMode=document.getElementById('orch-mode')?.value||'rules';
       req.orchestration={
-        mode:document.getElementById('orch-mode')?.value||'rules',
+        mode:orchMode,
         checkpoint_interval:readIntById('orch-chk-interval',5)||5,
         max_actions_per_checkpoint:readIntById('orch-max-actions',2)||2,
         warmup_checkpoints:readIntById('orch-warmup',1)||1,
@@ -1660,7 +1719,7 @@ async function startJob(){
         high_diversity_threshold:readFloatById('orch-high-div',0.25)||0.25,
         perturbation_sigma:readFloatById('orch-sigma',0.05)||0.05,
       };
-      url='/api/jobs/orchestrated';
+      url=orchMode==='cooperative'?'/api/jobs/collaborative':'/api/jobs/orchestrated';
     }else{
       url='/api/jobs/collaborative';
     }
@@ -1674,7 +1733,7 @@ async function startJob(){
     if(!r.ok){const d=await r.json();alert('Server error: '+(d.detail||r.statusText));setRunBtn(false);return;}
     const d=await r.json();
     currentJobId=d.job_id;
-    const pollInterval=mode==='benchmark'?800:400;
+    const pollInterval=(mode==='benchmark'||mode==='benchmark_study')?800:400;
     pollTimer=setInterval(()=>pollJob(currentJobId),pollInterval);
   }catch(e){setSt('error','Connection failed: '+e.message);setRunBtn(false);}
 }
@@ -1825,6 +1884,26 @@ function renderResultsSkeleton(){
     </div>`);
   }
 
+  if(mode==='benchmark_study'){
+    rc.insertAdjacentHTML('beforeend',`<div class="card"><div class="cbdy" style="padding:14px 18px">
+      <div class="bm-prog-bar"><div class="bm-prog-fill" id="bm-prog" style="width:0%"></div></div>
+      <div class="bm-prog-txt" id="bm-ptxt">Starting BenchmarkStudy…</div>
+    </div></div>
+    <div class="mstrip" style="grid-template-columns:1fr 1fr 1fr 1fr">
+      <div class="mc hi"><div class="mc-lbl">Records</div><div class="mc-val gold" id="bm-done">0</div></div>
+      <div class="mc"><div class="mc-lbl">Candidates</div><div class="mc-val cyan" id="study-cands">—</div></div>
+      <div class="mc"><div class="mc-lbl">Problems</div><div class="mc-val green" id="study-probs">—</div></div>
+      <div class="mc"><div class="mc-lbl">Best Mean Rank</div><div class="mc-val violet" id="study-best">—</div></div>
+    </div>
+    <div class="err-card hidden" id="err-card"><div class="err-ttl">⚠ Error</div><div class="err-body" id="err-body"></div></div>`);
+
+    if(outputs.study_summary) rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Scientific Summary</span></div><div class="mig-table-wrap"><table class="bmt"><thead><tr><th>Metric</th><th>Value</th></tr></thead><tbody id="study-summary-body"></tbody></table></div></div>`);
+    if(outputs.study_ranks) rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Rank Table</span></div><div class="mig-table-wrap"><table class="bmt"><thead><tr><th>Candidate</th><th>Mean Rank</th><th>Median Rank</th><th>Wins</th></tr></thead><tbody id="study-rank-body"></tbody></table></div></div>`);
+    if(outputs.study_stats) rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Statistical Tests</span></div><div class="mig-table-wrap"><table class="bmt"><thead><tr><th>Test / Pair</th><th>Statistic</th><th>p-value</th><th>Adjusted p</th><th>Effect</th></tr></thead><tbody id="study-stats-body"></tbody></table></div></div>`);
+    if(outputs.study_raw) rc.insertAdjacentHTML('beforeend',`<div class="chart-card"><div class="chart-hdr"><span class="chart-ttl">Long-format Records</span></div><div class="mig-table-wrap" style="max-height:340px"><table class="bmt"><thead><tr><th>Candidate</th><th>Problem</th><th>Trial</th><th>Best Fitness</th><th>Error</th><th>Runtime (s)</th></tr></thead><tbody id="study-raw-body"></tbody></table></div></div>`);
+    if(outputs.csv_export) rc.insertAdjacentHTML('beforeend',`<div class="card exp-card"><div class="chdr"><div class="cico" style="background:var(--s3);color:var(--t3)">↓</div><div class="cttl">Export</div></div><div class="cbdy"><div class="exp-row"><span class="exp-lbl">Download:</span><button class="btn btn-ghost btn-sm" onclick="exportBmCSV()">CSV Long Records</button></div></div></div>`);
+  }
+
   if(mode==='collaborative'||mode==='orchestrated'){
     rc.insertAdjacentHTML('beforeend',`<div class="mstrip">
       <div class="mc hi"><div class="mc-lbl">Global Best</div><div class="mc-val gold" id="m-fit">—</div></div>
@@ -1833,18 +1912,23 @@ function renderResultsSkeleton(){
       <div class="mc"><div class="mc-lbl">Elapsed</div><div class="mc-val green" id="m-tim">—</div></div>
     </div>`);
 
+    if(outputs.island_config) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
+      <div class="chart-hdr"><span class="chart-ttl">Island Configuration</span></div>
+      <div class="mig-table-wrap"><table class="dtbl"><thead><tr><th>#</th><th>Label</th><th>Algorithm</th><th>Role</th><th>Exchange</th><th>Population</th><th>Seed</th></tr></thead><tbody id="island-config-tbody"></tbody></table></div>
+    </div>`);
+
     if(outputs.global_conv) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
       <div class="chart-hdr"><span class="chart-ttl">Global Convergence</span><div class="chart-ctrls"><button class="scbtn active" onclick="setScaleById('chart-global','linear',this)">Lin</button><button class="scbtn" onclick="setScaleById('chart-global','log',this)">Log</button></div></div>
       <div class="chart-body" style="height:210px"><canvas id="chart-global"></canvas></div>
     </div>`);
 
     if(outputs.island_conv) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
-      <div class="chart-hdr"><span class="chart-ttl">Per-Island Convergence</span></div>
+      <div class="chart-hdr"><span class="chart-ttl">Island Convergence</span></div>
       <div class="chart-body" style="height:210px"><canvas id="chart-islands"></canvas></div>
     </div>`);
 
     if(outputs.isl_summary) rc.insertAdjacentHTML('beforeend',`<div class="ibar-card">
-      <div class="chdr" style="padding:12px 18px 10px"><div class="cttl">Island Summary — Best Fitness</div></div>
+      <div class="chdr" style="padding:12px 18px 10px"><div class="cttl">Island Summary</div></div>
       <div class="ibar-body" id="ibar-body">—</div>
     </div>`);
 
@@ -2017,6 +2101,7 @@ function updateCollabLive(d){
     lastHistLen=hist.length;charts.global.update('none');
   }
   if(d.partial_rows?.length)renderProblemRows(d.partial_rows);
+  if(d.island_manifest)renderIslandConfig(d.island_manifest);
 }
 function renderProblemRows(rows){
   const tb=document.getElementById('coop-problem-tbody');if(!tb)return;
@@ -2120,9 +2205,23 @@ function finalizeResults(d){
 
   if(mode==='benchmark'){
     const req=d.request||{};
-    if(d.result?.rows){bmLastRows=d.result.rows;renderBmTables(bmLastRows,d.result.algorithms||req.algorithms||[],d.result.functions||req.functions||[]);}
+    const rows=d.result?.rows||d.partial_rows||[];
+    if(rows.length){bmLastRows=rows;renderBmTables(bmLastRows,d.result?.algorithms||req.algorithms||[],d.result?.functions||req.functions||[]);}
     const pf=document.getElementById('bm-prog');if(pf)pf.style.width='100%';
     setEl('bm-ptxt',`Complete — ${bmLastRows.length} runs`);setEl('bm-done',bmLastRows.length);
+  }
+
+  if(mode==='benchmark_study'){
+    const fallback={
+      rows:d.partial_rows||[],
+      scientific_summary:{n_records:(d.partial_rows||[]).length},
+      rank_table:[],friedman:{},wilcoxon:[],convergence:[]
+    };
+    const studyResult=(d.result&&Array.isArray(d.result.rows))?d.result:fallback;
+    bmLastRows=studyResult.rows||[];
+    renderStudyTables(studyResult);
+    const pf=document.getElementById('bm-prog');if(pf)pf.style.width='100%';
+    setEl('bm-ptxt',`Complete — ${bmLastRows.length} records`);setEl('bm-done',bmLastRows.length);
   }
 
   if(mode==='collaborative'||mode==='orchestrated'){
@@ -2144,6 +2243,7 @@ function finalizeResults(d){
       charts.islands.update();
     }
     if(d.result?.rows)renderProblemRows(d.result.rows);
+    if(d.island_manifest||d.result?.island_manifest)renderIslandConfig(d.island_manifest||d.result?.island_manifest);
     if(d.island_summary) renderIslandBars(d.island_summary);
     setEl('m-islands',Object.keys(d.island_summary||{}).length);
     setEl('m-migs',d.migration_events?.length||0);
@@ -2204,6 +2304,50 @@ function finalizeResults(d){
       }
     }
     if(d.best_position) renderPos(d.best_position);
+  }
+}
+
+
+function renderStudyTables(result){
+  const rows=result.rows||[];
+  const sci=result.scientific_summary||{};
+  setEl('study-cands',sci.n_candidates??new Set(rows.map(r=>r.candidate)).size);
+  setEl('study-probs',sci.n_problems??new Set(rows.map(r=>r.problem)).size);
+  setEl('study-best',sci.best_mean_rank_candidate||'—');
+
+  const summaryBody=document.getElementById('study-summary-body');
+  if(summaryBody){
+    const items=[
+      ['Records', sci.n_records??rows.length],
+      ['Candidates', sci.n_candidates??new Set(rows.map(r=>r.candidate)).size],
+      ['Problems', sci.n_problems??new Set(rows.map(r=>r.problem)).size],
+      ['Best mean-rank candidate', sci.best_mean_rank_candidate||'—'],
+      ['Best mean rank', sci.best_mean_rank!=null?fmt(sci.best_mean_rank):'—'],
+    ];
+    summaryBody.innerHTML=items.map(([k,v])=>`<tr><td>${esc(k)}</td><td style="color:var(--gold-lt)">${esc(v)}</td></tr>`).join('');
+  }
+
+  const rankBody=document.getElementById('study-rank-body');
+  if(rankBody){
+    const ranks=(result.rank_table||[]).slice().sort((a,b)=>(+a.mean_rank||999)-(+b.mean_rank||999));
+    rankBody.innerHTML=ranks.map(r=>`<tr><td>${esc(r.candidate||'—')}</td><td>${fmt(r.mean_rank)}</td><td>${fmt(r.median_rank)}</td><td>${r.wins??'—'}</td></tr>`).join('');
+  }
+
+  const statsBody=document.getElementById('study-stats-body');
+  if(statsBody){
+    const fried=result.friedman||{};
+    const lines=[];
+    lines.push(`<tr><td>Friedman</td><td>${fmt(fried.statistic)}</td><td>${fmt(fried.p_value)}</td><td>—</td><td>${esc(fried.metric||'')}</td></tr>`);
+    (result.wilcoxon||[]).slice(0,80).forEach(w=>{
+      const pair=`${w.candidate_a||w.a||'A'} vs ${w.candidate_b||w.b||'B'}`;
+      lines.push(`<tr><td>${esc(pair)}</td><td>${fmt(w.statistic)}</td><td>${fmt(w.p_value)}</td><td>${fmt(w.p_adjusted??w.adjusted_p_value)}</td><td>${fmt(w.cliffs_delta??w.effect_size)}</td></tr>`);
+    });
+    statsBody.innerHTML=lines.join('');
+  }
+
+  const rawBody=document.getElementById('study-raw-body');
+  if(rawBody){
+    rawBody.innerHTML=rows.slice(0,500).map(r=>`<tr><td>${esc(r.candidate||'—')}</td><td>${esc(r.problem||'—')}</td><td>${r.trial??'—'}</td><td>${fmt(r.best_fitness)}</td><td>${fmt(r.error_to_optimum)}</td><td>${fmt(r.runtime_seconds)}</td></tr>`).join('');
   }
 }
 
@@ -2316,6 +2460,21 @@ function renderBmTables(rows,algorithms,functions){
 function renderPos(pos){
   const g=document.getElementById('pos-grid');if(!g)return;
   g.innerHTML=pos.map((v,i)=>`<div class="pc"><div class="pd">x${i+1}</div><div class="pv">${fmt(v)}</div></div>`).join('');
+}
+
+function renderIslandConfig(rows){
+  const tb=document.getElementById('island-config-tbody');if(!tb)return;
+  const data=rows||[];
+  if(!data.length){tb.innerHTML='<tr><td colspan="7" style="color:var(--t3)">No island configuration was reported.</td></tr>';return;}
+  tb.innerHTML=data.map((r,i)=>`<tr>
+    <td style="color:var(--gold)">${r.index??i+1}</td>
+    <td>${esc(r.label||'—')}</td>
+    <td>${esc(r.algorithm||'—')}</td>
+    <td><span class="role-pill">${esc(r.role||'auto')}</span></td>
+    <td><span class="exchange-pill">${esc(r.exchange_role||'both')}</span></td>
+    <td>${r.population_size!=null?esc(String(r.population_size)):'Default'}</td>
+    <td>${r.seed!=null?esc(String(r.seed)):'Auto'}</td>
+  </tr>`).join('');
 }
 
 function renderIslandBars(summary){

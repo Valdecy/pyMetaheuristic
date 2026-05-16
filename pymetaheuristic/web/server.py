@@ -1,8 +1,7 @@
 """
 pyMetaheuristic Web UI — FastAPI Backend  v4
 =============================================
-Supports: Single (standard / constrained / binary) ·
-          Benchmark Runner · Collaborative Islands · Orchestrated Islands
+Supports: Single Algorithm · Benchmark Runner · Benchmark Study · Island System
 
 Place as  pymetaheuristic/web/server.py
 Run with: uvicorn pymetaheuristic.web.server:app --reload --port 8000
@@ -29,7 +28,9 @@ try:
     from pymetaheuristic.src.api import list_algorithms, get_algorithm_info, optimize, create_optimizer
     from pymetaheuristic.src.cooperation import cooperative_optimize
     from pymetaheuristic.src.orchestration import orchestrated_optimize
-    from pymetaheuristic.src.schemas import CollaborativeConfig, OrchestrationSpec, RulesConfig
+    from pymetaheuristic.src.schemas import (CollaborativeConfig, OrchestrationSpec, RulesConfig, BanditConfig, PortfolioConfig)
+    from pymetaheuristic.src.islands import IslandSystem, Island, TopologyConfig, MigrationConfig, OrchestrationConfig
+    from pymetaheuristic.src.benchmarks import BenchmarkStudy, BenchmarkProblem
     from pymetaheuristic.src.utils.chaotic import BinaryAdapter
     from pymetaheuristic.src.tuner import BenchmarkRunner
     from pymetaheuristic.src.termination import Termination
@@ -41,7 +42,9 @@ except ImportError:
         from ..src.api import list_algorithms, get_algorithm_info, optimize, create_optimizer
         from ..src.cooperation import cooperative_optimize
         from ..src.orchestration import orchestrated_optimize
-        from ..src.schemas import CollaborativeConfig, OrchestrationSpec, RulesConfig
+        from ..src.schemas import (CollaborativeConfig, OrchestrationSpec, RulesConfig, BanditConfig, PortfolioConfig)
+        from ..src.islands import IslandSystem, Island, TopologyConfig, MigrationConfig, OrchestrationConfig
+        from ..src.benchmarks import BenchmarkStudy, BenchmarkProblem
         from ..src.utils.chaotic import BinaryAdapter
         from ..src.tuner import BenchmarkRunner
         from ..src.termination import Termination
@@ -154,6 +157,37 @@ def _catalogue() -> list[dict]:
                     "optimum": m.get("optimum"), "fixed_dims": m.get("fixed_dims")})
     return out
 
+
+
+def _df_records(obj) -> list[dict]:
+    """Return a JSON-safe list of records from a pandas DataFrame-like object."""
+    if obj is None:
+        return []
+    try:
+        return _json_safe(obj.to_dict(orient="records"))
+    except Exception:
+        return []
+
+
+def _compact_scientific_summary(summary: dict) -> dict:
+    """Drop embedded DataFrames from BenchmarkResult.scientific_summary()."""
+    out = dict(summary or {})
+    out.pop("summary", None)
+    out.pop("rank_table", None)
+    return _json_safe(out)
+
+
+def _benchmark_problem_from_spec(spec: dict, objective: str) -> BenchmarkProblem:
+    dims = int(spec.get("dims", 10) or 10)
+    return BenchmarkProblem(
+        function=spec["fn"],
+        min_values=[float(spec.get("min", -5.12))] * dims,
+        max_values=[float(spec.get("max", 5.12))] * dims,
+        name=str(spec.get("label") or spec.get("id") or "problem"),
+        objective=objective,
+        optimum=spec.get("optimum"),
+        metadata={"id": spec.get("id"), "dimension": dims},
+    )
 
 # ── Progress callback ─────────────────────────────────────────────────────────
 class _CB:
@@ -387,7 +421,9 @@ def _safe_float(v) -> float | None:
 def _json_safe(value):
     """Recursively convert NumPy/pymetaheuristic scalar outputs into JSON-safe Python types."""
     if isinstance(value, np.generic):
-        return value.item()
+        value = value.item()
+    if isinstance(value, float):
+        return value if np.isfinite(value) else None
     if isinstance(value, np.ndarray):
         return [_json_safe(v) for v in value.tolist()]
     if isinstance(value, dict):
@@ -537,14 +573,39 @@ def _run_single(req: dict, state: dict) -> None:
 
 
 # ── ② COLLABORATIVE ───────────────────────────────────────────────────────────
+def _island_manifest(req: dict) -> list[dict]:
+    """Return the user-facing island configuration, including semantic roles.
+
+    The legacy cooperative/orchestrated runners currently consume algorithm,
+    label, config and seed.  Role/exchange_role are preserved here for the web
+    report, diagnostics, and future role-aware controllers.
+    """
+    manifest: list[dict] = []
+    for idx, isl in enumerate(req.get("islands", []), start=1):
+        cfg = dict(isl.get("config", {}) or {})
+        manifest.append({
+            "index": idx,
+            "algorithm": isl.get("algorithm", ""),
+            "label": isl.get("label") or isl.get("algorithm", f"island_{idx}"),
+            "role": isl.get("role") or "auto",
+            "exchange_role": isl.get("exchange_role") or "both",
+            "seed": isl.get("seed"),
+            "population_size": cfg.get("population_size") or cfg.get("swarm_size") or cfg.get("pack_size"),
+        })
+    return manifest
+
+
 def _build_islands(req: dict) -> list[dict]:
     islands = []
     for isl in req["islands"]:
-        islands.append({
+        item = {
             "algorithm": isl["algorithm"],
             "label":     isl.get("label") or isl["algorithm"],
             "config":    isl.get("config", {}),
-        })
+        }
+        if isl.get("seed") is not None:
+            item["seed"] = isl.get("seed")
+        islands.append(item)
     return islands
 
 
@@ -811,6 +872,8 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
                     })
             outcomes.append(cp_list)
 
+    island_manifest = _island_manifest(req)
+
     state.update({
         "status":             "done",
         "best_fitness":       float(result.best_fitness),
@@ -822,6 +885,7 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
         "migration_events":   events,
         "hall_of_fame":       hof,
         "island_summary":     island_summary,
+        "island_manifest":    island_manifest,
         "decisions":          decisions,
         "outcomes":           outcomes,
         "elapsed":            time.time() - state["start_time"],
@@ -829,6 +893,7 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
             "best_fitness":   float(result.best_fitness),
             "best_position":  [float(v) for v in result.best_position],
             "island_summary": island_summary,
+            "island_manifest": island_manifest,
             "migration_count": len(events),
             "n_islands":      len(req.get("islands", [])),
             "topology":       req.get("topology", "star"),
@@ -921,6 +986,91 @@ def _run_benchmark(req: dict, state: dict) -> None:
                       "elapsed": time.time() - state["start_time"]})
 
 
+
+# ── ⑤ BENCHMARK STUDY ────────────────────────────────────────────────────────
+def _run_benchmark_study(req: dict, state: dict) -> None:
+    try:
+        algorithms = req["algorithms"]
+        n_trials = int(req.get("n_trials", 5))
+        max_steps = req.get("max_steps")
+        max_evaluations = req.get("max_evaluations")
+        objective = req.get("objective", "min")
+        base_seed = req.get("seed")
+        alg_configs = req.get("algorithm_configs", {}) or {}
+        fn_specs = _function_specs(req, default_dims=int(req.get("dimensions", 10) or 10))
+        if not algorithms:
+            raise ValueError("BenchmarkStudy requires at least one algorithm candidate.")
+        if not fn_specs:
+            raise ValueError("BenchmarkStudy requires at least one benchmark problem.")
+
+        candidates = [
+            {"name": alg_id, "type": "algorithm", "algorithm": alg_id, "config": dict(alg_configs.get(alg_id, {}) or {})}
+            for alg_id in algorithms
+        ]
+        problems = [_benchmark_problem_from_spec(spec, objective) for spec in fn_specs]
+        state["status_text"] = f"BenchmarkStudy: {len(candidates)} candidates × {len(problems)} problems × {n_trials} trials"
+        state["step"] = 0
+
+        study = BenchmarkStudy(
+            candidates=candidates,
+            problems=problems,
+            n_trials=n_trials,
+            max_steps=int(max_steps) if max_steps not in (None, "") else None,
+            max_evaluations=int(max_evaluations) if max_evaluations not in (None, "") else None,
+            seed=int(base_seed) if base_seed not in (None, "") else None,
+            objective=objective,
+            target_tolerance=float(req.get("target_tolerance", 1.0e-8) or 1.0e-8),
+            store_convergence=True,
+            verbose=False,
+        )
+        result = study.run()
+        df = result.to_dataframe()
+        rows = _df_records(df)
+        summary = _df_records(result.summary())
+        rank_table = _df_records(result.rank_table())
+        friedman = _json_safe(result.friedman_test())
+        wilcoxon = _json_safe(result.wilcoxon_pairwise())
+        best_rank = None
+        try:
+            if rank_table:
+                best_rank = sorted(rank_table, key=lambda r: (r.get("mean_rank") is None, r.get("mean_rank") or 1.0e99))[0]
+        except Exception:
+            best_rank = None
+        sci = {
+            "n_records": len(rows),
+            "n_candidates": len({r.get("candidate") for r in rows if r.get("candidate") is not None}),
+            "n_problems": len({r.get("problem") for r in rows if r.get("problem") is not None}),
+            "best_mean_rank_candidate": best_rank.get("candidate") if isinstance(best_rank, dict) else None,
+            "best_mean_rank": best_rank.get("mean_rank") if isinstance(best_rank, dict) else None,
+        }
+        conv = _df_records(result.convergence_dataframe())
+
+        state.update({
+            "status": "done",
+            "elapsed": time.time() - state["start_time"],
+            "step": len(rows),
+            "partial_rows": rows,
+            "status_text": "BenchmarkStudy complete",
+            "result": {
+                "rows": rows,
+                "summary": summary,
+                "rank_table": rank_table,
+                "friedman": friedman,
+                "wilcoxon": wilcoxon,
+                "scientific_summary": sci,
+                "convergence": conv,
+                "algorithms": algorithms,
+                "functions": [spec["id"] for spec in fn_specs],
+                "n_trials": n_trials,
+                "dimensions": int(req.get("dimensions", 10) or 10),
+            },
+        })
+
+    except Exception:
+        state.update({"status": "error",
+                      "error": traceback.format_exc(limit=10),
+                      "elapsed": time.time() - state["start_time"]})
+
 # ── Pydantic models ───────────────────────────────────────────────────────────
 class SingleReq(BaseModel):
     algorithm:                 str
@@ -950,6 +1100,9 @@ class IslandDef(BaseModel):
     algorithm: str
     label:     str            = ""
     config:    dict[str, Any] = Field(default_factory=dict)
+    seed:      int | None     = None
+    role:      str            = "auto"
+    exchange_role: str        = "both"
 
 
 class CollabReq(BaseModel):
@@ -995,6 +1148,21 @@ class BenchmarkReq(BaseModel):
     algorithm_configs: dict[str, Any] = Field(default_factory=dict)
     n_trials:   int   = 5
     max_steps:  int   = 300
+    dimensions: int   = 10
+    objective:  str   = "min"
+    seed:       int   | None = 0
+
+
+class BenchmarkStudyReq(BaseModel):
+    algorithms: list[str]
+    functions:  list[str] = Field(default_factory=list)
+    custom_functions: list[dict[str, Any]] = Field(default_factory=list)
+    problem_specs: list[dict[str, Any]] = Field(default_factory=list)
+    algorithm_configs: dict[str, Any] = Field(default_factory=dict)
+    n_trials:   int   = 5
+    max_steps:  int | None = 300
+    max_evaluations: int | None = None
+    target_tolerance: float = 1.0e-8
     dimensions: int   = 10
     objective:  str   = "min"
     seed:       int   | None = 0
@@ -1085,6 +1253,11 @@ def create_benchmark(req: BenchmarkReq):
     return _start("benchmark", _run_benchmark, req.model_dump())
 
 
+@app.post("/api/jobs/benchmark-study", status_code=202)
+def create_benchmark_study(req: BenchmarkStudyReq):
+    return _start("benchmark_study", _run_benchmark_study, req.model_dump())
+
+
 # ── Polling ───────────────────────────────────────────────────────────────────
 @app.get("/api/jobs/{jid}")
 def poll(jid: str) -> dict:
@@ -1117,6 +1290,12 @@ def poll(jid: str) -> dict:
         "status_text":        s.get("status_text", ""),
         "partial_rows":       s.get("partial_rows", []),
         "request":            s.get("request"),
+        # Return the final result payload once the job is complete.  The
+        # frontend finalization step uses this object to populate the
+        # BenchmarkStudy/BenchmarkRunner tables.  Without it, completed
+        # benchmark-study jobs could show "Done" with zero records even though
+        # the backend had already stored the study result in state["result"].
+        "result":             s.get("result") if s.get("status") == "done" else None,
     })
 
 
