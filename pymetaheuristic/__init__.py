@@ -162,7 +162,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "5.9.8"
+__version__ = "5.9.9"
 
 __all__ = [
     "FUNCTIONS",
@@ -232,7 +232,6 @@ __all__ = [
 ]
 
 from . import src  # noqa: E402
-examples = src.examples
 reference = src.reference
 
 def web_app(host="127.0.0.1", port=8765, open_browser=True):
