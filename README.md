@@ -1024,7 +1024,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | Yes |
 | [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | No |
 | [Adaptive Exploration State-Space Particle Swarm Optimization](https://doi.org/10.1016/j.swevo.2025.101868) | `aesspso` | swarm | Yes | Yes | No | Yes |
-| [Adaptive Inertia Weight Particle Swarm Optimization (AIW-PSO)](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | No |
+| [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | No |
 | [Adaptive Random Search](https://doi.org/10.1002/nav.20422) | `ars` | trajectory | Yes | Yes | No | Yes |
 | [African Vultures Optimization Algorithm](https://doi.org/10.1016/j.cie.2021.107408) | `avoa` | swarm | Yes | Yes | No | Yes |
 | [Ali Baba and the Forty Thieves](https://doi.org/10.1007/s00521-021-06392-x) | `aft` | human | Yes | Yes | No | Yes |
@@ -1077,10 +1077,10 @@ The table below summarizes the optimization engines currently available in the l
 | [Capuchin Search Algorithm](https://doi.org/10.1007/s00521-020-05145-6) | `capsa` | swarm | Yes | Yes | No | Yes |
 | [Cat Swarm Optimization](https://doi.org/10.1007/978-3-540-36668-3_94) | `cat_so` | swarm | Yes | Yes | No | Yes |
 | [Catch Fish Optimization Algorithm](https://doi.org/10.1007/s10586-024-04618-w) | `cfoa` | swarm | Yes | No | No | No |
-| [Cauchy-Gaussian mutation and improved search strategy GWO (CG-GWO)](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | No |
+| [Cauchy-Gaussian mutation and improved search strategy GWO](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | No |
 | [Chameleon Swarm Algorithm](https://doi.org/10.1016/j.eswa.2021.114685) | `chameleon_sa` | swarm | Yes | Yes | No | Yes |
 | [Chaos Game Optimization](https://doi.org/10.1007/s10462-020-09867-w) | `cgo` | math | Yes | Yes | No | Yes |
-| [Chaotic-based Grey Wolf Optimizer (Chaotic-GWO or C-GWO)](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | No |
+| [Chaotic-based Grey Wolf Optimizer](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | No |
 | [Cheetah Based Optimization](https://doi.org/10.1038/s41598-022-14338-z) | `cddo` | swarm | Yes | Yes | No | Yes |
 | [Cheetah Optimizer](https://doi.org/10.1038/s41598-022-14338-z) | `cdo` | swarm | Yes | Yes | No | Yes |
 | [Chernobyl Disaster Optimizer](https://doi.org/10.1016/j.compstruc.2023.107488) | `cdo_chernobyl` | physics | Yes | Yes | No | Yes |
@@ -1215,15 +1215,15 @@ The table below summarizes the optimization engines currently available in the l
 | [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | No | Yes | Yes |
 | [Imperialist Competitive Algorithm](https://doi.org/10.1109/CEC.2007.4425083) | `ica` | human | Yes | Yes | No | Yes |
 | [Improved Adaptive Grey Wolf Optimization](https://doi.org/10.1007/s10462-024-10821-3) | `iagwo` | swarm  | Yes | No | No | No|
-| [Improved Artificial Ecosystem-based Optimization (ImprovedAEO)](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | human | Yes | No | No | No |
+| [Improved Artificial Ecosystem-based Optimization](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | human | Yes | No | No | No |
 | [Improved Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `iaro` | swarm | Yes | No | No | No |
 | [Improved Grey Wolf Optimizer](https://doi.org/10.1016/j.eswa.2020.113917) | `i_gwo` | swarm | Yes | Yes | No | Yes |
 | [Improved Kepler Optimization Algorithm](https://doi.org/10.1016/j.eswa.2025.128216) | `ikoa` | physics | Yes | Yes | No | Yes |
 | [Improved L-SHADE](https://doi.org/10.1109/CEC.2016.7743922) | `ilshade` | evolutionary | Yes | Yes | No | Yes |
 | [Improved Multi-Operator Differential Evolution](https://doi.org/10.1109/CEC48606.2020.9185577) | `imode` | evolutionary | Yes | Yes | No | Yes |
-| [Improved Opposite-based Learning Grey Wolf Optimizer (IOBL-GWO)](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | No |
+| [Improved Opposite-based Learning Grey Wolf Optimizer](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | No |
 | [Improved Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `improved_qsa` | human | Yes | No | No | No |
-| [Improved Teaching-Learning-based Optimization (ImprovedTLO)](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | swarm | Yes | No | No | No |
+| [Improved Teaching-Learning-based Optimization](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | swarm | Yes | No | No | No |
 | [Improved Whale Optimization Algorithm](https://doi.org/10.1016/j.jcde.2019.02.002) | `i_woa` | swarm | Yes | Yes | No | Yes |
 | [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | No |
 | [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | Yes |
@@ -1244,7 +1244,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Lyrebird Optimization Algorithm](https://doi.org/10.1016/j.cma.2023.116436) | `loa_lyrebird` | swarm | Yes | Yes | No | Yes |
 | [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | swarm | Yes | Yes | No | Yes |
 | [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | swarm | Yes | No | No | No |
-| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm (LARO)](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | No |
+| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | No |
 | [Magnificent Frigatebird Optimization](https://doi.org/10.32604/cmc.2024.054317) | `mfo` | swarm | Yes | No | No | Yes |
 | [Manta Ray Foraging Optimization](https://doi.org/10.1016/j.engappai.2019.103300) | `mrfo` | swarm | Yes | Yes | No | Yes |
 | [Mantis Shrimp Optimization Algorithm](https://doi.org/10.3390/math13091500) | `mshoa` | swarm | Yes | Yes | No | Yes |
