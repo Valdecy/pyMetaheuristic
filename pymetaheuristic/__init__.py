@@ -76,6 +76,34 @@ from .src.diagnostics import (
     plot_migration_network,
     topology_summary,
 )
+from .src.evomapx import (
+    EvoMapXEdge,
+    EvoMapXNode,
+    EvoMapXRecorder,
+    EvoMapXReport,
+    attribution_activity,
+    attribution_records,
+    convergence_driver_score,
+    evomapx_analysis,
+    explain_evomapx,
+    export_evomapx_csv,
+    export_evomapx_json,
+    migration_attribution,
+    operator_attribution_matrix,
+    peg_summary,
+    plot_attribution_heatmap,
+    plot_cds_bar,
+    plot_cds_time_series,
+    plot_population_evolution_graph,
+    population_evolution_graph,
+)
+
+from .src.evomapx_profiles import (
+    EvoMapXProfile,
+    get_evomapx_operators,
+    get_evomapx_profile,
+    list_evomapx_profiles,
+)
 from .src.telemetry import (
     convergence_data,
     export_history_csv,
@@ -162,7 +190,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "7.0.0"
+__version__ = "7.1.0"
 
 __all__ = [
     "FUNCTIONS",
@@ -192,6 +220,15 @@ __all__ = [
     "plot_migration_network", "topology_summary",
     "export_history_csv", "export_island_telemetry_csv",
     "export_population_snapshots_json", "export_replay_manifest_json",
+    "EvoMapXEdge", "EvoMapXNode", "EvoMapXRecorder", "EvoMapXReport",
+    "EvoMapXProfile", "get_evomapx_operators", "get_evomapx_profile",
+    "list_evomapx_profiles",
+    "attribution_activity", "attribution_records", "convergence_driver_score",
+    "evomapx_analysis", "explain_evomapx", "export_evomapx_csv",
+    "export_evomapx_json", "migration_attribution",
+    "operator_attribution_matrix", "peg_summary", "plot_attribution_heatmap",
+    "plot_cds_bar", "plot_cds_time_series", "plot_population_evolution_graph",
+    "population_evolution_graph",
     "get_algorithm_info", "get_test_function", "get_test_problem",
     "list_algorithms", "optimize", "orchestrated_optimize",
     "plot_benchmark_summary", "plot_benchmark_barplots", "plot_benchmark_boxplots",

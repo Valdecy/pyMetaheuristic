@@ -3,9 +3,6 @@ pymetaheuristic.web
 ===================
 Provides the ``launch()`` entry point for the browser-based UI.
 
-Install extras:
-    pip install pymetaheuristic[web]
-
 Usage:
     import pymetaheuristic
     pymetaheuristic.web_app()          # opens http://127.0.0.1:8765
@@ -53,7 +50,6 @@ def launch(
         raise ImportError(
             "\n\nThe pyMetaheuristic web UI requires extra dependencies.\n"
             "Install them with:\n\n"
-            "    pip install pymetaheuristic[web]\n\n"
             "(needs: fastapi, uvicorn[standard])"
         ) from exc
 

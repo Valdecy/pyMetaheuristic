@@ -35,6 +35,7 @@ try:
     from pymetaheuristic.src.tuner import BenchmarkRunner
     from pymetaheuristic.src.termination import Termination
     import pymetaheuristic.src.test_functions as _tf
+    from pymetaheuristic.src.evomapx import evomapx_analysis, explain_evomapx
     _AVAILABLE_TRANSFER = getattr(pmh, "AVAILABLE_TRANSFER_FUNCTIONS",
                                   ["v1","v2","v3","v4","s1","s2","s3","s4"])
 except ImportError:
@@ -49,6 +50,7 @@ except ImportError:
         from ..src.tuner import BenchmarkRunner
         from ..src.termination import Termination
         from ..src import test_functions as _tf
+        from ..src.evomapx import evomapx_analysis, explain_evomapx
         _AVAILABLE_TRANSFER = ["v1","v2","v3","v4","s1","s2","s3","s4"]
     except ImportError as e:
         raise RuntimeError(f"Cannot import pymetaheuristic: {e}") from e
@@ -433,6 +435,29 @@ def _json_safe(value):
     return value
 
 
+def _evomapx_payload(result, level: str = "auto") -> dict:
+    """Small JSON-safe EvoMapX summary for the web UI."""
+    try:
+        report = evomapx_analysis(result, level=level)
+        data = report.to_dict() if hasattr(report, "to_dict") else dict(report)
+        return _json_safe({
+            "objective": data.get("objective"),
+            "level": data.get("level"),
+            "support_note": "Operator-level EvoMapX is available for all registered algorithms; cooperative runs also expose island and migration attribution.",
+            "labels": data.get("labels", []),
+            "steps": data.get("steps", []),
+            "cds_normalized": data.get("cds_normalized", {}),
+            "cds_raw": data.get("cds_raw", {}),
+            "activity": data.get("activity", {}),
+            "summary": data.get("summary", {}),
+            "migration_attribution": data.get("migration_attribution", {}),
+            "normalized_attribution": data.get("normalized_attribution", {}),
+            "text": explain_evomapx(report),
+        })
+    except Exception as exc:
+        return {"error": str(exc), "level": level}
+
+
 # ── ① SINGLE ─────────────────────────────────────────────────────────────────
 def _run_single(req: dict, state: dict) -> None:
     try:
@@ -551,6 +576,10 @@ def _run_single(req: dict, state: dict) -> None:
                     ],
                 })
 
+        # Phase 10: all registered algorithms expose operator-level EvoMapX
+        # telemetry through native-engine or native-family hooks.
+        evomapx_payload = _evomapx_payload(res, level="operator")
+
         state.update({
             "status":               "done",
             "best_fitness":         float(res.best_fitness),
@@ -561,9 +590,11 @@ def _run_single(req: dict, state: dict) -> None:
             "elapsed":              time.time() - state["start_time"],
             "metadata":             metadata,
             "population_snapshots": snapshots,
+            "evomapx":              evomapx_payload,
             "result":               {"best_fitness": float(res.best_fitness),
                                      "best_position": [float(v) for v in res.best_position],
-                                     "metadata": metadata},
+                                     "metadata": metadata,
+                                     "evomapx": evomapx_payload},
         })
 
     except Exception:
@@ -804,13 +835,17 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
         if isinstance(e, dict):
             events.append({"step": e.get("global_step", 0), "from": e.get("source_label",""),
                            "to": e.get("target_label",""), "migrants": e.get("migrants",0),
-                           "fit_after": e.get("best_fitness_after")})
+                           "source_fitness": e.get("source_fitness"),
+                           "fit_before": e.get("target_fitness_before"),
+                           "fit_after": e.get("target_fitness_after", e.get("best_fitness_after"))})
         else:
             events.append({"step":      getattr(e,"global_step",0),
                            "from":      getattr(e,"source_label",""),
                            "to":        getattr(e,"target_label",""),
                            "migrants":  getattr(e,"migrants",0),
-                           "fit_after": getattr(e,"best_fitness_after",None)})
+                           "source_fitness": getattr(e,"source_fitness",None),
+                           "fit_before": getattr(e,"target_fitness_before",None),
+                           "fit_after": getattr(e,"target_fitness_after",getattr(e,"best_fitness_after",None))})
 
     # ── Hall of fame ──────────────────────────────────────────────────────
     hof_raw = getattr(result, "hall_of_fame", None) or []
@@ -873,6 +908,8 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
             outcomes.append(cp_list)
 
     island_manifest = _island_manifest(req)
+    evomapx_payload = _evomapx_payload(result, level="island")
+    evomapx_operator_payload = _evomapx_payload(result, level="operator")
 
     state.update({
         "status":             "done",
@@ -888,6 +925,8 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
         "island_manifest":    island_manifest,
         "decisions":          decisions,
         "outcomes":           outcomes,
+        "evomapx":            evomapx_payload,
+        "evomapx_operator":   evomapx_operator_payload,
         "elapsed":            time.time() - state["start_time"],
         "result": {
             "best_fitness":   float(result.best_fitness),
@@ -897,6 +936,8 @@ def _finish_collab(result, req: dict, state: dict, *, is_orchestrated: bool) -> 
             "migration_count": len(events),
             "n_islands":      len(req.get("islands", [])),
             "topology":       req.get("topology", "star"),
+            "evomapx":        evomapx_payload,
+            "evomapx_operator": evomapx_operator_payload,
         },
     })
 
@@ -1284,6 +1325,8 @@ def poll(jid: str) -> dict:
         "migration_events":   s.get("migration_events", []),
         "hall_of_fame":       s.get("hall_of_fame", []),
         "island_summary":     s.get("island_summary", {}),
+        "evomapx":            s.get("evomapx", {}),
+        "evomapx_operator":   s.get("evomapx_operator", {}),
         "decisions":          s.get("decisions", []),
         "outcomes":           s.get("outcomes", []),
         # benchmark extras

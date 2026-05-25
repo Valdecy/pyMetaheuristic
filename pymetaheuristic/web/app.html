@@ -1186,6 +1186,7 @@ const OUTPUT_DEFS={
     metrics:     {name:'Metric Strip',             desc:'Best fitness, iterations, evaluations, elapsed time'},
     position:    {name:'Best Position',            desc:'Solution vector x1…xN'},
     hist_table:  {name:'History Table',            desc:'Step, fitness, diversity, exploitation ratio (last 100)'},
+    evomapx:     {name:'EvoMapX Explainability',   desc:'Operator-level OAM/CDS contribution diagnostics for all registered algorithms'},
     snapshot:    {name:'Population Snapshot',      desc:'Agent positions at the final snapshot (2D scatter if ≤2 dims)'},
     snippet:     {name:'Python Snippet',           desc:'Ready-to-run code to reproduce this exact run'},
     json_export: {name:'JSON Export',              desc:'Full result as downloadable JSON'},
@@ -1213,6 +1214,7 @@ const OUTPUT_DEFS={
     island_conv: {name:'Island Convergence',   desc:'Convergence line per island'},
     isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
     mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
+    evomapx:     {name:'EvoMapX Explainability',   desc:'Island, operator, convergence-driver, and migration attribution'},
     hall_of_fame:{name:'Hall of Fame',             desc:'Top solutions ever found'},
     position:    {name:'Global Best Position',     desc:'Best solution vector overall'},
     problem_table:{name:'Problem Result Table',    desc:'One row per selected shared problem'},
@@ -1226,6 +1228,7 @@ const OUTPUT_DEFS={
     isl_summary: {name:'Island Summary',           desc:'Best fitness bar chart per island'},
     telem:       {name:'Island Telemetry',         desc:'Health and diversity sparklines per island'},
     mig_log:     {name:'Migration Log',            desc:'Table of migration events'},
+    evomapx:     {name:'EvoMapX Explainability',   desc:'Island, operator, convergence-driver, and migration attribution'},
     decisions:   {name:'Controller Decisions',     desc:'Orchestrator decisions at each checkpoint'},
     outcomes:    {name:'Action Outcomes',          desc:'Result of each action taken by the orchestrator'},
     hall_of_fame:{name:'Hall of Fame',             desc:'Top solutions ever found'},
@@ -1236,11 +1239,11 @@ const OUTPUT_DEFS={
 };
 
 const OUTPUT_DEFAULTS={
-  single:      ['conv_steps','conv_evals','diversity','exploit','metrics','position','hist_table','snippet','csv_export'],
+  single:      ['conv_steps','conv_evals','diversity','exploit','metrics','position','hist_table','evomapx','snippet','csv_export'],
   benchmark:   ['compact','global_rank','timing','csv_export'],
   benchmark_study:['study_summary','study_ranks','study_stats','csv_export'],
-  collaborative:['island_config','global_conv','island_conv','isl_summary','mig_log','position','problem_table'],
-  orchestrated: ['island_config','global_conv','island_conv','isl_summary','mig_log','decisions','position','problem_table'],
+  collaborative:['island_config','global_conv','island_conv','isl_summary','mig_log','evomapx','position','problem_table'],
+  orchestrated: ['island_config','global_conv','island_conv','isl_summary','mig_log','evomapx','decisions','position','problem_table'],
 };
 
 /* ════════════════════ CONFIGURE ════════════════════ */
@@ -1820,6 +1823,11 @@ function renderResultsSkeleton(){
       <div class="mig-table-wrap"><table class="mig"><thead><tr><th>Step</th><th>Best Fitness</th><th>Diversity</th><th>Exploit Ratio</th></tr></thead><tbody id="hist-tbody"></tbody></table></div>
     </div>`);
 
+    if(outputs.evomapx) rc.insertAdjacentHTML('beforeend',`<div class="ibar-card">
+      <div class="chdr" style="padding:12px 18px 10px"><div class="cttl">EvoMapX Explainability</div></div>
+      <div class="ibar-body" id="evomapx-body"><div style="color:var(--t3);font-size:.75rem">Awaiting operator-level EvoMapX telemetry…</div></div>
+    </div>`);
+
     rc.insertAdjacentHTML('beforeend',`<div class="err-card hidden" id="err-card"><div class="err-ttl">⚠ Error</div><div class="err-body" id="err-body"></div></div>`);
 
     if(outputs.snippet||outputs.json_export||outputs.csv_export) rc.insertAdjacentHTML('beforeend',`<div class="card exp-card" id="exp-card">
@@ -1932,6 +1940,11 @@ function renderResultsSkeleton(){
       <div class="ibar-body" id="ibar-body">—</div>
     </div>`);
 
+    if(outputs.evomapx) rc.insertAdjacentHTML('beforeend',`<div class="ibar-card">
+      <div class="chdr" style="padding:12px 18px 10px"><div class="cttl">EvoMapX Explainability</div></div>
+      <div class="ibar-body" id="evomapx-body"><div style="color:var(--t3);font-size:.75rem">Awaiting island/operator attribution…</div></div>
+    </div>`);
+
     if(outputs.telem&&mode==='orchestrated') rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
       <div class="chart-hdr"><span class="chart-ttl">Island Telemetry — Health & Diversity</span></div>
       <div class="telem-grid" id="telem-grid"></div>
@@ -1949,7 +1962,7 @@ function renderResultsSkeleton(){
 
     if(outputs.mig_log) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
       <div class="chart-hdr"><span class="chart-ttl">Migration Log</span><span id="mig-count" class="chart-ttl" style="color:var(--t2)"></span></div>
-      <div class="mig-table-wrap"><table class="mig"><thead><tr><th>Step</th><th>From</th><th>To</th><th>Migrants</th><th>Fitness After</th></tr></thead><tbody id="mig-tbody"></tbody></table></div>
+      <div class="mig-table-wrap"><table class="mig"><thead><tr><th>Step</th><th>From</th><th>To</th><th>Migrants</th><th>Before</th><th>After</th></tr></thead><tbody id="mig-tbody"></tbody></table></div>
     </div>`);
 
     if(outputs.hall_of_fame) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
@@ -2102,6 +2115,7 @@ function updateCollabLive(d){
   }
   if(d.partial_rows?.length)renderProblemRows(d.partial_rows);
   if(d.island_manifest)renderIslandConfig(d.island_manifest);
+  if(outputs.evomapx)renderEvoMapX(d.evomapx||d.result?.evomapx);
 }
 function renderProblemRows(rows){
   const tb=document.getElementById('coop-problem-tbody');if(!tb)return;
@@ -2200,6 +2214,7 @@ function finalizeResults(d){
       }
     }
 
+    if(outputs.evomapx) renderEvoMapX(d.evomapx||d.result?.evomapx);
     if(outputs.snippet) buildSnippet(d);
   }
 
@@ -2245,6 +2260,7 @@ function finalizeResults(d){
     if(d.result?.rows)renderProblemRows(d.result.rows);
     if(d.island_manifest||d.result?.island_manifest)renderIslandConfig(d.island_manifest||d.result?.island_manifest);
     if(d.island_summary) renderIslandBars(d.island_summary);
+    if(outputs.evomapx) renderEvoMapX(d.evomapx||d.result?.evomapx);
     setEl('m-islands',Object.keys(d.island_summary||{}).length);
     setEl('m-migs',d.migration_events?.length||0);
     if(d.best_fitness!=null)setEl('m-fit',fmt(d.best_fitness));
@@ -2252,7 +2268,7 @@ function finalizeResults(d){
     if(outputs.mig_log){
       const tb=document.getElementById('mig-tbody');if(tb){
         const mc=document.getElementById('mig-count');if(mc)mc.textContent=`${d.migration_events?.length||0} events`;
-        tb.innerHTML=(d.migration_events||[]).map(e=>`<tr><td>${e.step}</td><td>${e.from}</td><td>${e.to}</td><td>${e.migrants}</td><td>${fmt(e.fit_after)}</td></tr>`).join('');
+        tb.innerHTML=(d.migration_events||[]).map(e=>`<tr><td>${e.step}</td><td>${e.from}</td><td>${e.to}</td><td>${e.migrants}</td><td>${fmt(e.fit_before)}</td><td>${fmt(e.fit_after)}</td></tr>`).join('');
       }
     }
     /* Hall of fame */
@@ -2457,6 +2473,30 @@ function renderBmTables(rows,algorithms,functions){
 }
 
 /* ════════════════════ HELPERS ════════════════════ */
+function renderEvoMapX(payload){
+  const body=document.getElementById('evomapx-body');if(!body)return;
+  const data=payload||{};
+  if(data.error){body.innerHTML=`<div style="color:var(--rose);font-size:.75rem">${esc(data.error)}</div>`;return;}
+  const cds=data.cds_normalized||{};
+  const entries=Object.entries(cds).filter(([,v])=>v!=null).sort((a,b)=>(+b[1])- (+a[1]));
+  if(!entries.length){body.innerHTML='<div style="color:var(--t3);font-size:.75rem">No positive EvoMapX contribution detected yet.</div>';return;}
+  const driver=entries[0];
+  const bars=entries.slice(0,12).map(([lbl,val],i)=>{
+    const pct=Math.max(4,Math.min(100,Math.round((+val||0)*100)));
+    const col=ISLAND_COLORS[i%ISLAND_COLORS.length];
+    return `<div class="ibar-row">
+      <div class="ibar-lbl" title="${esc(lbl)}">${esc(lbl)}</div>
+      <div class="ibar-trk"><div class="ibar-fill" style="width:${pct}%;background:${col}"></div></div>
+      <div class="ibar-val" style="color:${col}">${((+val||0)*100).toFixed(1)}%</div>
+    </div>`;
+  }).join('');
+  const mig=data.migration_attribution||{};
+  const migTxt=(mig.total_positive_improvement!=null)?` · migration gain ${fmt(mig.total_positive_improvement)}`:'';
+  const lvl=data.level?` · level ${esc(String(data.level))}`:'';
+  const note=data.support_note?`<div style="font-size:.62rem;color:var(--t3);margin:2px 0 8px">${esc(data.support_note)}</div>`:'';
+  body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">Main convergence driver: <span style="color:var(--gold)">${esc(driver[0])}</span>${lvl}${migTxt}</div>${note}${bars}`;
+}
+
 function renderPos(pos){
   const g=document.getElementById('pos-grid');if(!g)return;
   g.innerHTML=pos.map((v,i)=>`<div class="pc"><div class="pd">x${i+1}</div><div class="pv">${fmt(v)}</div></div>`).join('');
