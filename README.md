@@ -63,6 +63,7 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
    - [2.12 Save, Load, and Checkpoint](#212-save-load-and-checkpoint) --- [[Colab Demo] ](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing) ---
    - [2.13 Benchmark Runner](#213-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
    - [2.14 Benchmark Study](#214-benchmark-study) --- [[Colab Demo] ](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing) ---
+   - [2.15 EvoMapX Explainability](#215-evomapx-explainability) --- [[Colab Demo] ](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing) ---
 3. [Algorithm Details](#3-algorithm-details)
 4. [Test Functions](#4-test-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/132-yqoaJKkJ4gf6yqjrV1siXVvZ3ZgE7?usp=sharing) ---
 5. [Other Libraries](#5-other-libraries)
@@ -528,7 +529,7 @@ import pymetaheuristic
 
 def easom(x = [0, 0]):
     x1, x2 = x
-    return -np.cos(x1) * np.cos(x2) * np.exp
+    return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
 
 system = pymetaheuristic.IslandSystem(
@@ -722,7 +723,7 @@ import pymetaheuristic
 # Easom: 
 def easom(x = [0, 0]):
     x1, x2 = x
-    return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi)**2 - (x2 - np.pi)**2)
+    return -np.cos(x1) * np.cos(x2) * np.exp(-(x1 - np.pi) ** 2 - (x2 - np.pi) ** 2)
 
 # Optimize - Run
 result = pymetaheuristic.optimize(
@@ -973,6 +974,104 @@ benchmark_result.plot_rank_heatmap(show = True, renderer = "colab")
 
 Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem sweep and a compact DataFrame summary. Use `BenchmarkStudy` when you need a scientific experimental protocol with repeated trials, fixed budgets, algorithm and island-system candidates, rank tables, statistical tests, convergence plots, ECDFs, performance profiles, rank heatmaps, and save/load support.
 
+---
+### 2.15 **EvoMapX Explainability**
+
+[Back to Summary](#b-summary)
+
+**pymetaheuristic** includes a package-wide **EvoMapX Explainability** layer for ordinary optimizers, cooperative island systems, and orchestrated island systems. It helps answer a question that convergence curves alone cannot answer: **which algorithm, island, migration event, or operator mechanism drove the improvement?** EvoMapX currently provides three complementary diagnostics:
+
+- **Operator / Island Attribution Matrix (OAM/IAM):** A time-indexed contribution matrix. Rows are attribution units and columns are optimization steps. The attribution unit can be a native operator, family-level operator mechanism, algorithm, island, or agent.
+- **Convergence Driver Score (CDS):** An aggregate score derived from the attribution matrix. It ranks the units that contributed most to convergence.
+- **Population Evolution Graph (PEG):** A graph representation of population continuity, ancestry when available, and migration links.
+
+The telemetry is designed to be **passive**. It does not call the objective function, consume random numbers, reorder candidates, alter stopping criteria, or change the evaluation budget. All registered optimizers expose operator-level EvoMapX reports. The fidelity level may differ by engine:
+
+| Support level | Meaning |
+| --- | --- |
+| Native engine telemetry | Exact engine-specific operator logs when the optimizer exposes them directly. |
+| Native-family telemetry | Family-specific operator decomposition computed from already-observed pre/post fitness changes. |
+| Profile metadata | Declared operator taxonomy used for documentation, web-app summaries, and support tables. |
+
+For highly metaphorical algorithms, the operator labels are intentionally general, such as `exploration move`, `leader/social guidance`, `selection/replacement`, `force/field interaction`, or `social learning`. This keeps the interpretation stable across hundreds of optimizers without pretending that all methods share the same internal mechanics.
+
+* [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1qhv8gPJci0VfIcr4N2etgc19A29wOPLl?usp=sharing)
+
+Inspecting EvoMapX:
+
+```python
+import pymetaheuristic
+
+profile = pymetaheuristic.get_evomapx_profile("gwo")
+print(profile.to_dict())
+print(pmh.get_evomapx_operators("gwo"))
+```
+
+Single Algorithm EvoMapX:
+
+```python
+import pymetaheuristic
+
+def sphere(x):
+    return sum(v * v for v in x)
+
+result = pymetaheuristic.optimize(
+    "woa",
+    target_function = sphere,
+    min_values      = [-5.0] * 10,
+    max_values      = [ 5.0] * 10,
+    objective       = "min",
+    max_steps       = 40,
+    seed            = 42,
+    store_history   = True,
+)
+
+report = result.evomapx_analysis(level = "operator")
+print(result.explain_evomapx(level = "operator"))
+
+# Interactive Plot
+result.plot_evomapx_attribution(level = "operator", filepath = "woa_oam.html")
+result.plot_evomapx_cds(level = "operator", filepath = "woa_cds.html")
+
+# Exports
+result.export_evomapx_json("woa_evomapx.json", level = "operator")
+result.export_evomapx_csv("woa_oam.csv",       level = "operator")
+```
+
+Island EvoMapX:
+
+```python
+import pymetaheuristic
+
+def sphere(x):
+    return sum(v * v for v in x)
+
+result = pymetaheuristic.cooperative_optimize(
+    islands = [
+        {"algorithm": "de",  "label": "DE explorer", "config": {"size": 25}},
+        {"algorithm": "pso", "label": "PSO swarm",   "config": {"size": 25}},
+        {"algorithm": "cem", "label": "CEM modeler", "config": {"size": 30, "k_samples": 6}},
+    ],
+    target_function    = sphere,
+    min_values         = [-5.0] * 10,
+    max_values         = [ 5.0] * 10,
+    objective          = "min",
+    max_steps          = 50,
+    migration_interval = 5,
+    migration_size     = 3,
+    topology           = "ring",
+    seed               = 42,
+)
+
+# Which Island drove convergence?
+print(result.explain_evomapx(level = "island"))
+
+# Which Native/Family operators drove convergence?
+print(result.explain_evomapx(level = "operator"))
+result.plot_evomapx_attribution(level = "island", filepath = "island_oam.html")
+result.plot_evomapx_cds(level = "island", filepath = "island_cds.html")
+result.plot_evomapx_peg(filepath = "population_evolution_graph.html")
+```
 
 ---
 ## 3. **Algorithm Details**
@@ -987,7 +1086,7 @@ from pprint import pprint
 
 # Get Info
 algorithm_id = "pso"   # change this to any ID from the table, e.g. "de", "ga", "gwo", "woa"
-algo_iinfo   = pymetaheuristic.get_algorithm_info(algorithm_id)
+algo_info    = pymetaheuristic.get_algorithm_info(algorithm_id)
 
 # Results
 print("Algorithm ID:",   algo_info["algorithm_id"])
@@ -995,7 +1094,11 @@ print("Algorithm Name:", algo_info["algorithm_name"])
 print("")
 print("Default Parameters:")
 pprint(algo_info["defaults"])
+```
 
+Output:
+
+```text
 Algorithm ID:   pso
 Algorithm Name: Particle Swarm Optimization
 
@@ -1003,396 +1106,395 @@ Default Parameters:
 {'c1': 2.0, 'c2': 2.0, 'decay': 0, 'swarm_size': 30, 'w': 0.9}
 ```
 
-The table below summarizes the optimization engines currently available in the library. The **Algorithm** column reports the conventional algorithm name, **ID** gives the identifier used in the codebase, **Family** provides a coarse methodological grouping, **Population** indicates whether the algorithm maintains an explicit candidate population, **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows, **Restart** shows whether native restart support is declared, and **Snapshot Fit** provides a practical recommendation for using store_population_snapshots in the current implementation. Click the algorithm name to open its primary reference or original source.
- All algorithms support checkpointing through the library framework, and all constraint handling is available through the framework-level constraint machinery.
+The table below summarizes the optimization engines currently available in the library. The **Algorithm** column reports the conventional algorithm name, **ID** gives the identifier used in the codebase, **Family** provides a coarse methodological grouping, **Population** indicates whether the algorithm maintains an explicit candidate population, **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows, **Restart** shows whether native restart support is declared, and **Snapshot Fit** provides a practical recommendation for using store_population_snapshots in the current implementation. Click the algorithm name to open its primary reference or original source. The **EvoMapX** column lists the general operator mechanisms logged for each algorithm. The labels are intentionally readable and family-level where appropriate; exact internal variable or function names may differ by engine. All algorithms support checkpointing through the library framework, and all constraint handling is available through the framework-level constraint machinery.
 
 ---
 
-| Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No |
-| [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | Yes |
+| Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit | EvoMapX |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
 
 <details>
 <summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
 
-| Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit |
-| --- | --- | --- | --- | --- | --- | --- |
-| [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No |
-| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | No |
-| [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | Yes |
-| [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | No |
-| [Adaptive Exploration State-Space Particle Swarm Optimization](https://doi.org/10.1016/j.swevo.2025.101868) | `aesspso` | swarm | Yes | Yes | No | Yes |
-| [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | No |
-| [Adaptive Random Search](https://doi.org/10.1002/nav.20422) | `ars` | trajectory | Yes | Yes | No | Yes |
-| [African Vultures Optimization Algorithm](https://doi.org/10.1016/j.cie.2021.107408) | `avoa` | swarm | Yes | Yes | No | Yes |
-| [Ali Baba and the Forty Thieves](https://doi.org/10.1007/s00521-021-06392-x) | `aft` | human | Yes | Yes | No | Yes |
-| [Anarchic Society Optimization](https://doi.org/10.1109/CEC.2011.5949940) | `aso` | swarm | Yes | Yes | No | Yes |
-| [Animated Oat Optimization Algorithm](https://doi.org/10.1016/j.knosys.2025.113589) | `aoo` | swarm | Yes | No | No | No |
-| [Ant Colony Optimization (Continuous)](https://doi.org/10.1016/j.ejor.2006.06.046) | `acor` | swarm | Yes | Yes | No | Yes |
-| [Ant Colony Optimization](https://doi.org/10.1109/3477.484436) | `aco` | swarm | Yes | No | No | Yes |
-| [Ant Lion Optimizer](https://doi.org/10.1016/j.advengsoft.2015.01.010) | `alo` | swarm | Yes | Yes | No | Yes |
-| [Aquila Optimizer](https://doi.org/10.1016/j.cie.2021.107250) | `ao` | swarm | Yes | Yes | No | Yes |
-| [Archerfish Hunting Optimizer](https://doi.org/10.1016/j.engappai.2024.108081) | `aho` | swarm | Yes | Yes | No | Yes |
-| [Archimedes Optimization Algorithm](https://doi.org/10.1007/s10489-020-01893-z) | `arch_oa` | physics | Yes | Yes | No | Yes |
-| [Arithmetic Optimization Algorithm](https://doi.org/10.1016/j.cma.2020.113609) | `aoa` | swarm | Yes | Yes | No | Yes |
-| [Artemisinin Optimization](https://doi.org/10.1016/j.displa.2024.102740) | `artemisinin_o` | nature | Yes | Yes | No | Yes |
-| [Artificial Algae Algorithm](https://doi.org/10.1016/j.asoc.2015.03.003) | `aaa` | swarm | Yes | No | Yes | Yes |
-| [Artificial Bee Colony Optimization](https://doi.org/10.1007/s10898-007-9149-x) | `abco` | swarm | Yes | Yes | No | Yes |
-| [Artificial Ecosystem Optimization](https://doi.org/10.1007/s00521-019-04452-x) | `aeo` | human | Yes | Yes | No | Yes |
-| [Artificial Electric Field Algorithm](https://doi.org/10.1016/j.swevo.2019.03.013) | `aefa` | physics | Yes | Yes | No | Yes |
-| [Artificial Fish Swarm Algorithm](https://doi.org/10.1007/s10462-012-9342-2) | `afsa` | swarm | Yes | Yes | No | Yes |
-| [Artificial Gorilla Troops Optimizer](https://doi.org/10.1002/int.22535) | `agto` | swarm | Yes | Yes | No | Yes |
-| [Artificial Hummingbird Algorithm](https://doi.org/10.1016/j.cma.2021.114194) | `aha` | swarm | Yes | Yes | No | Yes |
-| [Artificial Lemming Algorithm](https://doi.org/10.1007/s10462-024-11023-7) | `ala` | swarm | Yes | Yes | No | Yes |
-| [Artificial Protozoa Optimizer](https://doi.org/10.1016/j.knosys.2024.111737) | `apo` | swarm | Yes | Yes | No | Yes |
-| [Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `aro` | swarm | Yes | Yes | No | Yes |
-| [Atom Search Optimization](https://doi.org/10.1016/j.knosys.2018.08.030) | `aso_atom` | physics | Yes | Yes | No | Yes |
-| [Automated Design of Variation Operators](https://doi.org/10.1145/3712256.3726456) | `autov` | evolutionary | Yes | Yes | No | Yes |
-| [BFGS Quasi-Newton Method](https://doi.org/10.1090/S0025-5718-1970-0274029-X) | `bfgs` | math | No | No | No | No |
-| [BIPOP-CMA-ES](https://doi.org/10.1145/1570256.1570333) | `bipop_cmaes` | evolutionary | Yes | No | Yes | Yes |
-| [Bacterial Chemotaxis Optimizer](https://doi.org/10.1007/s13369-025-10749-y) | `bco` | nature | Yes | Yes | No | Yes |
-| [Bacterial Colony Optimization](https://doi.org/10.1155/2012/698057) | `bacterial_colony_o` | nature | Yes | No | No | Yes |
-| [Bacterial Foraging Optimization](https://doi.org/10.1109/MCS.2002.1004010) | `bfo` | swarm | Yes | Yes | No | Yes |
-| [Bald Eagle Search](https://doi.org/10.1007/s10462-019-09732-5) | `bes` | swarm | Yes | Yes | No | Yes |
-| [Barnacles Mating Optimizer](https://doi.org/10.1016/j.engappai.2019.103330) | `bmo` | swarm | Yes | Yes | No | Yes |
-| [Basin Hopping](https://doi.org/10.1021/jp970984n) | `basin_hopping` | trajectory | No | No | Yes | No |
-| [Basketball Team Optimization Algorithm](https://doi.org/10.1038/s41598-025-05477-0) | `btoa` | human | Yes | No | No | Yes |
-| [Bat Algorithm](https://doi.org/10.1007/978-3-642-12538-6_6) | `bat_a` | swarm | Yes | Yes | No | Yes |
-| [Battle Royale Optimization](https://doi.org/10.1007/s00521-020-05004-4) | `bro` | human | Yes | Yes | No | Yes |
-| [Bees Algorithm](https://doi.org/10.1016/B978-008045157-2/50081-X) | `bea` | swarm | Yes | Yes | No | Yes |
-| [Binary Space Partition Tree Genetic Algorithm](https://doi.org/10.1016/j.ins.2019.10.016) | `bspga` | evolutionary | Yes | Yes | No | Yes |
-| [Biogeography-Based Optimization](https://doi.org/10.1109/TEVC.2008.919004) | `bbo` | evolutionary | Yes | Yes | No | Yes |
-| [Bird Swarm Algorithm](https://doi.org/10.1080/0952813X.2015.1042530) | `bsa` | swarm | Yes | Yes | No | Yes |
-| [Birds-of-Paradise Search](https://doi.org/10.1007/s00521-026-11887-6) | `bps` | swarm | Yes | No | No | Yes |
-| [Black Widow Optimization](https://doi.org/10.1016/j.engappai.2019.103249) | `bwo` | evolutionary | Yes | Yes | No | Yes |
-| [Black-winged Kite Algorithm](https://doi.org/10.1007/s10462-024-10723-4) | `bka` | swarm | Yes | Yes | No | Yes |
-| [Bonobo Optimizer](https://doi.org/10.1007/s10489-021-02444-w) | `bono` | swarm | Yes | Yes | No | Yes |
-| [Boxelder Bug Search Optimization](https://doi.org/10.1007/s00521-025-11637-0) | `bbso` | swarm | Yes | No | No | Yes |
-| [Brain Storm Optimization](https://doi.org/10.1007/978-3-642-21515-5_36) | `bso` | human | Yes | Yes | No | Yes |
-| [Brown-Bear Optimization Algorithm](https://doi.org/10.1201/9781003337003-6) | `bboa` | swarm | Yes | Yes | No | Yes |
-| [Butterfly Optimization Algorithm](https://doi.org/10.1007/s00500-018-3102-4) | `boa` | swarm | Yes | Yes | No | Yes |
-| [Camel Algorithm](https://doi.org/10.13140/RG.2.2.21814.56649) | `camel` | swarm | Yes | Yes | No | Yes |
-| [Capuchin Search Algorithm](https://doi.org/10.1007/s00521-020-05145-6) | `capsa` | swarm | Yes | Yes | No | Yes |
-| [Cat Swarm Optimization](https://doi.org/10.1007/978-3-540-36668-3_94) | `cat_so` | swarm | Yes | Yes | No | Yes |
-| [Catch Fish Optimization Algorithm](https://doi.org/10.1007/s10586-024-04618-w) | `cfoa` | swarm | Yes | No | No | No |
-| [Cauchy-Gaussian mutation and improved search strategy GWO](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | No |
-| [Chameleon Swarm Algorithm](https://doi.org/10.1016/j.eswa.2021.114685) | `chameleon_sa` | swarm | Yes | Yes | No | Yes |
-| [Chaos Game Optimization](https://doi.org/10.1007/s10462-020-09867-w) | `cgo` | math | Yes | Yes | No | Yes |
-| [Chaotic-based Grey Wolf Optimizer](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | No |
-| [Cheetah Based Optimization](https://doi.org/10.1038/s41598-022-14338-z) | `cddo` | swarm | Yes | Yes | No | Yes |
-| [Cheetah Optimizer](https://doi.org/10.1038/s41598-022-14338-z) | `cdo` | swarm | Yes | Yes | No | Yes |
-| [Chernobyl Disaster Optimizer](https://doi.org/10.1016/j.compstruc.2023.107488) | `cdo_chernobyl` | physics | Yes | Yes | No | Yes |
-| [Chicken Swarm Optimization](https://doi.org/10.1007/978-3-319-11857-4_10) | `chicken_so` | swarm | Yes | No | No | Yes |
-| [Child Drawing Development Optimization Algorithm](https://doi.org/10.1016/j.knosys.2024.111558) | `cddo_child` | human | Yes | Yes | No | Yes |
-| [Chimp Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113338) | `choa` | swarm | Yes | Yes | No | Yes |
-| [Chinese Pangolin Optimizer](https://doi.org/10.1007/s11227-025-07004-4) | `cpo` | swarm | Yes | No | No | Yes |
-| [Circle-Based Search Algorithm](https://doi.org/10.3390/math10101626) | `circle_sa` | math | Yes | Yes | No | Yes |
-| [Circulatory System Based Optimization](https://doi.org/10.1016/j.egyr.2025.04.007) | `csbo` | swarm | Yes | Yes | No | Yes |
-| [Clonal Selection Algorithm](https://doi.org/10.1109/TEVC.2002.1011539) | `clonalg` | evolutionary | Yes | Yes | No | Yes |
-| [Coati Optimization Algorithm](https://doi.org/10.1016/j.knosys.2022.110011) | `coati_oa` | swarm | Yes | Yes | No | Yes |
-| [Cockroach Swarm Optimization](https://doi.org/10.1109/ICCET.2010.5485993) | `cockroach_so` | swarm | Yes | Yes | No | Yes |
-| [Compact Genetic Algorithm](https://doi.org/10.1109/4235.797971) | `compact_ga` | distribution | No | No | No | No |
-| [Competitive Swarm Optimizer](https://doi.org/10.1016/j.swevo.2024.101543) | `cso` | swarm | Yes | Yes | No | Yes |
-| [Coot Bird Optimization](https://doi.org/10.1016/j.eswa.2021.115352) | `coot` | swarm | Yes | Yes | No | Yes |
-| [Coral Reefs Optimization](https://doi.org/10.1155/2014/739768) | `cro` | evolutionary | Yes | Yes | No | Yes |
-| [Coronavirus Herd Immunity Optimization](https://doi.org/10.1007/s00521-020-05296-6) | `chio` | human | Yes | Yes | No | Yes |
-| [Cosmic Evolution Optimization](https://doi.org/10.1007/s00521-025-11234-6) | `ceo_cosmic` | physics | Yes | Yes | No | Yes |
-| [Covariance Matrix Adaptation Evolution Strategy](https://doi.org/10.1109/ICEC.1996.542381) | `cmaes` | evolutionary | Yes | Yes | No | Yes |
-| [Coyote Optimization Algorithm](https://doi.org/10.1109/CEC.2018.8477769) | `coa` | swarm | Yes | Yes | No | Yes |
-| [Crayfish Optimization Algorithm](https://doi.org/10.1007/s10462-023-10567-4) | `crayfish_oa` | swarm | Yes | Yes | No | Yes |
-| [Cross Entropy Method](https://doi.org/10.1007/978-1-4757-4321-0) | `cem` | distribution | Yes | Yes | No | Yes |
-| [Crow Search Algorithm](https://doi.org/10.1016/j.compstruc.2016.03.001) | `csa` | swarm | Yes | Yes | No | Yes |
-| [Cuckoo Catfish Optimizer](https://doi.org/10.1007/s10462-025-11291-x) | `cco` | swarm | Yes | Yes | No | Yes |
-| [Cuckoo Search](https://doi.org/10.1109/NABIC.2009.5393690) | `cuckoo_s` | swarm | Yes | Yes | No | Yes |
-| [Cultural Algorithm](https://doi.org/10.1080/00207160.2015.1067309) | `ca` | evolutionary | Yes | Yes | No | Yes |
-| [Dandelion Optimizer](https://doi.org/10.1016/j.engappai.2022.105075) | `do_dandelion` | physics | Yes | Yes | No | Yes |
-| [Deep Sleep Optimiser](https://doi.org/10.1109/ACCESS.2023.3298105) | `dso` | human | Yes | Yes | No | Yes |
-| [Deer Hunting Optimization Algorithm](https://doi.org/10.1093/comjnl/bxy133) | `doa` | human | Yes | Yes | No | Yes |
-| [Dhole Optimization Algorithm](https://doi.org/10.1007/s10586-024-05005-1) | `dhole_oa` | swarm | Yes | No | No | Yes |
-| [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | No |
-| [Differential Evolution MTS](https://doi.org/10.1109/CEC.2009.4983179) | `hde` | evolutionary | Yes | Yes | No | Yes |
-| [Differential Evolution with Self-Adaptive Populations](https://doi.org/10.1007/s00500-005-0537-1) | `sap_de` | evolutionary | Yes | No | No | No |
-| [Differential Evolution](https://doi.org/10.1023/A:1008202821328) | `de` | evolutionary | Yes | Yes | No | Yes |
-| [Dispersive Fly Optimization](https://doi.org/10.15439/2014F142) | `dfo` | swarm | Yes | Yes | No | Yes |
-| [Diversity enhanced Strategy based Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2022.109100) | `ds_gwo` | swarm | Yes | No | No | No |
-| [Divine Religions Algorithm](https://doi.org/10.1007/s10586-024-04954-x) | `dra` | human | Yes | No | No | No |
-| [Dolphin Echolocation Optimization](https://doi.org/10.1016/j.advengsoft.2016.05.002) | `deo_dolphin` | swarm | Yes | Yes | No | Yes |
-| [Dragonfly Algorithm](https://doi.org/10.1007/s00521-015-1920-1) | `da` | swarm | Yes | Yes | No | Yes |
-| [Dream Optimization Algorithm](https://doi.org/10.1016/j.cma.2024.117718) | `dream_oa` | human | Yes | No | No | Yes |
-| [Dung Beetle Optimizer](https://doi.org/10.1007/s11227-022-04959-6) | `dbo` | swarm | Yes | Yes | No | Yes |
-| [Dwarf Mongoose Optimization Algorithm](https://doi.org/10.1016/j.cma.2022.114570) | `dmoa` | swarm | Yes | Yes | No | Yes |
-| [Dynamic Differential Annealed Optimization](https://doi.org/10.1016/j.asoc.2020.106392) | `ddao` | physics | Yes | Yes | No | Yes |
-| [Dynamic Virtual Bats Algorithm](https://doi.org/10.1109/INCoS.2014.40) | `dvba` | swarm | Yes | Yes | No | Yes |
-| [Earthworm Optimization Algorithm](https://doi.org/10.1504/IJBIC.2015.10004283) | `eoa` | swarm | Yes | Yes | No | Yes |
-| [Ecological Cycle Optimizer](https://doi.org/10.48550/arXiv.2508.20458) | `ecological_cycle_o` | swarm | Yes | Yes | No | Yes |
-| [Educational Competition Optimizer](https://doi.org/10.3390/biomimetics10030176) | `eco` | human | Yes | Yes | No | Yes |
-| [Eel and Grouper Optimizer](https://doi.org/10.1007/s10586-024-04545-w) | `eel_grouper_o` | swarm | Yes | No | No | No |
-| [Efficient Global Optimization](https://doi.org/10.1023/A:1008306431147) | `ego` | distribution | Yes | Yes | No | Yes |
-| [Efficient and Robust Grey Wolf Optimizer](https://doi.org/10.1007/s00500-019-03939-y) | `er_gwo` | swarm | Yes | No | No | No |
-| [Egret Swarm Optimization Algorithm](https://doi.org/10.3390/biomimetics7040144) | `esoa` | swarm | Yes | Yes | No | Yes |
-| [Electric Charged Particles Optimization](https://doi.org/10.1007/s10462-020-09890-x) | `ecpo` | physics | Yes | Yes | No | Yes |
-| [Electric Eel Foraging Optimization](https://doi.org/10.1016/j.eswa.2023.122200) | `eefo` | swarm | Yes | No | No | No |
-| [Electrical Storm Optimization](https://doi.org/10.3390/make7010024) | `eso` | physics | Yes | Yes | No | Yes |
-| [Electromagnetic Field Optimization](https://doi.org/10.1016/j.swevo.2015.07.002) | `efo` | physics | Yes | Yes | No | Yes |
-| [Elephant Herding Optimization](https://doi.org/10.1109/ISCBI.2015.8) | `eho` | swarm | Yes | Yes | No | Yes |
-| [Elk Herd Optimizer](https://doi.org/10.1007/s10462-023-10680-4) | `elk_ho` | swarm | Yes | Yes | No | Yes |
-| [Emperor Penguin Colony](https://doi.org/10.1016/j.knosys.2018.06.001) | `epc` | swarm | Yes | Yes | No | Yes |
-| [Energy Valley Optimizer](https://doi.org/10.1038/s41598-022-27344-y) | `evo` | physics | Yes | Yes | No | Yes |
-| [Enhanced Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.3027654) | `enhanced_aeo` | human | Yes | No | No | No |
-| [Enhanced Tug of War Optimization](https://doi.org/10.1016/j.procs.2020.03.063) | `enhanced_two` | physics | Yes | No | No | No |
-| [Enzyme Activity Optimizer](https://doi.org/10.1007/s11227-025-07052-w) | `eao` | nature | Yes | Yes | No | Yes |
-| [Equilibrium Optimizer](https://doi.org/10.1016/j.knosys.2019.105190) | `eo` | physics | Yes | Yes | No | Yes |
-| [Escape Algorithm](https://doi.org/10.1007/s10462-024-11008-6) | `esc` | human | Yes | Yes | No | Yes |
-| [Evolution Strategy (Mu + Lambda)](https://doi.org/10.1023/A:1015059928466) | `es` | evolutionary | Yes | Yes | No | Yes |
-| [Evolutionary Programming](https://doi.org/10.1007/BF00175356) | `ep` | evolutionary | Yes | Yes | No | Yes |
-| [Expanded Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `ex_gwo` | swarm | Yes | No | No | No |
-| [Exponential Distribution Optimizer](https://doi.org/10.1007/s10462-023-10403-9) | `edo` | math | Yes | Yes | No | Yes |
-| [Exponential-Trigonometric Optimization](https://doi.org/10.1016/j.cma.2024.117411) | `eto` | math | Yes | Yes | No | Yes |
-| [Extra-Trees Bayesian Optimization](https://doi.org/10.1007/s10994-006-6226-1) | `et_bo` | surrogate | No | No | No | No |
-| [Fast Evolutionary Programming](https://doi.org/10.1109/4235.771163) | `fep` | evolutionary | Yes | Yes | No | Yes |
-| [Fata Geophysics Optimizer](https://doi.org/10.1016/j.neucom.2024.128289) | `fata` | physics | Yes | Yes | No | Yes |
-| [Feasibility Rule with Objective Function Information](https://doi.org/10.1109/TCYB.2015.2493239) | `frofi` | evolutionary | Yes | Yes | No | Yes |
-| [Fennec Fox Optimizer](https://doi.org/10.1109/ACCESS.2022.3197745) | `ffo` | swarm | Yes | Yes | No | Yes |
-| [Fick's Law Algorithm](https://doi.org/10.1016/j.knosys.2022.110146) | `fla` | physics | Yes | Yes | No | Yes |
-| [Firefly Algorithm](https://doi.org/10.1504/IJBIC.2010.032124) | `firefly_a` | swarm | Yes | Yes | No | Yes |
-| [Fireworks Algorithm](https://doi.org/10.1016/j.asoc.2017.10.046) | `fwa` | swarm | Yes | Yes | No | Yes |
-| [Fish School Search](https://doi.org/10.1109/ICSMC.2008.4811695) | `fss` | swarm | Yes | Yes | No | Yes |
-| [Fitness Dependent Optimizer](https://doi.org/10.1109/ACCESS.2019.2907012) | `fdo` | swarm | Yes | Yes | No | Yes |
-| [Fletcher-Reeves Conjugate Gradient](https://doi.org/10.1002/er.8067) | `frcg` | math | No | No | No | No |
-| [Flood Algorithm](https://doi.org/10.1007/s11227-024-06291-7) | `flood_a` | physics | Yes | Yes | No | Yes |
-| [Flow Direction Algorithm](https://doi.org/10.1016/j.cie.2021.107224) | `fda` | swarm | Yes | Yes | No | Yes |
-| [Flower Pollination Algorithm](https://doi.org/10.1007/978-3-642-32894-7_27) | `fpa` | swarm | Yes | Yes | No | Yes |
-| [Forensic-Based Investigation Optimization](https://doi.org/10.1016/j.asoc.2020.106339) | `fbio` | human | Yes | Yes | No | Yes |
-| [Forest Optimization Algorithm](https://doi.org/10.1016/j.eswa.2014.05.009) | `foa` | swarm | Yes | Yes | No | Yes |
-| [Fossa Optimization Algorithm](https://doi.org/10.1007/s10462-024-10953-0) | `foa_fossa` | swarm | Yes | Yes | No | Yes |
-| [Fox Optimizer](https://doi.org/10.1007/s10489-022-03533-0) | `fox` | swarm | Yes | Yes | No | Yes |
-| [Frilled Lizard Optimization](https://doi.org/10.32604/cmc.2024.053189) | `flo` | swarm | Yes | Yes | No | Yes |
-| [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | Yes |
-| [Fuzzy Hierarchical Operator - Grey Wolf Optimizer](https://doi.org/10.1016/j.asoc.2017.03.048) | `fuzzy_gwo` | swarm | Yes | No | No | No |
-| [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | Yes |
-| [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | No |
-| [Gazelle Optimization Algorithm](https://doi.org/10.1007/s00521-022-07854-6) | `gazelle_oa` | swarm | Yes | Yes | No | Yes |
-| [Gekko Japonicus Algorithm](https://doi.org/10.1016/j.eswa.2025.127982) | `gja` | swarm | Yes | Yes | No | Yes |
-| [Generalized Normal Distribution Optimizer](https://doi.org/10.1016/j.enconman.2020.113301) | `gndo` | math | Yes | Yes | No | Yes |
-| [Genetic Algorithm](https://doi.org/10.7551/mitpress/1090.001.0001) | `ga` | evolutionary | Yes | Yes | No | Yes |
-| [Genghis Khan Shark Optimizer](https://doi.org/10.1016/j.aei.2023.102210) | `gkso` | swarm | Yes | Yes | No | Yes |
-| [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | swarm | Yes | Yes | No | Yes |
-| [Germinal Center Optimization](https://doi.org/10.1016/j.ifacol.2018.07.300) | `gco` | human | Yes | Yes | No | Yes |
-| [Geyser Inspired Algorithm](https://doi.org/10.1007/s42235-023-00437-8) | `gea` | physics | Yes | Yes | No | Yes |
-| [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo`  | swarm  | Yes | No | No | Yes |
-| [Giant Trevally Optimizer](https://doi.org/10.1109/ACCESS.2022.3223388) | `gto` | swarm | Yes | Yes | No | Yes |
-| [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | No |
-| [Glowworm Swarm Optimization](https://doi.org/10.1007/978-3-319-51595-3) | `gso` | swarm | Yes | Yes | No | Yes |
-| [Golden Jackal Optimizer](https://doi.org/10.1016/j.eswa.2022.116924) | `gjo` | swarm | Yes | Yes | No | Yes |
-| [Gradient-Based Optimizer](https://doi.org/10.1007/s11831-022-09872-y) | `gbo` | math | Yes | Yes | No | Yes |
-| [Gradient-Based Particle Swarm Optimization](https://doi.org/10.48550/arXiv.2312.09703) | `gpso` | swarm | Yes | Yes | No | Yes |
-| [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | surrogate | No | No | No | No |
-| [Grasshopper Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2017.01.004) | `goa` | swarm | Yes | Yes | No | Yes |
-| [Gravitational Search Algorithm](https://doi.org/10.1016/j.ins.2009.03.004) | `gsa` | physics | Yes | Yes | No | Yes |
-| [Greedy Randomized Adaptive Search Procedure](https://doi.org/10.1007/BF01096763) | `grasp` | trajectory | No | No | Yes | No |
-| [Grey Wolf Optimizer](https://doi.org/10.1016/j.advengsoft.2013.12.007) | `gwo` | swarm | Yes | Yes | No | Yes |
-| [Greylag Goose Optimization](https://doi.org/10.1016/j.eswa.2023.122147) | `ggo` | swarm | Yes | Yes | No | Yes |
-| [Growth Optimizer](https://doi.org/10.1016/j.knosys.2022.110206) | `go_growth` | swarm | Yes | Yes | No | Yes |
-| [Harmony Search Algorithm](https://doi.org/10.1177/003754970107600201) | `hsa` | trajectory | Yes | No | No | Yes |
-| [Harris Hawks Optimization](https://doi.org/10.1016/j.future.2019.02.028) | `hho` | swarm | Yes | Yes | No | Yes |
-| [Heap-Based Optimizer](https://doi.org/10.1016/j.eswa.2020.113702) | `hbo` | human | Yes | Yes | No | Yes |
-| [Henry Gas Solubility Optimization](https://doi.org/10.1016/j.future.2019.07.015) | `hgso` | physics | Yes | Yes | No | Yes |
-| [Hiking Optimization Algorithm](https://doi.org/10.1016/j.knosys.2024.111880) | `hiking_oa` | human | Yes | Yes | No | Yes |
-| [Hill Climb Algorithm](https://doi.org/10.1007/978-3-540-75256-1_52) | `hc` | trajectory | No | No | No | No |
-| [Hippopotamus Optimization Algorithm](https://doi.org/10.1038/s41598-024-54910-3) | `ho_hippo` | swarm | Yes | Yes | No | Yes |
-| [Honey Badger Algorithm](https://doi.org/10.1016/j.matcom.2021.08.013) | `hba_honey` | swarm | Yes | Yes | No | Yes |
-| [Horse Herd Optimization Algorithm](https://doi.org/10.1016/j.knosys.2020.106711) | `horse_oa` | swarm | Yes | Yes | No | Yes |
-| [Human Conception Optimizer](https://doi.org/10.1038/s41598-022-25031-6) | `hco` | human | Yes | Yes | No | Yes |
-| [Human Evolutionary Optimization Algorithm](https://doi.org/10.1016/j.eswa.2023.122638) | `heoa` | human | Yes | Yes | No | Yes |
-| [Hunger Games Search](https://doi.org/10.1016/j.eswa.2021.114864) | `hgs` | swarm | Yes | Yes | No | Yes |
-| [Hunting Search Algorithm](https://doi.org/10.1109/ICSCCW.2009.5379451) | `hus` | swarm | Yes | Yes | No | Yes |
-| [Hybrid Bat Algorithm](https://doi.org/10.48550/arXiv.1303.6310) | `hba` | swarm | Yes | Yes | No | Yes |
-| [Hybrid Grey Wolf - Whale Optimization Algorithm](https://doi.org/10.1177/10775463211003402) | `gwo_woa` | swarm | Yes | No | No | No |
-| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICACCS.2019.8728514) | `hi_woa` | swarm | Yes | No | No | No |
-| [Hybrid Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `hsaba` | swarm | Yes | Yes | No | Yes |
-| [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | No | Yes | Yes |
-| [Imperialist Competitive Algorithm](https://doi.org/10.1109/CEC.2007.4425083) | `ica` | human | Yes | Yes | No | Yes |
-| [Improved Adaptive Grey Wolf Optimization](https://doi.org/10.1007/s10462-024-10821-3) | `iagwo` | swarm  | Yes | No | No | No|
-| [Improved Artificial Ecosystem-based Optimization](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | human | Yes | No | No | No |
-| [Improved Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `iaro` | swarm | Yes | No | No | No |
-| [Improved Grey Wolf Optimizer](https://doi.org/10.1016/j.eswa.2020.113917) | `i_gwo` | swarm | Yes | Yes | No | Yes |
-| [Improved Kepler Optimization Algorithm](https://doi.org/10.1016/j.eswa.2025.128216) | `ikoa` | physics | Yes | Yes | No | Yes |
-| [Improved L-SHADE](https://doi.org/10.1109/CEC.2016.7743922) | `ilshade` | evolutionary | Yes | Yes | No | Yes |
-| [Improved Multi-Operator Differential Evolution](https://doi.org/10.1109/CEC48606.2020.9185577) | `imode` | evolutionary | Yes | Yes | No | Yes |
-| [Improved Opposite-based Learning Grey Wolf Optimizer](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | No |
-| [Improved Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `improved_qsa` | human | Yes | No | No | No |
-| [Improved Teaching-Learning-based Optimization](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | swarm | Yes | No | No | No |
-| [Improved Whale Optimization Algorithm](https://doi.org/10.1016/j.jcde.2019.02.002) | `i_woa` | swarm | Yes | Yes | No | Yes |
-| [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | No |
-| [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | Yes |
-| [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | No | Yes | No |
-| [Ivy Algorithm](https://doi.org/10.1016/j.knosys.2024.111850) | `ivya` | nature | Yes | Yes | No | Yes |
-| [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | swarm | Yes | Yes | No | Yes |
-| [Jellyfish Search Optimizer](https://doi.org/10.1016/j.amc.2020.125535) | `jso` | swarm | Yes | Yes | No | Yes |
-| [Komodo Mlipir Algorithm](https://doi.org/10.1016/j.asoc.2021.108043) | `kma` | swarm | Yes | Yes | No | Yes |
-| [Krill Herd Algorithm](https://doi.org/10.1016/j.asoc.2016.08.041) | `kha` | swarm | Yes | No | No | Yes |
-| [LSHADE-cnEpSin](https://doi.org/10.1109/CEC.2016.7744173) | `lshade_cnepsin` | evolutionary | Yes | Yes | No | Yes |
-| [Leaf in Wind Optimization](https://doi.org/10.1109/ACCESS.2024.3390670) | `liwo` | physics | Yes | Yes | No | Yes |
-| [Life Choice-Based Optimizer](https://doi.org/10.1007/s00500-019-04443-z) | `lco` | human | Yes | Yes | No | Yes |
-| [Light Spectrum Optimizer](https://doi.org/10.1016/j.asoc.2024.112318) | `lso_spectrum` | physics | Yes | Yes | No | Yes |
-| [Linear Subspace Surrogate Modeling Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2023.3319640) | `l2smea` | evolutionary | Yes | Yes | No | Yes |
-| [Lion Optimization Algorithm](https://doi.org/10.1016/j.jcde.2015.06.003) | `loa` | swarm | Yes | Yes | No | Yes |
-| [Liver Cancer Algorithm](https://doi.org/10.1016/j.compbiomed.2023.107389) | `lca` | nature | Yes | Yes | No | Yes |
-| [Lungs Performance-Based Optimization](https://doi.org/10.1016/j.cma.2023.116582) | `lpo` | nature | Yes | Yes | No | Yes |
-| [Lyrebird Optimization Algorithm](https://doi.org/10.1016/j.cma.2023.116436) | `loa_lyrebird` | swarm | Yes | Yes | No | Yes |
-| [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | swarm | Yes | Yes | No | Yes |
-| [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | swarm | Yes | No | No | No |
-| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | No |
-| [Magnificent Frigatebird Optimization](https://doi.org/10.32604/cmc.2024.054317) | `mfo` | swarm | Yes | No | No | Yes |
-| [Manta Ray Foraging Optimization](https://doi.org/10.1016/j.engappai.2019.103300) | `mrfo` | swarm | Yes | Yes | No | Yes |
-| [Mantis Shrimp Optimization Algorithm](https://doi.org/10.3390/math13091500) | `mshoa` | swarm | Yes | Yes | No | Yes |
-| [Marine Predators Algorithm](https://doi.org/10.1016/j.eswa.2020.113377) | `mpa` | swarm | Yes | Yes | No | Yes |
-| [Market Game Optimization Algorithm](https://doi.org/10.1016/j.asoc.2024.112466) | `mgoa_market` | human | Yes | Yes | No | Yes |
-| [Memetic Algorithm](https://doi.org/10.1007/978-3-540-92910-9_29) | `memetic_a` | evolutionary | Yes | Yes | No | Yes |
-| [Mirage-Search Optimizer](https://doi.org/10.1016/j.advengsoft.2025.103883) | `mso` | physics | Yes | Yes | No | Yes |
-| [Modified Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.2973351) | `modified_aeo` | human | Yes | No | No | No |
-| [Modified Equilibrium Optimizer](https://doi.org/10.1016/j.asoc.2020.106542) | `modified_eo` | physics | Yes | No | No | No |
-| [Monarch Butterfly Optimization](https://doi.org/10.1007/s00521-015-1923-y) | `mbo` | swarm | Yes | Yes | No | Yes |
-| [Monkey King Evolution V1](https://doi.org/10.1016/j.knosys.2016.01.009) | `mke` | evolutionary | Yes | Yes | No | Yes |
-| [Moss Growth Optimization](https://doi.org/10.1093/jcde/qwae080) | `moss_go` | nature | Yes | Yes | No | Yes |
-| [Most Valuable Player Algorithm](https://doi.org/10.1007/s12351-017-0320-y) | `mvpa` | human | Yes | Yes | No | Yes |
-| [Moth Flame Algorithm](https://doi.org/10.1016/j.knosys.2015.07.006) | `mfa` | swarm | Yes | Yes | No | Yes |
-| [Moth Search Algorithm](https://doi.org/10.1007/s12293-016-0212-3) | `msa_e` | swarm | Yes | Yes | No | Yes |
-| [Mountain Gazelle Optimizer](https://doi.org/10.1016/j.advengsoft.2022.103282) | `mgo` | swarm | Yes | Yes | No | Yes |
-| [Mountaineering Team-Based Optimization](https://doi.org/10.3390/math11051273) | `mtbo` | human | Yes | No | No | Yes |
-| [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | No | Yes | No |
-| [Multi-Surrogate-Assisted Ant Colony Optimization](https://doi.org/10.1109/TCYB.2021.3064676) | `misaco` | swarm | Yes | Yes | No | Yes |
-| [Multi-Verse Optimizer](https://doi.org/10.1007/s00521-015-1870-7) | `mvo` | swarm | Yes | Yes | No | Yes |
-| [Multifactorial Evolutionary Algorithm II](https://doi.org/10.1109/TEVC.2019.2906927) | `mfea2` | evolutionary | Yes | Yes | No | Yes |
-| [Multifactorial Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2015.2458037) | `mfea` | evolutionary | Yes | Yes | No | Yes |
-| [Multiple Trajectory Search](https://doi.org/10.1109/CEC.2008.4631210) | `mts` | trajectory | Yes | Yes | No | Yes |
-| [Multiswarm-Assisted Expensive Optimization](https://doi.org/10.1109/TCYB.2020.2967553) | `samso` | swarm | Yes | Yes | No | Yes |
-| [NLAPSMjSO-EDA](https://doi.org/10.3390/sym17020153) | `nlapsmjso_eda` | evolutionary | Yes | No | No | Yes |
-| [Naked Mole-Rat Algorithm](https://doi.org/10.1007/s00521-019-04464-7) | `nmra` | swarm | Yes | Yes | No | Yes |
-| [Narwhal Optimizer](https://doi.org/10.1038/s41598-024-61278-8) | `nwoa` | swarm | Yes | Yes | No | Yes |
-| [Nelder-Mead Method](https://doi.org/10.1093/comjnl/7.4.308) | `nmm` | trajectory | Yes | Yes | No | Yes |
-| [Neural Network-Based Dimensionality Reduction Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2024.3400398) | `nndrea_so` | evolutionary | Yes | Yes | No | Yes |
-| [Nizar Optimization Algorithm](https://doi.org/10.1007/s11227-023-05579-4) | `noa` | math | Yes | Yes | No | Yes |
-| [Northern Goshawk Optimization](https://doi.org/10.1109/ACCESS.2021.3133286) | `ngo` | swarm | Yes | Yes | No | Yes |
-| [Nuclear Reaction Optimization](https://doi.org/10.1109/ACCESS.2019.2918406) | `nro` | physics | Yes | Yes | No | Yes |
-| [Numeric Crunch Algorithm](https://doi.org/10.1007/s00500-023-08925-z) | `nca` | math | Yes | Yes | No | Yes |
-| [Opposition-based Coral Reefs Optimization](https://doi.org/10.2991/ijcis.d.190930.003) | `ocro` | evolutionary | Yes | No | No | No |
-| [Opposition-based learning Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2021.107139) | `ogwo` | swarm | Yes | No | No | No |
-| [Optimal Foraging Algorithm](https://doi.org/10.1016/j.eswa.2022.117735) | `ofa` | swarm | Yes | Yes | No | Yes |
-| [Osprey Optimization Algorithm](https://doi.org/10.3389/fmech.2022.1126450) | `ooa` | swarm | Yes | Yes | No | Yes |
-| [Parameter-Free Bat Algorithm](https://www.iztok-jr-fister.eu/static/publications/124.pdf) | `plba` | swarm | Yes | Yes | No | Yes |
-| [Parent-Centric Crossover (G3-PCX style)](https://doi.org/10.1109/CEC.2004.1331141) | `pcx` | evolutionary | Yes | Yes | No | Yes |
-| [Pareto Sequential Sampling](https://doi.org/10.1007/s00500-021-05853-8) | `pss` | math | Yes | Yes | No | Yes |
-| [Parrot Optimizer](https://doi.org/10.1016/j.compbiomed.2024.108064) | `parrot_o` | swarm | Yes | Yes | No | Yes |
-| [Particle Swarm Optimization](https://doi.org/10.1109/ICNN.1995.488968) | `pso` | swarm | Yes | Yes | No | Yes |
-| [Pathfinder Algorithm](https://doi.org/10.1016/j.asoc.2019.03.012) | `pfa` | swarm | Yes | Yes | No | Yes |
-| [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | Yes |
-| [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245)| `petio` | human  | Yes | No | No | Yes |
-| [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | Yes |
-| [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4)| `pfa_polar_fox` | swarm | Yes | No | No | No |
-| [Polar Lights Optimizer](https://doi.org/10.1016/j.neucom.2024.128427) | `plo` | physics | Yes | Yes | No | Yes |
-| [Political Optimizer](https://doi.org/10.1016/j.knosys.2020.105709) | `political_o` | human | Yes | Yes | No | Yes |
-| [Poor and Rich Optimization Algorithm](https://doi.org/10.1016/j.engappai.2019.08.025) | `pro` | human | Yes | Yes | No | Yes |
-| [Population-Based Incremental Learning](https://doi.org/10.1109/SSE62657.2024.00022) | `pbil` | distribution | No | No | No | No |
-| [Prairie Dog Optimization Algorithm](https://doi.org/10.1007/s00521-022-07530-9) | `pdo` | swarm | Yes | Yes | No | Yes |
-| [Puma Optimizer](https://doi.org/10.1007/s10586-023-04221-5) | `puma_o` | swarm | Yes | Yes | No | Yes |
-| [QLE Sine Cosine Algorithm](https://doi.org/10.1016/j.eswa.2021.116285) | `qle_sca` | swarm | Yes | No | No | No |
-| [Quadratic Interpolation Optimization](https://doi.org/10.1016/j.cma.2023.116446) | `qio` | math | Yes | Yes | No | Yes |
-| [Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `qsa` | human | Yes | Yes | No | Yes |
-| [RIME-ice Algorithm](https://doi.org/10.1016/j.neucom.2023.02.010) | `rime` | physics | Yes | Yes | No | Yes |
-| [RMSProp](https://www.youtube.com/watch?v=defQQqkXEfE) | `rmsprop` | math | No | No | No | No |
-| [RUNge Kutta Optimizer](https://doi.org/10.1016/j.eswa.2021.115079) | `run` | math | Yes | Yes | No | Yes |
-| [Rain-Cloud Condensation Optimizer](https://doi.org/10.3390/eng6100281) | `rcco` | physics | Yes | No | No | Yes |
-| [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | surrogate | No | No | No | No |
-| [Random Search](https://doi.org/10.1016/j.advengsoft.2022.103141) | `random_s` | trajectory | Yes | Yes | No | Yes |
-| [Rat Swarm Optimizer](https://doi.org/10.1007/s12652-020-02580-0) | `rso` | swarm | Yes | Yes | No | Yes |
-| [Red-billed Blue Magpie Optimizer](https://doi.org/10.1007/s10462-024-10716-3) | `rbmo` | swarm | Yes | Yes | No | Yes |
-| [Remora Optimization Algorithm](https://doi.org/10.1016/j.eswa.2021.115665) | `roa` | swarm | Yes | Yes | No | Yes |
-| [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | Yes |
-| [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648)   | `rhso`  | swarm  | Yes | No | No | Yes |
-| [Rüppell's Fox Optimizer](https://doi.org/10.1007/s10586-024-04950-1) | `rfo` | swarm | Yes | Yes | No | Yes |
-| [Sailfish Optimizer](https://doi.org/10.1016/j.engappai.2019.01.001) | `sfo` | swarm | Yes | Yes | No | Yes |
-| [Salp Swarm Algorithm](https://doi.org/10.1016/j.advengsoft.2017.07.002) | `ssa` | swarm | Yes | Yes | No | Yes |
-| [Sammon Mapping Assisted Differential Evolution](https://doi.org/10.1016/j.petrol.2019.106633) | `sade_sammon` | evolutionary | Yes | Yes | No | Yes |
-| [Sand Cat Swarm Optimization](https://doi.org/10.1007/s00366-022-01604-x) | `scso` | swarm | Yes | Yes | No | Yes |
-| [Satin Bowerbird Optimizer](https://doi.org/10.1016/j.engappai.2017.01.006) | `sbo` | swarm | Yes | Yes | No | Yes |
-| [Sea Lion Optimization](https://doi.org/10.14569/IJACSA.2019.0100548) | `slo` | swarm | Yes | Yes | No | Yes |
-| [Seagull Optimization Algorithm](https://doi.org/10.1016/j.knosys.2018.11.024) | `soa` | swarm | Yes | Yes | No | Yes |
-| [Seahorse Optimizer](https://doi.org/10.1007/s10489-022-03994-3) | `seaho` | swarm | Yes | Yes | No | Yes |
-| [Search And Rescue Optimization](https://doi.org/10.1155/2019/2482543) | `saro` | human | Yes | Yes | No | Yes |
-| [Search Space Independent Operator Based Deep Reinforcement Learning](https://www.ieee-jas.net/en/article/doi/10.1109/JAS.2025.125444) | `ssio_rl` | evolutionary | Yes | Yes | No | Yes |
-| [Secretary Bird Optimization Algorithm](https://doi.org/10.1007/s10462-024-10729-y) | `sboa` | swarm | Yes | Yes | No | Yes |
-| [Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `saba` | swarm | Yes | Yes | No | Yes |
-| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2005.1554904) | `sade` | evolutionary | Yes | No | No | No |
-| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/TEVC.2006.872133) | `jde` | evolutionary | Yes | Yes | No | Yes |
-| [Sequential Quadratic Programming](https://doi.org/10.1017/S0962492900002518) | `sqp` | math | No | No | No | No |
-| [Serval Optimization Algorithm](https://doi.org/10.3390/biomimetics7040204) | `serval_oa` | swarm | Yes | Yes | No | Yes |
-| [Shuffle-based Runner-Root Algorithm](https://doi.org/10.1007/978-3-319-70139-4_16) | `srsr` | swarm | Yes | Yes | No | Yes |
-| [Siberian Tiger Optimization](https://doi.org/10.1109/ACCESS.2022.3229964) | `sto` | swarm | Yes | Yes | No | Yes |
-| [Simple Optimization Algorithm](https://scispace.com/pdf/an-efficient-metaheuristic-algorithm-for-engineering-2vvsafbir9.pdf) | `sopt` | distribution | Yes | Yes | No | Yes |
-| [Simulated Annealing](https://doi.org/10.1126/science.220.4598.671) | `sa` | trajectory | No | Yes | Yes | No |
-| [Sine Cosine Algorithm](https://doi.org/10.1016/j.knosys.2015.12.022) | `sine_cosine_a` | swarm | Yes | Yes | No | Yes |
-| [Singer Optimization Algorithm](https://doi.org/10.22266/ijies2025.0630.09) | `singer_oa` | human | Yes | Yes | No | Yes |
-| [Sinh Cosh Optimizer](https://doi.org/10.1016/j.knosys.2023.111081) | `scho` | math | Yes | Yes | No | Yes |
-| [Slime Mould Algorithm](https://doi.org/10.1016/j.future.2020.03.055) | `sma` | nature | Yes | Yes | No | Yes |
-| [Snake Optimizer](https://doi.org/10.1016/j.knosys.2022.108320) | `so_snake` | swarm | Yes | Yes | No | Yes |
-| [Snow Ablation Optimizer](https://doi.org/10.1016/j.eswa.2023.120069) | `snow_oa` | physics | Yes | Yes | No | Yes |
-| [Social Ski-Driver Optimization](https://doi.org/10.1007/s00521-019-04159-z) | `ssdo` | human | Yes | Yes | No | Yes |
-| [Social Spider Algorithm](https://doi.org/10.1016/j.asoc.2015.02.014) | `sspider_a` | swarm | Yes | Yes | No | Yes |
-| [Social Spider Swarm Optimizer](https://doi.org/10.1016/j.eswa.2013.05.041) | `sso` | swarm | Yes | Yes | No | Yes |
-| [Sparrow Search Algorithm](https://doi.org/10.1080/21642583.2019.1708830) | `sparrow_sa` | swarm | Yes | Yes | No | Yes |
-| [Spider Monkey Optimization](https://doi.org/10.1007/s12293-013-0128-0) | `smo` | swarm | Yes | Yes | No | Yes |
-| [Spotted Hyena Inspired Optimizer](https://doi.org/10.1016/j.advengsoft.2017.05.014) | `shio` | swarm | Yes | Yes | No | Yes |
-| [Spotted Hyena Optimizer](https://doi.org/10.1016/j.advengsoft.2017.05.014) | `sho` | swarm | Yes | Yes | No | Yes |
-| [Squirrel Search Algorithm](https://doi.org/10.1016/j.swevo.2018.02.013) | `squirrel_sa` | swarm | Yes | Yes | No | Yes |
-| [Starfish Optimization Algorithm](https://doi.org/10.1007/s00521-024-10694-1) | `sfoa` | swarm | Yes | Yes | No | Yes |
-| [Steepest Descent](https://doi.org/10.1006/hmat.1996.2146) | `sd` | math | No | No | No | No |
-| [Stellar Oscillator Optimization](https://doi.org/10.1007/s10586-024-04976-5) | `soo` | physics | Yes | Yes | No | Yes |
-| [Student Psychology Based Optimization](https://doi.org/10.1016/j.advengsoft.2020.102804) | `spbo` | swarm | Yes | Yes | No | Yes |
-| [Success-History Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2014.6900380) | `shade` | evolutionary | Yes | Yes | No | Yes |
-| [Success-History Intelligent Optimizer](https://doi.org/10.1016/j.cma.2024.117272) | `shio_success` | swarm | Yes | Yes | No | Yes |
-| [Superb Fairy-wren Optimization Algorithm](https://doi.org/10.1007/s10586-024-04901-w) | `superb_foa` | swarm | Yes | Yes | No | Yes |
-| [Supply-Demand-Based Optimization](https://doi.org/10.1109/ACCESS.2019.2919408) | `supply_do` | human | Yes | Yes | No | Yes |
-| [Surrogate-Assisted Cooperative Co-Evolutionary Algorithm of Minamo II](https://doi.org/10.1007/978-3-319-97773-7_4) | `sacc_eam2` | evolutionary | Yes | Yes | No | Yes |
-| [Surrogate-Assisted Cooperative Swarm Optimization](https://doi.org/10.1109/TEVC.2017.2675628) | `sacoso` | swarm | Yes | Yes | No | Yes |
-| [Surrogate-Assisted DE with Adaptive Multi-Subspace Search](https://doi.org/10.1109/TEVC.2022.3226837) | `sade_amss` | evolutionary | Yes | Yes | No | Yes |
-| [Surrogate-Assisted DE with Adaptive Training Data Selection Criterion](https://doi.org/10.1109/SSCI51031.2022.10022105) | `sade_atdsc` | evolutionary | Yes | Yes | No | Yes |
-| [Surrogate-Assisted Partial Optimization](https://doi.org/10.1007/978-3-031-70068-2_24) | `sapo` | evolutionary | Yes | Yes | No | Yes |
-| [Swarm Robotics Search And Rescue](https://doi.org/10.1016/j.asoc.2017.02.028) | `srsr_robotics` | swarm | Yes | No | No | Yes |
-| [Symbiotic Organisms Search](https://doi.org/10.1016/j.compstruc.2014.03.007) | `sos` | swarm | Yes | Yes | No | Yes |
-| [Tabu Search](https://doi.org/10.1287/ijoc.1.3.190) | `ts` | trajectory | No | No | No | No |
-| [Tasmanian Devil Optimization](https://doi.org/10.1109/ACCESS.2022.3151641) | `tdo` | swarm | Yes | Yes | No | Yes |
-| [Teaching Learning Based Optimization](https://doi.org/10.1016/j.cad.2010.12.015) | `tlbo` | swarm | Yes | Yes | No | Yes |
-| [Teamwork Optimization Algorithm](https://doi.org/10.3390/s21134567) | `toa` | human | Yes | Yes | No | Yes |
-| [Termite Life Cycle Optimizer](https://doi.org/10.1016/j.eswa.2022.119211) | `tlco` | swarm | Yes | Yes | No | Yes |
-| [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | Yes |
-| [Tornado Optimizer with Coriolis Force](https://doi.org/10.1007/s10462-025-11118-9) | `toc` | physics | Yes | Yes | No | Yes |
-| [Tree Physiology Optimization](https://doi.org/10.1515/jisys-2017-0156) | `tpo` | nature | Yes | Yes | No | Yes |
-| [Tree-Seed Algorithm](https://doi.org/10.1016/j.eswa.2015.04.055) | `tree_seed_a` | nature | Yes | No | No | Yes |
-| [Triangulation Topology Aggregation Optimizer](https://doi.org/10.1016/j.eswa.2023.121744) | `ttao` | math | Yes | Yes | No | Yes |
-| [Tug of War Optimization](https://doi.org/10.1007/978-3-030-04067-3_11) | `two` | physics | Yes | Yes | No | Yes |
-| [Tuna Swarm Optimization](https://doi.org/10.1155/2021/9210050) | `tso` | swarm | Yes | Yes | No | Yes |
-| [Tunicate Swarm Algorithm](https://doi.org/10.1016/j.engappai.2020.103541) | `tsa` | swarm | Yes | Yes | No | Yes |
-| [Turbulent Flow of Water-based Optimization](https://doi.org/10.1016/j.engappai.2020.103666) | `tfwo` | physics | Yes | No | No | Yes |
-| [Variable Neighborhood Search](https://doi.org/10.1016/S0305-0548(97)00031-2) | `vns` | trajectory | No | No | Yes | No |
-| [Virus Colony Search](https://doi.org/10.1016/j.advengsoft.2015.11.004) | `vcs` | swarm | Yes | Yes | No | Yes |
-| [Walrus Optimization Algorithm](https://doi.org/10.1038/s41598-023-35863-5) | `waoa` | swarm | Yes | Yes | No | Yes |
-| [War Strategy Optimization](https://doi.org/10.1109/ACCESS.2022.3153493) | `warso` | human | Yes | Yes | No | Yes |
-| [Water Cycle Algorithm](https://doi.org/10.1016/j.compstruc.2012.07.010) | `wca` | nature | Yes | Yes | No | Yes |
-| [Water Uptake and Transport in Plants](https://doi.org/10.1007/s00521-025-11228-z) | `wutp` | nature | Yes | Yes | No | Yes |
-| [Wave Optimization Algorithm](https://doi.org/10.1016/j.cor.2014.10.008) | `wo_wave` | physics | Yes | Yes | No | Yes |
-| [Wavelet Mutation and Quadratic Interpolation MRFO](https://doi.org/10.1016/j.knosys.2021.108071) | `wmqimrfo` | swarm | Yes | No | No | No |
-| [Weighting and Inertia Random Walk Optimizer](https://doi.org/10.1016/j.eswa.2022.116516) | `info` | math | Yes | Yes | No | Yes |
-| [Whale Fruit-fly Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113502) | `whale_foa` | swarm | Yes | No | No | No |
-| [Whale Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2016.01.008) | `woa` | swarm | Yes | Yes | No | Yes |
-| [White Shark Optimizer](https://doi.org/10.1016/j.knosys.2022.108457) | `wso` | swarm | Yes | Yes | No | Yes |
-| [Wildebeest Herd Optimization](https://doi.org/10.3233/JIFS-190495) | `who` | swarm | Yes | Yes | No | Yes |
-| [Wind Driven Optimization](https://doi.org/10.1109/APS.2010.5562213) | `wdo` | physics | Yes | Yes | No | Yes |
-| [Wolverine Optimization Algorithm](https://doi.org/10.32604/cmes.2024.055171) | `wooa` | swarm | Yes | Yes | No | Yes |
-| [Young's Double-Slit Experiment Optimizer](https://doi.org/10.1016/j.cma.2022.115652) | `ydse` | physics | Yes | Yes | No | Yes |
-| [Zebra Optimization Algorithm](https://doi.org/10.1109/ACCESS.2022.3172789) | `zoa` | swarm | Yes | Yes | No | Yes |
+| Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit | EvoMapX |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | Yes | alpha/beta/delta guidance, encircling/diversification, position update/replacement, chaotic/adaptive control |
+| [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | No | equilibrium pool guidance, generation/control-rate update, position update, selection/replacement |
+| [Adaptive Exploration State-Space Particle Swarm Optimization](https://doi.org/10.1016/j.swevo.2025.101868) | `aesspso` | swarm | Yes | Yes | No | Yes | velocity/social update, position update, personal/global memory |
+| [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | No | velocity/social update, position update, personal/global memory |
+| [Adaptive Random Search](https://doi.org/10.1002/nav.20422) | `ars` | trajectory | Yes | Yes | No | Yes | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [African Vultures Optimization Algorithm](https://doi.org/10.1016/j.cie.2021.107408) | `avoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Ali Baba and the Forty Thieves](https://doi.org/10.1007/s00521-021-06392-x) | `aft` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Anarchic Society Optimization](https://doi.org/10.1109/CEC.2011.5949940) | `aso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Animated Oat Optimization Algorithm](https://doi.org/10.1016/j.knosys.2025.113589) | `aoo` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Ant Colony Optimization (Continuous)](https://doi.org/10.1016/j.ejor.2006.06.046) | `acor` | swarm | Yes | Yes | No | Yes | solution construction, pheromone/model update, local/global exploitation, selection/replacement |
+| [Ant Colony Optimization](https://doi.org/10.1109/3477.484436) | `aco` | swarm | Yes | No | No | Yes | solution construction, pheromone/model update, local/global exploitation, selection/replacement |
+| [Ant Lion Optimizer](https://doi.org/10.1016/j.advengsoft.2015.01.010) | `alo` | swarm | Yes | Yes | No | Yes | random walk around antlion, elite antlion guidance, trap/boundary adaptation, selection/replacement |
+| [Aquila Optimizer](https://doi.org/10.1016/j.cie.2021.107250) | `ao` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Archerfish Hunting Optimizer](https://doi.org/10.1016/j.engappai.2024.108081) | `aho` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Archimedes Optimization Algorithm](https://doi.org/10.1007/s10489-020-01893-z) | `arch_oa` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Arithmetic Optimization Algorithm](https://doi.org/10.1016/j.cma.2020.113609) | `aoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artemisinin Optimization](https://doi.org/10.1016/j.displa.2024.102740) | `artemisinin_o` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Artificial Algae Algorithm](https://doi.org/10.1016/j.asoc.2015.03.003) | `aaa` | swarm | Yes | No | Yes | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Bee Colony Optimization](https://doi.org/10.1007/s10898-007-9149-x) | `abco` | swarm | Yes | Yes | No | Yes | employed/foraging search, onlooker/elite selection, scout/reinitialization, replacement/memorization |
+| [Artificial Ecosystem Optimization](https://doi.org/10.1007/s00521-019-04452-x) | `aeo` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Artificial Electric Field Algorithm](https://doi.org/10.1016/j.swevo.2019.03.013) | `aefa` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Artificial Fish Swarm Algorithm](https://doi.org/10.1007/s10462-012-9342-2) | `afsa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Gorilla Troops Optimizer](https://doi.org/10.1002/int.22535) | `agto` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Hummingbird Algorithm](https://doi.org/10.1016/j.cma.2021.114194) | `aha` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Lemming Algorithm](https://doi.org/10.1007/s10462-024-11023-7) | `ala` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Protozoa Optimizer](https://doi.org/10.1016/j.knosys.2024.111737) | `apo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `aro` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Atom Search Optimization](https://doi.org/10.1016/j.knosys.2018.08.030) | `aso_atom` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Automated Design of Variation Operators](https://doi.org/10.1145/3712256.3726456) | `autov` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [BFGS Quasi-Newton Method](https://doi.org/10.1090/S0025-5718-1970-0274029-X) | `bfgs` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [BIPOP-CMA-ES](https://doi.org/10.1145/1570256.1570333) | `bipop_cmaes` | evolutionary | Yes | No | Yes | Yes | multivariate sampling, elite/parent selection, mean/covariance update, step-size/restart control |
+| [Bacterial Chemotaxis Optimizer](https://doi.org/10.1007/s13369-025-10749-y) | `bco` | nature | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Bacterial Colony Optimization](https://doi.org/10.1155/2012/698057) | `bacterial_colony_o` | nature | Yes | No | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Bacterial Foraging Optimization](https://doi.org/10.1109/MCS.2002.1004010) | `bfo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Bald Eagle Search](https://doi.org/10.1007/s10462-019-09732-5) | `bes` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Barnacles Mating Optimizer](https://doi.org/10.1016/j.engappai.2019.103330) | `bmo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Basin Hopping](https://doi.org/10.1021/jp970984n) | `basin_hopping` | trajectory | No | No | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Basketball Team Optimization Algorithm](https://doi.org/10.1038/s41598-025-05477-0) | `btoa` | human | Yes | No | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Bat Algorithm](https://doi.org/10.1007/978-3-642-12538-6_6) | `bat_a` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [Battle Royale Optimization](https://doi.org/10.1007/s00521-020-05004-4) | `bro` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Bees Algorithm](https://doi.org/10.1016/B978-008045157-2/50081-X) | `bea` | swarm | Yes | Yes | No | Yes | employed/foraging search, onlooker/elite selection, scout/reinitialization, replacement/memorization |
+| [Binary Space Partition Tree Genetic Algorithm](https://doi.org/10.1016/j.ins.2019.10.016) | `bspga` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Biogeography-Based Optimization](https://doi.org/10.1109/TEVC.2008.919004) | `bbo` | evolutionary | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Bird Swarm Algorithm](https://doi.org/10.1080/0952813X.2015.1042530) | `bsa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Birds-of-Paradise Search](https://doi.org/10.1007/s00521-026-11887-6) | `bps` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Black Widow Optimization](https://doi.org/10.1016/j.engappai.2019.103249) | `bwo` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Black-winged Kite Algorithm](https://doi.org/10.1007/s10462-024-10723-4) | `bka` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Bonobo Optimizer](https://doi.org/10.1007/s10489-021-02444-w) | `bono` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Boxelder Bug Search Optimization](https://doi.org/10.1007/s00521-025-11637-0) | `bbso` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Brain Storm Optimization](https://doi.org/10.1007/978-3-642-21515-5_36) | `bso` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Brown-Bear Optimization Algorithm](https://doi.org/10.1201/9781003337003-6) | `bboa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Butterfly Optimization Algorithm](https://doi.org/10.1007/s00500-018-3102-4) | `boa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Camel Algorithm](https://doi.org/10.13140/RG.2.2.21814.56649) | `camel` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Capuchin Search Algorithm](https://doi.org/10.1007/s00521-020-05145-6) | `capsa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cat Swarm Optimization](https://doi.org/10.1007/978-3-540-36668-3_94) | `cat_so` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Catch Fish Optimization Algorithm](https://doi.org/10.1007/s10586-024-04618-w) | `cfoa` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cauchy-Gaussian mutation and improved search strategy GWO](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement, chaotic/adaptive control |
+| [Chameleon Swarm Algorithm](https://doi.org/10.1016/j.eswa.2021.114685) | `chameleon_sa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Chaos Game Optimization](https://doi.org/10.1007/s10462-020-09867-w) | `cgo` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Chaotic-based Grey Wolf Optimizer](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement, chaotic/adaptive control |
+| [Cheetah Based Optimization](https://doi.org/10.1038/s41598-022-14338-z) | `cddo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cheetah Optimizer](https://doi.org/10.1038/s41598-022-14338-z) | `cdo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Chernobyl Disaster Optimizer](https://doi.org/10.1016/j.compstruc.2023.107488) | `cdo_chernobyl` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Chicken Swarm Optimization](https://doi.org/10.1007/978-3-319-11857-4_10) | `chicken_so` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Child Drawing Development Optimization Algorithm](https://doi.org/10.1016/j.knosys.2024.111558) | `cddo_child` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Chimp Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113338) | `choa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Chinese Pangolin Optimizer](https://doi.org/10.1007/s11227-025-07004-4) | `cpo` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Circle-Based Search Algorithm](https://doi.org/10.3390/math10101626) | `circle_sa` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Circulatory System Based Optimization](https://doi.org/10.1016/j.egyr.2025.04.007) | `csbo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Clonal Selection Algorithm](https://doi.org/10.1109/TEVC.2002.1011539) | `clonalg` | evolutionary | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Coati Optimization Algorithm](https://doi.org/10.1016/j.knosys.2022.110011) | `coati_oa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cockroach Swarm Optimization](https://doi.org/10.1109/ICCET.2010.5485993) | `cockroach_so` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Compact Genetic Algorithm](https://doi.org/10.1109/4235.797971) | `compact_ga` | distribution | No | No | No | No | model sampling, elite/model selection, model update, replacement/incumbent update |
+| [Competitive Swarm Optimizer](https://doi.org/10.1016/j.swevo.2024.101543) | `cso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Coot Bird Optimization](https://doi.org/10.1016/j.eswa.2021.115352) | `coot` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Coral Reefs Optimization](https://doi.org/10.1155/2014/739768) | `cro` | evolutionary | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Coronavirus Herd Immunity Optimization](https://doi.org/10.1007/s00521-020-05296-6) | `chio` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Cosmic Evolution Optimization](https://doi.org/10.1007/s00521-025-11234-6) | `ceo_cosmic` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Covariance Matrix Adaptation Evolution Strategy](https://doi.org/10.1109/ICEC.1996.542381) | `cmaes` | evolutionary | Yes | Yes | No | Yes | multivariate sampling, elite/parent selection, mean/covariance update, step-size/restart control |
+| [Coyote Optimization Algorithm](https://doi.org/10.1109/CEC.2018.8477769) | `coa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Crayfish Optimization Algorithm](https://doi.org/10.1007/s10462-023-10567-4) | `crayfish_oa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cross Entropy Method](https://doi.org/10.1007/978-1-4757-4321-0) | `cem` | distribution | Yes | Yes | No | Yes | model sampling, elite/model selection, model update, replacement/incumbent update |
+| [Crow Search Algorithm](https://doi.org/10.1016/j.compstruc.2016.03.001) | `csa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Cuckoo Catfish Optimizer](https://doi.org/10.1007/s10462-025-11291-x) | `cco` | swarm | Yes | Yes | No | Yes | levy/global pollination, local pollination/random walk, replacement/selection, abandonment/reinitialization |
+| [Cuckoo Search](https://doi.org/10.1109/NABIC.2009.5393690) | `cuckoo_s` | swarm | Yes | Yes | No | Yes | levy/global pollination, local pollination/random walk, replacement/selection, abandonment/reinitialization |
+| [Cultural Algorithm](https://doi.org/10.1080/00207160.2015.1067309) | `ca` | evolutionary | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Dandelion Optimizer](https://doi.org/10.1016/j.engappai.2022.105075) | `do_dandelion` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Deep Sleep Optimiser](https://doi.org/10.1109/ACCESS.2023.3298105) | `dso` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Deer Hunting Optimization Algorithm](https://doi.org/10.1093/comjnl/bxy133) | `doa` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Dhole Optimization Algorithm](https://doi.org/10.1007/s10586-024-05005-1) | `dhole_oa` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | No | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Differential Evolution MTS](https://doi.org/10.1109/CEC.2009.4983179) | `hde` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Differential Evolution with Self-Adaptive Populations](https://doi.org/10.1007/s00500-005-0537-1) | `sap_de` | evolutionary | Yes | No | No | No | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Differential Evolution](https://doi.org/10.1023/A:1008202821328) | `de` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Dispersive Fly Optimization](https://doi.org/10.15439/2014F142) | `dfo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Diversity enhanced Strategy based Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2022.109100) | `ds_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Divine Religions Algorithm](https://doi.org/10.1007/s10586-024-04954-x) | `dra` | human | Yes | No | No | No | social learning, competition/role update, movement/update, selection/replacement |
+| [Dolphin Echolocation Optimization](https://doi.org/10.1016/j.advengsoft.2016.05.002) | `deo_dolphin` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Dragonfly Algorithm](https://doi.org/10.1007/s00521-015-1920-1) | `da` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Dream Optimization Algorithm](https://doi.org/10.1016/j.cma.2024.117718) | `dream_oa` | human | Yes | No | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Dung Beetle Optimizer](https://doi.org/10.1007/s11227-022-04959-6) | `dbo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Dwarf Mongoose Optimization Algorithm](https://doi.org/10.1016/j.cma.2022.114570) | `dmoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Dynamic Differential Annealed Optimization](https://doi.org/10.1016/j.asoc.2020.106392) | `ddao` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Dynamic Virtual Bats Algorithm](https://doi.org/10.1109/INCoS.2014.40) | `dvba` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [Earthworm Optimization Algorithm](https://doi.org/10.1504/IJBIC.2015.10004283) | `eoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Ecological Cycle Optimizer](https://doi.org/10.48550/arXiv.2508.20458) | `ecological_cycle_o` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Educational Competition Optimizer](https://doi.org/10.3390/biomimetics10030176) | `eco` | human | Yes | Yes | No | Yes | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Eel and Grouper Optimizer](https://doi.org/10.1007/s10586-024-04545-w) | `eel_grouper_o` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Efficient Global Optimization](https://doi.org/10.1023/A:1008306431147) | `ego` | distribution | Yes | Yes | No | Yes | model sampling, elite/model selection, model update, replacement/incumbent update |
+| [Efficient and Robust Grey Wolf Optimizer](https://doi.org/10.1007/s00500-019-03939-y) | `er_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Egret Swarm Optimization Algorithm](https://doi.org/10.3390/biomimetics7040144) | `esoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Electric Charged Particles Optimization](https://doi.org/10.1007/s10462-020-09890-x) | `ecpo` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Electric Eel Foraging Optimization](https://doi.org/10.1016/j.eswa.2023.122200) | `eefo` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Electrical Storm Optimization](https://doi.org/10.3390/make7010024) | `eso` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Electromagnetic Field Optimization](https://doi.org/10.1016/j.swevo.2015.07.002) | `efo` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Elephant Herding Optimization](https://doi.org/10.1109/ISCBI.2015.8) | `eho` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Elk Herd Optimizer](https://doi.org/10.1007/s10462-023-10680-4) | `elk_ho` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Emperor Penguin Colony](https://doi.org/10.1016/j.knosys.2018.06.001) | `epc` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Energy Valley Optimizer](https://doi.org/10.1038/s41598-022-27344-y) | `evo` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Enhanced Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.3027654) | `enhanced_aeo` | human | Yes | No | No | No | social learning, competition/role update, movement/update, selection/replacement |
+| [Enhanced Tug of War Optimization](https://doi.org/10.1016/j.procs.2020.03.063) | `enhanced_two` | physics | Yes | No | No | No | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Enzyme Activity Optimizer](https://doi.org/10.1007/s11227-025-07052-w) | `eao` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Equilibrium Optimizer](https://doi.org/10.1016/j.knosys.2019.105190) | `eo` | physics | Yes | Yes | No | Yes | equilibrium pool guidance, generation/control-rate update, position update, selection/replacement |
+| [Escape Algorithm](https://doi.org/10.1007/s10462-024-11008-6) | `esc` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Evolution Strategy (Mu + Lambda)](https://doi.org/10.1023/A:1015059928466) | `es` | evolutionary | Yes | Yes | No | Yes | mutation/self-adaptation, offspring generation, survivor selection, strategy-parameter update |
+| [Evolutionary Programming](https://doi.org/10.1007/BF00175356) | `ep` | evolutionary | Yes | Yes | No | Yes | mutation/self-adaptation, offspring generation, survivor selection, strategy-parameter update |
+| [Expanded Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `ex_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Exponential Distribution Optimizer](https://doi.org/10.1007/s10462-023-10403-9) | `edo` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Exponential-Trigonometric Optimization](https://doi.org/10.1016/j.cma.2024.117411) | `eto` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Extra-Trees Bayesian Optimization](https://doi.org/10.1007/s10994-006-6226-1) | `et_bo` | surrogate | No | No | No | No | surrogate fit, acquisition search, candidate evaluation, model/incumbent update |
+| [Fast Evolutionary Programming](https://doi.org/10.1109/4235.771163) | `fep` | evolutionary | Yes | Yes | No | Yes | mutation/self-adaptation, offspring generation, survivor selection, strategy-parameter update |
+| [Fata Geophysics Optimizer](https://doi.org/10.1016/j.neucom.2024.128289) | `fata` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Feasibility Rule with Objective Function Information](https://doi.org/10.1109/TCYB.2015.2493239) | `frofi` | evolutionary | Yes | Yes | No | Yes | task/skill assignment, assortative mating/transfer, mutation/diversification, selection/replacement |
+| [Fennec Fox Optimizer](https://doi.org/10.1109/ACCESS.2022.3197745) | `ffo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fick's Law Algorithm](https://doi.org/10.1016/j.knosys.2022.110146) | `fla` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Firefly Algorithm](https://doi.org/10.1504/IJBIC.2010.032124) | `firefly_a` | swarm | Yes | Yes | No | Yes | brightness attraction, randomization, selection/replacement |
+| [Fireworks Algorithm](https://doi.org/10.1016/j.asoc.2017.10.046) | `fwa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fish School Search](https://doi.org/10.1109/ICSMC.2008.4811695) | `fss` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fitness Dependent Optimizer](https://doi.org/10.1109/ACCESS.2019.2907012) | `fdo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fletcher-Reeves Conjugate Gradient](https://doi.org/10.1002/er.8067) | `frcg` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [Flood Algorithm](https://doi.org/10.1007/s11227-024-06291-7) | `flood_a` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Flow Direction Algorithm](https://doi.org/10.1016/j.cie.2021.107224) | `fda` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Flower Pollination Algorithm](https://doi.org/10.1007/978-3-642-32894-7_27) | `fpa` | swarm | Yes | Yes | No | Yes | levy/global pollination, local pollination/random walk, replacement/selection |
+| [Forensic-Based Investigation Optimization](https://doi.org/10.1016/j.asoc.2020.106339) | `fbio` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Forest Optimization Algorithm](https://doi.org/10.1016/j.eswa.2014.05.009) | `foa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fossa Optimization Algorithm](https://doi.org/10.1007/s10462-024-10953-0) | `foa_fossa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fox Optimizer](https://doi.org/10.1007/s10489-022-03533-0) | `fox` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Frilled Lizard Optimization](https://doi.org/10.32604/cmc.2024.053189) | `flo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Fuzzy Hierarchical Operator - Grey Wolf Optimizer](https://doi.org/10.1016/j.asoc.2017.03.048) | `fuzzy_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | No | surrogate fit, acquisition search, candidate evaluation, model/incumbent update |
+| [Gazelle Optimization Algorithm](https://doi.org/10.1007/s00521-022-07854-6) | `gazelle_oa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Gekko Japonicus Algorithm](https://doi.org/10.1016/j.eswa.2025.127982) | `gja` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Generalized Normal Distribution Optimizer](https://doi.org/10.1016/j.enconman.2020.113301) | `gndo` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Genetic Algorithm](https://doi.org/10.7551/mitpress/1090.001.0001) | `ga` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Genghis Khan Shark Optimizer](https://doi.org/10.1016/j.aei.2023.102210) | `gkso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Germinal Center Optimization](https://doi.org/10.1016/j.ifacol.2018.07.300) | `gco` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Geyser Inspired Algorithm](https://doi.org/10.1007/s42235-023-00437-8) | `gea` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Giant Trevally Optimizer](https://doi.org/10.1109/ACCESS.2022.3223388) | `gto` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Glowworm Swarm Optimization](https://doi.org/10.1007/978-3-319-51595-3) | `gso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Golden Jackal Optimizer](https://doi.org/10.1016/j.eswa.2022.116924) | `gjo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Gradient-Based Optimizer](https://doi.org/10.1007/s11831-022-09872-y) | `gbo` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Gradient-Based Particle Swarm Optimization](https://doi.org/10.48550/arXiv.2312.09703) | `gpso` | swarm | Yes | Yes | No | Yes | velocity/social update, position update, personal/global memory |
+| [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | surrogate | No | No | No | No | surrogate fit, acquisition search, candidate evaluation, model/incumbent update |
+| [Grasshopper Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2017.01.004) | `goa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Gravitational Search Algorithm](https://doi.org/10.1016/j.ins.2009.03.004) | `gsa` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Greedy Randomized Adaptive Search Procedure](https://doi.org/10.1007/BF01096763) | `grasp` | trajectory | No | No | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Grey Wolf Optimizer](https://doi.org/10.1016/j.advengsoft.2013.12.007) | `gwo` | swarm | Yes | Yes | No | Yes | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Greylag Goose Optimization](https://doi.org/10.1016/j.eswa.2023.122147) | `ggo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Growth Optimizer](https://doi.org/10.1016/j.knosys.2022.110206) | `go_growth` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Harmony Search Algorithm](https://doi.org/10.1177/003754970107600201) | `hsa` | trajectory | Yes | No | No | Yes | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Harris Hawks Optimization](https://doi.org/10.1016/j.future.2019.02.028) | `hho` | swarm | Yes | Yes | No | Yes | exploration perch/search, soft/hard besiege, rapid dive/exploitation, replacement |
+| [Heap-Based Optimizer](https://doi.org/10.1016/j.eswa.2020.113702) | `hbo` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Henry Gas Solubility Optimization](https://doi.org/10.1016/j.future.2019.07.015) | `hgso` | physics | Yes | Yes | No | Yes | equilibrium pool guidance, generation/control-rate update, position update, selection/replacement |
+| [Hiking Optimization Algorithm](https://doi.org/10.1016/j.knosys.2024.111880) | `hiking_oa` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Hill Climb Algorithm](https://doi.org/10.1007/978-3-540-75256-1_52) | `hc` | trajectory | No | No | No | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Hippopotamus Optimization Algorithm](https://doi.org/10.1038/s41598-024-54910-3) | `ho_hippo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Honey Badger Algorithm](https://doi.org/10.1016/j.matcom.2021.08.013) | `hba_honey` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Horse Herd Optimization Algorithm](https://doi.org/10.1016/j.knosys.2020.106711) | `horse_oa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Human Conception Optimizer](https://doi.org/10.1038/s41598-022-25031-6) | `hco` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Human Evolutionary Optimization Algorithm](https://doi.org/10.1016/j.eswa.2023.122638) | `heoa` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Hunger Games Search](https://doi.org/10.1016/j.eswa.2021.114864) | `hgs` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Hunting Search Algorithm](https://doi.org/10.1109/ICSCCW.2009.5379451) | `hus` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Hybrid Bat Algorithm](https://doi.org/10.48550/arXiv.1303.6310) | `hba` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [Hybrid Grey Wolf - Whale Optimization Algorithm](https://doi.org/10.1177/10775463211003402) | `gwo_woa` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement, spiral/whale exploitation |
+| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICACCS.2019.8728514) | `hi_woa` | swarm | Yes | No | No | No | encircling/search, spiral exploitation, leader guidance, replacement |
+| [Hybrid Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `hsaba` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | No | Yes | Yes | multivariate sampling, elite/parent selection, mean/covariance update, step-size/restart control |
+| [Imperialist Competitive Algorithm](https://doi.org/10.1109/CEC.2007.4425083) | `ica` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Improved Adaptive Grey Wolf Optimization](https://doi.org/10.1007/s10462-024-10821-3) | `iagwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Improved Artificial Ecosystem-based Optimization](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | human | Yes | No | No | No | social learning, competition/role update, movement/update, selection/replacement |
+| [Improved Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `iaro` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Improved Grey Wolf Optimizer](https://doi.org/10.1016/j.eswa.2020.113917) | `i_gwo` | swarm | Yes | Yes | No | Yes | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Improved Kepler Optimization Algorithm](https://doi.org/10.1016/j.eswa.2025.128216) | `ikoa` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Improved L-SHADE](https://doi.org/10.1109/CEC.2016.7743922) | `ilshade` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Improved Multi-Operator Differential Evolution](https://doi.org/10.1109/CEC48606.2020.9185577) | `imode` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Improved Opposite-based Learning Grey Wolf Optimizer](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement, opposition learning |
+| [Improved Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `improved_qsa` | human | Yes | No | No | No | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Improved Teaching-Learning-based Optimization](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | swarm | Yes | No | No | No | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Improved Whale Optimization Algorithm](https://doi.org/10.1016/j.jcde.2019.02.002) | `i_woa` | swarm | Yes | Yes | No | Yes | encircling/search, spiral exploitation, leader guidance, replacement |
+| [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement |
+| [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | No | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Ivy Algorithm](https://doi.org/10.1016/j.knosys.2024.111850) | `ivya` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Jellyfish Search Optimizer](https://doi.org/10.1016/j.amc.2020.125535) | `jso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Komodo Mlipir Algorithm](https://doi.org/10.1016/j.asoc.2021.108043) | `kma` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Krill Herd Algorithm](https://doi.org/10.1016/j.asoc.2016.08.041) | `kha` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [LSHADE-cnEpSin](https://doi.org/10.1109/CEC.2016.7744173) | `lshade_cnepsin` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Leaf in Wind Optimization](https://doi.org/10.1109/ACCESS.2024.3390670) | `liwo` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Life Choice-Based Optimizer](https://doi.org/10.1007/s00500-019-04443-z) | `lco` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Light Spectrum Optimizer](https://doi.org/10.1016/j.asoc.2024.112318) | `lso_spectrum` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Linear Subspace Surrogate Modeling Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2023.3319640) | `l2smea` | evolutionary | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Lion Optimization Algorithm](https://doi.org/10.1016/j.jcde.2015.06.003) | `loa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Liver Cancer Algorithm](https://doi.org/10.1016/j.compbiomed.2023.107389) | `lca` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Lungs Performance-Based Optimization](https://doi.org/10.1016/j.cma.2023.116582) | `lpo` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Lyrebird Optimization Algorithm](https://doi.org/10.1016/j.cma.2023.116436) | `loa_lyrebird` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | swarm | Yes | Yes | No | Yes | levy/global pollination, local pollination/random walk, replacement/selection |
+| [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | swarm | Yes | No | No | No | levy/global pollination, local pollination/random walk, replacement/selection |
+| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | No | levy/global pollination, local pollination/random walk, replacement/selection, opposition learning |
+| [Magnificent Frigatebird Optimization](https://doi.org/10.32604/cmc.2024.054317) | `mfo` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Manta Ray Foraging Optimization](https://doi.org/10.1016/j.engappai.2019.103300) | `mrfo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Mantis Shrimp Optimization Algorithm](https://doi.org/10.3390/math13091500) | `mshoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Marine Predators Algorithm](https://doi.org/10.1016/j.eswa.2020.113377) | `mpa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Market Game Optimization Algorithm](https://doi.org/10.1016/j.asoc.2024.112466) | `mgoa_market` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Memetic Algorithm](https://doi.org/10.1007/978-3-540-92910-9_29) | `memetic_a` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Mirage-Search Optimizer](https://doi.org/10.1016/j.advengsoft.2025.103883) | `mso` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Modified Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.2973351) | `modified_aeo` | human | Yes | No | No | No | social learning, competition/role update, movement/update, selection/replacement |
+| [Modified Equilibrium Optimizer](https://doi.org/10.1016/j.asoc.2020.106542) | `modified_eo` | physics | Yes | No | No | No | equilibrium pool guidance, generation/control-rate update, position update, selection/replacement |
+| [Monarch Butterfly Optimization](https://doi.org/10.1007/s00521-015-1923-y) | `mbo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Monkey King Evolution V1](https://doi.org/10.1016/j.knosys.2016.01.009) | `mke` | evolutionary | Yes | Yes | No | Yes | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Moss Growth Optimization](https://doi.org/10.1093/jcde/qwae080) | `moss_go` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Most Valuable Player Algorithm](https://doi.org/10.1007/s12351-017-0320-y) | `mvpa` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Moth Flame Algorithm](https://doi.org/10.1016/j.knosys.2015.07.006) | `mfa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Moth Search Algorithm](https://doi.org/10.1007/s12293-016-0212-3) | `msa_e` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Mountain Gazelle Optimizer](https://doi.org/10.1016/j.advengsoft.2022.103282) | `mgo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Mountaineering Team-Based Optimization](https://doi.org/10.3390/math11051273) | `mtbo` | human | Yes | No | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | No | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Multi-Surrogate-Assisted Ant Colony Optimization](https://doi.org/10.1109/TCYB.2021.3064676) | `misaco` | swarm | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Multi-Verse Optimizer](https://doi.org/10.1007/s00521-015-1870-7) | `mvo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Multifactorial Evolutionary Algorithm II](https://doi.org/10.1109/TEVC.2019.2906927) | `mfea2` | evolutionary | Yes | Yes | No | Yes | task/skill assignment, assortative mating/transfer, mutation/diversification, selection/replacement |
+| [Multifactorial Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2015.2458037) | `mfea` | evolutionary | Yes | Yes | No | Yes | task/skill assignment, assortative mating/transfer, mutation/diversification, selection/replacement |
+| [Multiple Trajectory Search](https://doi.org/10.1109/CEC.2008.4631210) | `mts` | trajectory | Yes | Yes | No | Yes | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Multiswarm-Assisted Expensive Optimization](https://doi.org/10.1109/TCYB.2020.2967553) | `samso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [NLAPSMjSO-EDA](https://doi.org/10.3390/sym17020153) | `nlapsmjso_eda` | evolutionary | Yes | No | No | Yes | multivariate sampling, elite/parent selection, mean/covariance update, step-size/restart control |
+| [Naked Mole-Rat Algorithm](https://doi.org/10.1007/s00521-019-04464-7) | `nmra` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Narwhal Optimizer](https://doi.org/10.1038/s41598-024-61278-8) | `nwoa` | swarm | Yes | Yes | No | Yes | encircling/search, spiral exploitation, leader guidance, replacement |
+| [Nelder-Mead Method](https://doi.org/10.1093/comjnl/7.4.308) | `nmm` | trajectory | Yes | Yes | No | Yes | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Neural Network-Based Dimensionality Reduction Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2024.3400398) | `nndrea_so` | evolutionary | Yes | Yes | No | Yes | task/skill assignment, assortative mating/transfer, mutation/diversification, selection/replacement |
+| [Nizar Optimization Algorithm](https://doi.org/10.1007/s11227-023-05579-4) | `noa` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Northern Goshawk Optimization](https://doi.org/10.1109/ACCESS.2021.3133286) | `ngo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Nuclear Reaction Optimization](https://doi.org/10.1109/ACCESS.2019.2918406) | `nro` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Numeric Crunch Algorithm](https://doi.org/10.1007/s00500-023-08925-z) | `nca` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Opposition-based Coral Reefs Optimization](https://doi.org/10.2991/ijcis.d.190930.003) | `ocro` | evolutionary | Yes | No | No | No | affinity/migration selection, cloning/reproduction, hypermutation/diversification, selection/replacement |
+| [Opposition-based learning Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2021.107139) | `ogwo` | swarm | Yes | No | No | No | alpha/beta/delta guidance, encircling/diversification, position update/replacement, opposition learning |
+| [Optimal Foraging Algorithm](https://doi.org/10.1016/j.eswa.2022.117735) | `ofa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Osprey Optimization Algorithm](https://doi.org/10.3389/fmech.2022.1126450) | `ooa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Parameter-Free Bat Algorithm](https://www.iztok-jr-fister.eu/static/publications/124.pdf) | `plba` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [Parent-Centric Crossover (G3-PCX style)](https://doi.org/10.1109/CEC.2004.1331141) | `pcx` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Pareto Sequential Sampling](https://doi.org/10.1007/s00500-021-05853-8) | `pss` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Parrot Optimizer](https://doi.org/10.1016/j.compbiomed.2024.108064) | `parrot_o` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Particle Swarm Optimization](https://doi.org/10.1109/ICNN.1995.488968) | `pso` | swarm | Yes | Yes | No | Yes | velocity/social update, position update, personal/global memory |
+| [Pathfinder Algorithm](https://doi.org/10.1016/j.asoc.2019.03.012) | `pfa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245) | `petio` | human | Yes | No | No | Yes | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4) | `pfa_polar_fox` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Polar Lights Optimizer](https://doi.org/10.1016/j.neucom.2024.128427) | `plo` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Political Optimizer](https://doi.org/10.1016/j.knosys.2020.105709) | `political_o` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Poor and Rich Optimization Algorithm](https://doi.org/10.1016/j.engappai.2019.08.025) | `pro` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Population-Based Incremental Learning](https://doi.org/10.1109/SSE62657.2024.00022) | `pbil` | distribution | No | No | No | No | model sampling, elite/model selection, model update, replacement/incumbent update |
+| [Prairie Dog Optimization Algorithm](https://doi.org/10.1007/s00521-022-07530-9) | `pdo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Puma Optimizer](https://doi.org/10.1007/s10586-023-04221-5) | `puma_o` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [QLE Sine Cosine Algorithm](https://doi.org/10.1016/j.eswa.2021.116285) | `qle_sca` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Quadratic Interpolation Optimization](https://doi.org/10.1016/j.cma.2023.116446) | `qio` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `qsa` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [RIME-ice Algorithm](https://doi.org/10.1016/j.neucom.2023.02.010) | `rime` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [RMSProp](https://www.youtube.com/watch?v=defQQqkXEfE) | `rmsprop` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [RUNge Kutta Optimizer](https://doi.org/10.1016/j.eswa.2021.115079) | `run` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Rain-Cloud Condensation Optimizer](https://doi.org/10.3390/eng6100281) | `rcco` | physics | Yes | No | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | surrogate | No | No | No | No | surrogate fit, acquisition search, candidate evaluation, model/incumbent update |
+| [Random Search](https://doi.org/10.1016/j.advengsoft.2022.103141) | `random_s` | trajectory | Yes | Yes | No | Yes | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Rat Swarm Optimizer](https://doi.org/10.1007/s12652-020-02580-0) | `rso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Red-billed Blue Magpie Optimizer](https://doi.org/10.1007/s10462-024-10716-3) | `rbmo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Remora Optimization Algorithm](https://doi.org/10.1016/j.eswa.2021.115665) | `roa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648) | `rhso` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Rüppell's Fox Optimizer](https://doi.org/10.1007/s10586-024-04950-1) | `rfo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Sailfish Optimizer](https://doi.org/10.1016/j.engappai.2019.01.001) | `sfo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Salp Swarm Algorithm](https://doi.org/10.1016/j.advengsoft.2017.07.002) | `ssa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Sammon Mapping Assisted Differential Evolution](https://doi.org/10.1016/j.petrol.2019.106633) | `sade_sammon` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Sand Cat Swarm Optimization](https://doi.org/10.1007/s00366-022-01604-x) | `scso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Satin Bowerbird Optimizer](https://doi.org/10.1016/j.engappai.2017.01.006) | `sbo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Sea Lion Optimization](https://doi.org/10.14569/IJACSA.2019.0100548) | `slo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Seagull Optimization Algorithm](https://doi.org/10.1016/j.knosys.2018.11.024) | `soa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Seahorse Optimizer](https://doi.org/10.1007/s10489-022-03994-3) | `seaho` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Search And Rescue Optimization](https://doi.org/10.1155/2019/2482543) | `saro` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Search Space Independent Operator Based Deep Reinforcement Learning](https://www.ieee-jas.net/en/article/doi/10.1109/JAS.2025.125444) | `ssio_rl` | evolutionary | Yes | Yes | No | Yes | parent/operator selection, crossover/recombination, mutation/diversification, elitist replacement |
+| [Secretary Bird Optimization Algorithm](https://doi.org/10.1007/s10462-024-10729-y) | `sboa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `saba` | swarm | Yes | Yes | No | Yes | velocity/frequency update, local random walk, acceptance/replacement, pulse/loudness adaptation |
+| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2005.1554904) | `sade` | evolutionary | Yes | No | No | No | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/TEVC.2006.872133) | `jde` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Sequential Quadratic Programming](https://doi.org/10.1017/S0962492900002518) | `sqp` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [Serval Optimization Algorithm](https://doi.org/10.3390/biomimetics7040204) | `serval_oa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Shuffle-based Runner-Root Algorithm](https://doi.org/10.1007/978-3-319-70139-4_16) | `srsr` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Siberian Tiger Optimization](https://doi.org/10.1109/ACCESS.2022.3229964) | `sto` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Simple Optimization Algorithm](https://scispace.com/pdf/an-efficient-metaheuristic-algorithm-for-engineering-2vvsafbir9.pdf) | `sopt` | distribution | Yes | Yes | No | Yes | model sampling, elite/model selection, model update, replacement/incumbent update |
+| [Simulated Annealing](https://doi.org/10.1126/science.220.4598.671) | `sa` | trajectory | No | Yes | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Sine Cosine Algorithm](https://doi.org/10.1016/j.knosys.2015.12.022) | `sine_cosine_a` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Singer Optimization Algorithm](https://doi.org/10.22266/ijies2025.0630.09) | `singer_oa` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Sinh Cosh Optimizer](https://doi.org/10.1016/j.knosys.2023.111081) | `scho` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Slime Mould Algorithm](https://doi.org/10.1016/j.future.2020.03.055) | `sma` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Snake Optimizer](https://doi.org/10.1016/j.knosys.2022.108320) | `so_snake` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Snow Ablation Optimizer](https://doi.org/10.1016/j.eswa.2023.120069) | `snow_oa` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Social Ski-Driver Optimization](https://doi.org/10.1007/s00521-019-04159-z) | `ssdo` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Social Spider Algorithm](https://doi.org/10.1016/j.asoc.2015.02.014) | `sspider_a` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Social Spider Swarm Optimizer](https://doi.org/10.1016/j.eswa.2013.05.041) | `sso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Sparrow Search Algorithm](https://doi.org/10.1080/21642583.2019.1708830) | `sparrow_sa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Spider Monkey Optimization](https://doi.org/10.1007/s12293-013-0128-0) | `smo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Spotted Hyena Inspired Optimizer](https://doi.org/10.1016/j.advengsoft.2017.05.014) | `shio` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Spotted Hyena Optimizer](https://doi.org/10.1016/j.advengsoft.2017.05.014) | `sho` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Squirrel Search Algorithm](https://doi.org/10.1016/j.swevo.2018.02.013) | `squirrel_sa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Starfish Optimization Algorithm](https://doi.org/10.1007/s00521-024-10694-1) | `sfoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Steepest Descent](https://doi.org/10.1006/hmat.1996.2146) | `sd` | math | No | No | No | No | descent/gradient direction, scaling/curvature update, parameter step, acceptance/incumbent update |
+| [Stellar Oscillator Optimization](https://doi.org/10.1007/s10586-024-04976-5) | `soo` | physics | Yes | Yes | No | Yes | energy/state transition, force/equilibrium guidance, position update, selection/replacement |
+| [Student Psychology Based Optimization](https://doi.org/10.1016/j.advengsoft.2020.102804) | `spbo` | swarm | Yes | Yes | No | Yes | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Success-History Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2014.6900380) | `shade` | evolutionary | Yes | Yes | No | Yes | differential mutation, crossover/recombination, greedy selection/replacement, parameter adaptation/archive |
+| [Success-History Intelligent Optimizer](https://doi.org/10.1016/j.cma.2024.117272) | `shio_success` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Superb Fairy-wren Optimization Algorithm](https://doi.org/10.1007/s10586-024-04901-w) | `superb_foa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Supply-Demand-Based Optimization](https://doi.org/10.1109/ACCESS.2019.2919408) | `supply_do` | human | Yes | Yes | No | Yes | social learning, competition/role update, movement/update, selection/replacement |
+| [Surrogate-Assisted Cooperative Co-Evolutionary Algorithm of Minamo II](https://doi.org/10.1007/978-3-319-97773-7_4) | `sacc_eam2` | evolutionary | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Surrogate-Assisted Cooperative Swarm Optimization](https://doi.org/10.1109/TEVC.2017.2675628) | `sacoso` | swarm | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Surrogate-Assisted DE with Adaptive Multi-Subspace Search](https://doi.org/10.1109/TEVC.2022.3226837) | `sade_amss` | evolutionary | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Surrogate-Assisted DE with Adaptive Training Data Selection Criterion](https://doi.org/10.1109/SSCI51031.2022.10022105) | `sade_atdsc` | evolutionary | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Surrogate-Assisted Partial Optimization](https://doi.org/10.1007/978-3-031-70068-2_24) | `sapo` | evolutionary | Yes | Yes | No | Yes | surrogate screening/modeling, evolutionary/swarm variation, candidate evaluation, selection/model update |
+| [Swarm Robotics Search And Rescue](https://doi.org/10.1016/j.asoc.2017.02.028) | `srsr_robotics` | swarm | Yes | No | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Symbiotic Organisms Search](https://doi.org/10.1016/j.compstruc.2014.03.007) | `sos` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Tabu Search](https://doi.org/10.1287/ijoc.1.3.190) | `ts` | trajectory | No | No | No | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Tasmanian Devil Optimization](https://doi.org/10.1109/ACCESS.2022.3151641) | `tdo` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Teaching Learning Based Optimization](https://doi.org/10.1016/j.cad.2010.12.015) | `tlbo` | swarm | Yes | Yes | No | Yes | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Teamwork Optimization Algorithm](https://doi.org/10.3390/s21134567) | `toa` | human | Yes | Yes | No | Yes | teacher/leader phase, learner/social phase, competition/evaluation, selection/replacement |
+| [Termite Life Cycle Optimizer](https://doi.org/10.1016/j.eswa.2022.119211) | `tlco` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Tornado Optimizer with Coriolis Force](https://doi.org/10.1007/s10462-025-11118-9) | `toc` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Tree Physiology Optimization](https://doi.org/10.1515/jisys-2017-0156) | `tpo` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Tree-Seed Algorithm](https://doi.org/10.1016/j.eswa.2015.04.055) | `tree_seed_a` | nature | Yes | No | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Triangulation Topology Aggregation Optimizer](https://doi.org/10.1016/j.eswa.2023.121744) | `ttao` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Tug of War Optimization](https://doi.org/10.1007/978-3-030-04067-3_11) | `two` | physics | Yes | Yes | No | Yes | force/field interaction, acceleration/mass update, position update, selection/replacement |
+| [Tuna Swarm Optimization](https://doi.org/10.1155/2021/9210050) | `tso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Tunicate Swarm Algorithm](https://doi.org/10.1016/j.engappai.2020.103541) | `tsa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Turbulent Flow of Water-based Optimization](https://doi.org/10.1016/j.engappai.2020.103666) | `tfwo` | physics | Yes | No | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Variable Neighborhood Search](https://doi.org/10.1016/S0305-0548(97)00031-2) | `vns` | trajectory | No | No | Yes | No | proposal/neighborhood move, move acceptance, step-size/adaptation, incumbent update/restart |
+| [Virus Colony Search](https://doi.org/10.1016/j.advengsoft.2015.11.004) | `vcs` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Walrus Optimization Algorithm](https://doi.org/10.1038/s41598-023-35863-5) | `waoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [War Strategy Optimization](https://doi.org/10.1109/ACCESS.2022.3153493) | `warso` | human | Yes | Yes | No | Yes | role/team competition, social learning/assimilation, movement/update, selection/replacement |
+| [Water Cycle Algorithm](https://doi.org/10.1016/j.compstruc.2012.07.010) | `wca` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Water Uptake and Transport in Plants](https://doi.org/10.1007/s00521-025-11228-z) | `wutp` | nature | Yes | Yes | No | Yes | biological growth/foraging, reproduction/spread, adaptive diversification, selection/replacement |
+| [Wave Optimization Algorithm](https://doi.org/10.1016/j.cor.2014.10.008) | `wo_wave` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Wavelet Mutation and Quadratic Interpolation MRFO](https://doi.org/10.1016/j.knosys.2021.108071) | `wmqimrfo` | swarm | Yes | No | No | No | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Weighting and Inertia Random Walk Optimizer](https://doi.org/10.1016/j.eswa.2022.116516) | `info` | math | Yes | Yes | No | Yes | mathematical transform, candidate update, adaptive control/diversification, selection/replacement |
+| [Whale Fruit-fly Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113502) | `whale_foa` | swarm | Yes | No | No | No | encircling/search, spiral exploitation, leader guidance, replacement, fruit-fly sensory search |
+| [Whale Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2016.01.008) | `woa` | swarm | Yes | Yes | No | Yes | encircling/search, spiral exploitation, leader guidance, replacement |
+| [White Shark Optimizer](https://doi.org/10.1016/j.knosys.2022.108457) | `wso` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Wildebeest Herd Optimization](https://doi.org/10.3233/JIFS-190495) | `who` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Wind Driven Optimization](https://doi.org/10.1109/APS.2010.5562213) | `wdo` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Wolverine Optimization Algorithm](https://doi.org/10.32604/cmes.2024.055171) | `wooa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
+| [Young's Double-Slit Experiment Optimizer](https://doi.org/10.1016/j.cma.2022.115652) | `ydse` | physics | Yes | Yes | No | Yes | flow/wave propagation, physical coefficient update, position transport/update, selection/replacement |
+| [Zebra Optimization Algorithm](https://doi.org/10.1109/ACCESS.2022.3172789) | `zoa` | swarm | Yes | Yes | No | Yes | exploration move, exploitation move, leader/social guidance, selection/replacement |
 
 <br/>
 </details>
@@ -1455,14 +1557,14 @@ All functions below use the **minimization** convention.
 | Bohachevsky F2 | `bohachevsky_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Bohachevsky F3 | `bohachevsky_3` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Booth | `booth` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 3) |
-| Branin RCOS | `branin_rcos` | *x<sub>1</sub>* ∈ [-5, 10], *x<sub>2</sub>* ∈ [0, 15] | *f*<sup>*</sup> = 0.3978873577 at (-π, 12.275), (π, 2.275), (3π, 2.475) |
+| Branin RCOS | `branin_rcos` | *x<sub>1</sub>* ∈ [-5, 10], *x<sub>2</sub>* ∈ [0, 15] | *f*<sup>*</sup> = 0.3978873577 at (-π, 12.275); (π, 2.275); (3π, 2.475) |
 | Bukin F6 | `bukin_6` | *x<sub>1</sub>* ∈ [-15, -5], *x<sub>2</sub>* ∈ [-3, 3] | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (-10, 1) |
 | Cross-in-Tray | `cross_in_tray` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -2.0626118708 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±1.349406609, ±1.349406609) |
 | Drop-Wave | `drop_wave` | [-5.12, 5.12]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Easom | `easom` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (π, π) |
 | Eggholder | `eggholder` | [-512, 512]<sup>2</sup> | *f*<sup>*</sup> ≈ -959.6407; *(x<sub>1</sub>, x<sub>2</sub>)* ≈ (512, 404.2319) |
 | Goldstein-Price | `goldstein_price` | [-2, 2]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 3; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, -1) |
-| Himmelblau | `himmelblau` | [-5, 5]<sup>2</sup> | *f*<sup>*</sup> = 0 at (3, 2), (-2.805118, 3.131312), (-3.779310, -3.283186), (3.584428, -1.848126) |
+| Himmelblau | `himmelblau` | [-5, 5]<sup>2</sup> | *f*<sup>*</sup> = 0 at (3, 2); (-2.805118, 3.131312); (-3.779310, -3.283186); (3.584428, -1.848126) |
 | Hölder Table | `holder_table` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -19.208502568 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±8.055023472, ±9.664590029) |
 | Levi F13 | `levi_13` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 1) |
 | Matyas | `matyas` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
@@ -1470,7 +1572,7 @@ All functions below use the **minimization** convention.
 | Schaffer F2 | `schaffer_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Schaffer F4 | `schaffer_4` | [-100, 100]<sup>2</sup> | *f*<sup>*</sup> ≈ 0.292578632 at (0, ±1.25313), (±1.25313, 0) |
 | Schaffer F6 | `schaffer_6` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
-| Six-Hump Camel Back | `six_hump_camel_back` | *x<sub>1</sub>* ∈ [-3, 3], *x<sub>2</sub>* ∈ [-2, 2] | *f*<sup>*</sup> ≈ -1.031628453 at (0.089842, -0.712656), (-0.089842, 0.712656) |
+| Six-Hump Camel Back | `six_hump_camel_back` | *x<sub>1</sub>* ∈ [-3, 3], *x<sub>2</sub>* ∈ [-2, 2] | *f*<sup>*</sup> ≈ -1.031628453 at (0.089842, -0.712656); (-0.089842, 0.712656) |
 | Three-Hump Camel Back | `three_hump_camel_back` | [-5, 5]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 
 ### D-Dimensional Functions
