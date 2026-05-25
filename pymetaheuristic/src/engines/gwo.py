@@ -20,6 +20,21 @@ class GWOEngine(BaseEngine):
 
         if config.seed is not None: np.random.seed(config.seed)
 
+    def _objective_improvement(self, before, after):
+        """Objective-consistent positive improvement used by EvoMapX."""
+        if before is None or after is None:
+            return 0.0
+        before = float(before); after = float(after)
+        if self.problem.objective == "max":
+            return max(0.0, after - before)
+        return max(0.0, before - after)
+
+    def _ranked_indices(self, fitness):
+        idx = np.argsort(fitness)
+        if self.problem.objective == "max":
+            idx = idx[::-1]
+        return idx
+
     def _init_pop(self, n=None):
         if n is None: n = self._n
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
@@ -28,19 +43,20 @@ class GWOEngine(BaseEngine):
         return np.hstack((pos,fit[:,np.newaxis]))
 
     def initialize(self):
-        pop=self._init_pop(); bi=np.argmin(pop[:,-1])
+        pop=self._init_pop(); bi=self._ranked_indices(pop[:,-1])[0]
         elite=pop[bi,:].copy()
 
         return EngineState(step=0,evaluations=self._n,
             best_position=elite[:-1].tolist(),best_fitness=float(elite[-1]),
-            initialized=True,payload=dict(population=pop,elite=elite))
+            initialized=True,payload=dict(population=pop,elite=elite,evomapx={}))
 
     def step(self, state):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
+        old_fit = pop[:,-1].copy()
         evals=0
         T=self.config.max_steps or 1; t=state.step; a=2-t*(2/T)
-        idx=np.argsort(pop[:,-1])
+        idx=self._ranked_indices(pop[:,-1])
         alpha=pop[idx[0],:].copy(); beta=pop[idx[1],:].copy() if self._n>1 else alpha.copy()
         delta=pop[idx[2],:].copy() if self._n>2 else beta.copy()
         dim=self.problem.dimension
@@ -53,12 +69,26 @@ class GWOEngine(BaseEngine):
         f3=self._evaluate_population(x3); evals+=self._n
         np_=np.clip((x1+x2+x3)/3,lo,hi)
         nf=self._evaluate_population(np_); evals+=self._n
+        operator_contributions = {
+            "gwo_alpha_guidance": float(sum(self._objective_improvement(b, a) for b, a in zip(old_fit, f1))),
+            "gwo_beta_guidance": float(sum(self._objective_improvement(b, a) for b, a in zip(old_fit, f2))),
+            "gwo_delta_guidance": float(sum(self._objective_improvement(b, a) for b, a in zip(old_fit, f3))),
+            "gwo_position_averaging": float(sum(self._objective_improvement(b, a) for b, a in zip(old_fit, nf))),
+        }
         new=np.hstack((np_,nf[:,np.newaxis]))
         combined=np.vstack([pop,new,np.hstack((x1,f1[:,np.newaxis])),np.hstack((x2,f2[:,np.newaxis])),np.hstack((x3,f3[:,np.newaxis]))])
-        combined=combined[combined[:,-1].argsort()]; pop=combined[:self._n,:]
-        bi=np.argmin(pop[:,-1])
+        combined=combined[self._ranked_indices(combined[:,-1])]; pop=combined[:self._n,:]
+        bi=self._ranked_indices(pop[:,-1])[0]
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        evomapx = {
+            "operator_contributions": operator_contributions,
+            "operator": max(operator_contributions, key=operator_contributions.get),
+            "gwo_a": float(a),
+            "gwo_alpha_fitness": float(alpha[-1]),
+            "gwo_beta_fitness": float(beta[-1]),
+            "gwo_delta_fitness": float(delta[-1]),
+        }
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,evomapx=evomapx)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state
@@ -79,6 +109,7 @@ class GWOEngine(BaseEngine):
             mean_fitness=float(np.mean(fitness)),
             std_fitness=float(np.std(fitness)),
             diversity=diversity,
+            **dict(state.payload.get("evomapx", {}) or {}),
         )
     def get_best_candidate(self,state):
         return CandidateRecord(position=list(state.best_position),fitness=state.best_fitness,

@@ -61,6 +61,15 @@ class PSOEngine(BaseEngine):
         if config.seed is not None:
             np.random.seed(config.seed)
 
+    def _objective_improvement(self, before, after):
+        """Objective-consistent positive improvement used by EvoMapX."""
+        if before is None or after is None:
+            return 0.0
+        before = float(before); after = float(after)
+        if self.problem.objective == "max":
+            return max(0.0, after - before)
+        return max(0.0, before - after)
+
     # ------------------------------------------------------------------
     # Mandatory interface
     # ------------------------------------------------------------------
@@ -94,6 +103,7 @@ class PSOEngine(BaseEngine):
                 w          = self._w0,
                 c1         = self._c1,
                 c2         = self._c2,
+                evomapx    = {},
             ),
         )
         return state
@@ -111,25 +121,44 @@ class PSOEngine(BaseEngine):
         g_best     = pl["g_best"]
         w, c1, c2  = pl["w"], pl["c1"], pl["c2"]
 
+        old_fit = positions[:, -1].copy()
+
         # --- velocity & position update ---------------------------------
         r1 = np.random.rand(self._swarm_size, dim)
         r2 = np.random.rand(self._swarm_size, dim)
-        velocities = (
-            w  * velocities
-            + c1 * r1 * (i_best[:, :-1] - positions[:, :-1])
-            + c2 * r2 * (g_best[:-1]    - positions[:, :-1])
-        )
+        inertia_component = w * velocities
+        cognitive_component = c1 * r1 * (i_best[:, :-1] - positions[:, :-1])
+        social_component = c2 * r2 * (g_best[:-1] - positions[:, :-1])
+        velocities = inertia_component + cognitive_component + social_component
         new_pos = np.clip(positions[:, :-1] + velocities, lo, hi)
         new_fit = self._evaluate_population(new_pos)
         positions = np.hstack((new_pos, new_fit[:, np.newaxis]))
 
+        # EvoMapX attribution for PSO components. The objective is evaluated
+        # only after the full velocity update, so the observed particle-level
+        # improvement is split among inertia/cognitive/social components by
+        # their movement norm. This preserves the original evaluation budget.
+        positive_gain = np.array([self._objective_improvement(b, a) for b, a in zip(old_fit, new_fit)], dtype=float)
+        norm_inertia = np.linalg.norm(inertia_component, axis=1)
+        norm_cognitive = np.linalg.norm(cognitive_component, axis=1)
+        norm_social = np.linalg.norm(social_component, axis=1)
+        norm_total = norm_inertia + norm_cognitive + norm_social + 1.0e-12
+        operator_contributions = {
+            "pso_inertia_component": float(np.sum(positive_gain * norm_inertia / norm_total)),
+            "pso_cognitive_component": float(np.sum(positive_gain * norm_cognitive / norm_total)),
+            "pso_social_component": float(np.sum(positive_gain * norm_social / norm_total)),
+        }
+
         # --- individual best --------------------------------------------
-        better = positions[:, -1] < i_best[:, -1]
+        if prob.objective == "max":
+            better = positions[:, -1] > i_best[:, -1]
+        else:
+            better = positions[:, -1] < i_best[:, -1]
         i_best[better] = positions[better]
 
         # --- global best ------------------------------------------------
-        best_i = np.argmin(i_best[:, -1])
-        if i_best[best_i, -1] < g_best[-1]:
+        best_i = int(np.argmax(i_best[:, -1]) if prob.objective == "max" else np.argmin(i_best[:, -1]))
+        if prob.is_better(float(i_best[best_i, -1]), float(g_best[-1])):
             g_best = i_best[best_i].copy()
 
         # --- inertia decay ----------------------------------------------
@@ -141,6 +170,14 @@ class PSOEngine(BaseEngine):
             c1 = (1 - self._c1) * (t / T) + self._c1
             c2 = (1 - self._c2) * (t / T) + self._c2
 
+        evomapx = {
+            "operator_contributions": operator_contributions,
+            "operator": max(operator_contributions, key=operator_contributions.get),
+            "pso_component_split": "norm_weighted_full_velocity_gain",
+            "pso_personal_best_updates": int(np.sum(better)),
+            "pso_mean_velocity_norm": float(np.mean(np.linalg.norm(velocities, axis=1))),
+        }
+
         # --- write back -------------------------------------------------
         state.payload = dict(
             positions  = positions,
@@ -148,6 +185,7 @@ class PSOEngine(BaseEngine):
             i_best     = i_best,
             g_best     = g_best,
             w=w, c1=c1, c2=c2,
+            evomapx=evomapx,
         )
         state.step        += 1
         state.evaluations += self._swarm_size
@@ -165,6 +203,7 @@ class PSOEngine(BaseEngine):
             "std_fitness":  float(np.std(pop[:, -1])),
             "diversity":    self._diversity(state),
             "inertia_w":    state.payload["w"],
+            **dict(state.payload.get("evomapx", {}) or {}),
         }
 
     def get_best_candidate(self, state: EngineState) -> CandidateRecord:

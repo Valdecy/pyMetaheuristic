@@ -19,6 +19,19 @@ class GAEngine(BaseEngine):
         self._elite=int(p["elite"]); self._eta=float(p["eta"]); self._mu=float(p["mu"])
         if config.seed is not None: np.random.seed(config.seed)
 
+    def _objective_improvement(self, before, after):
+        """Objective-consistent positive improvement used by EvoMapX."""
+        if before is None or after is None:
+            return 0.0
+        before = float(before); after = float(after)
+        if self.problem.objective == "max":
+            return max(0.0, after - before)
+        return max(0.0, before - after)
+
+    def _best_reference(self, values):
+        values = np.asarray(values, dtype=float)
+        return float(np.max(values) if self.problem.objective == "max" else np.min(values))
+
     def _init_pop(self):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pos=np.random.uniform(lo,hi,(self._n,self.problem.dimension))
@@ -37,46 +50,75 @@ class GAEngine(BaseEngine):
 
     def _breed(self, pop, fit):
         off=np.copy(pop); lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
+        contrib = {"ga_elitism": 0.0, "ga_selection": 0.0, "ga_crossover": 0.0}
         if self._elite>0:
             prs=pop[pop[:,-1].argsort()]
+            if self.problem.objective == "max":
+                prs=prs[::-1]
             off[:self._elite,:]=prs[:self._elite,:]
         evals=0
+        selected_parent_fitness=[]
         for i in range(self._elite,self._n):
             p1=self._roulette(fit); p2=self._roulette(fit)
             while p1==p2: p2=np.random.choice(self._n-1)
+            selected_parent_fitness.extend([float(pop[p1,-1]), float(pop[p2,-1])])
+            parent_ref = self._best_reference([pop[p1,-1], pop[p2,-1]])
             for j in range(self.problem.dimension):
                 r=np.random.rand(); rb=np.random.rand(); rc=np.random.rand()
                 b=2*rb**(1/(self._mu+1)) if r<=0.5 else (1/(2*(1-rb)))**(1/(self._mu+1))
                 if rc>=0.5: off[i,j]=np.clip(((1+b)*pop[p1,j]+(1-b)*pop[p2,j])/2,lo[j],hi[j])
                 else: off[i,j]=np.clip(((1-b)*pop[p1,j]+(1+b)*pop[p2,j])/2,lo[j],hi[j])
             off[i,-1]=self.problem.evaluate(off[i,:-1]); evals+=1
-        return off, evals
+            contrib["ga_crossover"] += self._objective_improvement(parent_ref, off[i,-1])
+        if selected_parent_fitness:
+            pop_ref = self._best_reference(pop[:,-1])
+            selected_ref = self._best_reference(selected_parent_fitness)
+            contrib["ga_selection"] = self._objective_improvement(pop_ref, selected_ref)
+        return off, evals, contrib
 
     def _mutate(self, off):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values); evals=0
+        contrib = {"ga_mutation": 0.0}
         for i in range(self._n):
             changed=False
+            before_fit=float(off[i,-1])
             for j in range(self.problem.dimension):
                 if np.random.rand()<self._mr:
                     r=np.random.rand(); rd=np.random.rand()
                     d=2*rd**(1/(self._eta+1))-1 if r<=0.5 else 1-2*(1-rd)**(1/(self._eta+1))
                     off[i,j]=np.clip(off[i,j]+d,lo[j],hi[j]); changed=True
-            if changed: off[i,-1]=self.problem.evaluate(off[i,:-1]); evals+=1
-        return off, evals
+            if changed:
+                off[i,-1]=self.problem.evaluate(off[i,:-1]); evals+=1
+                contrib["ga_mutation"] += self._objective_improvement(before_fit, off[i,-1])
+        return off, evals, contrib
 
     def initialize(self):
-        pop=self._init_pop(); bi=np.argmin(pop[:,-1])
+        pop=self._init_pop(); bi=np.argmin(pop[:,-1]) if self.problem.objective == "min" else np.argmax(pop[:,-1])
         return EngineState(step=0,evaluations=self._n,
             best_position=pop[bi,:-1].tolist(),best_fitness=float(pop[bi,-1]),
-            initialized=True,payload=dict(population=pop,elite=pop[bi,:].copy()))
+            initialized=True,payload=dict(population=pop,elite=pop[bi,:].copy(),evomapx={}))
 
     def step(self, state):
         pop=state.payload["population"]; elite=state.payload["elite"]
         fit=self._fitness_fn(pop)
-        off,e1=self._breed(pop,fit); pop,e2=self._mutate(off)
-        bi=pop[pop[:,-1].argsort()][0,:]
-        if bi[-1]<elite[-1]: elite=bi.copy()
-        state.step+=1; state.evaluations+=e1+e2; state.payload=dict(population=pop,elite=elite)
+        off,e1,c1=self._breed(pop,fit); pop,e2,c2=self._mutate(off)
+        order = np.argsort(pop[:,-1])
+        if self.problem.objective == "max": order = order[::-1]
+        bi=pop[order[0],:]
+        if self.problem.is_better(float(bi[-1]),float(elite[-1])): elite=bi.copy()
+        operator_contributions = {**c1, **c2}
+        if not operator_contributions.get("ga_elitism"):
+            operator_contributions["ga_elitism"] = 0.0
+        evomapx = {
+            "operator_contributions": operator_contributions,
+            "operator": max(operator_contributions, key=operator_contributions.get),
+            "ga_crossover_gain": operator_contributions.get("ga_crossover", 0.0),
+            "ga_mutation_gain": operator_contributions.get("ga_mutation", 0.0),
+            "ga_selection_gain": operator_contributions.get("ga_selection", 0.0),
+            "ga_elite_count": int(max(0, self._elite)),
+            "ga_mutation_rate": float(self._mr),
+        }
+        state.step+=1; state.evaluations+=e1+e2; state.payload=dict(population=pop,elite=elite,evomapx=evomapx)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state
@@ -97,6 +139,7 @@ class GAEngine(BaseEngine):
             mean_fitness=float(np.mean(fitness)),
             std_fitness=float(np.std(fitness)),
             diversity=diversity,
+            **dict(state.payload.get("evomapx", {}) or {}),
         )
     def get_best_candidate(self,state):
         return CandidateRecord(position=list(state.best_position),fitness=state.best_fitness,
