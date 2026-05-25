@@ -45,6 +45,15 @@ class DEEngine(BaseEngine):
     def _hi(self):
         return np.asarray(self.problem.max_values, dtype=float)
 
+    def _objective_improvement(self, before, after):
+        """Objective-consistent positive improvement used by EvoMapX."""
+        if before is None or after is None:
+            return 0.0
+        before = float(before); after = float(after)
+        if self.problem.objective == "max":
+            return max(0.0, after - before)
+        return max(0.0, before - after)
+
     def _init_pop(self, n=None):
         if n is None:
             n = self._n
@@ -62,7 +71,7 @@ class DEEngine(BaseEngine):
             best_position=elite[:-1].tolist(),
             best_fitness=float(elite[-1]),
             initialized=True,
-            payload=dict(population=pop, elite=elite),
+            payload=dict(population=pop, elite=elite, evomapx={}),
         )
 
     def _sample_donors(self, n: int, exclude: int, k: int) -> np.ndarray:
@@ -70,7 +79,7 @@ class DEEngine(BaseEngine):
         replace = pool.size < k
         return np.random.choice(pool, size=k, replace=replace)
 
-    def _trial_vector(self, pop: np.ndarray, i: int, best: np.ndarray) -> np.ndarray:
+    def _trial_vector(self, pop: np.ndarray, i: int, best: np.ndarray) -> tuple[np.ndarray, np.ndarray, int]:
         dim = self.problem.dimension
         ids = self._sample_donors(pop.shape[0], i, 3)
         x = pop[i, :-1]
@@ -89,7 +98,7 @@ class DEEngine(BaseEngine):
         cross = np.random.rand(dim) <= self._Cr
         cross[np.random.randint(dim)] = True
         trial = np.where(cross, mutant, x)
-        return np.clip(trial, self._lo, self._hi)
+        return np.clip(mutant, self._lo, self._hi), np.clip(trial, self._lo, self._hi), int(np.sum(cross))
 
     def step(self, state):
         pop = np.asarray(state.payload["population"], dtype=float).copy()
@@ -100,11 +109,32 @@ class DEEngine(BaseEngine):
         best_vec = pop[order[0], :-1].copy()
 
         evals = 0
+        operator_contributions = {
+            "de_mutation": 0.0,
+            "de_crossover": 0.0,
+            "de_selection": 0.0,
+        }
+        successful_trials = 0
+        changed_coordinates = 0
         for i in range(pop.shape[0]):
-            trial_pos = self._trial_vector(pop, i, best_vec)
+            target_fit = float(pop[i, -1])
+            _mutant_pos, trial_pos, n_cross = self._trial_vector(pop, i, best_vec)
             trial_fit = float(self.problem.evaluate(trial_pos.copy()))
             evals += 1
-            if self.problem.is_better(trial_fit, float(pop[i, -1])) or trial_fit == float(pop[i, -1]):
+            changed_coordinates += int(n_cross)
+            trial_gain = self._objective_improvement(target_fit, trial_fit)
+            # The canonical DE engine evaluates the post-crossover trial vector,
+            # not the mutant alone. To avoid changing the evaluation budget, the
+            # direct objective gain is attributed to crossover/trial generation;
+            # mutation remains a structural diagnostic with zero direct objective
+            # contribution unless an engine variant explicitly evaluates mutants.
+            operator_contributions["de_crossover"] += trial_gain
+            if self.problem.is_better(trial_fit, target_fit) or trial_fit == target_fit:
+                # Selection admits the trial into the population. It is tracked
+                # through acceptance-rate metadata, while the direct objective
+                # contribution remains assigned to the generated trial vector to
+                # avoid double-counting the same gain in OAM/CDS.
+                successful_trials += int(trial_gain > 0.0 or trial_fit == target_fit)
                 pop[i, :-1] = trial_pos
                 pop[i, -1] = trial_fit
 
@@ -114,7 +144,15 @@ class DEEngine(BaseEngine):
 
         state.step += 1
         state.evaluations += evals
-        state.payload = dict(population=pop, elite=elite)
+        evomapx = {
+            "operator_contributions": operator_contributions,
+            "operator": max(operator_contributions, key=operator_contributions.get),
+            "de_strategy": self._strategy,
+            "de_successful_trials": int(successful_trials),
+            "de_trial_acceptance_rate": float(successful_trials / max(1, pop.shape[0])),
+            "de_changed_coordinate_rate": float(changed_coordinates / max(1, pop.shape[0] * self.problem.dimension)),
+        }
+        state.payload = dict(population=pop, elite=elite, evomapx=evomapx)
         if self.problem.is_better(float(elite[-1]), state.best_fitness):
             state.best_fitness = float(elite[-1])
             state.best_position = elite[:-1].tolist()
@@ -134,6 +172,7 @@ class DEEngine(BaseEngine):
             mean_fitness=float(np.mean(fitness)),
             std_fitness=float(np.std(fitness)),
             diversity=diversity,
+            **dict(state.payload.get("evomapx", {}) or {}),
         )
 
     def get_best_candidate(self, state):
