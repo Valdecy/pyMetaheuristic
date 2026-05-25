@@ -231,3 +231,35 @@ class OrchestratedCooperativeResult:
     def plot_island_fitness(self, ax=None, objective: str | None = None, **kwargs):
         from .diagnostics import plot_island_fitness
         return plot_island_fitness(self, ax=ax, objective=objective, **kwargs)
+
+    def evomapx_analysis(self, **kwargs):
+        from .evomapx import evomapx_analysis
+        return evomapx_analysis(self, **kwargs)
+
+    def explain_evomapx(self, **kwargs) -> str:
+        from .evomapx import evomapx_analysis, explain_evomapx
+        return explain_evomapx(evomapx_analysis(self, **kwargs))
+
+    def plot_evomapx_attribution(self, **kwargs):
+        from .evomapx import plot_attribution_heatmap
+        return plot_attribution_heatmap(self, **kwargs)
+
+    def plot_evomapx_cds(self, **kwargs):
+        from .evomapx import plot_cds_bar
+        return plot_cds_bar(self, **kwargs)
+
+    def plot_evomapx_cds_time_series(self, **kwargs):
+        from .evomapx import plot_cds_time_series
+        return plot_cds_time_series(self, **kwargs)
+
+    def plot_evomapx_peg(self, **kwargs):
+        from .evomapx import plot_population_evolution_graph
+        return plot_population_evolution_graph(self, **kwargs)
+
+    def export_evomapx_json(self, filepath, **kwargs) -> str:
+        from .evomapx import export_evomapx_json
+        return export_evomapx_json(self, filepath, **kwargs)
+
+    def export_evomapx_csv(self, filepath, **kwargs) -> str:
+        from .evomapx import export_evomapx_csv
+        return export_evomapx_csv(self, filepath, **kwargs)

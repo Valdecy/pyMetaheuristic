@@ -26,6 +26,9 @@ class CooperationEvent:
     target_algorithm: str
     migrants: int
     best_fitness_after: float | None
+    source_fitness: float | None = None
+    target_fitness_before: float | None = None
+    target_fitness_after: float | None = None
     policy: str = "push"
     donor_strategy: str = "neighbors"
     receiver_strategy: str = "neighbors"
@@ -48,6 +51,9 @@ class IslandTelemetryRecord:
     health: float
     migration_interval: int
     neighbors: list[str] = field(default_factory=list)
+    operator_contributions: dict[str, float] = field(default_factory=dict)
+    operator: str | None = None
+    operator_metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -93,6 +99,38 @@ class CooperativeResult:
     def plot_island_fitness(self, ax=None, objective: str | None = None, **kwargs):
         from .diagnostics import plot_island_fitness
         return plot_island_fitness(self, ax=ax, objective=objective, **kwargs)
+
+    def evomapx_analysis(self, **kwargs):
+        from .evomapx import evomapx_analysis
+        return evomapx_analysis(self, **kwargs)
+
+    def explain_evomapx(self, **kwargs) -> str:
+        from .evomapx import evomapx_analysis, explain_evomapx
+        return explain_evomapx(evomapx_analysis(self, **kwargs))
+
+    def plot_evomapx_attribution(self, **kwargs):
+        from .evomapx import plot_attribution_heatmap
+        return plot_attribution_heatmap(self, **kwargs)
+
+    def plot_evomapx_cds(self, **kwargs):
+        from .evomapx import plot_cds_bar
+        return plot_cds_bar(self, **kwargs)
+
+    def plot_evomapx_cds_time_series(self, **kwargs):
+        from .evomapx import plot_cds_time_series
+        return plot_cds_time_series(self, **kwargs)
+
+    def plot_evomapx_peg(self, **kwargs):
+        from .evomapx import plot_population_evolution_graph
+        return plot_population_evolution_graph(self, **kwargs)
+
+    def export_evomapx_json(self, filepath, **kwargs) -> str:
+        from .evomapx import export_evomapx_json
+        return export_evomapx_json(self, filepath, **kwargs)
+
+    def export_evomapx_csv(self, filepath, **kwargs) -> str:
+        from .evomapx import export_evomapx_csv
+        return export_evomapx_csv(self, filepath, **kwargs)
 
 
 def _score_for_objective(fitness: float | None, objective: str) -> float:
@@ -454,6 +492,12 @@ class CooperativeRunner:
                     health=_health_from_observation({**obs_payload, 'stagnation_steps': stagnation_counter[label]}, engine.capabilities.has_population),
                     migration_interval=current_interval,
                     neighbors=list(adjacency.get(label, [])),
+                    operator_contributions=dict(obs_payload.get('operator_contributions') or obs_payload.get('evomapx_operator_contributions') or {}),
+                    operator=obs_payload.get('operator') or obs_payload.get('action'),
+                    operator_metadata={
+                        k: v for k, v in obs_payload.items()
+                        if str(k).startswith(('cem_', 'ga_', 'de_', 'pso_', 'gwo_', 'evomapx_'))
+                    },
                 )
                 telemetry_by_island[label].append(telem)
 
@@ -493,7 +537,10 @@ class CooperativeRunner:
                 migrants = source_engine.export_candidates(source_state, k=self.migration_size, mode=self.migration_mode)
                 if not migrants:
                     return
+                target_fitness_before = target_state.best_fitness
+                source_fitness = source_state.best_fitness
                 states_map[receiver_label] = target_engine.inject_candidates(target_state, migrants, policy='native')
+                target_fitness_after = states_map[receiver_label].best_fitness
                 applied_pairs.add((donor_label, receiver_label))
                 events.append(CooperationEvent(
                     global_step=global_step,
@@ -502,7 +549,10 @@ class CooperativeRunner:
                     source_algorithm=source_engine.algorithm_id,
                     target_algorithm=target_engine.algorithm_id,
                     migrants=len(migrants),
-                    best_fitness_after=states_map[receiver_label].best_fitness,
+                    best_fitness_after=target_fitness_after,
+                    source_fitness=source_fitness,
+                    target_fitness_before=target_fitness_before,
+                    target_fitness_after=target_fitness_after,
                     policy=effective_policy,
                     donor_strategy=self.donor_strategy,
                     receiver_strategy=self.receiver_strategy,

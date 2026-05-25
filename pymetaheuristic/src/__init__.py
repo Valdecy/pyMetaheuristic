@@ -8,6 +8,7 @@ from . import (
     controllers,
     cooperation,
     engines,
+    evomapx_profiles,
     execution,
     diagnostics,
     graphs,
@@ -217,7 +218,9 @@ __all__ = [
     "reference", "replay_cooperative_result",
     "schemas", "search_reference",
     "summarize_cooperative_result", "summarize_result",
-    "telemetry", "test_functions",
+    "telemetry", "test_functions", "evomapx_profiles",
+    "EvoMapXProfile", "get_evomapx_operators", "get_evomapx_profile",
+    "list_evomapx_profiles",
     "Termination", "termination",
     "plot_diversity_chart", "plot_diversity_comparison",
     "plot_explore_exploit_chart", "plot_global_best_chart",
@@ -257,3 +260,7 @@ __all__ = [
     "result_from_json", "result_to_json",
     "save_checkpoint", "save_result",
 ]
+
+from .evomapx import evomapx_analysis, explain_evomapx, operator_attribution_matrix, convergence_driver_score, population_evolution_graph
+
+from .evomapx_profiles import EvoMapXProfile, get_evomapx_operators, get_evomapx_profile, list_evomapx_profiles
