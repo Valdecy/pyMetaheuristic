@@ -17,7 +17,7 @@ class CFOAEngine(PortedPopulationEngine):
 
     algorithm_id = "cfoa"
     algorithm_name = "Catch Fish Optimization Algorithm"
-    family = "human_behavior"
+    family = "swarm"
     _REFERENCE = {
         "doi": "10.1007/s10586-024-04618-w",
         "authors": "Heming Jia, Qixian Wen, Yuhao Wang, Seyedali Mirjalili",

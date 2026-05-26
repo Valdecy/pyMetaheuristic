@@ -17,7 +17,7 @@ class DRAEngine(PortedPopulationEngine):
 
     algorithm_id = "dra"
     algorithm_name = "Divine Religions Algorithm"
-    family = "social"
+    family = "human"
     _REFERENCE = {
         "doi": "10.1007/s10586-024-04954-x",
         "authors": "Nima Khodadadi et al.",
