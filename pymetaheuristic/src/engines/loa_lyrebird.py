@@ -42,6 +42,7 @@ class LOALyrebirdEngine(PortedPopulationEngine):
         gbest = pop[order[0], :-1].copy()
         current = pop.copy()
         trials = np.zeros((n, dim), dtype=float)
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             rp = np.random.rand()
             better = [j for j in order if j != i and self._is_better(current[j, -1], current[i, -1])]
@@ -51,12 +52,15 @@ class LOALyrebirdEngine(PortedPopulationEngine):
                 r = np.random.rand(dim)
                 I = np.random.randint(1, 3, size=dim)
                 trials[i] = current[i, :-1] + r * (target - I * current[i, :-1])
+                attempted_labels[i] = "loa_lyrebird.better_bird_imitation_update"
             else:
                 r = np.random.rand(dim)
                 trials[i] = current[i, :-1] + (1.0 - 2.0 * r) * (self._span / float(t))
+                attempted_labels[i] = "loa_lyrebird.escape_step_update"
             if not np.all(np.isfinite(trials[i])):
                 trials[i] = gbest.copy()
         trial_pop = self._pop_from_positions(np.clip(trials, self._lo, self._hi))
         mask = self._better_mask(trial_pop[:, -1], current[:, -1])
         current[mask] = trial_pop[mask]
-        return current, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return current, n, {"operator_labels": operator_labels}

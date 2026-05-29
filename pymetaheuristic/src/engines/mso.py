@@ -22,6 +22,7 @@ class MSOEngine(PortedPopulationEngine):
         ac=np.random.permutation(n-1)+1
         cv=max(1,int(np.ceil((n*(2/3))*((T-t+1)/T))))
         new_pop=pop.copy(); evals=0
+        operator_labels=["carryover"]*n
         # Superior mirage search
         for idx in ac[:cv]:
             pos=np.empty(dim)
@@ -38,10 +39,14 @@ class MSOEngine(PortedPopulationEngine):
                 pos[k]=pop[idx,k]+dx
             pos=np.clip(pos,self._lo,self._hi)
             fit=float(self.problem.evaluate(pos)); evals+=1
-            if self._is_better(fit,float(new_pop[idx,-1])): new_pop[idx,:-1]=pos; new_pop[idx,-1]=fit
+            if self._is_better(fit,float(new_pop[idx,-1])):
+                new_pop[idx,:-1]=pos; new_pop[idx,-1]=fit
+                operator_labels[int(idx)]="mso.superior_mirage_search_update"
         # Inferior mirage search (remaining)
         for idx in ac[cv:]:
             pos=np.clip(pop[idx,:-1]+np.random.uniform(-1,1,dim)*self._span*0.1, self._lo, self._hi)
             fit=float(self.problem.evaluate(pos)); evals+=1
-            if self._is_better(fit,float(new_pop[idx,-1])): new_pop[idx,:-1]=pos; new_pop[idx,-1]=fit
-        return new_pop, evals, {}
+            if self._is_better(fit,float(new_pop[idx,-1])):
+                new_pop[idx,:-1]=pos; new_pop[idx,-1]=fit
+                operator_labels[int(idx)]="mso.inferior_mirage_search_update"
+        return new_pop, evals, {"operator_labels": operator_labels}

@@ -20,6 +20,7 @@ class RSOEngine(PortedPopulationEngine):
         R=int(np.floor((5-1)*np.random.random()+1))
         A=R-t*(R/max_iter)
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
+        old_pos = pop[:, :-1].copy()
         fits=[float(self._evaluate_population(pop[i,:-1][None])[0]) for i in range(n)]; evals+=n
         best_idx=int(np.argmin(fits)); best_pos=pop[best_idx,:-1].copy(); best_fit=fits[best_idx]
         for i in range(n):
@@ -28,6 +29,9 @@ class RSOEngine(PortedPopulationEngine):
                 P_vec=A*pop[i,j]+abs(C*(best_pos[j]-pop[i,j]))
                 pop[i,j]=best_pos[j]-P_vec
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
+        movement = np.linalg.norm(pop[:, :-1] - old_pos, axis=1)
+        threshold = float(np.median(movement)) if movement.size else 0.0
+        operator_labels = ["rso.long_chasing_update" if float(movement[i]) >= threshold else "rso.short_chasing_update" for i in range(n)]
         new_fits=self._evaluate_population(pop[:,:-1]); evals+=n
         pop[:,-1]=new_fits
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

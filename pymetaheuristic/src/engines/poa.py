@@ -22,6 +22,7 @@ class POAEngine(PortedPopulationEngine):
         T       = max(1, self.config.max_steps or 500)
         t       = state.step + 1
         evals   = 0
+        operator_labels = ["carryover"] * n
 
         new_pop = pop.copy()
         for i in range(n):
@@ -35,6 +36,7 @@ class POAEngine(PortedPopulationEngine):
             fit = float(self.problem.evaluate(pos)); evals += 1
             if self._is_better(fit, float(new_pop[i, -1])):
                 new_pop[i, :-1] = pos; new_pop[i, -1] = fit
+                operator_labels[i] = "poa.prey_pursuit_update"
 
             # Phase 2: Winging on water surface  (Eq. 6)
             pos2 = new_pop[i, :-1] + 0.2 * (1.0 - t / T) * (2.0 * np.random.random(dim) - 1.0) * new_pop[i, :-1]
@@ -42,5 +44,6 @@ class POAEngine(PortedPopulationEngine):
             fit2 = float(self.problem.evaluate(pos2)); evals += 1
             if self._is_better(fit2, float(new_pop[i, -1])):
                 new_pop[i, :-1] = pos2; new_pop[i, -1] = fit2
+                operator_labels[i] = "poa.water_surface_winging_update"
 
-        return new_pop, evals, {}
+        return new_pop, evals, {"operator_labels": operator_labels}

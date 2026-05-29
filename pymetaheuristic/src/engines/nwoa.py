@@ -63,6 +63,7 @@ class NWOAEngine(PortedPopulationEngine):
         delta = float(self._params.get("damping", 0.01))
 
         trials = np.zeros((n, dim), dtype=float)
+        operator_labels = ["carryover"] * n
         for i in range(n):
             xi = pop[i, :-1]
             cos_sim = float(np.dot(xi, best) / (safe_norm(xi) * safe_norm(best)))
@@ -72,13 +73,16 @@ class NWOAEngine(PortedPopulationEngine):
             if np.random.rand() < explore_ratio:
                 Aexp = 2.0 * a * r1 - a
                 trials[i] = xi + Aexp * (best - xi) + wave_strength * np.random.rand(dim)
+                operator_labels[i] = "nwoa.wave_exploration"
             else:
                 Aexp = a * r1 - a
                 Cexp = 2.0 * r2
                 suction_strength = prey_energy / (1.0 + safe_norm(best - xi))
                 suction_force = suction_strength * prey_energy
                 trials[i] = xi - Aexp * (best - xi) + Cexp * suction_force * wave_strength * np.random.rand(dim)
+                operator_labels[i] = "nwoa.suction_exploitation"
         trial_pop = self._pop_from_positions(np.clip(trials, self._lo, self._hi))
         mask = self._better_mask(trial_pop[:, -1], pop[:, -1])
         pop[mask] = trial_pop[mask]
-        return pop, n, {"prey_energy": prey_energy}
+        operator_labels = [operator_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"prey_energy": prey_energy, "operator_labels": operator_labels}

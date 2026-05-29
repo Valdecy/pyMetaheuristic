@@ -45,25 +45,31 @@ class MPAEngine(PortedPopulationEngine):
         per2 = np.random.permutation(n)
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         for i in range(n):
             R = np.random.random(dim)
             if t < T / 3:                                 # Phase 1: high exploration
+                operator_labels[i] = "mpa.brownian_exploration"
                 step  = RB[i] * (best_pos - RB[i] * pop[i, :-1])
                 pos   = pop[i, :-1] + P * R * step
             elif t < 2 * T / 3:                           # Phase 2: transition
                 if i > n // 2:
+                    operator_labels[i] = "mpa.brownian_transition"
                     step = RB[i] * (RB[i] * best_pos - pop[i, :-1])
                     pos  = best_pos + P * CF * step
                 else:
+                    operator_labels[i] = "mpa.levy_transition"
                     step = RL[i] * (best_pos - RL[i] * pop[i, :-1])
                     pos  = pop[i, :-1] + P * R * step
             else:                                         # Phase 3: exploitation
+                operator_labels[i] = "mpa.levy_exploitation"
                 step  = RL[i] * (RL[i] * best_pos - pop[i, :-1])
                 pos   = best_pos + P * CF * step
             pos = np.clip(pos, self._lo, self._hi)
 
             # Fish Aggregating Devices  (FADs effect)
             if np.random.random() < FADS:
+                operator_labels[i] = "mpa.fish_aggregating_devices_fads_effect"
                 u   = (np.random.random(dim) < FADS).astype(float)
                 pos = pos + CF * (self._lo + np.random.random(dim) * self._span) * u
             else:
@@ -75,4 +81,5 @@ class MPAEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [operator_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

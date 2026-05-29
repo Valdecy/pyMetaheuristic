@@ -43,6 +43,7 @@ class MTBOEngine(PortedPopulationEngine):
         leader_position = pop[0, :-1].copy()
         leader_fitness = float(pop[0, -1])
         worst_position = pop[-1, :-1].copy()
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             current = pop[i, :-1]
@@ -62,24 +63,29 @@ class MTBOEngine(PortedPopulationEngine):
                     + np.random.random(dim) * (teammate - current)
                     + np.random.random(dim) * (leader_position - teammate)
                 )
+                attempted_label = "mtbo.team_leader_coordinated_movement"
             elif r < ai:
                 # Avalanche/disaster response: move relative to the weakest member.
                 trial = current + np.random.random(dim) * (current - worst_position)
+                attempted_label = "mtbo.avalanche_worst_avoidance"
             elif r < mi:
                 # Movement toward team mean.
                 trial = current + np.random.random(dim) * (mean_position - current)
+                attempted_label = "mtbo.team_mean_movement"
             else:
                 # Random relocation phase.
                 trial = self._new_positions(1)[0]
+                attempted_label = "mtbo.random_relocation_phase"
 
             trial = np.clip(trial, self._lo, self._hi)
             trial_fitness = float(self.problem.evaluate(trial))
             if self._is_better(trial_fitness, float(pop[i, -1])):
                 pop[i, :-1] = trial
                 pop[i, -1] = trial_fitness
+                operator_labels[i] = attempted_label
                 if self._is_better(trial_fitness, leader_fitness):
                     leader_position = trial.copy()
                     leader_fitness = trial_fitness
 
         pop = pop[self._order(pop[:, -1])]
-        return pop, n, {}
+        return pop, n, {"operator_labels": operator_labels}

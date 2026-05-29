@@ -28,14 +28,26 @@ class JDEEngine(PortedPopulationEngine):
         if CR.shape[0] != n: CR = np.full(n, 0.9)
         newF, newCR = F.copy(), CR.copy()
         trials = []
+        attempted_labels = ["jde.de_trial"] * n
         for i in range(n):
+            f_adapted = False
+            cr_adapted = False
             if np.random.rand() < float(self._params.get("tao1", 0.4)):
                 newF[i] = float(self._params.get("f_lower", 0.0)) + np.random.rand() * float(self._params.get("f_upper", 1.0))
+                f_adapted = True
             if np.random.rand() < float(self._params.get("tao2", 0.2)):
                 newCR[i] = np.random.rand()
+                cr_adapted = True
+            if f_adapted and cr_adapted:
+                attempted_labels[i] = "jde.f_cr_self_adaptation_trial"
+            elif f_adapted:
+                attempted_labels[i] = "jde.f_self_adaptation_trial"
+            elif cr_adapted:
+                attempted_labels[i] = "jde.cr_self_adaptation_trial"
             trials.append(de_trial(self, pop, i, newF[i], newCR[i]))
         trial_pop = self._pop_from_positions(np.asarray(trials))
         mask = self._better_mask(trial_pop[:, -1], pop[:, -1])
         pop[mask] = trial_pop[mask]
         F[mask], CR[mask] = newF[mask], newCR[mask]
-        return pop, n, {"F": F, "CR": CR}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"F": F, "CR": CR, "operator_labels": operator_labels}

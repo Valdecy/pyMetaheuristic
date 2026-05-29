@@ -47,7 +47,6 @@ class PSOEngine(BaseEngine):
         supports_diversity_metrics  = True,
     )
 
-    # Default hyper-parameters (overridden via config.params)
     _DEFAULTS = dict(swarm_size=30, w=0.9, c1=2.0, c2=2.0, decay=0)
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
@@ -60,15 +59,6 @@ class PSOEngine(BaseEngine):
         self._decay      = float(p["decay"])
         if config.seed is not None:
             np.random.seed(config.seed)
-
-    def _objective_improvement(self, before, after):
-        """Objective-consistent positive improvement used by EvoMapX."""
-        if before is None or after is None:
-            return 0.0
-        before = float(before); after = float(after)
-        if self.problem.objective == "max":
-            return max(0.0, after - before)
-        return max(0.0, before - after)
 
     # ------------------------------------------------------------------
     # Mandatory interface
@@ -103,7 +93,6 @@ class PSOEngine(BaseEngine):
                 w          = self._w0,
                 c1         = self._c1,
                 c2         = self._c2,
-                evomapx    = {},
             ),
         )
         return state
@@ -121,44 +110,36 @@ class PSOEngine(BaseEngine):
         g_best     = pl["g_best"]
         w, c1, c2  = pl["w"], pl["c1"], pl["c2"]
 
-        old_fit = positions[:, -1].copy()
-
         # --- velocity & position update ---------------------------------
         r1 = np.random.rand(self._swarm_size, dim)
         r2 = np.random.rand(self._swarm_size, dim)
-        inertia_component = w * velocities
+        inertia_component   = w  * velocities
         cognitive_component = c1 * r1 * (i_best[:, :-1] - positions[:, :-1])
-        social_component = c2 * r2 * (g_best[:-1] - positions[:, :-1])
+        social_component    = c2 * r2 * (g_best[:-1]    - positions[:, :-1])
         velocities = inertia_component + cognitive_component + social_component
-        new_pos = np.clip(positions[:, :-1] + velocities, lo, hi)
-        new_fit = self._evaluate_population(new_pos)
+
+        # Per-particle dominant operator label (used by existing probe logic).
+        operator_labels = []
+        for _i in range(self._swarm_size):
+            norms = {
+                "pso.inertia_velocity_update": float(np.linalg.norm(inertia_component[_i])),
+                "pso.cognitive_memory_update": float(np.linalg.norm(cognitive_component[_i])),
+                "pso.social_global_update":    float(np.linalg.norm(social_component[_i])),
+            }
+            operator_labels.append(max(norms, key=norms.get))
+
+        prev_fitness = positions[:, -1].copy()
+        new_pos  = np.clip(positions[:, :-1] + velocities, lo, hi)
+        new_fit  = self._evaluate_population(new_pos)
         positions = np.hstack((new_pos, new_fit[:, np.newaxis]))
 
-        # EvoMapX attribution for PSO components. The objective is evaluated
-        # only after the full velocity update, so the observed particle-level
-        # improvement is split among inertia/cognitive/social components by
-        # their movement norm. This preserves the original evaluation budget.
-        positive_gain = np.array([self._objective_improvement(b, a) for b, a in zip(old_fit, new_fit)], dtype=float)
-        norm_inertia = np.linalg.norm(inertia_component, axis=1)
-        norm_cognitive = np.linalg.norm(cognitive_component, axis=1)
-        norm_social = np.linalg.norm(social_component, axis=1)
-        norm_total = norm_inertia + norm_cognitive + norm_social + 1.0e-12
-        operator_contributions = {
-            "pso_inertia_component": float(np.sum(positive_gain * norm_inertia / norm_total)),
-            "pso_cognitive_component": float(np.sum(positive_gain * norm_cognitive / norm_total)),
-            "pso_social_component": float(np.sum(positive_gain * norm_social / norm_total)),
-        }
-
         # --- individual best --------------------------------------------
-        if prob.objective == "max":
-            better = positions[:, -1] > i_best[:, -1]
-        else:
-            better = positions[:, -1] < i_best[:, -1]
+        better = positions[:, -1] < i_best[:, -1]
         i_best[better] = positions[better]
 
         # --- global best ------------------------------------------------
-        best_i = int(np.argmax(i_best[:, -1]) if prob.objective == "max" else np.argmin(i_best[:, -1]))
-        if prob.is_better(float(i_best[best_i, -1]), float(g_best[-1])):
+        best_i = np.argmin(i_best[:, -1])
+        if i_best[best_i, -1] < g_best[-1]:
             g_best = i_best[best_i].copy()
 
         # --- inertia decay ----------------------------------------------
@@ -170,13 +151,50 @@ class PSOEngine(BaseEngine):
             c1 = (1 - self._c1) * (t / T) + self._c1
             c2 = (1 - self._c2) * (t / T) + self._c2
 
-        evomapx = {
-            "operator_contributions": operator_contributions,
-            "operator": max(operator_contributions, key=operator_contributions.get),
-            "pso_component_split": "norm_weighted_full_velocity_gain",
-            "pso_personal_best_updates": int(np.sum(better)),
-            "pso_mean_velocity_norm": float(np.mean(np.linalg.norm(velocities, axis=1))),
-        }
+        # --- EvoMapX lineage: per-particle operator attribution ---------
+        # Each particle's signed Δf is split across the three velocity
+        # components proportionally to their contribution norms.  This gives
+        # the probe real per-operator signed deltas instead of a single
+        # macro-step label.
+        lineage = []
+        for idx in range(self._swarm_size):
+            pf = float(prev_fitness[idx])
+            cf = float(positions[idx, -1])
+            delta = pf - cf  # positive = improvement (minimisation)
+            i_norm = float(np.linalg.norm(inertia_component[idx]))
+            c_norm = float(np.linalg.norm(cognitive_component[idx]))
+            s_norm = float(np.linalg.norm(social_component[idx]))
+            total_norm = i_norm + c_norm + s_norm or 1.0
+            lineage.append({
+                "id": f"pso:inertia:{idx}",
+                "index": idx,
+                "operator": "pso_inertia_component",
+                "parent_ids": [f"parent:{idx}"],
+                "parent_index": idx,
+                "parent_fitness": pf,
+                "child_fitness": cf,
+                "lineage_delta": delta * (i_norm / total_norm),
+            })
+            lineage.append({
+                "id": f"pso:cognitive:{idx}",
+                "index": idx,
+                "operator": "pso_cognitive_component",
+                "parent_ids": [f"parent:{idx}"],
+                "parent_index": idx,
+                "parent_fitness": pf,
+                "child_fitness": cf,
+                "lineage_delta": delta * (c_norm / total_norm),
+            })
+            lineage.append({
+                "id": f"pso:social:{idx}",
+                "index": idx,
+                "operator": "pso_social_component",
+                "parent_ids": [f"parent:{idx}"],
+                "parent_index": idx,
+                "parent_fitness": pf,
+                "child_fitness": cf,
+                "lineage_delta": delta * (s_norm / total_norm),
+            })
 
         # --- write back -------------------------------------------------
         state.payload = dict(
@@ -185,7 +203,8 @@ class PSOEngine(BaseEngine):
             i_best     = i_best,
             g_best     = g_best,
             w=w, c1=c1, c2=c2,
-            evomapx=evomapx,
+            operator_labels=operator_labels,
+            lineage=lineage,
         )
         state.step        += 1
         state.evaluations += self._swarm_size
@@ -195,7 +214,15 @@ class PSOEngine(BaseEngine):
 
     def observe(self, state: EngineState) -> dict:
         pop = state.payload["positions"]
-        return {
+        lineage = state.payload.get("lineage", [])
+        contrib: dict[str, float] = {}
+        counts: dict[str, int] = {}
+        for rec in lineage:
+            op = str(rec.get("operator") or "pso_social_component")
+            delta = float(rec.get("lineage_delta", 0.0))
+            contrib[op] = contrib.get(op, 0.0) + delta
+            counts[op] = counts.get(op, 0) + 1
+        obs = {
             "step":         state.step,
             "evaluations":  state.evaluations,
             "best_fitness": state.best_fitness,
@@ -203,8 +230,13 @@ class PSOEngine(BaseEngine):
             "std_fitness":  float(np.std(pop[:, -1])),
             "diversity":    self._diversity(state),
             "inertia_w":    state.payload["w"],
-            **dict(state.payload.get("evomapx", {}) or {}),
         }
+        if contrib:
+            obs["operator_contributions"] = contrib
+            obs["operator_counts"] = counts
+            obs["evomapx_delta_f"] = "signed"
+            obs["evomapx_fidelity"] = "guessed_from_code_profiles_pso"
+        return obs
 
     def get_best_candidate(self, state: EngineState) -> CandidateRecord:
         return CandidateRecord(
@@ -248,12 +280,7 @@ class PSOEngine(BaseEngine):
             for i in range(self._swarm_size)
         ]
 
-    def export_candidates(
-        self,
-        state: EngineState,
-        k: int = 1,
-        mode: str = "best",
-    ) -> list[CandidateRecord]:
+    def export_candidates(self, state: EngineState, k: int = 1, mode: str = "best") -> list[CandidateRecord]:
         pop = state.payload["positions"]
         if mode == "best":
             idx = np.argsort(pop[:, -1])[:k]
@@ -261,7 +288,7 @@ class PSOEngine(BaseEngine):
         elif mode == "diverse":
             idx = self._diverse_indices(state, k)
             role = "diverse"
-        else:  # "elite" or default
+        else:
             idx = np.argsort(pop[:, -1])[:k]
             role = "elite"
         return [
@@ -275,12 +302,7 @@ class PSOEngine(BaseEngine):
             for i in idx
         ]
 
-    def inject_candidates(
-        self,
-        state: EngineState,
-        candidates: list[CandidateRecord],
-        policy: str = "native",
-    ) -> EngineState:
+    def inject_candidates(self, state: EngineState, candidates: list[CandidateRecord], policy: str = "native") -> EngineState:
         """Replace the *k* worst particles with migrants."""
         pop = state.payload["positions"]
         worst_idx = np.argsort(pop[:, -1])[::-1]
@@ -291,11 +313,9 @@ class PSOEngine(BaseEngine):
             pop[wi, :-1] = pos
             pop[wi, -1]  = fit
             state.evaluations += 1
-            # also update individual best
             if fit < state.payload["i_best"][wi, -1]:
                 state.payload["i_best"][wi, :-1] = pos
                 state.payload["i_best"][wi, -1]  = fit
-            # update global best
             if fit < state.best_fitness:
                 state.best_fitness  = float(fit)
                 state.best_position = list(pos)
@@ -309,7 +329,6 @@ class PSOEngine(BaseEngine):
     # ------------------------------------------------------------------
 
     def _diversity(self, state: EngineState) -> float:
-        """Mean pairwise distance (normalised by search range)."""
         pos   = state.payload["positions"][:, :-1]
         lo    = np.array(self.problem.min_values)
         hi    = np.array(self.problem.max_values)
@@ -321,7 +340,6 @@ class PSOEngine(BaseEngine):
         return float(np.mean(np.linalg.norm(pos - centroid, axis=1)) / denom)
 
     def _diverse_indices(self, state: EngineState, k: int) -> list[int]:
-        """Greedy farthest-point selection for diversity export."""
         pos = state.payload["positions"][:, :-1]
         n   = len(pos)
         selected = [int(np.argmin(state.payload["positions"][:, -1]))]

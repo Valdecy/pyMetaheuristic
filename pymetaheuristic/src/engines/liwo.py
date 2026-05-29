@@ -42,6 +42,7 @@ class LiWOEngine(PortedPopulationEngine):
         best = np.asarray(state.best_position, dtype=float)
         old_pos = pop[:, :-1].copy()
         trial = old_pos.copy()
+        attempted_labels = ["carryover"] * n
 
         for i in range(n):
             # Breeze-driven translation and optional spiral motion.
@@ -67,11 +68,17 @@ class LiWOEngine(PortedPopulationEngine):
             if strong[j] < self._lo[j] or strong[j] > self._hi[j]:
                 strong[j] = old_pos[i, j]
 
-            trial[i] = breeze if np.random.random() < p_breeze else strong
+            if np.random.random() < p_breeze:
+                trial[i] = breeze
+                attempted_labels[i] = "liwo.breeze_spiral_translation"
+            else:
+                trial[i] = strong
+                attempted_labels[i] = "liwo.strong_wind_displacement"
 
         trial = np.clip(trial, self._lo, self._hi)
         fit = self._evaluate_population(trial)
         mask = self._better_mask(fit, pop[:, -1])
         pop[mask, :-1] = trial[mask]
         pop[mask, -1] = fit[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

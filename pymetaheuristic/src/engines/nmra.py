@@ -27,20 +27,24 @@ class NMRAEngine(PortedPopulationEngine):
         pop     = pop[order]
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if i < size_b:                     # breeding operator
                 alpha = np.random.random()
                 pos   = (1.0 - alpha) * pop[i, :-1] + alpha * (best_pos - pop[i, :-1])
+                attempted_labels[i] = "nmra.breeder_exploitation_update"
             else:                              # working operator
                 worker_pool = [k for k in range(size_b, n) if k != i]
                 if len(worker_pool) < 2:
                     worker_pool = [k for k in range(n) if k != i]
                 t1, t2 = np.random.choice(worker_pool, 2, replace=False)
                 pos = pop[i, :-1] + np.random.random() * (pop[t1, :-1] - pop[t2, :-1])
+                attempted_labels[i] = "nmra.worker_exploration_update"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

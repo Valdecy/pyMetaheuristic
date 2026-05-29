@@ -205,6 +205,21 @@ class ProblemSpec:
     def evaluate(self, position) -> float:
         details = self.evaluate_details(position, apply_handler=True)
         self._assign_back(position, details["position"])
+        # Passive EvoMapX probe.  This records already-computed objective
+        # evaluations and never changes the returned value, repaired position,
+        # random state, or evaluation budget.
+        try:
+            probe = (self.metadata or {}).get("_evomapx_probe")
+            if probe is not None and getattr(probe, "enabled", False):
+                probe.record_evaluation(
+                    details.get("position"),
+                    float(details["fitness"]),
+                    raw_fitness=float(details.get("raw_fitness", details["fitness"])),
+                    details=details,
+                )
+        except Exception:
+            # Observability must never break optimization.
+            pass
         return float(details["fitness"])
 
 
@@ -355,38 +370,6 @@ class OptimizationResult:
             "metadata":           self.metadata,
         }
 
-    def evomapx_analysis(self, **kwargs):
-        from ..evomapx import evomapx_analysis
-        return evomapx_analysis(self, **kwargs)
-
-    def explain_evomapx(self, **kwargs) -> str:
-        from ..evomapx import evomapx_analysis, explain_evomapx
-        return explain_evomapx(evomapx_analysis(self, **kwargs))
-
-    def plot_evomapx_attribution(self, **kwargs):
-        from ..evomapx import plot_attribution_heatmap
-        return plot_attribution_heatmap(self, **kwargs)
-
-    def plot_evomapx_cds(self, **kwargs):
-        from ..evomapx import plot_cds_bar
-        return plot_cds_bar(self, **kwargs)
-
-    def plot_evomapx_cds_time_series(self, **kwargs):
-        from ..evomapx import plot_cds_time_series
-        return plot_cds_time_series(self, **kwargs)
-
-    def plot_evomapx_peg(self, **kwargs):
-        from ..evomapx import plot_population_evolution_graph
-        return plot_population_evolution_graph(self, **kwargs)
-
-    def export_evomapx_json(self, filepath, **kwargs) -> str:
-        from ..evomapx import export_evomapx_json
-        return export_evomapx_json(self, filepath, **kwargs)
-
-    def export_evomapx_csv(self, filepath, **kwargs) -> str:
-        from ..evomapx import export_evomapx_csv
-        return export_evomapx_csv(self, filepath, **kwargs)
-
 
 # ---------------------------------------------------------------------------
 # 7. BaseEngine  — the mandatory protocol every algorithm must satisfy
@@ -431,6 +414,15 @@ class BaseEngine(ABC):
         self._callbacks = CallbackList.from_any(getattr(config, "callbacks", None))
         self._callbacks.set_engine(self)
         self._stop_requested_reason: str | None = None
+        from ..evomapx_probe import EvoMapXProbe
+        self._evomapx_probe = EvoMapXProbe.from_engine(self)
+        try:
+            if getattr(self._evomapx_probe, "enabled", False):
+                self.problem.metadata["_evomapx_probe"] = self._evomapx_probe
+            elif self.problem.metadata.get("_evomapx_probe") is self._evomapx_probe:
+                self.problem.metadata.pop("_evomapx_probe", None)
+        except Exception:
+            pass
         self._wrap_initialize_for_custom_init()
 
     @classmethod
@@ -650,7 +642,9 @@ class BaseEngine(ABC):
 
         self.clear_stop_request()
         self._callbacks.before_run(engine=self)
+        self._evomapx_probe.begin_run()
         state = self.initialize()
+        self._evomapx_probe.after_initialize(state)
         state.start_time = time.perf_counter()
         history: list[dict[str, Any]] = []
         snapshots: list[dict[str, Any]] = []
@@ -681,20 +675,11 @@ class BaseEngine(ABC):
             if self.should_stop(state):
                 break
 
-            try:
-                from ..evomapx_phase2_hooks import capture_phase2_state
-                _evomapx_phase2_before = capture_phase2_state(self, state)
-            except Exception:
-                _evomapx_phase2_before = None
-
+            self._evomapx_probe.before_step(state)
             state = self.step(state)
             state.elapsed_time = time.perf_counter() - state.start_time
             obs = dict(self.observe(state))
-            try:
-                from ..evomapx_phase2_hooks import augment_phase2_observation
-                obs = augment_phase2_observation(self, _evomapx_phase2_before, state, obs)
-            except Exception:
-                pass
+            obs = self._evomapx_probe.after_step(state, obs)
 
             if "diversity" not in obs and self.capabilities.has_population:
                 obs["diversity"] = self._compute_diversity(state)
@@ -730,19 +715,23 @@ class BaseEngine(ABC):
             if self.config.store_history:
                 history.append(obs)
 
-            self._run_callbacks("after_iteration", state, observation=obs)
-            if self.should_stop(state):
-                break
-
+            # Store the post-step snapshot before checking terminal conditions so
+            # the final population is not silently lost when max_steps is hit.
             if self.config.store_population_snapshots and self.capabilities.has_population and state.step % self.config.snapshot_interval == 0:
                 try:
                     pop = self.get_population(state)
+                    _snapshot_population = [{"position": c.position, "fitness": c.fitness} for c in pop]
+                    _snapshot_population = self._evomapx_probe.enrich_population_snapshot(state, _snapshot_population)
                     snapshots.append({
                         "step": state.step,
-                        "population": [{"position": c.position, "fitness": c.fitness} for c in pop],
+                        "population": _snapshot_population,
                     })
                 except NotImplementedError:
                     pass
+
+            self._run_callbacks("after_iteration", state, observation=obs)
+            if self.should_stop(state):
+                break
 
             if self.config.verbose:
                 print(
@@ -752,15 +741,6 @@ class BaseEngine(ABC):
         result = self.finalize(state)
         result.history = history
         result.population_snapshots = snapshots
-        try:
-            from ..evomapx_profiles import get_evomapx_profile
-            _profile = get_evomapx_profile(self.algorithm_id, self.family)
-            result.metadata.setdefault("evomapx_profile", _profile.to_dict())
-            result.metadata.setdefault("evomapx_operators_declared", list(_profile.operators))
-            result.metadata.setdefault("evomapx_fidelity", _profile.fidelity)
-            result.metadata.setdefault("evomapx_phase", _profile.phase)
-        except Exception:
-            pass
         if state.best_position is not None:
             best_details = self.problem.evaluate_details(state.best_position, apply_handler=False)
             result.metadata.setdefault("constraint_handler", self.problem.constraint_handler or "none")
@@ -777,6 +757,7 @@ class BaseEngine(ABC):
                 result.metadata["exploration_ratio"] = 1.0 - result.metadata["exploitation_ratio"]
         result.metadata["improvement_history"] = improvement_history
         result.metadata["n_improvements"] = len(improvement_history)
+        self._evomapx_probe.finalize_result(result)
         self._callbacks.after_run(state=state, engine=self, result=result)
         return result
 

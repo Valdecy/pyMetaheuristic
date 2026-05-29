@@ -26,10 +26,12 @@ class QIOEngine(PortedPopulationEngine):
         lo, hi = self._lo, self._hi; evals = 0
         t = state.step; max_iter=self._params.get("max_iterations",1000)
         best_pos=pop[self._best_index(pop[:,-1]),:-1].copy()
+        operator_labels=["carryover"]*n
         for i in range(n):
             new_pos=np.zeros(d)
             others=[k for k in range(n) if k!=i]
             if np.random.random()>0.5 and len(others)>=3:
+                attempted_label="qio.three_point_quadratic_interpolation"
                 K1,K2,K3=np.random.choice(others,3,replace=False)
                 f1,f2,f3=pop[i,-1],pop[K1,-1],pop[K2,-1]
                 for j in range(d):
@@ -40,6 +42,7 @@ class QIOEngine(PortedPopulationEngine):
                 w1=3*b_c*np.random.randn()
                 new_pos+=w1*(pop[K3,:-1]-new_pos)+round(0.5*(0.05+np.random.random()))*np.log(np.random.random()/max(np.random.random(),1e-300))
             else:
+                attempted_label="qio.two_point_reflection_interpolation"
                 if len(others)>=2:
                     K1,K2=np.random.choice(others,2,replace=False)
                 else:
@@ -57,4 +60,5 @@ class QIOEngine(PortedPopulationEngine):
             new_fit=float(self._evaluate_population(new_pos[None])[0]); evals+=1
             if self._is_better(new_fit,pop[i,-1]):
                 pop[i]=np.append(new_pos,new_fit)
-        return pop, evals, {}
+                operator_labels[i]=attempted_label
+        return pop, evals, {"operator_labels": operator_labels}

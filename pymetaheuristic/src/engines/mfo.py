@@ -60,17 +60,20 @@ class MFOEngine(PortedPopulationEngine):
             return float(new_fitness) <= float(old_fitness)
         return float(new_fitness) >= float(old_fitness)
 
-    def _greedy_update(self, pop: np.ndarray, i: int, trial: np.ndarray) -> None:
+    def _greedy_update(self, pop: np.ndarray, i: int, trial: np.ndarray) -> bool:
         trial = np.clip(np.asarray(trial, dtype=float), self._lo, self._hi)
         fitness = float(self.problem.evaluate(trial))
         if self._accept_if_not_worse(fitness, float(pop[i, -1])):
             pop[i, :-1] = trial
             pop[i, -1] = fitness
+            return True
+        return False
 
     def _step_impl(self, state, pop: np.ndarray):
         n, dim = pop.shape[0], self.problem.dimension
         t = max(1, state.step + 1)
         evals = 0
+        operator_labels = ["carryover"] * n
 
         # Phase 1 — Eqs. (4)–(6): select a better seabird and attack it.
         for i in range(n):
@@ -79,7 +82,8 @@ class MFOEngine(PortedPopulationEngine):
             r = np.random.rand(dim)
             intensity = np.random.randint(1, 3, size=dim)  # I_ij in {1, 2}
             trial = pop[i, :-1] + (1.0 - 2.0 * r) * (selected_seabird - intensity * pop[i, :-1])
-            self._greedy_update(pop, i, trial)
+            if self._greedy_update(pop, i, trial):
+                operator_labels[i] = "mfo.seabird_attack_exploration"
             evals += 1
 
         # Phase 2 — Eqs. (7)–(8): local dive toward the best known prey.
@@ -87,7 +91,8 @@ class MFOEngine(PortedPopulationEngine):
         for i in range(n):
             r = np.random.rand(dim)
             trial = pop[i, :-1] + (1.0 - 2.0 * r) * ((best_pos - pop[i, :-1]) / float(t))
-            self._greedy_update(pop, i, trial)
+            if self._greedy_update(pop, i, trial):
+                operator_labels[i] = "mfo.local_dive_exploitation"
             evals += 1
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

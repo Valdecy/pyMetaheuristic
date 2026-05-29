@@ -23,14 +23,18 @@ class MKEEngine(PortedPopulationEngine):
         fc = float(self._params.get("fluctuation_coeff", 0.7))
         c = float(self._params.get("c", 3.0))
         trials = []
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if np.random.rand() < pr:
                 y = pop[i, :-1] + np.random.rand(dim) * (king - pop[i, :-1]) + fc * np.random.normal(0, 1, dim) * self._span / max(c, 1e-12)
+                attempted_labels[i] = "mke.king_learning_fluctuation_update"
             else:
                 peers = pop[self._rand_indices(n, i, 2), :-1]
                 y = king + np.random.rand(dim) * (peers[0] - peers[1])
+                attempted_labels[i] = "mke.peer_knowledge_difference_update"
             trials.append(np.clip(y, self._lo, self._hi))
         trial_pop = self._pop_from_positions(np.asarray(trials))
         mask = self._better_mask(trial_pop[:, -1], pop[:, -1])
         pop[mask] = trial_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

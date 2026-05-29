@@ -29,23 +29,30 @@ class LOAEngine(PortedPopulationEngine):
         if nomad.shape[0] != n: nomad = np.zeros(n, dtype=bool)
         elite = pop[self._order(pop[:, -1])[:max(2, n // 4)], :-1]
         trials = []
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             x = pop[i, :-1]
             if nomad[i] or np.random.rand() < float(self._params.get("roaming_prob", 0.2)):
                 y = x + np.random.normal(0.0, 0.2 * self._span, dim)
+                attempted_labels[i] = "loa.nomad_roaming_update"
             elif np.random.rand() < float(self._params.get("mating_prob", 0.4)):
                 mate = elite[np.random.randint(elite.shape[0])]
                 beta = np.random.rand(dim)
                 y = beta * x + (1.0 - beta) * mate
+                attempted_labels[i] = "loa.pride_mating_recombination"
             else:
                 leader = elite[0]
                 y = x + np.random.rand(dim) * (leader - x) + np.random.normal(0.0, 0.03 * self._span, dim)
+                attempted_labels[i] = "loa.pride_leader_roaming_update"
             mask = np.random.rand(dim) < float(self._params.get("mutation_rate", 0.1))
+            if np.any(mask):
+                attempted_labels[i] = attempted_labels[i] + ".mutation"
             y[mask] += np.random.normal(0.0, 0.1 * self._span[mask])
             trials.append(np.clip(y, self._lo, self._hi))
         trial_pop = self._pop_from_positions(np.asarray(trials))
         mask = self._better_mask(trial_pop[:, -1], pop[:, -1])
         pop[mask] = trial_pop[mask]
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
         # territorial takeover: best nomads can replace worst pride members
         if np.any(nomad) and np.any(~nomad):
             best_nom = np.where(nomad)[0][self._order(pop[nomad, -1])[:max(1, int(nomad.sum()/4))]]
@@ -55,4 +62,6 @@ class LOAEngine(PortedPopulationEngine):
                 if self._is_better(pop[a, -1], pop[b, -1]):
                     pop[[a, b]] = pop[[b, a]]
                     nomad[a], nomad[b] = nomad[b], nomad[a]
-        return pop, n, {"nomad": nomad}
+                    operator_labels[int(a)] = "loa.territorial_takeover_exchange"
+                    operator_labels[int(b)] = "loa.territorial_takeover_exchange"
+        return pop, n, {"nomad": nomad, "operator_labels": operator_labels}

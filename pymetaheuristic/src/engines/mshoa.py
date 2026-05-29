@@ -51,17 +51,21 @@ class MSHOAEngine(PortedPopulationEngine):
         old = pop[:, :-1].copy()
         best = pop[self._best_index(pop[:, -1]), :-1]
         new = old.copy()
+        operator_labels = ["carryover"] * n
         for i in range(n):
             if pti[i] == 1:
                 r = np.random.randint(n - 1); r = r + (r >= i)
                 D = np.random.uniform(-1.0, 1.0)
                 new[i] = best - (old[i] - best) + D * (old[r] - old[i])
+                operator_labels[i] = "mshoa.smasher_attack_update"
             elif pti[i] == 2:
                 theta = np.random.uniform(np.pi, 2*np.pi)
                 new[i] = best * np.cos(theta)
+                operator_labels[i] = "mshoa.spearer_circular_attack_update"
             else:
                 sign = 1.0 if np.random.rand() < 0.5 else -1.0
                 new[i] = best + sign * float(self._params.get("k_value", 0.3)) * best
+                operator_labels[i] = "mshoa.defense_position_update"
             new[i] = self._reflect(new[i]) if bool(self._params.get("use_reflection", True)) else np.clip(new[i], self._lo, self._hi)
         fit = self._evaluate_population(new)
         pop = np.hstack((new, fit[:, None]))
@@ -72,4 +76,4 @@ class MSHOAEngine(PortedPopulationEngine):
         rpa = np.random.rand(n) * np.pi
         lpt, rpt = self._ptype(lpa), self._ptype(rpa)
         pti = np.where(self._adiff(lpa, lpt) < self._adiff(rpa, rpt), lpt, rpt)
-        return pop, n, {"pti": pti}
+        return pop, n, {"pti": pti, "operator_labels": operator_labels}

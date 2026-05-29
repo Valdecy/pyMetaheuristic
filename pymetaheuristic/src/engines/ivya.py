@@ -23,22 +23,26 @@ class IVYAEngine(PortedPopulationEngine):
         span=hi-lo; span=np.where(span==0,1,span)
         GV=state.payload["GV"]
         order=self._order(pop[:,-1]); pop=pop[order]; GV=GV[order]
-        new_positions=[]; new_costs=[]; new_GVs=[]
+        new_positions=[]; new_costs=[]; new_GVs=[]; new_labels=[]
         for i in range(n):
             ii=(i+1)%n; beta_1=1+np.random.random()/2
             if pop[i,-1]<beta_1*pop[0,-1]:
                 new_pos=pop[i,:-1]+np.abs(np.random.randn(d))*(pop[ii,:-1]-pop[i,:-1])+np.random.randn(d)*GV[i]
+                attempted_label = "ivya.neighbor_growth_update"
             else:
                 new_pos=pop[0,:-1]*(np.random.random()+np.random.randn(d)*GV[i])
+                attempted_label = "ivya.best_growth_update"
             GV[i]*=(np.random.random()**2)*np.random.randn(d)
             new_pos=np.clip(new_pos,lo,hi)
             new_gv=new_pos/span
             new_cost=float(self._evaluate_population(new_pos[None])[0]); evals+=1
-            new_positions.append(new_pos); new_costs.append(new_cost); new_GVs.append(new_gv)
+            new_positions.append(new_pos); new_costs.append(new_cost); new_GVs.append(new_gv); new_labels.append(attempted_label)
         all_pos=np.vstack([pop[:,:-1],np.array(new_positions)])
         all_fit=np.concatenate([pop[:,-1],new_costs])
         all_gv=np.vstack([GV,np.array(new_GVs)])
+        all_labels=["carryover"]*n + list(new_labels)
         ord2=np.argsort(all_fit)[:n]
         pop=np.hstack([all_pos[ord2],all_fit[ord2,None]]); GV=all_gv[ord2]
+        operator_labels=[all_labels[int(i)] for i in ord2]
         state.payload["GV"]=GV
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

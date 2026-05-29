@@ -27,20 +27,30 @@ class NMMEngine(PortedPopulationEngine):
         worst = pop[-1, :-1]
         alpha = float(self._params.get("alpha", 0.1)); gamma = float(self._params.get("gamma", 0.3)); rho = float(self._params.get("rho", -0.2)); sigma = float(self._params.get("sigma", -0.2))
         evals = 0
+        operator_labels = ["carryover"] * pop.shape[0]
         xr = np.clip(centroid + alpha * (centroid - worst), self._lo, self._hi); fr = float(self.problem.evaluate(xr)); evals += 1
         best_fit, second_worst_fit, worst_fit = pop[0, -1], pop[-2, -1], pop[-1, -1]
         between = (self._is_better(fr, second_worst_fit) or fr == second_worst_fit) and (self._is_better(best_fit, fr) or fr == best_fit)
         if between:
             pop[-1, :-1], pop[-1, -1] = xr, fr
+            operator_labels[-1] = "nmm.reflection_update"
         elif self._is_better(fr, best_fit):
             xe = np.clip(centroid + gamma * (centroid - worst), self._lo, self._hi); fe = float(self.problem.evaluate(xe)); evals += 1
-            pop[-1, :-1], pop[-1, -1] = (xe, fe) if self._is_better(fe, fr) else (xr, fr)
+            if self._is_better(fe, fr):
+                pop[-1, :-1], pop[-1, -1] = xe, fe
+                operator_labels[-1] = "nmm.expansion_update"
+            else:
+                pop[-1, :-1], pop[-1, -1] = xr, fr
+                operator_labels[-1] = "nmm.reflection_update"
         else:
             xc = np.clip(centroid + rho * (centroid - worst), self._lo, self._hi); fc = float(self.problem.evaluate(xc)); evals += 1
             if self._is_better(fc, worst_fit):
                 pop[-1, :-1], pop[-1, -1] = xc, fc
+                operator_labels[-1] = "nmm.contraction_update"
             else:
                 newpos = np.clip(pop[0, :-1] + sigma * (pop[1:, :-1] - pop[0, :-1]), self._lo, self._hi)
                 fit = self._evaluate_population(newpos); evals += newpos.shape[0]
                 pop[1:, :-1], pop[1:, -1] = newpos, fit
-        return pop, evals, {}
+                for _i in range(1, pop.shape[0]):
+                    operator_labels[_i] = "nmm.shrink_update"
+        return pop, evals, {"operator_labels": operator_labels}

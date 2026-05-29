@@ -21,7 +21,9 @@ class PKOEngine(PortedPopulationEngine):
         best_idx=self._best_index(pop[:,-1]); best_pos=pop[best_idx,:-1].copy(); best_fit=pop[best_idx,-1]
         Crest_angles=2*np.pi*np.random.random()
         o=np.exp(-t/max_iter)**2; PEmax=0.5; PEmin=0
+        operator_labels=["carryover"]*n
         for i in range(n):
+            attempted_label="pko.perching_exploitation_update"
             if np.random.random()<0.8:
                 j=i
                 while j==i: j=np.random.randint(n)
@@ -30,18 +32,22 @@ class PKOEngine(PortedPopulationEngine):
                 if np.random.random()<0.5:
                     T=beatingRate-(t**(1/BF)/(max_iter**(1/BF)))
                     X_1=pop[i,:-1]+alpha*T*(pop[j,:-1]-pop[i,:-1])
+                    attempted_label="pko.diving_beating_rate_update"
                 else:
                     T=(np.e-np.e**((t-1)/max_iter)**(1/BF))*np.cos(Crest_angles)
                     X_1=pop[i,:-1]+alpha*T*(pop[j,:-1]-pop[i,:-1])
+                    attempted_label="pko.crest_angle_foraging_update"
             else:
                 alpha=2*np.random.randn(d)-1
                 b=pop[i,:-1]+o**2*np.random.randn()*best_pos
                 HA=np.random.random()*pop[i,-1]/(best_fit+1e-300)
                 X_1=pop[i,:-1]+HA*o*alpha*(b-best_pos)
+                attempted_label="pko.hovering_attack_update"
             X_1=np.clip(X_1,lo,hi)
             new_fit=float(self._evaluate_population(X_1[None])[0]); evals+=1
             if self._is_better(new_fit,pop[i,-1]):
                 pop[i]=np.append(X_1,new_fit)
+                operator_labels[i]=attempted_label
             if self._is_better(pop[i,-1],best_fit):
                 best_fit=pop[i,-1]; best_pos=pop[i,:-1].copy()
         PE=PEmax-(PEmax-PEmin)*(t/max_iter)
@@ -53,6 +59,7 @@ class PKOEngine(PortedPopulationEngine):
                 new_fit=float(self._evaluate_population(X_1[None])[0]); evals+=1
                 if self._is_better(new_fit,pop[i,-1]):
                     pop[i]=np.append(X_1,new_fit)
+                    operator_labels[i]="pko.population_escape_update"
                 if self._is_better(pop[i,-1],best_fit):
                     best_fit=pop[i,-1]; best_pos=pop[i,:-1].copy()
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

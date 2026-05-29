@@ -32,6 +32,7 @@ class PLOEngine(PortedPopulationEngine):
         X_mean=np.mean(pop[:,:-1],axis=0)
         w1=np.tanh((t/max_iter)**4); w2=np.exp(-(2*t/max_iter)**3)
         X_new=np.zeros_like(pop[:,:-1])
+        attempted_labels=["plo.aurora_global_local_update"]*n
         for i in range(n):
             a=np.random.random()/2+1
             V[i]=np.exp((1-a)/100*t)
@@ -43,9 +44,11 @@ class PLOEngine(PortedPopulationEngine):
             for j in range(d):
                 if np.random.random()<0.05 and np.random.random()<E:
                     X_new[i,j]=pop[i,j]+np.sin(np.random.random()*np.pi)*(pop[i,j]-pop[A[i],j])
+                    attempted_labels[i]="plo.polar_light_collision_update"
             X_new[i]=np.clip(X_new[i],lo,hi)
         new_fits=self._evaluate_population(X_new); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([X_new,new_fits[:,None]])[mask]
         state.payload["V"]=V
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

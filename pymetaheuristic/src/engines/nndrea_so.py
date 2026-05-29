@@ -85,6 +85,8 @@ class NNDREASOEngine(BaseEngine):
         # Decide stage (delta fraction of evaluations in stage 1)
         max_eval_s1 = state.payload.get("max_eval_stage1", None)
 
+        operator_labels = ["carryover"] * N
+
         if stage == 1:
             # Evolve NN weights via DE
             F  = 0.8; CR = 0.9
@@ -104,6 +106,7 @@ class NNDREASOEngine(BaseEngine):
                     off_w[i]     = trial
                     pop[i, :-1]  = pos_t
                     pop[i, -1]   = ft
+                    operator_labels[i] = "nndrea_so.nn_weight_de_stage"
 
             # Check if we should switch to stage 2
             if state.evaluations >= int(state.step * N * self._delta + N):
@@ -123,13 +126,14 @@ class NNDREASOEngine(BaseEngine):
                 if self.problem.is_better(ft, pop[i, -1]):
                     pop[i, :-1] = trial
                     pop[i, -1]  = ft
+                    operator_labels[i] = "nndrea_so.solution_de_stage"
             evals = N
 
         bi = int(np.argmin(pop[:, -1]))
         bf = float(pop[bi, -1])
         bp = pop[bi, :-1].tolist()
 
-        state.payload      = dict(population=pop, weights=pop_w, stage=stage)
+        state.payload      = dict(population=pop, weights=pop_w, stage=stage, operator_labels=operator_labels)
         state.evaluations += evals
         state.step        += 1
         if self.problem.is_better(bf, state.best_fitness):
@@ -212,9 +216,10 @@ class SACCEAMIIEngine(BaseEngine):
         hi     = np.array(self.problem.max_values, dtype=float)
         N, D   = pop.shape[0], self.problem.dimension
         evals  = 0
+        operator_labels = ["carryover"] * N
 
         # Optimise each subcomponent independently with DE
-        for grp in groups:
+        for group_index, grp in enumerate(groups):
             grp  = list(grp)
             sub_n= min(N, len(grp) + 1)
             F    = 0.8; CR = 0.9
@@ -234,6 +239,11 @@ class SACCEAMIIEngine(BaseEngine):
                 if self.problem.is_better(ft, pop[i, -1]):
                     pop[i, :-1] = trial
                     pop[i, -1]  = ft
+                    operator_labels[i] = (
+                        "sacc_eam2.even_subcomponent_de_update"
+                        if int(group_index) % 2 == 0
+                        else "sacc_eam2.odd_subcomponent_de_update"
+                    )
                     if self.problem.is_better(ft, float(self.problem.evaluate(sub_best))):
                         sub_best = trial.copy()
                         evals   += 1
@@ -257,7 +267,7 @@ class SACCEAMIIEngine(BaseEngine):
         else:
             bp = pop[bi, :-1].tolist()
 
-        state.payload      = dict(population=pop, groups=groups, global_best=gbest)
+        state.payload      = dict(population=pop, groups=groups, global_best=gbest, operator_labels=operator_labels)
         state.evaluations += evals
         state.step        += 1
         if self.problem.is_better(bf, state.best_fitness):

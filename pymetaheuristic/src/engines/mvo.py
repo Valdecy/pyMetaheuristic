@@ -39,6 +39,7 @@ class MVOEngine(BaseEngine):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
+        operator_labels=["carryover"]*self._n
         T=self.config.max_steps or 1; t=state.step
         fc=1/(1+pop[:,-1]+abs(pop[:,-1].min())); cs=np.cumsum(fc); cs/=cs[-1]
         fit=np.column_stack((fc,cs))
@@ -49,17 +50,19 @@ class MVOEngine(BaseEngine):
             for j in range(self.problem.dimension):
                 r1=np.random.rand()
                 if r1<fit[i,1]:
+                    operator_labels[i]="mvo.white_hole_tunneling"
                     cs2=np.cumsum(fc); cs2/=cs2[-1]; wh=np.searchsorted(cs2,np.random.rand())
                     pop[i,j]=pop[wh,j]
                 r2=np.random.rand()
                 if r2<wep:
+                    operator_labels[i]="mvo.wormhole_exploitation"
                     r3=np.random.rand()
                     if r3<=0.5: pop[i,j]=np.clip(elite[j]+tdr*((hi[j]-lo[j])*np.random.rand()+lo[j]),lo[j],hi[j])
                     else: pop[i,j]=np.clip(elite[j]-tdr*((hi[j]-lo[j])*np.random.rand()+lo[j]),lo[j],hi[j])
             pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

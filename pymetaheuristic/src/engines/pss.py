@@ -25,8 +25,11 @@ class PSSEngine(PortedPopulationEngine):
 
         rand_vals=np.random.random((n,dim))
         new_pos=np.empty_like(pop[:,:-1])
+        operator_labels=["carryover"]*n
         for i in range(n):
             pos=pop[i,:-1].copy()
+            used_full_domain = False
+            used_prominent_domain = False
             for k in range(dim):
                 if ns:
                     dev=abs(0.5*(1-ar)*(self._span[k]))*(1-t/T)
@@ -36,9 +39,17 @@ class PSSEngine(PortedPopulationEngine):
                 if rub<=rlb: rub=rlb+1e-10
                 if np.random.random()<=ar:
                     pos[k]=rlb+rand_vals[i,k]*(rub-rlb)
+                    used_prominent_domain = True
                 else:
                     pos[k]=self._lo[k]+rand_vals[i,k]*self._span[k]
+                    used_full_domain = True
             if steps>0: pos=np.round(pos/steps)*steps
+            if used_full_domain and used_prominent_domain:
+                operator_labels[i]="pss.mixed_domain_sampling_update"
+            elif used_full_domain:
+                operator_labels[i]="pss.full_domain_sampling_update"
+            else:
+                operator_labels[i]="pss.prominent_domain_sampling_update"
             new_pos[i]=np.clip(pos,self._lo,self._hi)
 
         new_fit=self._evaluate_population(new_pos)
@@ -46,4 +57,4 @@ class PSSEngine(PortedPopulationEngine):
         cur_best=float(new_fit[self._best_index(new_fit)])
         old_best=float(pop[order[0],-1]) if len(order) else cur_best
         new_sol = self._is_better(cur_best, old_best)
-        return pop, n, {"new_solution": new_sol}
+        return pop, n, {"new_solution": new_sol, "operator_labels": operator_labels}

@@ -50,6 +50,7 @@ class ICAEngine(PortedPopulationEngine):
         n_emp      = len(imps)
         n_rev_var  = max(1, int(rev_rate * dim))
         evals      = 0
+        operator_labels = ["carryover"] * n
 
         # 1. Assimilation
         for ci, imp_idx in zip(range(len(cols)), assignment):
@@ -59,6 +60,7 @@ class ICAEngine(PortedPopulationEngine):
             pos     = np.clip(pos, self._lo, self._hi)
             fit     = float(self.problem.evaluate(pos)); evals += 1
             pop[col_row, :-1] = pos; pop[col_row, -1] = fit
+            operator_labels[int(col_row)] = "ica.assimilation"
 
         # 2. Revolution (random-dimension reset)
         for imp_row in imps:
@@ -67,6 +69,7 @@ class ICAEngine(PortedPopulationEngine):
             pos[idx] = np.random.uniform(self._lo[idx], self._hi[idx])
             fit = float(self.problem.evaluate(pos)); evals += 1
             pop[imp_row, :-1] = pos; pop[imp_row, -1] = fit
+            operator_labels[int(imp_row)] = "ica.imperialist_revolution"
         for ci in range(len(cols)):
             if np.random.random() < rev_prob:
                 idx = np.random.choice(dim, n_rev_var, replace=False)
@@ -74,11 +77,15 @@ class ICAEngine(PortedPopulationEngine):
                 pos[idx] = np.random.uniform(self._lo[idx], self._hi[idx])
                 fit = float(self.problem.evaluate(pos)); evals += 1
                 pop[cols[ci], :-1] = pos; pop[cols[ci], -1] = fit
+                operator_labels[int(cols[ci])] = "ica.colony_revolution"
 
         # 3. Intra-empire competition: colony beats imperialist?
         for ci, imp_idx in zip(range(len(cols)), assignment):
             if self._is_better(float(pop[cols[ci], -1]), float(pop[imps[imp_idx], -1])):
-                imps[imp_idx], cols[ci] = cols[ci], imps[imp_idx]
+                old_imp, old_col = imps[imp_idx], cols[ci]
+                imps[imp_idx], cols[ci] = old_col, old_imp
+                operator_labels[int(old_col)] = "ica.intra_empire_competition"
+                operator_labels[int(old_imp)] = "ica.intra_empire_competition"
 
         # 4. Inter-empire competition: steal weakest colony from weakest empire
         emp_costs = []
@@ -101,4 +108,4 @@ class ICAEngine(PortedPopulationEngine):
                       else worst_cols[int(np.argmin(wc_fit))]
             assignment[wc_idx] = best_emp
 
-        return pop, evals, {"imps": imps, "cols": cols, "assignment": assignment}
+        return pop, evals, {"imps": imps, "cols": cols, "assignment": assignment, "operator_labels": operator_labels}

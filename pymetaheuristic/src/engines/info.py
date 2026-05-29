@@ -36,6 +36,7 @@ class INFOEngine(PortedPopulationEngine):
         better_fit = float(pop[order[bet_idx], -1])
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             delta = 2.0*np.random.random()*alpha - alpha
             sigma = 2.0*np.random.random()*alpha - alpha
@@ -70,9 +71,11 @@ class INFOEngine(PortedPopulationEngine):
             if np.random.random() < 0.5:
                 z1 = pop[i,:-1] + sigma*np.random.random()*MR + np.random.random()*(best_pos - pop[a,:-1])/(best_fit - fa + 1)
                 z2 = best_pos   + sigma*np.random.random()*MR + np.random.random()*(pop[a,:-1] - pop[b,:-1])/(fa - fb + 1)
+                attempted_labels[i] = "info.best_weighted_mean_rule"
             else:
                 z1 = pop[a,:-1] + sigma*np.random.random()*MR + np.random.random()*(pop[b,:-1] - pop[c,:-1])/(fb - fc + 1)
                 z2 = better_pos + sigma*np.random.random()*MR + np.random.random()*(pop[a,:-1] - pop[b,:-1])/(fa - fb + 1)
+                attempted_labels[i] = "info.random_weighted_mean_rule"
 
             u = np.random.random(dim)
             pos = np.where(u < 0.5, z1, z2)
@@ -82,4 +85,5 @@ class INFOEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

@@ -27,6 +27,8 @@ class MRFOEngine(PortedPopulationEngine):
 
         order       = self._order(pop[:, -1])
         best_pos    = pop[order[0], :-1].copy()
+        phase_labels = ["carryover"] * n
+        operator_labels = ["carryover"] * n
 
         new_pos = np.empty_like(pop[:, :-1])
         for i in range(n):
@@ -37,20 +39,25 @@ class MRFOEngine(PortedPopulationEngine):
                     x_rand = np.random.uniform(self._lo, self._hi)
                     ref    = x_rand
                     prev   = x_rand if i == 0 else pop[i - 1, :-1]
+                    phase_labels[i] = "mrfo.cyclone_random_foraging"
                 else:                                  # towards best
                     ref    = best_pos
                     prev   = best_pos if i == 0 else pop[i - 1, :-1]
+                    phase_labels[i] = "mrfo.cyclone_best_foraging"
                 pos = ref + np.random.random() * (prev - pop[i, :-1]) + beta * (ref - pop[i, :-1])
             else:                                       # Chain foraging  (Eqs. 1–2)
                 r     = np.random.random()
                 alpha = 2.0 * r * np.sqrt(abs(np.log(r + 1e-30)))
                 prev  = best_pos if i == 0 else pop[i - 1, :-1]
                 pos   = pop[i, :-1] + r * (prev - pop[i, :-1]) + alpha * (best_pos - pop[i, :-1])
+                phase_labels[i] = "mrfo.chain_foraging"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit  = self._evaluate_population(new_pos)
         new_pop  = np.hstack([new_pos, new_fit[:, None]])
         mask     = self._better_mask(new_fit, pop[:, -1])
+        for _i in np.where(mask)[0]:
+            operator_labels[int(_i)] = phase_labels[int(_i)]
         pop[mask] = new_pop[mask]
         evals    = n
 
@@ -64,7 +71,9 @@ class MRFOEngine(PortedPopulationEngine):
         som_fit  = self._evaluate_population(som_pos)
         som_pop  = np.hstack([som_pos, som_fit[:, None]])
         mask2    = self._better_mask(som_fit, pop[:, -1])
+        for _i in np.where(mask2)[0]:
+            operator_labels[int(_i)] = "mrfo.somersault_foraging"
         pop[mask2] = som_pop[mask2]
         evals   += n
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

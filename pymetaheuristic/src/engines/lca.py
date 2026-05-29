@@ -20,23 +20,31 @@ class LCAEngine(PortedPopulationEngine):
         pc = float(self._params.get("pc", 0.2)); pm = float(self._params.get("pm", 0.1))
         best_idx = self._best_index(pop[:, -1]); best_pos = pop[best_idx, :-1].copy()
         rate = 1 - t / max_iter
+        operator_labels = ["carryover"] * n
         for i in range(n):
             # Replication (move toward best)
             Xi = pop[i, :-1].copy()
+            attempted = "lca.peer_lateral_invasion"
             if np.random.random() < pc:
                 r = np.random.random(d)
                 Xi = pop[i, :-1] + r * (best_pos - pop[i, :-1])
+                attempted = "lca.best_cell_replication"
             # Invasion (crossover with random cell)
             j = i
             while j == i: j = np.random.randint(n)
             mask = np.random.random(d) < 0.5
             Xi[mask] = pop[j, :-1][mask]
             # Angiogenesis (random mutation)
+            mutated = False
             for k in range(d):
                 if np.random.random() < pm:
                     Xi[k] = lo[k] + np.random.random() * (hi[k] - lo[k])
+                    mutated = True
+            if mutated:
+                attempted = "lca.angiogenesis_mutation"
             Xi = np.clip(Xi, lo, hi)
             new_fit = float(self._evaluate_population(Xi[None])[0]); evals += 1
             if self._is_better(new_fit, pop[i, -1]):
                 pop[i] = np.append(Xi, new_fit)
-        return pop, evals, {}
+                operator_labels[i] = attempted
+        return pop, evals, {"operator_labels": operator_labels}
