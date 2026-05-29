@@ -419,7 +419,7 @@ EVOMAPX_OPERATOR_PROFILES: dict[str, EvoMapXProfile] = {
 # Phase 2 native-family profiles
 # ---------------------------------------------------------------------------
 # These algorithms now receive budget-preserving operator-level telemetry from
-# evomapx_phase2_hooks.  Engines with more precise native logs keep their own
+# evomapx_hooks.  Engines with more precise native logs keep their own
 # operator_contributions; the phase-2 hook only fills missing logs.
 
 _PHASE2_DE_VARIANTS = (
@@ -488,7 +488,7 @@ for _aid in _PHASE2_GWO_VARIANTS:
 # Phase 3 native-family profiles
 # ---------------------------------------------------------------------------
 # WOA/HHO/BAT/Firefly/Cuckoo-Levy families now receive runtime operator
-# contributions from evomapx_phase2_hooks.  The hooks are budget-preserving:
+# contributions from evomapx_hooks.  The hooks are budget-preserving:
 # they use already-computed pre/post fitness and do not evaluate the objective.
 
 _PHASE3_WOA_VARIANTS = ("woa", "i_woa", "hi_woa", "whale_foa", "nwoa")
@@ -583,7 +583,7 @@ for _aid in _PHASE3_CUCKOO_LEVY_VARIANTS:
 # Phase 4 native-family profiles
 # ---------------------------------------------------------------------------
 # ABC/bee-search, ACO/ant-search, Ant-lion, and broad leader-guided swarm
-# families now receive runtime operator contributions from evomapx_phase2_hooks.
+# families now receive runtime operator contributions from evomapx_hooks.
 # The hooks remain budget-preserving: they compare already-computed pre/post
 # fitness values and do not evaluate the objective function.
 
@@ -682,7 +682,7 @@ for _aid in _PHASE4_LEADER_GUIDED_SWARM_VARIANTS:
 # Phase 5 native-family profiles
 # ---------------------------------------------------------------------------
 # Physics-based, equilibrium, force-field, wave/flow, and energy-state
-# optimizers receive runtime operator contributions from evomapx_phase2_hooks.
+# optimizers receive runtime operator contributions from evomapx_hooks.
 # The hooks remain budget-preserving and passive: they use only already observed
 # pre/post fitness values and never call the objective function.
 

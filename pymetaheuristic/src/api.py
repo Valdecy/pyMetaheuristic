@@ -151,6 +151,8 @@ def create_optimizer(
         "repair_function": repair_function,
         "repair_name": repair_name,
         "use_raw_repair_input": repair_name is not None,
+        "init_function": init_function,
+        "init_name": init_name,
         "penalty_coefficient": penalty_coefficient,
         "equality_tolerance": equality_tolerance,
         "resample_attempts": resample_attempts,

@@ -9,6 +9,7 @@ from . import (
     cooperation,
     engines,
     evomapx_profiles,
+    evomapx_validation,
     execution,
     diagnostics,
     graphs,
@@ -220,7 +221,7 @@ __all__ = [
     "summarize_cooperative_result", "summarize_result",
     "telemetry", "test_functions", "evomapx_profiles",
     "EvoMapXProfile", "get_evomapx_operators", "get_evomapx_profile",
-    "list_evomapx_profiles",
+    "list_evomapx_profiles", "validate_evomapx_engines",
     "Termination", "termination",
     "plot_diversity_chart", "plot_diversity_comparison",
     "plot_explore_exploit_chart", "plot_global_best_chart",
@@ -262,5 +263,6 @@ __all__ = [
 ]
 
 from .evomapx import evomapx_analysis, explain_evomapx, operator_attribution_matrix, convergence_driver_score, population_evolution_graph
+from .evomapx_validation import validate_evomapx_engines
 
 from .evomapx_profiles import EvoMapXProfile, get_evomapx_operators, get_evomapx_profile, list_evomapx_profiles

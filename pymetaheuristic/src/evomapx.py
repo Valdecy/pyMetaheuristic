@@ -210,6 +210,25 @@ def _positive(value: float | None, positive_only: bool = True) -> float:
     return max(0.0, v) if positive_only else v
 
 
+def _operator_count(row: dict[str, Any], operator: str | None = None, default: int = 1) -> int:
+    """Return the number of applications represented by one attribution row."""
+    keys = ("operator_counts", "evomapx_operator_counts", "operator_applications", "application_counts")
+    for key in keys:
+        counts = row.get(key)
+        if isinstance(counts, dict) and operator is not None and operator in counts:
+            try:
+                return max(1, int(counts[operator]))
+            except Exception:
+                pass
+    for key in ("n_applications", "applications", "count"):
+        if key in row:
+            try:
+                return max(1, int(row[key]))
+            except Exception:
+                pass
+    return max(1, int(default))
+
+
 def _event_dicts(result: Any) -> list[dict[str, Any]]:
     return [_to_plain(e) for e in (_get(result, "events", []) or [])]
 
@@ -230,6 +249,34 @@ def _history_rows(result: Any) -> list[dict[str, Any]]:
     return [_to_plain(row) for row in (_get(result, "history", []) or []) if isinstance(_to_plain(row), dict)]
 
 
+def _semanticize_label(algorithm_id: Any, label: Any) -> str:
+    lab = str(label)
+    try:
+        from .evomapx_operator_catalog import semanticize_operator_label
+        return str(semanticize_operator_label(str(algorithm_id or ""), lab) or lab)
+    except Exception:
+        return lab
+
+
+
+
+
+def _expand_label_value(algorithm_id: Any, label: Any, value: float) -> list[tuple[str, float, float, int]]:
+    """Expand fused operator labels while preserving total contribution."""
+    lab = _semanticize_label(algorithm_id, label)
+    try:
+        from .evomapx_operator_catalog import expand_compound_operator_label
+        labels = expand_compound_operator_label(str(algorithm_id or ""), lab)
+    except Exception:
+        labels = [lab]
+    labels = [str(x) for x in labels if x not in {None, ""}]
+    if not labels:
+        labels = [lab]
+    split_size = max(1, len(labels))
+    share = 1.0 / float(split_size)
+    return [(x, float(value) * share, share, split_size) for x in labels]
+
+
 def _candidate_unit(row: dict[str, Any], default: str, level: str) -> str:
     candidates: list[Any] = []
     if level in {"operator", "auto"}:
@@ -241,10 +288,11 @@ def _candidate_unit(row: dict[str, Any], default: str, level: str) -> str:
         candidates.extend([row.get("label"), row.get("agent"), row.get("island")])
     if level in {"algorithm", "auto"}:
         candidates.extend([row.get("algorithm"), row.get("algorithm_id")])
+    alg = row.get("algorithm", row.get("algorithm_id", default))
     for item in candidates:
         if item not in {None, ""}:
-            return str(item)
-    return str(default)
+            return _semanticize_label(alg, item) if level in {"operator", "auto"} else str(item)
+    return _semanticize_label(alg, default) if level in {"operator", "auto"} else str(default)
 
 
 # ---------------------------------------------------------------------------
@@ -256,7 +304,7 @@ def attribution_records(
     result: Any,
     objective: str | None = None,
     level: str = "auto",
-    positive_only: bool = True,
+    positive_only: bool = False,
 ) -> list[dict[str, Any]]:
     """Return tidy attribution records extracted from a result object.
 
@@ -271,7 +319,9 @@ def attribution_records(
         Attribution unit. Use ``"auto"``, ``"operator"``, ``"island"``,
         ``"agent"`` or ``"algorithm"``.
     positive_only:
-        If True, only objective-consistent improvements contribute.
+        If True, only positive objective-consistent improvements contribute.
+        The EvoMapX paper uses signed Δf by default, so the package default
+        is False.
     """
     objective = _objective(result, objective)
     level = str(level or "auto").lower()
@@ -295,16 +345,26 @@ def attribution_records(
                     continue
                 base_label = str(row.get("label") or row.get("algorithm") or "island")
                 for op, value in contribs.items():
-                    label = f"{base_label}:{op}" if level == "operator" else str(op)
-                    records.append({
-                        "step": int(row.get("global_step", row.get("step", len(records)))),
-                        "label": label,
-                        "algorithm": row.get("algorithm"),
-                        "raw_improvement": float(value or 0.0),
-                        "positive_improvement": _positive(value, positive_only=positive_only),
-                        "source": "island_operator_telemetry",
-                        "metadata": {**dict(row), "operator": str(op)},
-                    })
+                    alg_row = row.get("algorithm")
+                    expanded = _expand_label_value(alg_row, op, float(value or 0.0))
+                    for split_op, split_value, split_share, split_size in expanded:
+                        label = f"{base_label}:{split_op}" if level == "operator" else str(split_op)
+                        records.append({
+                            "step": int(row.get("global_step", row.get("step", len(records)))),
+                            "label": label,
+                            "algorithm": alg_row,
+                            "raw_improvement": float(split_value),
+                            "positive_improvement": _positive(split_value, positive_only=positive_only),
+                            "n_applications": _operator_count(row, str(op)),
+                            "source": "island_operator_telemetry",
+                            "metadata": {
+                                **dict(row),
+                                "operator": str(split_op),
+                                "original_operator": str(op),
+                                "compound_split_size": int(split_size),
+                                "compound_split_fraction": float(split_share),
+                            },
+                        })
             if records:
                 return records
         else:
@@ -318,6 +378,7 @@ def attribution_records(
                     "algorithm": row.get("algorithm"),
                     "raw_improvement": float(imp) if imp is not None else 0.0,
                     "positive_improvement": _positive(imp, positive_only=positive_only),
+                    "n_applications": _operator_count(row, None),
                     "source": "island_telemetry",
                     "metadata": dict(row),
                 })
@@ -341,29 +402,50 @@ def attribution_records(
                 "algorithm": row.get("algorithm"),
                 "raw_improvement": float(imp or 0.0),
                 "positive_improvement": _positive(imp, positive_only=positive_only),
+                "n_applications": _operator_count(row, None),
                 "source": "history_by_label",
                 "metadata": dict(row),
             })
         return records
 
-    # 3) Explicit records captured by EvoMapXRecorder.
+    # 3) Explicit records captured by the passive EvoMapX probe. Prefer
+    # parent→child lineage deltas when available, because they implement the
+    # paper's OAM quantity directly: Δf = f(parent) - f(child) for minimization
+    # and Δf = f(child) - f(parent) for maximization. Older event-fallback
+    # records remain supported for results created before lineage deltas existed.
     metadata_records = (_get(result, "metadata", {}) or {}).get("evomapx_records", [])
     if metadata_records:
         alg = _get(result, "algorithm_id", None) or _get(result, "algorithm", None) or "algorithm"
-        for i, row0 in enumerate(metadata_records):
-            row = _to_plain(row0)
+        plain_records = [_to_plain(r) for r in metadata_records]
+        lineage_records = [r for r in plain_records if isinstance(r, dict) and r.get("source") == "evomapx_lineage_delta"]
+        if lineage_records and level in {"operator", "auto"}:
+            plain_records = lineage_records
+        for i, row in enumerate(plain_records):
             if not isinstance(row, dict):
                 continue
             imp = row.get("raw_improvement", row.get("positive_improvement", 0.0))
-            records.append({
-                "step": int(row.get("step", i + 1)),
-                "label": _candidate_unit(row, str(alg), "operator" if level == "auto" else level),
-                "algorithm": row.get("algorithm", alg),
-                "raw_improvement": float(imp or 0.0),
-                "positive_improvement": _positive(imp, positive_only=positive_only),
-                "source": "evomapx_records",
-                "metadata": dict(row),
-            })
+            alg_row = row.get("algorithm", alg)
+            unit = _candidate_unit(row, str(alg), "operator" if level == "auto" else level)
+            if level in {"operator", "auto"}:
+                expanded = _expand_label_value(alg_row, unit, float(imp or 0.0))
+            else:
+                expanded = [(unit, float(imp or 0.0), 1.0, 1)]
+            for split_label, split_imp, split_share, split_size in expanded:
+                records.append({
+                    "step": int(row.get("step", i + 1)),
+                    "label": split_label,
+                    "algorithm": alg_row,
+                    "raw_improvement": float(split_imp),
+                    "positive_improvement": _positive(split_imp, positive_only=positive_only),
+                    "n_applications": _operator_count(row, None),
+                    "source": str(row.get("source") or "evomapx_records"),
+                    "metadata": {
+                        **dict(row),
+                        "original_label": unit,
+                        "compound_split_size": int(split_size),
+                        "compound_split_fraction": float(split_share),
+                    },
+                })
         return records
 
     # 4) Ordinary single-run history. Attribution unit is the algorithm unless
@@ -380,15 +462,24 @@ def attribution_records(
             contribs = row.get("operator_contributions") or row.get("evomapx_operator_contributions")
             if isinstance(contribs, dict) and contribs and level in {"operator", "auto"}:
                 for op, value in contribs.items():
-                    records.append({
-                        "step": int(row.get("step", i + 1)),
-                        "label": str(op),
-                        "algorithm": alg,
-                        "raw_improvement": float(value or 0.0),
-                        "positive_improvement": _positive(value, positive_only=positive_only),
-                        "source": "operator_contributions",
-                        "metadata": {**dict(row), "operator": str(op)},
-                    })
+                    expanded = _expand_label_value(alg, op, float(value or 0.0))
+                    for split_op, split_value, split_share, split_size in expanded:
+                        records.append({
+                            "step": int(row.get("step", i + 1)),
+                            "label": str(split_op),
+                            "algorithm": alg,
+                            "raw_improvement": float(split_value),
+                            "positive_improvement": _positive(split_value, positive_only=positive_only),
+                            "n_applications": _operator_count(row, str(op)),
+                            "source": "operator_contributions",
+                            "metadata": {
+                                **dict(row),
+                                "operator": str(split_op),
+                                "original_operator": str(op),
+                                "compound_split_size": int(split_size),
+                                "compound_split_fraction": float(split_share),
+                            },
+                        })
                 prev_fit = float(curr)
                 continue
             imp = _improvement(prev_fit, curr, objective) if prev_fit is not None else 0.0
@@ -399,6 +490,7 @@ def attribution_records(
                 "algorithm": alg,
                 "raw_improvement": float(imp or 0.0),
                 "positive_improvement": _positive(imp, positive_only=positive_only),
+                "n_applications": _operator_count(row, None),
                 "source": "history",
                 "metadata": dict(row),
             })
@@ -416,6 +508,7 @@ def attribution_records(
             "algorithm": event.get("source_algorithm"),
             "raw_improvement": float(imp or 0.0),
             "positive_improvement": _positive(imp, positive_only=positive_only),
+            "n_applications": _operator_count(event, None),
             "source": "events",
             "metadata": dict(event),
         })
@@ -427,12 +520,21 @@ def operator_attribution_matrix(
     objective: str | None = None,
     level: str = "auto",
     normalize: bool = True,
-    positive_only: bool = True,
+    positive_only: bool = False,
+    aggregation: str = "mean",
+    normalization_mode: str = "signed",
 ) -> dict[str, Any]:
     """Compute the EvoMapX-style attribution matrix.
 
-    The returned dictionary contains a raw matrix and a column-normalized matrix.
-    Rows are attribution units and columns are time steps.
+    Rows are attribution units and columns are time steps. By default, each
+    cell is the mean signed Δf over the applications of that operator at that
+    step, matching the CDS definition in the EvoMapX paper. Use
+    ``aggregation="sum"`` for the old budget-preserving total contribution.
+
+    ``normalization_mode`` controls column normalization:
+    - ``"signed"``: divide by the signed column sum (paper Eq. 14 style).
+    - ``"positive"``: divide only by positive convergence mass.
+    - ``"absolute"``: divide by absolute contribution mass.
     """
     records = attribution_records(result, objective=objective, level=level, positive_only=positive_only)
     if not records:
@@ -442,28 +544,70 @@ def operator_attribution_matrix(
             "steps": [],
             "labels": [],
             "raw": {},
+            "sum": {},
+            "counts": {},
             "normalized": {},
             "records": [],
+            "aggregation": aggregation,
+            "normalization_mode": normalization_mode,
         }
+
+    aggregation = str(aggregation or "mean").lower()
+    if aggregation not in {"mean", "sum"}:
+        raise ValueError("aggregation must be 'mean' or 'sum'.")
+    normalization_mode = str(normalization_mode or "signed").lower()
+    if normalization_mode not in {"signed", "positive", "absolute"}:
+        raise ValueError("normalization_mode must be 'signed', 'positive', or 'absolute'.")
 
     steps = sorted({int(r["step"]) for r in records})
     labels = sorted({str(r["label"]) for r in records})
     step_idx = {s: i for i, s in enumerate(steps)}
-    raw = {label: [0.0 for _ in steps] for label in labels}
+    sums = {label: [0.0 for _ in steps] for label in labels}
+    counts = {label: [0 for _ in steps] for label in labels}
     for rec in records:
         label = str(rec["label"])
-        raw[label][step_idx[int(rec["step"])]] += float(rec.get("positive_improvement", 0.0))
+        j = step_idx[int(rec["step"])]
+        val = float(rec.get("positive_improvement" if positive_only else "raw_improvement", 0.0) or 0.0)
+        n_app = max(1, int(rec.get("n_applications", 1) or 1))
+        sums[label][j] += val
+        counts[label][j] += n_app
+
+    if aggregation == "sum":
+        raw = {label: list(vals) for label, vals in sums.items()}
+    else:
+        raw = {
+            label: [float(sums[label][j] / counts[label][j]) if counts[label][j] > 0 else 0.0 for j in range(len(steps))]
+            for label in labels
+        }
 
     normalized_matrix = {label: list(vals) for label, vals in raw.items()}
     if normalize:
         for j in range(len(steps)):
-            total = sum(max(0.0, raw[label][j]) for label in labels)
-            if total > 0:
-                for label in labels:
-                    normalized_matrix[label][j] = max(0.0, raw[label][j]) / total
+            column = [raw[label][j] for label in labels]
+            if normalization_mode == "positive":
+                denom = sum(max(0.0, v) for v in column)
+                if denom > 0:
+                    for label in labels:
+                        normalized_matrix[label][j] = max(0.0, raw[label][j]) / denom
+                else:
+                    for label in labels:
+                        normalized_matrix[label][j] = 0.0
+            elif normalization_mode == "absolute":
+                denom = sum(abs(v) for v in column)
+                if denom > 0:
+                    for label in labels:
+                        normalized_matrix[label][j] = raw[label][j] / denom
+                else:
+                    for label in labels:
+                        normalized_matrix[label][j] = 0.0
             else:
-                for label in labels:
-                    normalized_matrix[label][j] = 0.0
+                denom = sum(column)
+                if abs(denom) > 1.0e-12:
+                    for label in labels:
+                        normalized_matrix[label][j] = raw[label][j] / denom
+                else:
+                    for label in labels:
+                        normalized_matrix[label][j] = 0.0
 
     return {
         "objective": _objective(result, objective),
@@ -471,8 +615,12 @@ def operator_attribution_matrix(
         "steps": steps,
         "labels": labels,
         "raw": raw,
+        "sum": sums,
+        "counts": counts,
         "normalized": normalized_matrix,
         "records": records,
+        "aggregation": aggregation,
+        "normalization_mode": normalization_mode,
     }
 
 
@@ -480,36 +628,145 @@ def convergence_driver_score(
     attribution: dict[str, Any] | EvoMapXReport,
     normalized: bool = False,
     normalize_scores: bool = True,
+    decay_factor: float | None = 0.9,
+    score_normalization_mode: str = "positive",
 ) -> dict[str, float]:
-    """Compute Convergence Driver Score from an attribution matrix."""
+    """Compute Convergence Driver Score from an attribution matrix.
+
+    If ``decay_factor`` is in (0, 1], later iterations receive more weight:
+    weight(t) = decay_factor ** distance_from_last_step. Set it to None for
+    the unweighted Eq. 13 total.
+    """
     if isinstance(attribution, EvoMapXReport):
         matrix = attribution.normalized_attribution if normalized else attribution.raw_attribution
     else:
         matrix = attribution.get("normalized" if normalized else "raw", {}) or {}
-    scores = {str(label): float(np.nansum(values)) for label, values in matrix.items()}
+    weights = None
+    if matrix:
+        n = max(len(values) for values in matrix.values())
+        if decay_factor is not None:
+            d = float(decay_factor)
+            if not (0.0 < d <= 1.0):
+                raise ValueError("decay_factor must be in (0, 1] or None.")
+            weights = np.asarray([d ** (n - 1 - i) for i in range(n)], dtype=float)
+    scores: dict[str, float] = {}
+    for label, values in matrix.items():
+        vals = np.asarray(values, dtype=float)
+        if weights is not None and vals.size:
+            w = weights[-vals.size:]
+            scores[str(label)] = float(np.nansum(vals * w))
+        else:
+            scores[str(label)] = float(np.nansum(vals))
     if normalize_scores:
-        total = sum(max(0.0, v) for v in scores.values())
-        if total > 0:
-            return {label: max(0.0, val) / total for label, val in scores.items()}
+        mode = str(score_normalization_mode or "positive").lower()
+        if mode == "signed":
+            total = sum(scores.values())
+            if abs(total) > 1.0e-12:
+                return {label: val / total for label, val in scores.items()}
+        elif mode == "absolute":
+            total = sum(abs(v) for v in scores.values())
+            if total > 0:
+                return {label: val / total for label, val in scores.items()}
+        else:
+            # Default CDS normalization uses positive convergence mass.
+            # If a run/label set contains only deteriorating signed deltas,
+            # do not silently erase the signal: fall back to absolute mass so
+            # engines with real parent→child Δf still surface nonzero CDS.
+            total = sum(max(0.0, v) for v in scores.values())
+            if total > 0:
+                return {label: max(0.0, val) / total for label, val in scores.items()}
+            total_abs = sum(abs(v) for v in scores.values())
+            if total_abs > 0:
+                return {label: abs(val) / total_abs for label, val in scores.items()}
+            return {label: 0.0 for label in scores}
     return scores
 
 
+def driver_diversity_entropy(attribution: dict[str, Any], use_absolute: bool = True) -> dict[str, Any]:
+    """Compute normalized entropy of driver diversity per step and on average."""
+    raw = attribution.get("raw", {}) or {}
+    labels = list(attribution.get("labels", []) or raw.keys())
+    steps = list(attribution.get("steps", []) or [])
+    if not labels or not steps:
+        return {"per_step": {}, "mean_entropy": 0.0, "mean_normalized_entropy": 0.0}
+    per_step: dict[int, dict[str, float]] = {}
+    entropies = []
+    norm_entropies = []
+    for j, step in enumerate(steps):
+        vals = np.asarray([float(raw.get(label, [0.0] * len(steps))[j]) for label in labels], dtype=float)
+        mass = np.abs(vals) if use_absolute else np.maximum(vals, 0.0)
+        total = float(np.sum(mass))
+        if total <= 0.0:
+            H = 0.0
+            Hn = 0.0
+        else:
+            p = mass / total
+            p = p[p > 0]
+            H = float(-np.sum(p * np.log(p)))
+            Hn = float(H / np.log(len(labels))) if len(labels) > 1 else 0.0
+        per_step[int(step)] = {"entropy": H, "normalized_entropy": Hn}
+        entropies.append(H)
+        norm_entropies.append(Hn)
+    return {
+        "per_step": per_step,
+        "mean_entropy": float(np.mean(entropies)) if entropies else 0.0,
+        "mean_normalized_entropy": float(np.mean(norm_entropies)) if norm_entropies else 0.0,
+    }
+
+
+def dominant_driver_steps(attribution: dict[str, Any], threshold: float = 0.4) -> dict[str, Any]:
+    """Return drivers whose positive convergence share exceeds the threshold.
+
+    The OAM may be signed, but the dominance rule in the EvoMapX narrative is a
+    convergence-driver rule. Therefore, dominance is computed from the positive
+    mass of each step, while signed deterioration remains available in the raw
+    matrix and activity diagnostics.
+    """
+    raw = attribution.get("raw", {}) or {}
+    labels = list(attribution.get("labels", []) or raw.keys())
+    steps = list(attribution.get("steps", []) or [])
+    per_step: dict[int, list[str]] = {}
+    counts = {str(label): 0 for label in labels}
+    for j, step in enumerate(steps):
+        positives = []
+        for label in labels:
+            vals = raw.get(label, [])
+            val = float(vals[j]) if j < len(vals) else 0.0
+            positives.append(max(0.0, val))
+        denom = sum(positives)
+        active = []
+        if denom > 0:
+            for label, val in zip(labels, positives):
+                share = val / denom
+                if share > threshold:
+                    active.append(str(label))
+                    counts[str(label)] += 1
+        per_step[int(step)] = active
+    return {"threshold": float(threshold), "per_step": per_step, "counts": counts}
+
+
 def attribution_activity(attribution: dict[str, Any]) -> dict[str, dict[str, float]]:
-    """Return activity, persistence, and intensity metrics for each unit."""
+    """Return activity, persistence, intensity, and signed-deterioration metrics."""
     raw = attribution.get("raw", {}) or {}
     out: dict[str, dict[str, float]] = {}
     n_steps = max(1, len(attribution.get("steps", []) or []))
     for label, values in raw.items():
         vals = np.asarray(values, dtype=float)
-        nz = np.where(vals > 0)[0]
+        nz = np.where(np.abs(vals) > 0)[0]
+        pos = vals[vals > 0]
+        neg = vals[vals < 0]
         total = float(np.nansum(vals))
         active = int(len(nz))
         span = int(nz[-1] - nz[0] + 1) if active else 0
         out[str(label)] = {
             "total_contribution": total,
+            "total_positive_contribution": float(np.nansum(pos)) if pos.size else 0.0,
+            "total_negative_contribution": float(np.nansum(neg)) if neg.size else 0.0,
             "mean_contribution": float(np.nanmean(vals)) if vals.size else 0.0,
             "max_contribution": float(np.nanmax(vals)) if vals.size else 0.0,
+            "min_contribution": float(np.nanmin(vals)) if vals.size else 0.0,
             "active_steps": float(active),
+            "deterioration_steps": float(np.sum(vals < 0)),
             "activity_rate": float(active / n_steps),
             "influence_span": float(span),
             "influence_density": float(active / span) if span > 0 else 0.0,
@@ -554,15 +811,26 @@ def population_evolution_graph(
     edges: list[EvoMapXEdge] = []
 
     for label, algorithm, snapshots in _iter_population_snapshots(result):
+        # Keep representation balanced across time. Without this, a large initial
+        # population can consume max_nodes before any parent edge is reached.
+        per_snapshot_limit = None
+        try:
+            n_snaps = max(1, len(list(snapshots)))
+            per_snapshot_limit = max(1, int(max_nodes) // n_snaps) if max_nodes else None
+        except Exception:
+            per_snapshot_limit = None
         previous_ids: list[str] = []
         previous_pos: np.ndarray | None = None
         previous_fit: list[float | None] = []
         for snap_idx, snap in enumerate(snapshots):
             step = int(snap.get("step", snap_idx))
             pop = list(snap.get("population", []) or [])
+            if per_snapshot_limit is not None and len(pop) > per_snapshot_limit:
+                pop = pop[:per_snapshot_limit]
             current_ids: list[str] = []
             current_pos: list[list[float]] = []
             current_fit: list[float | None] = []
+            exact_parent_edges_this_step = False
             for idx, cand in enumerate(pop):
                 if len(nodes) >= max_nodes:
                     break
@@ -580,6 +848,7 @@ def population_evolution_graph(
                     position=None if pos is None else [float(x) for x in pos],
                     operator=None if operator is None else str(operator),
                     role="population",
+                    metadata=dict(cand.get("metadata", {})) if isinstance(cand, dict) else {},
                 ))
                 current_ids.append(node_id)
                 current_fit.append(None if fit is None else float(fit))
@@ -588,6 +857,7 @@ def population_evolution_graph(
                 else:
                     current_pos.append([])
                 if parents:
+                    exact_parent_edges_this_step = True
                     for parent in parents:
                         edges.append(EvoMapXEdge(
                             source=str(parent),
@@ -601,7 +871,7 @@ def population_evolution_graph(
             if len(nodes) >= max_nodes:
                 break
 
-            if infer_edges and previous_ids and current_ids and current_pos and all(current_pos):
+            if infer_edges and not exact_parent_edges_this_step and previous_ids and current_ids and current_pos and all(current_pos):
                 curr_pos = np.asarray(current_pos, dtype=float)
                 if previous_pos is not None and previous_pos.size and curr_pos.ndim == 2:
                     for c_idx, cvec in enumerate(curr_pos):
@@ -762,7 +1032,11 @@ def evomapx_analysis(
     objective: str | None = None,
     level: str = "auto",
     normalize: bool = True,
-    positive_only: bool = True,
+    positive_only: bool = False,
+    aggregation: str = "mean",
+    normalization_mode: str = "signed",
+    cds_decay: float | None = 0.9,
+    dominance_threshold: float = 0.4,
     build_peg: bool = True,
     max_peg_nodes: int = 5000,
 ) -> EvoMapXReport:
@@ -774,10 +1048,14 @@ def evomapx_analysis(
         level=level,
         normalize=normalize,
         positive_only=positive_only,
+        aggregation=aggregation,
+        normalization_mode=normalization_mode,
     )
-    cds_raw = convergence_driver_score(oam, normalized=False, normalize_scores=False)
-    cds_norm = convergence_driver_score(oam, normalized=False, normalize_scores=True)
+    cds_raw = convergence_driver_score(oam, normalized=False, normalize_scores=False, decay_factor=cds_decay)
+    cds_norm = convergence_driver_score(oam, normalized=False, normalize_scores=True, decay_factor=cds_decay, score_normalization_mode="positive")
     activity = attribution_activity(oam)
+    entropy = driver_diversity_entropy(oam)
+    dominance = dominant_driver_steps(oam, threshold=dominance_threshold)
     peg = population_evolution_graph(result, objective=objective, max_nodes=max_peg_nodes) if build_peg else {
         "objective": objective, "nodes": [], "edges": [], "n_nodes": 0, "n_edges": 0, "edge_types": {},
     }
@@ -787,7 +1065,12 @@ def evomapx_analysis(
         "top_driver_score": max(cds_norm.values()) if cds_norm else 0.0,
         "n_attribution_units": len(oam.get("labels", []) or []),
         "n_attribution_steps": len(oam.get("steps", []) or []),
-        "total_positive_improvement": float(sum(cds_raw.values())) if cds_raw else 0.0,
+        "total_signed_improvement": float(sum(cds_raw.values())) if cds_raw else 0.0,
+        "total_positive_improvement": float(sum(max(0.0, v) for v in cds_raw.values())) if cds_raw else 0.0,
+        "cds_decay": cds_decay,
+        "dominance_threshold": float(dominance_threshold),
+        "driver_diversity_entropy": entropy,
+        "dominance": dominance,
         "peg": peg_summary(peg),
         "migration": {
             "n_events": mig.get("n_events", 0),
@@ -825,6 +1108,14 @@ def explain_evomapx(report: EvoMapXReport, top_k: int = 3) -> str:
     if ranked:
         leader, score = ranked[0]
         lines.append(f"The strongest convergence driver was {leader} with normalized CDS = {score:.4f}.")
+        dom = report.summary.get("dominance", {}) if report.summary else {}
+        dom_counts = dom.get("counts", {}) if isinstance(dom, dict) else {}
+        if dom_counts:
+            dominant_text = ", ".join(f"{k}: {v}" for k, v in sorted(dom_counts.items(), key=lambda kv: kv[1], reverse=True)[:top_k])
+            lines.append(f"Dominance rule (> {report.summary.get('dominance_threshold', 0.4):.2f}) counts by step: {dominant_text}.")
+        ent = report.summary.get("driver_diversity_entropy", {}) if report.summary else {}
+        if ent:
+            lines.append(f"Mean normalized driver-diversity entropy was {ent.get('mean_normalized_entropy', 0.0):.4f}.")
         if len(ranked) > 1:
             tail = ", ".join(f"{k}={v:.4f}" for k, v in ranked[1:top_k])
             if tail:
@@ -846,8 +1137,8 @@ def explain_evomapx(report: EvoMapXReport, top_k: int = 3) -> str:
         lines.append(
             f"Migration analysis recorded {mig.get('n_events', 0)} events, {mig.get('n_successes', 0)} with immediate target improvement."
         )
-    if raw_ranked and raw_ranked[0][1] <= 0:
-        lines.append("No positive objective-consistent improvement was detected; check whether the objective direction and stored telemetry are correct.")
+    if raw_ranked and max(v for _, v in raw_ranked) <= 0:
+        lines.append("No positive objective-consistent improvement was detected; signed telemetry may be dominated by deteriorating operator applications.")
     return "\n".join(lines)
 
 
