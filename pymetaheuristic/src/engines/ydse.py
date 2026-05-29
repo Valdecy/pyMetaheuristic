@@ -22,17 +22,20 @@ class YDSEEngine(PortedPopulationEngine):
         order=self._order(pop[:,-1]); pop=pop[order]
         best_pos=pop[0,:-1].copy()
         X_new=np.zeros((n,d))
+        attempted_labels=["carryover"]*n
         for i in range(n):
             a=t_eff**(2*np.random.random()-1)
             H=2*np.random.random(d)-1
             z=a/np.where(np.abs(H)<1e-300,1e-300,H)
             r1=np.random.random()
             if i==0:
+                attempted_labels[i]="ydse.central_bright_fringe_update"
                 beta_=q*np.cosh(np.pi/t_eff)
                 A_bright=2/(1+np.sqrt(abs(1-beta_**2)))
                 rand_a=np.random.choice([j for j in range(n) if j%2==0],1)[0]
                 X_new[i]=best_pos+Int_max*A_bright*pop[i,:-1]-r1*z*pop[rand_a,:-1]
             elif i%2==1:
+                attempted_labels[i]="ydse.bright_fringe_interference_update"
                 beta_=q*np.cosh(np.pi/t_eff)
                 A_bright=2/(1+np.sqrt(abs(1-beta_**2)))
                 m_=(i-1)
@@ -43,6 +46,7 @@ class YDSEEngine(PortedPopulationEngine):
                 Y=pop[s_[1],:-1]-pop[s_[0],:-1]
                 X_new[i]=pop[i,:-1]-((1-g)*A_bright*Int_bright*pop[i,:-1]+g*Y)
             else:
+                attempted_labels[i]="ydse.dark_fringe_interference_update"
                 A_dark=Delta*np.arctanh(-(q)+1)
                 m_=(i-1)
                 y_dark=Lambda*L*(m_+0.5)/ds
@@ -52,4 +56,5 @@ class YDSEEngine(PortedPopulationEngine):
         new_fits=self._evaluate_population(X_new); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([X_new,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

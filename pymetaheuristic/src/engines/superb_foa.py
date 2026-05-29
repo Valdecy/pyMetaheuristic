@@ -32,17 +32,22 @@ class SuperbFOAEngine(PortedPopulationEngine):
         p=np.sin(hi-lo)*2+(hi-lo)*m
         best_idx=self._best_index(pop[:,-1]); Xb=pop[best_idx,:-1].copy()
         XG=Xb*C; new_pos=np.empty_like(pop[:,:-1])
+        attempted_labels=["carryover"]*n
         for i in range(n):
             s=r1*20+r2*20
             if T<c1:
                 new_pos[i]=pop[i,:-1]+lo+(hi-lo)*np.random.random(d)
+                attempted_labels[i]="superb_foa.global_smell_random_update"
             else:
                 if s>20:
                     new_pos[i]=Xb+pop[i,:-1]*l[y_idx]*k
+                    attempted_labels[i]="superb_foa.levy_food_attraction"
                 else:
                     new_pos[i]=XG+(Xb-pop[i,:-1])*p
+                    attempted_labels[i]="superb_foa.best_food_convergence"
         new_pos=np.clip(new_pos,lo,hi)
         new_fits=self._evaluate_population(new_pos); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([new_pos,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

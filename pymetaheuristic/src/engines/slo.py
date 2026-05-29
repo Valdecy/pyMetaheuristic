@@ -33,19 +33,24 @@ class SLOEngine(PortedPopulationEngine):
         SP_leader = abs(v1 * (1.0 + v2) / denom)
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if SP_leader < 0.25:
                 if c < 1.0:
                     pos = best_pos - c * np.abs(2.0 * np.random.random() * best_pos - pop[i, :-1])
+                    attempted_labels[i] = "slo.best_encircling_update"
                 else:
                     ri  = np.random.choice([k for k in range(n) if k != i])
                     pos = pop[ri, :-1] - c * np.abs(2.0 * np.random.random() * pop[ri, :-1] - pop[i, :-1])
+                    attempted_labels[i] = "slo.random_peer_encircling_update"
             else:
                 pos = np.abs(best_pos - pop[i, :-1]) * np.cos(2.0 * np.pi * np.random.uniform(-1, 1)) + best_pos
+                attempted_labels[i] = "slo.spiral_attack_update"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

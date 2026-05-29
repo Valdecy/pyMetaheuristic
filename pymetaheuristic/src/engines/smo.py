@@ -38,6 +38,7 @@ class SMOEngine(PortedPopulationEngine):
         order    = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
         evals    = 0
+        operator_labels = ["carryover"] * n
 
         # Phase 1: Local Leader Phase
         for gi, grp in enumerate(groups):
@@ -54,6 +55,7 @@ class SMOEngine(PortedPopulationEngine):
                 fit = float(self.problem.evaluate(pos)); evals += 1
                 if self._is_better(fit, float(pop[i, -1])):
                     pop[i, :-1] = pos; pop[i, -1] = fit
+                    operator_labels[int(i)] = "smo.local_leader_phase"
                     loc_lim[i]  = 0
                 else:
                     loc_lim[i] += 1
@@ -69,6 +71,7 @@ class SMOEngine(PortedPopulationEngine):
                 fit = float(self.problem.evaluate(pos)); evals += 1
                 if self._is_better(fit, float(pop[i, -1])):
                     pop[i, :-1] = pos; pop[i, -1] = fit
+                    operator_labels[int(i)] = "smo.global_leader_phase"
 
         # Phase 3: Local Leader Decision Phase — random reset if stagnant
         limit_thresh = int(0.6 * dim * len(groups))
@@ -81,6 +84,7 @@ class SMOEngine(PortedPopulationEngine):
                     self._lo, self._hi)
                 fit = float(self.problem.evaluate(pos)); evals += 1
                 pop[li, :-1] = pos; pop[li, -1] = fit
+                operator_labels[int(li)] = "smo.local_leader_decision"
                 loc_lim[li]  = 0
 
         # Global limit: fission/fusion
@@ -107,4 +111,5 @@ class SMOEngine(PortedPopulationEngine):
             g_limit = 0
 
         return pop, evals, {"groups": groups, "local_leaders": ll_idx,
-                            "global_limit": g_limit, "local_limits": loc_lim, "mg": mg}
+                            "global_limit": g_limit, "local_limits": loc_lim, "mg": mg,
+                            "operator_labels": operator_labels}

@@ -68,7 +68,15 @@ class SACOSOEngine(BaseEngine):
         # FES swarm (standard PSO)
         w, c1, c2 = 0.7, 1.5, 1.5
         r1 = np.random.rand(N, D); r2 = np.random.rand(N, D)
-        vel = w * vel + c1 * r1 * (pbest[:, :-1] - pop[:, :-1]) + c2 * r2 * (gbest - pop[:, :-1])
+        cognitive = c1 * r1 * (pbest[:, :-1] - pop[:, :-1])
+        social = c2 * r2 * (gbest - pop[:, :-1])
+        vel = w * vel + cognitive + social
+        operator_labels = [
+            "sacoso.cognitive_swarm_update"
+            if float(np.linalg.norm(cognitive[i])) >= float(np.linalg.norm(social[i]))
+            else "sacoso.social_swarm_update"
+            for i in range(N)
+        ]
         new_pos = np.clip(pop[:, :-1] + vel, lo, hi)
         new_fit = self._evaluate_population(new_pos)
 
@@ -82,7 +90,7 @@ class SACOSOEngine(BaseEngine):
         bf  = float(pbest[bi, -1])
         bp  = pbest[bi, :-1].tolist()
 
-        state.payload      = dict(population=pop, velocity=vel, pbest=pbest)
+        state.payload      = dict(population=pop, velocity=vel, pbest=pbest, operator_labels=operator_labels)
         state.evaluations += N
         state.step        += 1
         if self.problem.is_better(bf, state.best_fitness):

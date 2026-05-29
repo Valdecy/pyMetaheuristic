@@ -40,19 +40,20 @@ class SingerOAEngine(PortedPopulationEngine):
         z = np.clip(delta / (self._span + 1.0e-12), -60.0, 60.0)
         return np.exp(z)
 
-    def _greedy_apply(self, pop: np.ndarray, trial: np.ndarray) -> tuple[np.ndarray, int]:
+    def _greedy_apply(self, pop: np.ndarray, trial: np.ndarray) -> tuple[np.ndarray, int, np.ndarray]:
         trial = np.clip(trial, self._lo, self._hi)
         fit = self._evaluate_population(trial)
         mask = self._better_mask(fit, pop[:, -1])
         pop[mask, :-1] = trial[mask]
         pop[mask, -1] = fit[mask]
-        return pop, int(trial.shape[0])
+        return pop, int(trial.shape[0]), mask
 
     def _step_impl(self, state, pop: np.ndarray):
         n, dim = pop.shape[0], self.problem.dimension
         t = max(1, state.step + 1)
         best = pop[self._best_index(pop[:, -1]), :-1].copy()
         evals = 0
+        operator_labels = ["carryover"] * n
 
         # Phase 1 — imitation/adaptive mimicry of the best singer.
         r = np.random.rand(n, dim)
@@ -60,7 +61,9 @@ class SingerOAEngine(PortedPopulationEngine):
         delta = best[None, :] - pop[:, :-1]
         factor = 1.0 - self._stable_exp_factor(delta)
         trial = pop[:, :-1] + r * factor * (best[None, :] - I * pop[:, :-1])
-        pop, used = self._greedy_apply(pop, trial)
+        pop, used, mask = self._greedy_apply(pop, trial)
+        for i in np.where(mask)[0]:
+            operator_labels[int(i)] = "singer_oa.imitation_mimicry_phase"
         evals += used
 
         # Phase 2 — creation/novel perturbation. The 1/t term tightens the
@@ -71,7 +74,9 @@ class SingerOAEngine(PortedPopulationEngine):
         delta = best[None, :] - pop[:, :-1]
         factor = 1.0 - 2.0 * (1.0 - self._stable_exp_factor(delta))
         trial = pop[:, :-1] + (factor * (best[None, :] - I * pop[:, :-1])) / float(t)
-        pop, used = self._greedy_apply(pop, trial)
+        pop, used, mask = self._greedy_apply(pop, trial)
+        for i in np.where(mask)[0]:
+            operator_labels[int(i)] = "singer_oa.creation_perturbation_phase"
         evals += used
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

@@ -39,6 +39,7 @@ class WOAEngine(BaseEngine):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
+        operator_labels=["carryover"]*self._n
         T=self.config.max_steps or 1; t=state.step
         al=2-t*(2/T); bl=-1+t*(-1/T)
         bi=np.argmin(pop[:,-1])
@@ -48,18 +49,21 @@ class WOAEngine(BaseEngine):
             for j in range(self.problem.dimension):
                 if p<0.5:
                     if abs(A)>=1:
+                        operator_labels[i]="woa.search_for_prey"
                         ri=np.random.randint(self._n); xr=pop[ri,:]
                         pop[i,j]=np.clip(xr[j]-A*abs(C*xr[j]-pop[i,j]),lo[j],hi[j])
                     else:
+                        operator_labels[i]="woa.encircling_prey"
                         pop[i,j]=np.clip(elite[j]-A*abs(C*elite[j]-pop[i,j]),lo[j],hi[j])
                 else:
+                    operator_labels[i]="woa.spiral_bubble_net"
                     d=abs(elite[j]-pop[i,j]); r=np.random.rand()
                     m=(bl-1)*r+1
                     pop[i,j]=np.clip(d*np.exp(self._sp*m)*np.cos(m*2*np.pi)+elite[j],lo[j],hi[j])
             pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

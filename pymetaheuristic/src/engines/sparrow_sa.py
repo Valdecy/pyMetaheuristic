@@ -24,6 +24,7 @@ class SparrowSAEngine(PortedPopulationEngine):
         pNum=max(1,round(n*P_percent))
         pFit=state.payload["pFit"]; pX=state.payload["pX"]
         x=pop[:,:-1].copy(); fit=pop[:,-1].copy()
+        attempted_labels=["carryover"]*n
         sorted_idx=self._order(fit); worst_idx=self._worst_index(fit)
         worst=x[worst_idx].copy()
         best_idx=sorted_idx[0]; bestX=pX[self._best_index(pFit)].copy(); fMin=pFit[self._best_index(pFit)]
@@ -33,19 +34,23 @@ class SparrowSAEngine(PortedPopulationEngine):
                 si=sorted_idx[i]; r1=np.random.random()
                 x[si]=pX[si]*np.exp(-si/(r1*max_iter))
                 x[si]=np.clip(x[si],lo,hi)
+                attempted_labels[int(si)]="sparrow_sa.producer_safe_foraging"
         else:
             for i in range(pNum):
                 si=sorted_idx[i]
                 x[si]=pX[si]+np.random.randn(d)
                 x[si]=np.clip(x[si],lo,hi)
+                attempted_labels[int(si)]="sparrow_sa.producer_alarm_random_walk"
         fits_p=self._evaluate_population(x[sorted_idx[:pNum]]); evals+=pNum
         bestXX_idx=np.argmin(fits_p); bestXX=x[sorted_idx[bestXX_idx]].copy()
         for i in range(pNum, n):
             si=sorted_idx[i]; A=2*np.floor(np.random.random(d)*2)-1
             if i>n//2:
                 x[si]=np.random.randn(d)*np.exp((worst-pX[si])/(i+1)**2)
+                attempted_labels[int(si)]="sparrow_sa.scrounger_worst_avoidance"
             else:
                 x[si]=bestXX+np.abs(pX[si]-bestXX)*A
+                attempted_labels[int(si)]="sparrow_sa.scrounger_best_following"
             x[si]=np.clip(x[si],lo,hi)
         fits_rest=self._evaluate_population(x[sorted_idx[pNum:]]); evals+=n-pNum
         # awareness
@@ -53,12 +58,15 @@ class SparrowSAEngine(PortedPopulationEngine):
         for si in aware:
             if self._is_better(pFit[si],fMin):
                 x[si]=bestX+np.random.randn(d)*np.abs(pX[si]-bestX)
+                attempted_labels[int(si)]="sparrow_sa.awareness_best_escape"
             else:
                 denom=(pFit[si]-max(pFit)+1e-300)
                 x[si]=pX[si]+(2*np.random.random()-1)*np.abs(pX[si]-worst)/denom
+                attempted_labels[int(si)]="sparrow_sa.awareness_worst_escape"
             x[si]=np.clip(x[si],lo,hi)
         all_fits=self._evaluate_population(x); evals+=n
         mask=self._better_mask(all_fits,pFit)
         pFit[mask]=all_fits[mask]; pX[mask]=x[mask]
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
         state.payload.update({"pFit":pFit,"pX":pX})
-        return np.hstack([x,all_fits[:,None]]), evals, {}
+        return np.hstack([x,all_fits[:,None]]), evals, {"operator_labels": operator_labels}

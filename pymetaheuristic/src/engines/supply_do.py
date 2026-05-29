@@ -25,6 +25,7 @@ class SupplyDOEngine(PortedPopulationEngine):
         F=np.abs(qty_fit-np.mean(qty_fit))+1e-15; FQ=F/F.sum()
         F2=np.abs(price_fit-np.mean(price_fit))+1e-15; FP=F2/F2.sum()
         MeanPrice=np.mean(price,axis=0)
+        operator_labels=["carryover"]*n
         for i in range(n):
             k=self._roulette(FQ)
             qeq=qty[k].copy()
@@ -39,17 +40,19 @@ class SupplyDOEngine(PortedPopulationEngine):
             new_qty_fit=float(self._evaluate_population(new_qty[None])[0]); evals+=1
             if self._is_better(new_qty_fit,qty_fit[i]):
                 qty[i]=new_qty; qty_fit[i]=new_qty_fit
+                operator_labels[i]="supply_do.quantity_equilibrium_update"
             new_price=np.clip(peq-Beta*(new_qty-qeq),lo,hi)
             new_price_fit=float(self._evaluate_population(new_price[None])[0]); evals+=1
             if self._is_better(new_price_fit,price_fit[i]):
                 price[i]=new_price; price_fit[i]=new_price_fit
+                operator_labels[i]="supply_do.price_equilibrium_update"
         for i in range(n):
             if self._is_better(qty_fit[i],price_fit[i]):
                 price_fit[i]=qty_fit[i]; price[i]=qty[i]
             if self._is_better(price_fit[i],best_fit):
                 best_x=price[i].copy(); best_fit=price_fit[i]
         pop=np.hstack([price,price_fit[:,None]])
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}
 
     def _roulette(self, p):
         cp=np.cumsum(p); r=np.random.random()

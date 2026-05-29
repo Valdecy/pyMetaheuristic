@@ -36,6 +36,7 @@ class SSDOEngine(PortedPopulationEngine):
 
         r1, r2 = np.random.random(), np.random.random()
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_label = "ssdo.sine_velocity_update" if r2 <= 0.5 else "ssdo.cosine_velocity_update"
         for i in range(n):
             if r2 <= 0.5:
                 vel[i] = (c * np.sin(r1) * (local[i] - pop[i, :-1])
@@ -47,9 +48,11 @@ class SSDOEngine(PortedPopulationEngine):
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
+        operator_labels = ["carryover"] * n
         for i in range(n):
             if self._is_better(float(new_fit[i]), float(pop[i, -1])):
                 local[i] = pop[i, :-1].copy()
                 pop[i, :-1] = new_pos[i]; pop[i, -1] = new_fit[i]
+                operator_labels[i] = attempted_label
 
-        return pop, n, {"velocity": vel, "local": local}
+        return pop, n, {"velocity": vel, "local": local, "operator_labels": operator_labels}

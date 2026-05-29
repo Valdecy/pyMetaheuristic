@@ -26,6 +26,7 @@ class WCAEngine(PortedPopulationEngine):
     def _step_impl(self, state, pop):
         n, dim = pop.shape[0], self.problem.dimension
         wc=float(self._params.get("wc",2.0)); ecc=float(self._params.get("ecc",0.001)); evals=0
+        operator_labels=["carryover"]*n
         sea_idx=int(state.payload.get("sea",0))
         rivers=list(state.payload.get("rivers",[]))
         stream_map=dict(state.payload.get("stream_map",{}))
@@ -37,22 +38,29 @@ class WCAEngine(PortedPopulationEngine):
             for s in streams:
                 pos=np.clip(pop[s,:-1]+np.random.random()*wc*(r_pos-pop[s,:-1]), self._lo, self._hi)
                 fit=float(self.problem.evaluate(pos)); evals+=1
-                if self._is_better(fit,float(pop[s,-1])): pop[s,:-1]=pos; pop[s,-1]=fit
+                if self._is_better(fit,float(pop[s,-1])):
+                    pop[s,:-1]=pos; pop[s,-1]=fit
+                    operator_labels[int(s)]="wca.stream_toward_river"
             # Best stream replaces river if better
             if streams:
                 best_s=streams[self._best_index(pop[np.array(streams,int),-1])]
                 if self._is_better(float(pop[best_s,-1]),float(pop[int(r_idx),-1])):
                     pop[[best_s,int(r_idx)]]=pop[[int(r_idx),best_s]]
+                    operator_labels[int(best_s)]="wca.stream_river_exchange"
+                    operator_labels[int(r_idx)]="wca.stream_river_exchange"
             # Update river toward sea
             pos=np.clip(pop[int(r_idx),:-1]+np.random.random()*wc*(sea_pos-pop[int(r_idx),:-1]), self._lo, self._hi)
             fit=float(self.problem.evaluate(pos)); evals+=1
-            if self._is_better(fit,float(pop[int(r_idx),-1])): pop[int(r_idx),:-1]=pos; pop[int(r_idx),-1]=fit
+            if self._is_better(fit,float(pop[int(r_idx),-1])):
+                pop[int(r_idx),:-1]=pos; pop[int(r_idx),-1]=fit
+                operator_labels[int(r_idx)]="wca.river_toward_sea"
             # Evaporation / raining
             d=float(np.linalg.norm(sea_pos-pop[int(r_idx),:-1]))
             if d<ecc or np.random.random()<0.1:
                 new_pos=np.random.uniform(self._lo,self._hi)
                 new_fit=float(self.problem.evaluate(new_pos)); evals+=1
                 pop[int(r_idx),:-1]=new_pos; pop[int(r_idx),-1]=new_fit
+                operator_labels[int(r_idx)]="wca.evaporation_raining"
         # Check if any river is better than sea
         order=self._order(pop[:,-1]); sea_idx=int(order[0])
-        return pop, evals, {"sea":sea_idx,"rivers":rivers,"stream_map":stream_map,"nsr":nsr}
+        return pop, evals, {"sea":sea_idx,"rivers":rivers,"stream_map":stream_map,"nsr":nsr,"operator_labels":operator_labels}

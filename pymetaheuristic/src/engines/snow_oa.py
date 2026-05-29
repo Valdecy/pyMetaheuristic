@@ -32,20 +32,23 @@ class SnowOAEngine(PortedPopulationEngine):
         RB=np.random.randn(n,d)
         index1=np.random.choice(n,Na,replace=False)
         index2=np.array([i for i in idx_all if i not in index1])
+        operator_labels=["carryover"]*n
         for i in range(Na):
             r1=np.random.random(); k1=np.random.randint(min(4,len(elite)))
             for j in range(d):
                 pop[index1[i],j]=elite[k1,j]+RB[index1[i],j]*(r1*(best_pos[j]-pop[index1[i],j])+(1-r1)*(X_centroid[j]-pop[index1[i],j]))
+            operator_labels[int(index1[i])]="snow_oa.exploration_group_update"
         if Na<n: Na=min(Na+1,n); Nb=max(Nb-1,0)
         if Nb>=1 and len(index2)>0:
             for i in range(min(Nb,len(index2))):
                 r2=2*np.random.random()-1
                 for j in range(d):
                     pop[index2[i],j]=M*best_pos[j]+RB[index2[i],j]*(r2*(best_pos[j]-pop[index2[i],j])+(1-r2)*(X_centroid[j]-pop[index2[i],j]))
+                operator_labels[int(index2[i])]="snow_oa.development_group_update"
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
         new_fits=self._evaluate_population(pop[:,:-1]); evals+=n; pop[:,-1]=new_fits
         order=self._order(pop[:,-1])
         e4=[pop[order[i],:-1].copy() for i in range(min(4,n))]
         elite=np.array(e4)
         state.payload.update({"Na":Na,"Nb":Nb,"elite":elite})
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

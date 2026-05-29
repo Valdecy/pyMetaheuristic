@@ -26,6 +26,7 @@ class VCSEngine(PortedPopulationEngine):
         order    = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
         evals    = 0
+        operator_labels = ["carryover"] * n
 
         # 1. Virus diffusion
         diff_pos = np.empty_like(pop[:, :-1])
@@ -36,6 +37,8 @@ class VCSEngine(PortedPopulationEngine):
             diff_pos[i] = np.clip(pos, self._lo, self._hi)
         diff_fit = self._evaluate_population(diff_pos); evals += n
         mask     = self._better_mask(diff_fit, pop[:, -1])
+        for _i in np.where(mask)[0]:
+            operator_labels[int(_i)] = "vcs.virus_diffusion"
         pop[mask] = np.hstack([diff_pos, diff_fit[:, None]])[mask]
 
         # 2. Host-cell infection — Gaussian around weighted mean
@@ -48,6 +51,8 @@ class VCSEngine(PortedPopulationEngine):
             self._lo, self._hi)
         inf_fit   = self._evaluate_population(inf_pos); evals += n
         mask      = self._better_mask(inf_fit, pop[:, -1])
+        for _i in np.where(mask)[0]:
+            operator_labels[int(_i)] = "vcs.host_cell_infection"
         pop[mask] = np.hstack([inf_pos, inf_fit[:, None]])[mask]
 
         # 3. Immune response — rank-based crossover
@@ -63,6 +68,8 @@ class VCSEngine(PortedPopulationEngine):
             imm_pos[i] = np.clip(pos, self._lo, self._hi)
         imm_fit  = self._evaluate_population(imm_pos); evals += n
         mask     = self._better_mask(imm_fit, pop[:, -1])
+        for _i in np.where(mask)[0]:
+            operator_labels[int(_i)] = "vcs.immune_response"
         pop[mask] = np.hstack([imm_pos, imm_fit[:, None]])[mask]
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

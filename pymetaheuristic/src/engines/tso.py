@@ -33,20 +33,24 @@ class TSOEngine(PortedPopulationEngine):
         best_pos = pop[order[0], :-1].copy()
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels=["carryover"]*n
         for i in range(n):
             if i == 0:                              # leader: spiral update
                 r1   = np.random.random()
                 beta = np.exp(r1 * np.exp(3.0 * np.cos(np.pi * (T - t) / T))) * np.cos(2.0 * np.pi * r1)
                 pos  = a1 * (best_pos + beta * np.abs(best_pos - pop[i, :-1])) + a2 * pop[i-1, :-1]
+                operator_labels[i] = "tso.leader_spiral_update"
             else:
                 if np.random.random() < zz:        # random migration
                     pos = np.random.uniform(self._lo, self._hi)
+                    operator_labels[i] = "tso.random_migration_update"
                 else:
                     r1 = np.random.random()
                     beta = np.exp(r1 * np.exp(3.0 * np.cos(np.pi * (T - t) / T))) * np.cos(2.0 * np.pi * r1)
                     if np.random.random() > 0.5:   # spiral following
                         ref = best_pos if np.random.random() < C else np.random.uniform(self._lo, self._hi)
                         pos = a1 * (ref + beta * np.abs(ref - pop[i, :-1])) + a2 * pop[i-1, :-1]
+                        operator_labels[i] = "tso.spiral_following_update"
                     else:                          # parabolic updates
                         tf  = np.random.choice([-1, 1])
                         if np.random.random() < 0.5:
@@ -54,8 +58,9 @@ class TSOEngine(PortedPopulationEngine):
                                   + tf * tt**2 * (best_pos - pop[i, :-1])
                         else:
                             pos = tf * tt**2 * pop[i, :-1]
+                        operator_labels[i] = "tso.parabolic_foraging_update"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         pop     = np.hstack([new_pos, new_fit[:, None]])   # full replacement (original)
-        return pop, n, {}
+        return pop, n, {"operator_labels": operator_labels}

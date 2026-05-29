@@ -18,12 +18,16 @@ class SHIOEngine(PortedPopulationEngine):
         b1=pop[order[0],:-1]; b2=pop[order[1],:-1] if n>1 else b1; b3=pop[order[2],:-1] if n>2 else b2
         a=1.5
         new_pos=np.empty_like(pop[:,:-1])
+        operator_labels=[]
         for i in range(n):
             a=max(0.0,a-0.04)
             r1=np.random.random(dim); r2=np.random.random(dim); r3=np.random.random(dim)
             x1=b1+(a*2*r1-a)*np.abs(r1*b1-pop[i,:-1])
             x2=b2+(a*2*r2-a)*np.abs(r2*b2-pop[i,:-1])
             x3=b3+(a*2*r3-a)*np.abs(r3*b3-pop[i,:-1])
+            strengths=[float(np.linalg.norm(x1-pop[i,:-1])), float(np.linalg.norm(x2-pop[i,:-1])), float(np.linalg.norm(x3-pop[i,:-1]))]
+            dom=int(np.argmax(strengths))
+            operator_labels.append("shio.first_iguana_guidance" if dom==0 else "shio.second_iguana_guidance" if dom==1 else "shio.third_iguana_guidance")
             new_pos[i]=np.clip((x1+x2+x3)/3, self._lo, self._hi)
         new_fit=self._evaluate_population(new_pos)
-        pop=np.hstack([new_pos,new_fit[:,None]]); return pop, n, {}
+        pop=np.hstack([new_pos,new_fit[:,None]]); return pop, n, {"operator_labels": operator_labels}

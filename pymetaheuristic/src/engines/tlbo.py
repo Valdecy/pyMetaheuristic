@@ -45,7 +45,7 @@ class TLBOEngine(BaseEngine):
         off=np.clip(pop[:,:-1]+ri*(teacher[:-1]-tf[:,np.newaxis]*mean[:-1]),lo,hi)
         of2=self._evaluate_population(off); evals+=self._n
         off2=np.hstack((off,of2[:,np.newaxis]))
-        combined=np.vstack([pop,off2]); combined=combined[combined[:,-1].argsort()]; pop=combined[:self._n,:]
+        combined=np.vstack([pop,off2]); combined_labels=["carryover"]*self._n+["tlbo.teacher_phase"]*self._n; order=combined[:,-1].argsort(); combined=combined[order]; phase1_labels=[combined_labels[int(k)] for k in order[:self._n]]; pop=combined[:self._n,:]
         # learner phase
         off3=np.zeros_like(pop); ri2=np.random.rand(self._n,1)
         idxl=np.array([np.random.choice(np.delete(np.arange(self._n),i)) for i in range(self._n)])
@@ -53,10 +53,10 @@ class TLBOEngine(BaseEngine):
         diff=(pop[:,:-1]-pop[idxl,:-1])*dr[:,np.newaxis]
         off3[:,:-1]=np.clip(pop[:,:-1]+ri2*diff,lo,hi)
         off3[:,-1]=self._evaluate_population(off3[:,:-1]); evals+=self._n
-        combined=np.vstack([pop,off3]); combined=combined[combined[:,-1].argsort()]; pop=combined[:self._n,:]
+        combined=np.vstack([pop,off3]); combined_labels=phase1_labels+["tlbo.learner_phase"]*self._n; order=combined[:,-1].argsort(); combined=combined[order]; operator_labels=[combined_labels[int(k)] for k in order[:self._n]]; pop=combined[:self._n,:]
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

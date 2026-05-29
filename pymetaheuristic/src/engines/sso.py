@@ -18,17 +18,21 @@ class SSOEngine(PortedPopulationEngine):
         c1 = 2*np.exp(-((4*t/T)**2))
         order = self._order(pop[:,-1]); best_pos = pop[order[0],:-1].copy()
         new_pos = np.empty_like(pop[:,:-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if i < n//2:
                 c2 = np.random.random(dim); c3 = np.random.random(dim)
                 p1 = best_pos + c1*(self._span*c2+self._lo)
                 p2 = best_pos - c1*(self._span*c2+self._lo)
                 new_pos[i] = np.where(c3<0.5, p1, p2)
+                attempted_labels[i] = "sso.female_spider_position_update"
             else:
                 new_pos[i] = (pop[i,:-1]+pop[i-1,:-1])/2.0
+                attempted_labels[i] = "sso.male_spider_position_update"
             new_pos[i] = np.clip(new_pos[i], self._lo, self._hi)
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:,None]])
         mask = self._better_mask(new_fit, pop[:,-1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

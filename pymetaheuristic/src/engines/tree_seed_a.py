@@ -66,6 +66,7 @@ class TreeSeedAEngine(PortedPopulationEngine):
         min_seeds, max_seeds = self._seed_bounds(n)
 
         evals = 0
+        operator_labels=["carryover"]*n
         for i in range(n):
             seed_count = int(np.random.randint(min_seeds, max_seeds + 1))
             r_idx = np.array([self._rand_indices(n, i, 1)[0] for _ in range(seed_count)], dtype=int)
@@ -86,5 +87,6 @@ class TreeSeedAEngine(PortedPopulationEngine):
             if self._is_better(best_seed_fit, fitness[i]):
                 positions[i] = seeds[best_seed_idx]
                 fitness[i] = best_seed_fit
+                operator_labels[i] = "tree_seed_a.toward_best_seed" if bool(np.any(use_best_rule[int(best_seed_idx)])) else "tree_seed_a.away_random_seed"
 
-        return np.hstack((positions, fitness[:, None])), evals, {}
+        return np.hstack((positions, fitness[:, None])), evals, {"operator_labels": operator_labels}

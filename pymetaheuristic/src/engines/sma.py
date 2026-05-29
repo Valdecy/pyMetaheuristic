@@ -56,9 +56,11 @@ class SMAEngine(PortedPopulationEngine):
         b  = 1.0 - t / T
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if np.random.random() < p_t:               # random dispersion  (Eq. 2.7)
                 new_pos[i] = np.random.uniform(self._lo, self._hi)
+                attempted_labels[i] = "sma.random_dispersion_update"
             else:
                 p  = np.tanh(abs(float(pop[i, -1]) - best_f))  # Eq. 2.2
                 vb = np.random.uniform(-a, a, dim)              # Eq. 2.3
@@ -69,10 +71,12 @@ class SMAEngine(PortedPopulationEngine):
                 pos2   = vc * pop[i, :-1]
                 cond   = np.random.random(dim) < p
                 new_pos[i] = np.where(cond, pos1, pos2)
+                attempted_labels[i] = "sma.best_weighted_oscillation_update" if float(np.mean(cond)) >= 0.5 else "sma.contracting_vibration_update"
             new_pos[i] = np.clip(new_pos[i], self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {"weights": weights}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"weights": weights, "operator_labels": operator_labels}

@@ -39,6 +39,7 @@ class SSAEngine(BaseEngine):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
+        operator_labels=["carryover"]*self._n
         T=self.config.max_steps or 1; t=state.step
         c1=2*np.exp(-(4*(t/T))**2)
         food=state.payload.get("food",elite.copy())
@@ -50,16 +51,24 @@ class SSAEngine(BaseEngine):
         rm=c3[:hs]>=0.5
         pr=c1*(rng*c2+lo); fm=np.tile(food[:-1],(hs,1))
         pop[:hs,:-1]=np.where(rm,np.clip(fm+pr,lo,hi),np.clip(fm-pr,lo,hi))
+        for _i in range(hs):
+            operator_labels[_i]="ssa.leader_plus_food_guidance" if bool(np.any(rm[_i])) else "ssa.leader_minus_food_guidance"
         if hs>0 and hs+1<self._n:
             fl=pop[:hs-1,:-1] if hs>1 else pop[:1,:-1]
             fl2=pop[1:hs,:-1] if hs>1 else pop[:1,:-1]
             n2=min(fl.shape[0],fl2.shape[0])
             pop[hs:hs+n2,:-1]=np.clip((fl[:n2]+fl2[:n2])/2,lo,hi)
+            for _j in range(n2):
+                operator_labels[hs+_j] = (
+                    "ssa.follower_front_chain_update"
+                    if float(np.linalg.norm(fl[_j])) >= float(np.linalg.norm(fl2[_j]))
+                    else "ssa.follower_rear_chain_update"
+                )
         pop[:,-1]=self._evaluate_population(pop[:,:-1]); evals+=self._n
         state.payload["food"]=food
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

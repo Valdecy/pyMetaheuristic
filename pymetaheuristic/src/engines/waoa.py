@@ -15,6 +15,7 @@ class WAOAEngine(PortedPopulationEngine):
     def _step_impl(self, state, pop):
         n, dim = pop.shape[0], self.problem.dimension
         T = max(1, self.config.max_steps or 500); t = state.step+1; evals=0
+        operator_labels=["carryover"]*n
         for i in range(n):
             kk = np.random.randint(n)
             if self._is_better(float(pop[kk,-1]),float(pop[i,-1])):
@@ -22,9 +23,11 @@ class WAOAEngine(PortedPopulationEngine):
             else:
                 pos = np.clip(pop[i,:-1]+np.random.random()*(pop[i,:-1]-pop[kk,:-1]), self._lo, self._hi)
             fit = float(self.problem.evaluate(pos)); evals+=1
-            if self._is_better(fit, float(pop[i,-1])): pop[i,:-1]=pos; pop[i,-1]=fit
+            if self._is_better(fit, float(pop[i,-1])):
+                pop[i,:-1]=pos; pop[i,-1]=fit; operator_labels[i]="waoa.feeding_exploration_update"
             LB = self._lo/t; UB = self._hi/t
             pos2 = np.clip(pop[i,:-1]+LB+(UB-np.random.random()*LB), self._lo, self._hi)
             fit2 = float(self.problem.evaluate(pos2)); evals+=1
-            if self._is_better(fit2, float(pop[i,-1])): pop[i,:-1]=pos2; pop[i,-1]=fit2
-        return pop, evals, {}
+            if self._is_better(fit2, float(pop[i,-1])):
+                pop[i,:-1]=pos2; pop[i,-1]=fit2; operator_labels[i]="waoa.range_narrowing_exploitation"
+        return pop, evals, {"operator_labels": operator_labels}

@@ -24,6 +24,7 @@ class TSAEngine(PortedPopulationEngine):
         pmin, pmax = 1, 4
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels=["carryover"]*n
         for i in range(n):
             c1 = np.random.random(dim)
             c2 = np.random.random(dim)
@@ -33,10 +34,12 @@ class TSAEngine(PortedPopulationEngine):
             t1 = best_pos + A * np.abs(best_pos - c2 * pop[i, :-1])
             t2 = best_pos - A * np.abs(best_pos - c2 * pop[i, :-1])
             pos = np.where(c3 >= 0.5, t1, t2)
+            operator_labels[i] = "tsa.toward_best_tunicate_update" if float(np.mean(c3 >= 0.5)) >= 0.5 else "tsa.away_best_tunicate_update"
             if i > 0:
                 pos = (pos + pop[i-1, :-1]) / 2.0
+                operator_labels[i] = "tsa.swarm_chain_averaging_update"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         pop     = np.hstack([new_pos, new_fit[:, None]])   # full replacement
-        return pop, n, {}
+        return pop, n, {"operator_labels": operator_labels}

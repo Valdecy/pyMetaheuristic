@@ -70,6 +70,10 @@ class TFWOEngine(PortedPopulationEngine):
         object_delta = object_delta[perm].reshape(n_wh, n_obj_w)
 
         best_idx = self._best_index(whirl_cost)
+        initial_population = np.vstack([
+            np.hstack([whirl_pos, whirl_cost[:, None]]),
+            np.hstack([object_positions.reshape(-1, self.problem.dimension), object_costs.reshape(-1)[:, None]]),
+        ])
         return EngineState(
             step=0,
             evaluations=self._n,
@@ -77,6 +81,8 @@ class TFWOEngine(PortedPopulationEngine):
             best_fitness=float(whirl_cost[best_idx]),
             initialized=True,
             payload={
+                "population": initial_population,
+                "operator_labels": ["carryover"] * int(self._n),
                 "whirlpool_positions": whirl_pos,
                 "whirlpool_costs": whirl_cost,
                 "whirlpool_delta": whirl_delta,
@@ -94,6 +100,7 @@ class TFWOEngine(PortedPopulationEngine):
         object_delta = state.payload["object_delta"]
         n_wh, n_obj_w, dim = object_positions.shape
         evals = 0
+        operator_labels = ["carryover"] * int(self._n)
 
         for i in range(n_wh):
             for j in range(n_obj_w):
@@ -124,6 +131,7 @@ class TFWOEngine(PortedPopulationEngine):
                 if self._is_better(trial_fitness, float(object_costs[i, j])) or trial_fitness == float(object_costs[i, j]):
                     object_positions[i, j] = trial
                     object_costs[i, j] = trial_fitness
+                    operator_labels[int(n_wh + i * n_obj_w + j)] = "tfwo.effect_of_objects"
 
                 # Pseudo-code 3: random one-coordinate relocation. The source
                 # applies the relocation directly when the probability triggers.
@@ -134,8 +142,10 @@ class TFWOEngine(PortedPopulationEngine):
                     relocated[k] = np.random.uniform(self._lo[k], self._hi[k])
                     object_positions[i, j] = relocated
                     object_costs[i, j] = float(self.problem.evaluate(relocated))
+                    operator_labels[int(n_wh + i * n_obj_w + j)] = "tfwo.random_object_relocation"
                     evals += 1
 
+        state.payload["operator_labels"] = operator_labels
         return evals
 
     def _effect_of_whirlpools(self, state: EngineState) -> int:
@@ -144,6 +154,7 @@ class TFWOEngine(PortedPopulationEngine):
         whirl_delta = state.payload["whirlpool_delta"]
         n_wh, dim = whirl_pos.shape
         evals = 0
+        operator_labels = list(state.payload.get("operator_labels", ["carryover"] * int(self._n)))
         previous_best_idx = self._best_index(whirl_cost)
         previous_best_pos = whirl_pos[previous_best_idx].copy()
         previous_best_cost = float(whirl_cost[previous_best_idx])
@@ -169,6 +180,7 @@ class TFWOEngine(PortedPopulationEngine):
             if self._is_better(trial_fitness, float(whirl_cost[i])) or trial_fitness == float(whirl_cost[i]):
                 whirl_pos[i] = trial
                 whirl_cost[i] = trial_fitness
+                operator_labels[int(i)] = "tfwo.effect_of_whirlpools"
 
         # Preserve the pre-step best whirlpool if all whirlpool moves degrade it.
         current_best_idx = self._best_index(whirl_cost)
@@ -176,7 +188,9 @@ class TFWOEngine(PortedPopulationEngine):
             worst_idx = self._worst_index(whirl_cost)
             whirl_pos[worst_idx] = previous_best_pos
             whirl_cost[worst_idx] = previous_best_cost
+            operator_labels[int(worst_idx)] = "tfwo.best_whirlpool_preservation"
 
+        state.payload["operator_labels"] = operator_labels
         return evals
 
     def _object_whirlpool_exchange(self, state: EngineState) -> None:
@@ -185,6 +199,9 @@ class TFWOEngine(PortedPopulationEngine):
         object_positions = state.payload["object_positions"]
         object_costs = state.payload["object_costs"]
 
+        operator_labels = list(state.payload.get("operator_labels", ["carryover"] * int(self._n)))
+        n_wh = int(self._n_whirlpools)
+        n_obj_w = int(self._objects_per_whirlpool)
         for i in range(self._n_whirlpools):
             best_obj_idx = self._best_index(object_costs[i])
             best_obj_cost = float(object_costs[i, best_obj_idx])
@@ -195,15 +212,26 @@ class TFWOEngine(PortedPopulationEngine):
                 whirl_cost[i] = best_obj_cost
                 object_positions[i, best_obj_idx] = old_pos
                 object_costs[i, best_obj_idx] = old_cost
+                operator_labels[int(i)] = "tfwo.object_whirlpool_exchange"
+                operator_labels[int(n_wh + i * n_obj_w + best_obj_idx)] = "tfwo.object_whirlpool_exchange"
+        state.payload["operator_labels"] = operator_labels
 
     def step(self, state: EngineState) -> EngineState:
+        before_pop = self._flatten_population(state).copy()
         evals = self._effect_of_objects(state)
         evals += self._effect_of_whirlpools(state)
         self._object_whirlpool_exchange(state)
+        after_pop = self._flatten_population(state)
+        operator_labels = list(state.payload.get("operator_labels", ["carryover"] * int(self._n)))
+        for _i in range(min(len(operator_labels), after_pop.shape[0])):
+            if operator_labels[_i] == "carryover" and float(np.linalg.norm(after_pop[_i, :-1] - before_pop[_i, :-1])) > 1.0e-12:
+                operator_labels[_i] = "tfwo.state_structure_update"
+        state.payload["operator_labels"] = operator_labels
 
         state.step += 1
         state.evaluations += int(evals)
         pop = self._flatten_population(state)
+        state.payload["population"] = pop
         self._maybe_update_best(state, pop)
         return state
 

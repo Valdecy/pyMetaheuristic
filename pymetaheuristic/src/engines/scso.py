@@ -38,6 +38,7 @@ class SCSoEngine(PortedPopulationEngine):
         guides_r = ss - ss * t / T
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         for i in range(n):
             r  = np.random.random() * guides_r
             R  = 2.0 * guides_r * np.random.random() - guides_r
@@ -47,13 +48,15 @@ class SCSoEngine(PortedPopulationEngine):
                 teta = np.searchsorted(np.cumsum(pp), np.random.random())
                 teta = float(teta) * 2.0 * np.pi / n
                 if abs(R) <= 1.0:                           # exploitation
+                    operator_labels[i] = "scso.exploitation"
                     rand_p = abs(np.random.random() * best_pos[j] - pop[i, j])
                     pos[j] = best_pos[j] - r * rand_p * np.cos(teta)
                 else:                                       # exploration
+                    operator_labels[i] = "scso.exploration"
                     cp = np.random.randint(n)
                     pos[j] = r * (pop[cp, j] - np.random.random() * pop[i, j])
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         pop     = np.hstack([new_pos, new_fit[:, None]])   # replace all (original behaviour)
-        return pop, n, {"pp": pp}
+        return pop, n, {"pp": pp, "operator_labels": operator_labels}

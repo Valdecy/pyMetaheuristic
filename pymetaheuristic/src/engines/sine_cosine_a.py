@@ -45,11 +45,18 @@ class SINE_COSINE_AEngine(BaseEngine):
         r3=2*np.random.rand(self._n,self.problem.dimension); r4=np.random.rand(self._n,self.problem.dimension)
         sp=r1*np.sin(r2)*np.abs(r3*elite[:-1]-pop[:,:-1])
         cp=r1*np.cos(r2)*np.abs(r3*elite[:-1]-pop[:,:-1])
-        pop[:,:-1]=np.clip(np.where(r4<0.5,pop[:,:-1]+sp,pop[:,:-1]+cp),lo,hi)
+        sine_mask = r4 < 0.5
+        operator_labels = [
+            "sine_cosine_a.sine_position_update"
+            if int(np.count_nonzero(sine_mask[i])) >= int(np.ceil(self.problem.dimension / 2))
+            else "sine_cosine_a.cosine_position_update"
+            for i in range(self._n)
+        ]
+        pop[:,:-1]=np.clip(np.where(sine_mask,pop[:,:-1]+sp,pop[:,:-1]+cp),lo,hi)
         pop[:,-1]=self._evaluate_population(pop[:,:-1]); evals+=self._n
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

@@ -43,6 +43,7 @@ class SHIOSuccessEngine(PortedPopulationEngine):
         hist = np.asarray(state.payload.get("history_top3"), dtype=float).reshape(-1, dim)
         current = pop.copy()
         evals = 0
+        operator_labels = ["carryover"] * n
 
         a = max(0.0, 2.0 - 2.0 * float(state.step + 1) / float(T))
         sv = max(0.0, 1.5 - 1.5 * float(state.step + 1) / float(T))
@@ -53,6 +54,8 @@ class SHIOSuccessEngine(PortedPopulationEngine):
             for c in hist[:3]:
                 r = np.random.rand(dim)
                 deltas.append(c + (sv * 2.0 * r - a) * np.abs(r * c - xi))
+            delta_strength = [float(np.linalg.norm(d - xi)) for d in deltas]
+            dominant = int(np.argmax(delta_strength)) if delta_strength else 0
             mean_delta = (deltas[0] + deltas[1] + deltas[2]) / 3.0
             candidate = xi + np.random.rand(dim) * (mean_delta - xi)
             candidate = np.clip(candidate, self._lo, self._hi)
@@ -61,9 +64,12 @@ class SHIOSuccessEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
+                operator_labels[i] = ("shio_success.best_history_guidance" if dominant == 0 else
+                                      "shio_success.second_history_guidance" if dominant == 1 else
+                                      "shio_success.third_history_guidance")
 
         idx = self._order(current[:, -1])[:3]
         hist = current[idx, :-1].copy()
         if hist.shape[0] < 3:
             hist = np.vstack([hist, np.tile(hist[-1], (3 - hist.shape[0], 1))])
-        return current, evals, {"history_top3": hist}
+        return current, evals, {"history_top3": hist, "operator_labels": operator_labels}

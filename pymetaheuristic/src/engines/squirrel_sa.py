@@ -50,14 +50,17 @@ class SquirrelSAEngine(PortedPopulationEngine):
         pop      = pop[order]                  # sort: best=hickory, next=acorn, rest=normal
         new_pop  = pop.copy()
         evals    = 0
+        attempted_labels = ["carryover"] * n
 
         # Case 1: Acorn squirrels → hickory
         for idx in range(1, min(n_acorn + 1, n)):
             d_g = self._glide_dist()
             if np.random.random() >= p_pred:
                 pos = pop[idx, :-1] + d_g * gc * (pop[0, :-1] - pop[idx, :-1])
+                attempted_labels[int(idx)] = "squirrel_sa.acorn_to_hickory_glide"
             else:
                 pos = np.random.uniform(self._lo, self._hi)
+                attempted_labels[int(idx)] = "squirrel_sa.predator_random_relocation"
             new_pop[idx, :-1] = np.clip(pos, self._lo, self._hi)
             new_pop[idx, -1]  = float(self.problem.evaluate(new_pop[idx, :-1])); evals += 1
 
@@ -71,19 +74,24 @@ class SquirrelSAEngine(PortedPopulationEngine):
                 d_g = self._glide_dist()
                 if np.random.random() >= p_pred:
                     pos = pop[idx, :-1] + d_g * gc * (pop[jdx, :-1] - pop[idx, :-1])
+                    attempted_labels[int(idx)] = "squirrel_sa.normal_to_acorn_glide"
                 else:
                     pos = np.random.uniform(self._lo, self._hi)
+                    attempted_labels[int(idx)] = "squirrel_sa.predator_random_relocation"
                 new_pop[idx, :-1] = np.clip(pos, self._lo, self._hi)
                 new_pop[idx, -1]  = float(self.problem.evaluate(new_pop[idx, :-1])); evals += 1
             for idx in idxs[:n_cut]:            # toward hickory
                 d_g = self._glide_dist()
                 if np.random.random() >= p_pred:
                     pos = pop[idx, :-1] + d_g * gc * (pop[0, :-1] - pop[idx, :-1])
+                    attempted_labels[int(idx)] = "squirrel_sa.normal_to_hickory_glide"
                 else:
                     pos = np.random.uniform(self._lo, self._hi)
+                    attempted_labels[int(idx)] = "squirrel_sa.predator_random_relocation"
                 new_pop[idx, :-1] = np.clip(pos, self._lo, self._hi)
                 new_pop[idx, -1]  = float(self.problem.evaluate(new_pop[idx, :-1])); evals += 1
 
         mask = self._better_mask(new_pop[:, -1], pop[:, -1])
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
         pop[mask] = new_pop[mask]
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

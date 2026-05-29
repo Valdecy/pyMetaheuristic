@@ -37,6 +37,7 @@ class WARSOEngine(PortedPopulationEngine):
         perm = np.random.permutation(n)
 
         new_pop = pop.copy()
+        operator_labels=["carryover"]*n
         for i in range(n):
             r1 = np.random.random()
             si = order[i]                   # original index of sorted[i]
@@ -45,14 +46,17 @@ class WARSOEngine(PortedPopulationEngine):
                        wl_sorted[i] * np.random.random() * (sorted_pop[i, :-1] - pop[si, :-1]))
                 pos = 2 * r1 * (pop[order[0], :-1] - pop[perm[i], :-1]) + \
                       wl_sorted[i] * np.random.random() * (sorted_pop[i, :-1] - pop[si, :-1])
+                attempted_label = "warso.attack_strategy_update"
             else:
                 pos = 2 * r1 * (sorted_pop[i, :-1] - pop[order[0], :-1]) + \
                       np.random.random() * (wl_sorted[i] * pop[order[0], :-1] - pop[si, :-1])
+                attempted_label = "warso.defense_strategy_update"
             pos = np.clip(pos, self._lo, self._hi)
             fit = float(self.problem.evaluate(pos))
             if self._is_better(fit, float(pop[si, -1])):
                 new_pop[si, :-1] = pos; new_pop[si, -1] = fit
+                operator_labels[int(si)] = attempted_label
                 wg[si] += 1
                 wl[si] = wl[si] * (1.0 - wg[si] / T) ** 2
 
-        return new_pop, n, {"wl": wl, "wg": wg}
+        return new_pop, n, {"wl": wl, "wg": wg, "operator_labels": operator_labels}

@@ -61,6 +61,7 @@ class WoOAEngine(PortedPopulationEngine):
         p_scavenge = float(self._params.get("scavenging_probability", 0.5))
         p_scavenge = min(1.0, max(0.0, p_scavenge))
         evals = 0
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             if np.random.rand() <= p_scavenge:
@@ -68,19 +69,22 @@ class WoOAEngine(PortedPopulationEngine):
                 predators = self._better_indices_than(pop, i)
                 sp = pop[int(np.random.choice(predators)), :-1]
                 trial = self._toward_target(pop[i, :-1], sp)
-                self._greedy_single(pop, i, trial)
+                if self._greedy_single(pop, i, trial):
+                    operator_labels[i] = "wooa.scavenging_predator_following"
                 evals += 1
             else:
                 # Strategy 2, phase 1 — attack the prey, represented by the best member.
                 prey = pop[self._best_index(pop[:, -1]), :-1].copy()
                 trial = self._toward_target(pop[i, :-1], prey)
-                self._greedy_single(pop, i, trial)
+                if self._greedy_single(pop, i, trial):
+                    operator_labels[i] = "wooa.prey_attack_update"
                 evals += 1
 
                 # Strategy 2, phase 2 — fight/chase with a shrinking local step.
                 r = np.random.rand(dim)
                 trial = pop[i, :-1] + (1.0 - 2.0 * r) * self._span / float(t)
-                self._greedy_single(pop, i, trial)
+                if self._greedy_single(pop, i, trial):
+                    operator_labels[i] = "wooa.fight_chase_local_update"
                 evals += 1
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}
