@@ -16,6 +16,7 @@ class GEAEngine(PortedPopulationEngine):
     def _step_impl(self, state, pop):
         n, d = pop.shape[0], self.problem.dimension
         lo, hi = self._lo, self._hi; evals = 0
+        operator_labels = ["carryover"] * n
         t = state.step; max_iter=self._params.get("max_iterations",1000)
         Nc=max(1,n//3)
         order=self._order(pop[:,-1]); pop=pop[order]
@@ -43,6 +44,7 @@ class GEAEngine(PortedPopulationEngine):
             new_fit=float(self._evaluate_population(new_pos[None])[0]); evals+=1
             if self._is_better(new_fit,pop[i,-1]):
                 pop[i]=np.append(new_pos,new_fit); fits[i]=new_fit
+                operator_labels[i]="gea.neighbour_geyser_eruption_update"
                 if self._is_better(new_fit,pop[0,-1]): best_pos=new_pos.copy()
             # second attempt
             p2_sum=sum(1-p_arr)
@@ -52,4 +54,5 @@ class GEAEngine(PortedPopulationEngine):
             new_fit2=float(self._evaluate_population(new_pos2[None])[0]); evals+=1
             if self._is_better(new_fit2,pop[i,-1]):
                 pop[i]=np.append(new_pos2,new_fit2); fits[i]=new_fit2
-        return pop, evals, {}
+                operator_labels[i]="gea.pressure_random_eruption_update"
+        return pop, evals, {"operator_labels": operator_labels}

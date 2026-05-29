@@ -31,18 +31,24 @@ class ECOEngine(PortedPopulationEngine):
         E=(np.pi*t)/(max(P,0.01)*max_iter)
         w=0.1*np.log(2-t/max_iter)
         new_pos=pop[:,:-1].copy()
+        attempted_labels=["carryover"]*n
         for j in range(n):
             St=np.random.randint(1,5)
             if St==1:
                 new_pos[j]=GBestX+R1*np.exp(w)*(pop[j,:-1]-GBestX)+R2*np.exp(w)*(GWorstX-pop[j,:-1])
+                attempted_labels[j]="eco.primary_competition_update"
             elif St==2:
                 new_pos[j]=pop[j,:-1]+R1*np.sin(E)*(GBestX-pop[j,:-1])+R2*np.cos(E)*(GBestX-pop[j,:-1])
+                attempted_labels[j]="eco.sine_cosine_learning_update"
             elif St==3:
                 new_pos[j]=GBestX*(1-R1)+R2*(pop[j,:-1]-GBestX)
+                attempted_labels[j]="eco.best_weighted_learning_update"
             else:
                 new_pos[j]=pop[j,:-1]+_levy1d(d)*(GBestX-pop[j,:-1])
+                attempted_labels[j]="eco.levy_exam_update"
         new_pos=np.clip(new_pos,lo,hi)
         new_fits=self._evaluate_population(new_pos); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([new_pos,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

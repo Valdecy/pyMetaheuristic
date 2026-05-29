@@ -47,6 +47,7 @@ class FOXEngine(PortedPopulationEngine):
         jump_decay = 0.15 + 0.85 * contraction
 
         trial = pop[:, :-1].copy()
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             xi = pop[i, :-1]
             r = np.random.random(dim)
@@ -59,6 +60,7 @@ class FOXEngine(PortedPopulationEngine):
                 gravity_jump = 0.5 * 9.81 * (0.5 * mean_time) ** 2
                 step = (c1 + (c2 - c1) * np.random.random()) * gravity_jump
                 candidate = xi + step * r * (best_pos - xi)
+                attempted_labels[i] = "fox.prey_jump_exploitation"
             else:
                 # Exploration: bounded random walk around the best and current
                 # positions.  The radius decreases with progress.
@@ -66,14 +68,20 @@ class FOXEngine(PortedPopulationEngine):
                 candidate = best_pos + direction * span * walk_scale * jump_decay * (0.5 + mint)
                 if np.random.random() < 0.5:
                     candidate = xi + np.random.random(dim) * (candidate - xi)
+                    attempted_labels[i] = "fox.current_to_random_walk_update"
+                else:
+                    attempted_labels[i] = "fox.best_radius_random_walk"
 
             trial[i] = np.clip(candidate, self._lo, self._hi)
 
         # Preserve the best few individuals explicitly.
         trial[order[:elite_n]] = pop[order[:elite_n], :-1]
+        for _idx in order[:elite_n]:
+            attempted_labels[int(_idx)] = "carryover"
         trial_fit = self._evaluate_population(trial)
         new_pop = pop.copy()
         mask = self._better_mask(trial_fit, pop[:, -1])
         new_pop[mask, :-1] = trial[mask]
         new_pop[mask, -1] = trial_fit[mask]
-        return new_pop, n, {"mint": mint}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return new_pop, n, {"mint": mint, "operator_labels": operator_labels}

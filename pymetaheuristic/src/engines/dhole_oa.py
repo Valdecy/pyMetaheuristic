@@ -97,6 +97,7 @@ class DholeOAEngine(PortedPopulationEngine):
         ps = self._hunting_suitability(pack_member_number)
 
         new_positions = pop[:, :-1].copy()
+        operator_labels = ["carryover"] * n
         for i in range(n):
             x = pop[i, :-1]
             vocalization = np.random.rand()
@@ -105,10 +106,12 @@ class DholeOAEngine(PortedPopulationEngine):
                 if pack_member_number < 10:
                     # Searching stage — Eq. (6).
                     trial = x + c2 * np.random.rand(dim) * (prey - x)
+                    operator_labels[i] = "dhole_oa.searching_stage"
                 else:
                     # Encircling stage — Eqs. (8)–(9).
                     z = int(self._rand_indices(n, i, 1)[0])
                     trial = x - pop[z, :-1] + prey
+                    operator_labels[i] = "dhole_oa.encircling_stage"
             else:
                 size = self._prey_size(float(pop[i, -1]), prey_fitness)
                 if size > (c3 + 1.0) / 2.0:
@@ -117,9 +120,11 @@ class DholeOAEngine(PortedPopulationEngine):
                     angle = 2.0 * np.pi * np.random.rand(dim)
                     oscillation = np.cos(angle) - np.sin(angle)
                     trial = x + (weak_prey * ps) * oscillation * (weak_prey * ps)
+                    operator_labels[i] = "dhole_oa.large_prey_attack"
                 else:
                     # Small/weak prey: immediate kill — Eq. (13).
                     trial = (x - prey_global) * ps + ps * np.random.rand(dim) * x
+                    operator_labels[i] = "dhole_oa.small_prey_kill"
 
             new_positions[i] = np.clip(trial, self._lo, self._hi)
 
@@ -127,4 +132,4 @@ class DholeOAEngine(PortedPopulationEngine):
         evals += n
         pop[:, :-1] = new_positions
         pop[:, -1] = new_fitness
-        return pop, evals, {"pack_member_number": pack_member_number, "hunting_suitability": ps}
+        return pop, evals, {"pack_member_number": pack_member_number, "hunting_suitability": ps, "operator_labels": operator_labels}

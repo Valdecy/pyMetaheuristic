@@ -30,6 +30,9 @@ class DandelionOEngine(PortedPopulationEngine):
         a=1/(max_iter**2-2*max_iter+1); b=-2*a; c_coef=1-a-b
         k=1-np.random.random()*(c_coef+a*t**2+b*t)
         best_pos=pop[self._best_index(pop[:,-1]),:-1].copy()
+        old_pos = pop[:, :-1].copy()
+        old_fit = pop[:, -1].copy()
+        phase1_start = pop[:, :-1].copy()
         # Phase 1
         if np.random.randn()<1.5:
             for i in range(n):
@@ -40,17 +43,32 @@ class DandelionOEngine(PortedPopulationEngine):
         else:
             pop[:,:-1]*=k
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
+        phase1_pos = pop[:, :-1].copy()
         # Phase 2
         mean=np.mean(pop[:,:-1],axis=0)
         for i in range(n):
             for j in range(d):
                 pop[i,j]=pop[i,j]-beta_arr[i,j]*alpha*(mean[j]-beta_arr[i,j]*alpha*pop[i,j])
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
+        phase2_pos = pop[:, :-1].copy()
         # Phase 3
         Step=_levy(n,d,1.5); Elite=np.tile(best_pos,(n,1))
         for i in range(n):
             for j in range(d):
                 pop[i,j]=Elite[i,j]+Step[i,j]*alpha*(Elite[i,j]-pop[i,j]*(2*t/max_iter))
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
+        phase3_pos = pop[:, :-1].copy()
         new_fits=self._evaluate_population(pop[:,:-1]); evals+=n; pop[:,-1]=new_fits
-        return pop, evals, {}
+        phase_disp = np.vstack([
+            np.linalg.norm(phase1_pos - phase1_start, axis=1),
+            np.linalg.norm(phase2_pos - phase1_pos, axis=1),
+            np.linalg.norm(phase3_pos - phase2_pos, axis=1),
+        ]).T
+        phase_labels = [
+            "do_dandelion.rising_seed_phase",
+            "do_dandelion.descent_diffusion_phase",
+            "do_dandelion.elite_landing_phase",
+        ]
+        improved = self._better_mask(new_fits, old_fit)
+        operator_labels = [phase_labels[int(np.argmax(phase_disp[i]))] if bool(improved[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

@@ -42,9 +42,11 @@ class HHOEngine(BaseEngine):
         bi=np.argmin(pop[:,-1])
         if pop[bi,-1]<rabbit[-1]: rabbit=pop[bi,:].copy()
         er=2*(1-t/T)
+        operator_labels = ["carryover"] * self._n
         for i in range(self._n):
             ee=er*(2*np.random.rand()-1); ae=abs(ee)
             if ae>=1:
+                operator_labels[i] = "hho.exploration"
                 r1=np.random.rand(); idx=np.random.randint(self._n); hawk=pop[idx,:]
                 if r1<0.5:
                     a=np.random.rand(); b=np.random.rand()
@@ -56,13 +58,16 @@ class HHOEngine(BaseEngine):
             else:
                 r2=np.random.rand()
                 if r2>=0.5 and ae<0.5:
+                    operator_labels[i] = "hho.hard_besiege"
                     pop[i,:-1]=rabbit[:-1]-ee*abs(rabbit[:-1]-pop[i,:-1])
                     pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
                 elif r2>=0.5 and ae>=0.5:
+                    operator_labels[i] = "hho.soft_besiege"
                     e=np.random.rand(); js=2*(1-e)
                     pop[i,:-1]=(rabbit[:-1]-pop[i,:-1])-ee*abs(js*rabbit[:-1]-pop[i,:-1])
                     pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
                 elif r2<0.5 and ae>=0.5:
+                    operator_labels[i] = "hho.soft_besiege_rapid_dive"
                     f=np.random.rand(); js=2*(1-f)
                     x1=rabbit[:-1]-ee*abs(js*rabbit[:-1]-pop[i,:-1])
                     x1c=np.clip(x1,lo,hi); fx1=self.problem.evaluate(x1c); evals+=1
@@ -72,6 +77,7 @@ class HHOEngine(BaseEngine):
                         x2c=np.clip(x2,lo,hi); fx2=self.problem.evaluate(x2c); evals+=1
                         if fx2<pop[i,-1]: pop[i,:-1]=x2c; pop[i,-1]=fx2
                 else:
+                    operator_labels[i] = "hho.hard_besiege_rapid_dive"
                     g=np.random.rand(); js=2*(1-g)
                     x1=rabbit[:-1]-ee*abs(js*rabbit[:-1]-pop[i,:-1].mean())
                     x1c=np.clip(x1,lo,hi); fx1=self.problem.evaluate(x1c); evals+=1
@@ -82,7 +88,7 @@ class HHOEngine(BaseEngine):
                         if fx2<pop[i,-1]: pop[i,:-1]=x2c; pop[i,-1]=fx2
         bi2=np.argmin(pop[:,-1])
         if pop[bi2,-1]<rabbit[-1]: rabbit=pop[bi2,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,rabbit=rabbit)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,rabbit=rabbit,operator_labels=operator_labels)
         if self.problem.is_better(float(rabbit[-1]),state.best_fitness):
             state.best_fitness=float(rabbit[-1]); state.best_position=rabbit[:-1].tolist()
         return state

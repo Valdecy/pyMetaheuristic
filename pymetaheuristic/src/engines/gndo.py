@@ -19,12 +19,14 @@ class GNDOEngine(PortedPopulationEngine):
         evals = 0
         best_pos = pop[self._best_index(pop[:,-1]), :-1].copy()
         mo = np.mean(pop[:,:-1], axis=0)
+        operator_labels = ["carryover"] * n
         for i in range(n):
             idxs = [j for j in range(n) if j!=i]
             a,b,c_ = np.random.choice(idxs, 3, replace=False)
             v1 = (pop[a,:-1]-pop[i,:-1]) if pop[a,-1]<pop[i,-1] else (pop[i,:-1]-pop[a,:-1])
             v2 = (pop[b,:-1]-pop[c_,:-1]) if pop[b,-1]<pop[c_,-1] else (pop[c_,:-1]-pop[b,:-1])
             if np.random.random()<=np.random.random():
+                attempted_label = "gndo.generalized_normal_local_update"
                 u=(pop[i,:-1]+best_pos+mo)/3
                 deta=np.sqrt((1/3)*((pop[i,:-1]-u)**2+(best_pos-u)**2+(mo-u)**2))
                 vc1=np.random.random(d); vc2=np.random.random(d)
@@ -35,12 +37,14 @@ class GNDOEngine(PortedPopulationEngine):
                 else:
                     newsol=u+deta*Z2
             else:
+                attempted_label = "gndo.difference_vector_global_update"
                 beta=np.random.random()
                 newsol=pop[i,:-1]+beta*np.abs(np.random.randn(d))*v1+(1-beta)*np.abs(np.random.randn(d))*v2
             newsol=np.clip(newsol,lo,hi)
             new_fit=float(self._evaluate_population(newsol[None])[0]); evals+=1
             if self._is_better(new_fit, pop[i,-1]):
                 pop[i]=np.append(newsol,new_fit)
+                operator_labels[i] = attempted_label
                 if self._is_better(new_fit, pop[self._best_index(pop[:,-1]),-1]):
                     best_pos=newsol.copy()
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

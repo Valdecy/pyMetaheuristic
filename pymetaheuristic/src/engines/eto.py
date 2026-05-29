@@ -19,18 +19,22 @@ class ETOEngine(PortedPopulationEngine):
         t = state.step; max_iter = self._params.get("max_iterations", 1000)
         best_idx = self._best_index(pop[:, -1]); best_pos = pop[best_idx, :-1].copy()
         a = 2 * np.exp(-4 * t / max_iter)
+        operator_labels = ["carryover"] * n
         for i in range(n):
             r = np.random.random(d)
             if np.random.random() < 0.5:
                 # Exponential component
                 C = 2 * r - 1
                 X_new = best_pos - a * C * np.abs(best_pos - pop[i, :-1])
+                attempted_label = "eto.exponential_orbit_update"
             else:
                 # Trigonometric component
                 theta = 2 * np.pi * r
                 X_new = best_pos + a * np.sin(theta) * np.abs(best_pos - pop[i, :-1])
+                attempted_label = "eto.trigonometric_orbit_update"
             X_new = np.clip(X_new, lo, hi)
             new_fit = float(self._evaluate_population(X_new[None])[0]); evals += 1
             if self._is_better(new_fit, pop[i, -1]):
                 pop[i] = np.append(X_new, new_fit)
-        return pop, evals, {}
+                operator_labels[i] = attempted_label
+        return pop, evals, {"operator_labels": operator_labels}

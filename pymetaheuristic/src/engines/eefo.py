@@ -53,6 +53,7 @@ class EEFOEngine(PortedPopulationEngine):
         best_fit = float(state.best_fitness)
         mean_pos = np.mean(positions, axis=0)
         E0 = 4.0 * np.sin(1.0 - t / max_iter)
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             rnd = max(float(np.random.random()), 1.0e-12)
@@ -65,7 +66,9 @@ class EEFOEngine(PortedPopulationEngine):
                 rand_num = min(dim, max(1, rand_num))
                 direct[np.random.permutation(dim)[:rand_num]] = 1.0
 
+            attempted_label = "carryover"
             if E > 1.0:
+                attempted_label = "eefo.interaction_migration"
                 candidates = [j for j in range(n) if j != i]
                 j = int(np.random.choice(candidates)) if candidates else i
                 if self._is_better(fitness[j], fitness[i]):
@@ -80,6 +83,7 @@ class EEFOEngine(PortedPopulationEngine):
             else:
                 branch = float(np.random.random())
                 if branch < 1.0 / 3.0:
+                    attempted_label = "eefo.resting_area_update"
                     alpha = 2.0 * (np.e - np.exp(t / max_iter)) * np.sin(2.0 * np.pi * np.random.random())
                     rn = int(np.random.randint(0, n))
                     rd = int(np.random.randint(0, dim))
@@ -92,6 +96,7 @@ class EEFOEngine(PortedPopulationEngine):
                     Ri = Z + alpha * np.abs(Z - best_pos)
                     new_pos = Ri + np.random.randn() * (Ri - round(float(np.random.random())) * positions[i])
                 elif branch > 2.0 / 3.0:
+                    attempted_label = "eefo.levy_hunting_update"
                     rn = int(np.random.randint(0, n))
                     rd = int(np.random.randint(0, dim))
                     span = self._hi[rd] - self._lo[rd]
@@ -107,6 +112,7 @@ class EEFOEngine(PortedPopulationEngine):
                     L = 0.01 * np.abs(levy_flight(dim, beta=1.5, scale=1.0))
                     new_pos = -np.random.random() * Ri + np.random.random() * Hr - L * (Hr - positions[i])
                 else:
+                    attempted_label = "eefo.prey_capture_update"
                     beta = 2.0 * (np.e - np.exp(t / max_iter)) * np.sin(2.0 * np.pi * np.random.random())
                     Hprey = best_pos + beta * np.abs(mean_pos - best_pos)
                     r4 = float(np.random.random())
@@ -118,10 +124,11 @@ class EEFOEngine(PortedPopulationEngine):
             if self._is_better(new_fit, fitness[i]):
                 positions[i] = new_pos
                 fitness[i] = new_fit
+                operator_labels[i] = attempted_label
                 if self._is_better(new_fit, best_fit):
                     best_fit = new_fit
                     best_pos = new_pos.copy()
 
         pop[:, :-1] = positions
         pop[:, -1] = fitness
-        return pop, n, {"prey_position": best_pos.copy(), "prey_fitness": float(best_fit)}
+        return pop, n, {"prey_position": best_pos.copy(), "prey_fitness": float(best_fit), "operator_labels": operator_labels}

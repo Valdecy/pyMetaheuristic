@@ -56,23 +56,27 @@ class FDAEngine(BaseEngine):
             b_list.append(pb)
         pb=np.concatenate(b_list,axis=0)
         # update
+        operator_labels = ["carryover"] * self._n
         for k in range(0,pb.shape[0],self._n):
             for i in range(self._n):
                 rn=np.random.normal()
                 for j in range(self.problem.dimension):
                     ix=np.random.choice(np.delete(np.arange(self._n),i))
                     if pb[i+k,-1]<pop[i,-1]:
+                        operator_labels[i] = "fda.downhill_flow_direction_update"
                         dist=np.linalg.norm(pop[i,:-1]-pb[i+k,:-1])+1e-9
                         slp=(pop[i,-1]-pb[i+k,-1])/dist; vel=rn*slp
                         pop[i,j]=np.clip(pop[i,j]+vel*(pop[i,j]-pb[i+k,j])/dist,lo[j],hi[j])
                     elif pop[ix,-1]<pop[i,-1]:
+                        operator_labels[i] = "fda.neighbour_flow_direction_update"
                         pop[i,j]=np.clip(pop[i,j]+rn*(pop[ix,j]-pop[i,j]),lo[j],hi[j])
                     else:
+                        operator_labels[i] = "fda.elite_flow_direction_update"
                         pop[i,j]=np.clip(pop[i,j]+2*rn*(elite[j]-pop[i,j]),lo[j],hi[j])
                 pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

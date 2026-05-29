@@ -28,16 +28,21 @@ class HorseOAEngine(PortedPopulationEngine):
         MeanPos=np.mean(pop[:n,:-1],axis=0)
         BadPos=np.mean(pop[order[n-max(1,round(0.05*n)):],:-1],axis=0)
         GoodPos=np.mean(pop[order[:max(1,round(0.05*n))],:-1],axis=0)
+        operator_labels=["carryover"]*n
         for i,oi in enumerate(order):
             rank=i+1
             if rank<=n10:
                 vel[oi]=1.5*np.random.random(d)*(GlobalBest-pop[oi,:-1])-0.5*np.random.random(d)*pop[oi,:-1]+1.5*(0.95+0.1*np.random.random())*(pbest[oi]-pop[oi,:-1])
+                attempted_label="horse_oa.dominant_stallion_update"
             elif rank<=n30:
                 vel[oi]=0.2*np.random.random(d)*(MeanPos-pop[oi,:-1])-0.2*np.random.random(d)*(BadPos-pop[oi,:-1])+0.9*np.random.random(d)*(GlobalBest-pop[oi,:-1])+1.5*(0.95+0.1*np.random.random())*(pbest[oi]-pop[oi,:-1])
+                attempted_label="horse_oa.experienced_horse_social_update"
             elif rank<=n60:
                 vel[oi]=0.1*np.random.random(d)*(MeanPos-pop[oi,:-1])+0.05*np.random.random(d)*pop[oi,:-1]-0.1*np.random.random(d)*(BadPos-pop[oi,:-1])+0.5*np.random.random(d)*(GlobalBest-pop[oi,:-1])+0.3*np.random.random(d)*(GoodPos-pop[oi,:-1])+1.5*(0.95+0.1*np.random.random())*(pbest[oi]-pop[oi,:-1])
+                attempted_label="horse_oa.middle_rank_grazing_update"
             else:
                 vel[oi]=0.05*np.random.random(d)*pop[oi,:-1]+1.5*(0.95+0.1*np.random.random())*(pbest[oi]-pop[oi,:-1])
+                attempted_label="horse_oa.foal_exploration_update"
             vel[oi]=np.clip(vel[oi],VelMin,VelMax)
             new_pos=pop[oi,:-1]+vel[oi]
             out=(new_pos<lo)|(new_pos>hi)
@@ -47,7 +52,8 @@ class HorseOAEngine(PortedPopulationEngine):
             pop[oi]=np.append(new_pos,new_fit)
             if self._is_better(new_fit,pfit[oi]):
                 pbest[oi]=new_pos.copy(); pfit[oi]=new_fit
+                operator_labels[oi]=attempted_label
                 if self._is_better(new_fit,pfit[gbest_idx]):
                     gbest_idx=oi; GlobalBest=new_pos.copy()
         state.payload.update({"vel":vel,"pbest":pbest,"pfit":pfit})
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

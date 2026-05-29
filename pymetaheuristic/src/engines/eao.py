@@ -27,6 +27,7 @@ class EAOEngine(PortedPopulationEngine):
         order    = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
         evals    = 0
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             others = [k for k in range(n) if k != i]
@@ -53,10 +54,13 @@ class EAOEngine(PortedPopulationEngine):
             fitB = float(self.problem.evaluate(posB)); evals += 1
 
             # Keep best of 4 (current + 3 candidates)
-            candidates = [(float(pop[i, -1]), pop[i, :-1]),
-                          (fit1, pos1), (fitA, posA), (fitB, posB)]
+            candidates = [(float(pop[i, -1]), pop[i, :-1], "carryover"),
+                          (fit1, pos1, "eao.sinusoidal_best_substrate_update"),
+                          (fitA, posA, "eao.vector_scaled_differential_substrate_update"),
+                          (fitB, posB, "eao.scalar_scaled_differential_substrate_update")]
             best_cand  = min(candidates, key=lambda x: x[0]) if self.problem.objective == "min" \
                          else max(candidates, key=lambda x: x[0])
             pop[i, :-1] = best_cand[1]; pop[i, -1] = best_cand[0]
+            operator_labels[i] = best_cand[2]
 
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

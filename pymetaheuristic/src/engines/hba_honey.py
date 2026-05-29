@@ -39,6 +39,7 @@ class HBAHoneyEngine(PortedPopulationEngine):
         best = pop[self._best_index(pop[:, -1]), :-1].copy()
         current = pop.copy()
         evals = 0
+        operator_labels=["carryover"]*n
 
         positions = current[:, :-1]
         shift = np.roll(positions, -1, axis=0)
@@ -50,10 +51,12 @@ class HBAHoneyEngine(PortedPopulationEngine):
             intensity = np.random.rand() * S[i] / (4.0 * np.pi * (safe_norm(d) ** 2))
             F = 1.0 if np.random.rand() < 0.5 else -1.0
             if np.random.rand() < 0.5:
+                attempted_label="hba_honey.digging_phase_update"
                 r3, r4, r5 = np.random.rand(), np.random.rand(), np.random.rand()
                 osc = abs(np.cos(2.0 * np.pi * r4) * (1.0 - np.cos(2.0 * np.pi * r5)))
                 candidate = best + F * beta * intensity * best + F * r3 * alpha * d * osc
             else:
+                attempted_label="hba_honey.honey_phase_update"
                 r7 = np.random.rand(dim)
                 candidate = best + F * r7 * alpha * d
             candidate = np.clip(candidate, self._lo, self._hi)
@@ -62,4 +65,5 @@ class HBAHoneyEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
-        return current, evals, {}
+                operator_labels[i]=attempted_label
+        return current, evals, {"operator_labels": operator_labels}

@@ -1,6 +1,7 @@
 """pyMetaheuristic src — Hunting Search Algorithm Engine"""
 from __future__ import annotations
 import numpy as np
+import random
 
 from .protocol import (BaseEngine, CandidateRecord, CapabilityProfile,
                         EngineConfig, EngineState, OptimizationResult, ProblemSpec)
@@ -20,7 +21,9 @@ class HUSEngine(BaseEngine):
         self._al=float(p["alpha"]); self._be=float(p["beta"])
         self._mml=float(p["mml"]); self._cr=float(p["c_rate"])
         self._minr=float(p["min_radius"]); self._maxr=float(p["max_radius"])
-        if config.seed is not None: np.random.seed(config.seed)
+        if config.seed is not None:
+            np.random.seed(config.seed)
+            random.seed(config.seed)
 
     def _init_pop(self, n=None):
         if n is None: n = self._n
@@ -41,7 +44,6 @@ class HUSEngine(BaseEngine):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
-        import random
         T=self.config.max_steps or 1; t=state.step
         idx=int(np.argmin(pop[:,-1])); best=pop[idx,:].copy()
         ep=max(1,T//self._n); old=np.copy(pop)

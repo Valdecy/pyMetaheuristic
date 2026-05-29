@@ -47,6 +47,7 @@ class HGSEngine(PortedPopulationEngine):
         total_hunger = float(np.sum(hunger)) + EPS
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels=["carryover"]*n
         for i in range(n):
             fit_i = float(pop[i, -1])
             E     = 1.0 / (np.exp(abs(fit_i - best_fit)) + EPS)   # Eq. 2.2 sech approx
@@ -59,15 +60,19 @@ class HGSEngine(PortedPopulationEngine):
             r1, r2 = np.random.random(), np.random.random()
             if r1 < PUP:
                 pos = pop[i, :-1] * (1.0 + np.random.normal(0, 1, dim))
+                attempted_labels[i]="hgs.random_hunger_exploration"
             else:
                 if r2 > E:
                     pos = W1 * best_pos + R * W2 * abs(best_pos - pop[i, :-1])
+                    attempted_labels[i]="hgs.hunger_weighted_approach"
                 else:
                     pos = W1 * best_pos - R * W2 * abs(best_pos - pop[i, :-1])
+                    attempted_labels[i]="hgs.hunger_weighted_retreat"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {"hunger": hunger}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"hunger": hunger, "operator_labels": operator_labels}

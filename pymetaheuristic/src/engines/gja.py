@@ -44,12 +44,15 @@ class GJAEngine(PortedPopulationEngine):
 
         current = pop.copy()
         evals = 0
+        operator_labels = ["carryover"] * n
         for i in range(n):
             xi = current[i, :-1]
             if np.random.rand() < 0.5:
                 step = alpha * levy_flight(dim, beta=max(1.05, min(beta, 1.95)), scale=0.02) * self._span
+                attempted_label = "gja.levy_wall_search"
             else:
                 step = alpha * np.random.randn(dim) * self._span / np.sqrt(float(t))
+                attempted_label = "gja.gaussian_wall_search"
             candidate = xi + step
 
             df = np.sign(best - candidate)
@@ -71,4 +74,5 @@ class GJAEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
-        return current, evals, {}
+                operator_labels[i] = attempted_label
+        return current, evals, {"operator_labels": operator_labels}

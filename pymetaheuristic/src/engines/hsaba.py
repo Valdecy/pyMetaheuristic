@@ -27,6 +27,7 @@ class HSABAEngine(PortedPopulationEngine):
         pulse = np.asarray(state.payload.get("pulse_rate", np.full(n, 0.05)), dtype=float)
         best = pop[self._best_index(pop[:, -1]), :-1]
         evals = 0
+        operator_labels=["carryover"]*n
         for i in range(n):
             if np.random.rand() < float(self._params.get("tao_1", 0.1)):
                 loudness[i] = np.random.uniform(float(self._params.get("min_loudness", 0.9)), float(self._params.get("max_loudness", 1.0)))
@@ -34,10 +35,21 @@ class HSABAEngine(PortedPopulationEngine):
                 pulse[i] = np.random.uniform(float(self._params.get("min_pulse_rate", 0.001)), float(self._params.get("max_pulse_rate", 0.1)))
             freq = float(self._params.get("min_frequency", 0.0)) + (float(self._params.get("max_frequency", 2.0)) - float(self._params.get("min_frequency", 0.0))) * np.random.rand()
             velocities[i] += (pop[i, :-1] - best) * freq
-            bat = best + 0.1 * np.random.normal(size=self.problem.dimension) * np.mean(loudness) * self._span if np.random.rand() < pulse[i] else pop[i, :-1] + velocities[i]
+            if np.random.rand() < pulse[i]:
+                bat = best + 0.1 * np.random.normal(size=self.problem.dimension) * np.mean(loudness) * self._span
+                bat_label = "hsaba.local_bat_random_walk"
+            else:
+                bat = pop[i, :-1] + velocities[i]
+                bat_label = "hsaba.velocity_bat_update"
             de = de_trial(self, pop, i, float(self._params.get("differential_weight", 0.9)), float(self._params.get("crossover_probability", 0.85)), best=best)
             fbat = float(self.problem.evaluate(np.clip(bat, self._lo, self._hi))); fde = float(self.problem.evaluate(de)); evals += 2
-            sol, fit = (de, fde) if self._is_better(fde, fbat) else (np.clip(bat, self._lo, self._hi), fbat)
+            if self._is_better(fde, fbat):
+                sol, fit = de, fde
+                attempted_label = "hsaba.differential_evolution_refinement"
+            else:
+                sol, fit = np.clip(bat, self._lo, self._hi), fbat
+                attempted_label = bat_label
             if self._is_better(fit, pop[i, -1]) and np.random.rand() < loudness[i]:
                 pop[i, :-1], pop[i, -1] = sol, fit
-        return pop, evals, {"velocities": velocities, "loudness": loudness, "pulse_rate": pulse}
+                operator_labels[i]=attempted_label
+        return pop, evals, {"velocities": velocities, "loudness": loudness, "pulse_rate": pulse, "operator_labels": operator_labels}

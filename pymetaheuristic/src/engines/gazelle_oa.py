@@ -41,6 +41,7 @@ class GazelleOAEngine(PortedPopulationEngine):
         RL=0.05*_levy(n,d,1.5); RB=np.random.randn(n,d)
         PSRs=0.34; S=0.88
         step=np.zeros((n,d))
+        stage_labels=["carryover"]*n
         for i in range(n):
             for j in range(d):
                 R=np.random.random(); r=np.random.random()
@@ -48,13 +49,16 @@ class GazelleOAEngine(PortedPopulationEngine):
                 if r>0.5:
                     step[i,j]=RB[i,j]*(Elite[i,j]-RB[i,j]*pop[i,j])
                     pop[i,j]+=np.random.random()*R*step[i,j]
+                    stage_labels[i]="gazelle_oa.brownian_foraging_update"
                 else:
                     if i>n//2:
                         step[i,j]=RB[i,j]*(RL[i,j]*Elite[i,j]-pop[i,j])
                         pop[i,j]=Elite[i,j]+S*mu*CF*step[i,j]
+                        stage_labels[i]="gazelle_oa.levy_elite_transition_update"
                     else:
                         step[i,j]=RL[i,j]*(Elite[i,j]-RL[i,j]*pop[i,j])
                         pop[i,j]+=S*mu*R*step[i,j]
+                        stage_labels[i]="gazelle_oa.levy_foraging_update"
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
         new_fits=self._evaluate_population(pop[:,:-1]); evals+=n
         pop[:,-1]=new_fits
@@ -67,13 +71,16 @@ class GazelleOAEngine(PortedPopulationEngine):
         if np.random.random()<PSRs:
             U=np.random.random((n,d))<PSRs
             pop[:,:-1]+=CF*((lo+np.random.random((n,d))*(hi-lo))*U)
+            final_label="gazelle_oa.random_patch_avoidance_update"
         else:
             r=np.random.random()
             p1=np.random.permutation(n); p2=np.random.permutation(n)
             step=(PSRs*(1-r)+r)*(pop[p1,:-1]-pop[p2,:-1])
             pop[:,:-1]+=step
+            final_label="gazelle_oa.peer_difference_escape_update"
         pop[:,:-1]=np.clip(pop[:,:-1],lo,hi)
         new_fits=self._evaluate_population(pop[:,:-1]); evals+=n
         pop[:,-1]=new_fits
         state.payload.update({"fit_old":pop[:,-1].copy(),"prey_old":pop[:,:-1].copy()})
-        return pop, evals, {}
+        operator_labels=[final_label if str(stage_labels[i]) == "carryover" else stage_labels[i] for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

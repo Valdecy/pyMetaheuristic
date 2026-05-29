@@ -52,6 +52,7 @@ class EelGrouperOEngine(PortedPopulationEngine):
         grouper_score = float(state.best_fitness)
         eel_pos = np.asarray(state.payload.get("eel_position", positions[np.random.randint(0, n)]), dtype=float).copy()
         evals = 0
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             r1 = float(np.random.random())
@@ -89,8 +90,10 @@ class EelGrouperOEngine(PortedPopulationEngine):
                 X2 = grouper_pos[j] + C1 * distance2grouper
                 if p < 0.5:
                     new_pos[j] = (0.8 * X1 + 0.2 * X2) / 2.0
+                    operator_labels[i] = "eel_grouper_o.eel_weighted_hunting_update"
                 else:
                     new_pos[j] = (0.2 * X1 + 0.8 * X2) / 2.0
+                    operator_labels[i] = "eel_grouper_o.grouper_weighted_hunting_update"
             positions[i] = new_pos
 
         positions = np.clip(positions, self._lo, self._hi)
@@ -106,4 +109,4 @@ class EelGrouperOEngine(PortedPopulationEngine):
         if self._is_better(grouper_score, float(state.best_fitness)):
             state.best_fitness = float(grouper_score)
             state.best_position = grouper_pos.tolist()
-        return pop, evals, {"eel_position": eel_pos.copy(), "grouper_position": grouper_pos.copy()}
+        return pop, evals, {"eel_position": eel_pos.copy(), "grouper_position": grouper_pos.copy(), "operator_labels": operator_labels}

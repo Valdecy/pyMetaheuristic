@@ -51,28 +51,34 @@ class HEOAEngine(PortedPopulationEngine):
         decay = 1.0 - progress
         oscillation = abs(np.cos(np.pi * progress / 2.0))
         new_pos = pop[:, :-1].copy()
+        attempted_labels=["carryover"]*n
 
         for j in range(n):
             x = pop[j, :-1]
             if j < elite_n:
                 # Preserve elites; they may still be improved by local refinement.
                 candidate = x + np.random.normal(0.0, local_scale * span * (0.1 + decay), d)
+                attempted_labels[j]="heoa.elite_local_refinement"
             elif j < LNn:
                 # Learners: strong attraction to best with Levy perturbation.
                 candidate = x + np.random.random(d) * (best - x)
                 candidate += levy_scale * decay * span * _levy1d(d)
+                attempted_labels[j]="heoa.learner_levy_best_attraction"
             elif j < LNn + ENn:
                 # Explorers: move around the population centroid and away from worst.
                 direction = mean - x + np.random.random(d) * (x - worst)
                 candidate = x + oscillation * np.random.random(d) * direction
                 candidate += np.random.normal(0.0, 0.15 * decay * span, d)
+                attempted_labels[j]="heoa.explorer_centroid_escape"
             elif j < LNn + ENn + FNn:
                 # Followers: contract toward the current best.
                 candidate = x + oscillation * np.random.random(d) * (best - x)
+                attempted_labels[j]="heoa.follower_best_contraction"
             else:
                 # Risk takers: generate a bounded sample around the best.
                 radius = (0.20 * decay + 0.02) * span
                 candidate = best + np.random.normal(0.0, radius, d)
+                attempted_labels[j]="heoa.risk_taker_best_sampling"
 
             new_pos[j] = np.clip(candidate, lo, hi)
 
@@ -81,6 +87,9 @@ class HEOAEngine(PortedPopulationEngine):
         mask = self._better_mask(new_fit, pop[:, -1])
         new_pop[mask, :-1] = new_pos[mask]
         new_pop[mask, -1] = new_fit[mask]
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
         # Keep sorted order for stable role assignment in the next iteration.
-        new_pop = new_pop[self._order(new_pop[:, -1])]
-        return new_pop, n, {}
+        _order = self._order(new_pop[:, -1])
+        new_pop = new_pop[_order]
+        operator_labels = [operator_labels[int(i)] for i in _order]
+        return new_pop, n, {"operator_labels": operator_labels}

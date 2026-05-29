@@ -36,6 +36,7 @@ class HGSOEngine(PortedPopulationEngine):
         P_ij     = float(state.payload.get("P_ij", 0.5))
         T0, K, alpha, beta, eps = 298.15, 1.0, 1, 1.0, 0.05
         evals    = 0
+        operator_labels = ["carryover"] * n
 
         order    = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
@@ -60,12 +61,21 @@ class HGSOEngine(PortedPopulationEngine):
             for j in grp:
                 F     = -1.0 if np.random.random() < 0.5 else 1.0
                 gama  = beta * np.exp(-((p_best_fit + eps) / (float(pop[j, -1]) + eps)))
-                pos   = pop[j, :-1] + F * np.random.random() * gama * (p_best_pos - pop[j, :-1]) \
-                      + F * np.random.random() * alpha * (S_ij * best_pos - pop[j, :-1])
+                r_cluster = np.random.random()
+                r_global = np.random.random()
+                cluster_component = F * r_cluster * gama * (p_best_pos - pop[j, :-1])
+                global_component = F * r_global * alpha * (S_ij * best_pos - pop[j, :-1])
+                pos   = pop[j, :-1] + cluster_component + global_component
                 pos   = np.clip(pos, self._lo, self._hi)
+                attempted_label = (
+                    "hgso.cluster_best_solubility_update"
+                    if float(np.linalg.norm(cluster_component)) >= float(np.linalg.norm(global_component))
+                    else "hgso.global_best_solubility_update"
+                )
                 fit   = float(self.problem.evaluate(pos)); evals += 1
                 if self._is_better(fit, float(pop[j, -1])):
                     new_pop[j, :-1] = pos; new_pop[j, -1] = fit
+                    operator_labels[int(j)] = attempted_label
 
         # Replace worst N_w agents (Eq. 12)
         N_w = max(1, int(n * (np.random.uniform(0, 0.1) + 0.1)))
@@ -74,5 +84,6 @@ class HGSOEngine(PortedPopulationEngine):
             pos = np.random.uniform(self._lo, self._hi)
             fit = float(self.problem.evaluate(pos)); evals += 1
             new_pop[idx, :-1] = pos; new_pop[idx, -1] = fit
+            operator_labels[int(idx)] = "hgso.worst_agent_random_reset"
 
-        return new_pop, evals, {"n_cl": n_cl, "n_el": n_el, "H_j": H_j, "C_j": C_j, "P_ij": P_ij}
+        return new_pop, evals, {"n_cl": n_cl, "n_el": n_el, "H_j": H_j, "C_j": C_j, "P_ij": P_ij, "operator_labels": operator_labels}

@@ -20,15 +20,19 @@ class DSOEngine(PortedPopulationEngine):
         C=np.sin(2*np.pi/T); H_min=H0_minus+a_*C; H_max=H0_plus+a_*C
         best_pos=pop[self._best_index(pop[:,-1]),:-1].copy()
         new_pos=np.empty_like(pop[:,:-1])
+        attempted_labels=["carryover"]*n
         for j in range(n):
             mu=np.random.random(); mu=np.clip(mu,H_min,H_max)
             H0=pop[j,:-1]+np.random.random(d)*(best_pos-mu*pop[j,:-1])
             if np.random.random()>mu:
                 H=H0*10**(-1/xs)
+                attempted_labels[j]="dso.deep_sleep_decay_update"
             else:
                 H=mu+(H0-mu)*10**(-1/xw)
+                attempted_labels[j]="dso.slow_wave_recovery_update"
             new_pos[j]=np.clip(H,lo,hi)
         new_fits=self._evaluate_population(new_pos); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([new_pos,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

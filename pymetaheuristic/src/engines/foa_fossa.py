@@ -43,6 +43,7 @@ class FOAFossaEngine(PortedPopulationEngine):
         order = self._order(pop[:, -1])
         current = pop.copy()
         trials = np.zeros((n, dim), dtype=float)
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             rp = np.random.rand()
             prey_pool = [j for j in order if j != i and self._is_better(current[j, -1], current[i, -1])]
@@ -52,10 +53,13 @@ class FOAFossaEngine(PortedPopulationEngine):
                 r = np.random.rand(dim)
                 I = np.random.randint(1, 3, size=dim)
                 trials[i] = current[i, :-1] + r * (prey - I * current[i, :-1])
+                attempted_labels[i] = "foa_fossa.prey_pursuit_update"
             else:
                 r = np.random.rand(dim)
                 trials[i] = current[i, :-1] + (1.0 - 2.0 * r) * (self._span / float(t))
+                attempted_labels[i] = "foa_fossa.defensive_escape_update"
         trial_pop = self._pop_from_positions(np.clip(trials, self._lo, self._hi))
         mask = self._better_mask(trial_pop[:, -1], current[:, -1])
         current[mask] = trial_pop[mask]
-        return current, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return current, n, {"operator_labels": operator_labels}

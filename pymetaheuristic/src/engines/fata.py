@@ -25,6 +25,7 @@ class FATAEngine(PortedPopulationEngine):
         order=self._order(fits); worstF=fits[order[-1]]; bestF=fits[order[0]]
         a=np.tan(-(FEs/max(MaxFEs,1))+1); b=1/np.tan(-(FEs/max(MaxFEs,1))+1)
         new_pos=pop[:,:-1].copy()
+        attempted_labels=["carryover"]*n
         for i in range(n):
             P1=a*np.random.random(d)-a*np.random.random(d)
             P2=b*np.random.random(d)-b*np.random.random(d)
@@ -32,16 +33,20 @@ class FATAEngine(PortedPopulationEngine):
             IP=max(min(p,1),0)
             if np.random.random()>IP:
                 new_pos[i]=np.random.uniform(lo,hi)
+                attempted_labels[i]="fata.random_refraction_update"
             else:
                 for j in range(d):
                     num=np.random.randint(n)
                     if np.random.random()<p:
                         new_pos[i,j]=gBest[j]+pop[i,j]*P1[j]
+                        attempted_labels[i]="fata.best_refraction_update"
                     else:
                         new_pos[i,j]=pop[num,j]+P2[j]*pop[i,j]
                         new_pos[i,j]=0.5*(arf+1)*(lo[j]+hi[j])-arf*new_pos[i,j]
+                        attempted_labels[i]="fata.peer_refraction_update"
         new_pos=np.clip(new_pos,lo,hi)
         new_fits=self._evaluate_population(new_pos); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([new_pos,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

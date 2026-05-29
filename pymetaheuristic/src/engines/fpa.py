@@ -45,21 +45,26 @@ class FPAEngine(BaseEngine):
         sd=gfunc((1+self._lamb)/2)*self._lamb*2**((self._lamb-1)/2)
         sigma=(sn/sd)**(1/self._lamb)
         levy=(0.01*r1*sigma)/(np.abs(r2)**(1/self._lamb))
+        operator_labels=["carryover"]*self._n
         for i in range(self._n):
             nb1=np.random.randint(self._n); nb2=np.random.randint(self._n)
             while nb1==nb2: nb1=np.random.randint(self._n)
             r=np.random.rand()
             if r<self._p:
                 x=np.copy(elite); x[:-1]=np.clip(pop[i,:-1]+self._gama*levy*(pop[i,:-1]-elite[:-1]),lo,hi); x[-1]=self.problem.evaluate(x[:-1]); evals+=1
+                attempted_label="fpa.global_levy_pollination"
             else:
                 rr=np.random.rand(self.problem.dimension)
                 x=np.copy(elite); x[:-1]=np.clip(pop[i,:-1]+rr*(pop[nb1,:-1]-pop[nb2,:-1]),lo,hi); x[-1]=self.problem.evaluate(x[:-1]); evals+=1
-            if x[-1]<=pop[i,-1]: pop[i,:]=x
+                attempted_label="fpa.local_pollination"
+            if x[-1]<=pop[i,-1]:
+                pop[i,:]=x
+                operator_labels[i]=attempted_label
             val=pop[pop[:,-1].argsort()][0,:]
             if elite[-1]>val[-1]: elite=val.copy()
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

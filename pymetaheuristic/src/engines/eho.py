@@ -41,22 +41,28 @@ class EHOEngine(BaseEngine):
         evals=0
         idx_b=np.argmin(pop[:,-1]); idx_w=np.argmax(pop[:,-1])
         best_el=pop[idx_b,:].copy(); old=np.copy(pop)
+        operator_labels = ["carryover"] * self._n
+        dist_to_best = np.linalg.norm(old[:, :-1] - best_el[:-1], axis=1)
+        median_dist = float(np.median(dist_to_best))
         for i in range(self._n):
             if i!=idx_b and i!=idx_w:
                 r=np.random.rand(self.problem.dimension)
                 pop[i,:-1]=np.clip(old[i,:-1]+self._a*(best_el[:-1]-old[i,:-1])*r,lo,hi)
+                operator_labels[i] = "eho.long_range_clan_best_guided_update" if float(dist_to_best[i]) >= median_dist else "eho.short_range_clan_best_guided_update"
             elif i==idx_b:
                 ctr=np.mean(old[:,:-1],axis=0)
                 pop[i,:-1]=np.clip(self._b*ctr,lo,hi)
+                operator_labels[i] = "eho.matriarch_center_update"
             else:
                 pop[i,:-1]=np.clip(lo+(hi-lo)*np.random.rand(self.problem.dimension),lo,hi)
+                operator_labels[i] = "eho.separating_random_relocation"
         pop[:,-1]=self._evaluate_population(pop[:,:-1]); evals+=self._n
         bi=np.argmin(pop[:,-1])
         if pop[bi,-1]<best_el[-1]: best_el=pop[bi,:].copy()
         elite=best_el
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

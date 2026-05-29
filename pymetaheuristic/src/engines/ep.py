@@ -59,4 +59,8 @@ class EPEngine(PortedPopulationEngine):
         top_idx   = np.argsort(-wins)[:n]
         new_pop   = np.hstack([all_pos[top_idx], all_fit[top_idx, None]])
         new_strat = all_strat[top_idx]
-        return new_pop, n, {"strategies": new_strat}
+        child_scale = np.mean(np.asarray(child_sigmas if False else off_strat), axis=1)
+        split = float(np.median(child_scale))
+        child_labels = np.where(child_scale >= split, "ep.large_strategy_mutation_offspring", "ep.small_strategy_mutation_offspring")
+        operator_labels = ["ep.parent_survivor" if int(idx) < n else str(child_labels[int(idx) - n]) for idx in top_idx]
+        return new_pop, n, {"strategies": new_strat, "operator_labels": operator_labels}

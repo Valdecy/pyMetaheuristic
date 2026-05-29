@@ -31,6 +31,7 @@ class GKSOEngine(PortedPopulationEngine):
         pbest = state.payload["pbest"]; pfit = state.payload["pfit"]
         best_idx = self._best_index(pfit); gbest = pbest[best_idx].copy(); gbest_fit = pfit[best_idx]
         w = 0.9 - 0.5 * (t / max_iter)
+        operator_labels = ["carryover"] * n
         # Phase 1: GK exploration (crossover with random partner)
         for i in range(n):
             j = np.random.randint(n)
@@ -40,6 +41,7 @@ class GKSOEngine(PortedPopulationEngine):
             trial_fit = float(self._evaluate_population(trial[None])[0]); evals += 1
             if self._is_better(trial_fit, pop[i, -1]):
                 pop[i] = np.append(trial, trial_fit)
+                operator_labels[i] = "gkso.genghis_khan_crossover_exploration"
         # Phase 2: Shark hunt — PSO-like toward gbest
         for i in range(n):
             r1 = np.random.random(d); r2 = np.random.random(d)
@@ -48,9 +50,10 @@ class GKSOEngine(PortedPopulationEngine):
             new_fit = float(self._evaluate_population(new_pos[None])[0]); evals += 1
             if self._is_better(new_fit, pop[i, -1]):
                 pop[i] = np.append(new_pos, new_fit)
+                operator_labels[i] = "gkso.shark_hunting_pso_update"
             if self._is_better(pop[i, -1], pfit[i]):
                 pbest[i] = pop[i, :-1].copy(); pfit[i] = pop[i, -1]
             if self._is_better(pfit[i], gbest_fit):
                 gbest = pbest[i].copy(); gbest_fit = pfit[i]
         state.payload.update({"pbest": pbest, "pfit": pfit})
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

@@ -35,6 +35,7 @@ class EFOEngine(PortedPopulationEngine):
         mid_end = max(p_end + 1, n_start)
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             r_idx1 = np.random.randint(0, p_end)
             r_idx2 = np.random.randint(n_start, n)
@@ -44,13 +45,16 @@ class EFOEngine(PortedPopulationEngine):
                 pos = (sorted_pop[r_idx1, :-1] +
                        self._PHI * np.random.random() * (sorted_pop[order[0], :-1] - sorted_pop[r_idx3, :-1]) -
                        np.random.random() * (sorted_pop[r_idx2, :-1] - sorted_pop[r_idx3, :-1]))
+                attempted_labels[i] = "efo.electromagnetic_field_update"
             else:
                 pos = np.random.uniform(self._lo, self._hi)
+                attempted_labels[i] = "efo.random_field_reinitialization"
 
             # Mutation (r_rate) — reset one random dimension
             if np.random.random() < r_rate:
                 ri  = np.random.randint(dim)
                 pos[ri] = np.random.uniform(self._lo[ri], self._hi[ri])
+                attempted_labels[i] = "efo.dimension_reset_mutation"
 
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
@@ -58,4 +62,5 @@ class EFOEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

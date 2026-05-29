@@ -40,6 +40,7 @@ class FIREFLY_AEngine(BaseEngine):
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
         old=np.copy(pop)
+        operator_labels = ["carryover"] * self._n
         for i in range(self._n):
             for j in range(self._n):
                 if i!=j:
@@ -49,13 +50,24 @@ class FIREFLY_AEngine(BaseEngine):
                     if li>lj:
                         beta=self._b*np.exp(-self._g*rij**2)
                         ep=np.random.rand(self.problem.dimension)
-                        pop[i,:-1]=np.clip(fi+beta*(fj-fi)+self._a*ep,lo,hi)
+                        attraction = beta * (fj - fi)
+                        randomization = self._a * ep
+                        pop[i,:-1]=np.clip(fi+attraction+randomization,lo,hi)
                         pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
-        combined=np.vstack([pop,old]); combined=combined[combined[:,-1].argsort()]
+                        operator_labels[i] = (
+                            "firefly_a.attraction_dominant_move"
+                            if float(np.linalg.norm(attraction)) >= float(np.linalg.norm(randomization))
+                            else "firefly_a.randomization_dominant_move"
+                        )
+        combined=np.vstack([pop,old])
+        combined_labels = operator_labels + ["carryover"] * self._n
+        order = combined[:,-1].argsort()
+        combined = combined[order]
+        operator_labels = [combined_labels[int(j)] for j in order[:self._n]]
         pop=combined[:self._n,:]
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

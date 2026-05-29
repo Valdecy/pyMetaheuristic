@@ -40,6 +40,7 @@ class GJOEngine(PortedPopulationEngine):
         E1  = 1.5 * (1.0 - t / T)
         RL  = _levy_gjo(n, dim)
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
 
         for i in range(n):
             male_pos   = male.copy()
@@ -53,11 +54,13 @@ class GJOEngine(PortedPopulationEngine):
                     t2 = abs(RL[i, j] * female[j] - pop[i, j])
                     male_pos[j]   = male[j]   - E * t1
                     female_pos[j] = female[j] - E * t2
+                    attempted_labels[i] = "gjo.male_female_exploitation"
                 else:                                       # Exploration
                     t1 = abs(male[j]   - RL[i, j] * pop[i, j])
                     t2 = abs(female[j] - RL[i, j] * pop[i, j])
                     male_pos[j]   = male[j]   - E * t1
                     female_pos[j] = female[j] - E * t2
+                    attempted_labels[i] = "gjo.male_female_exploration"
             new_pos[i] = np.clip((male_pos + female_pos) / 2.0, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
@@ -65,4 +68,5 @@ class GJOEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

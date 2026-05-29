@@ -62,7 +62,15 @@ class FROFIEngine(BaseEngine):
         off = pop[:, :-1].copy()
         off[k1_mat]  = (pop[:, :-1] + rnd * (P1 - pop[:, :-1]) + F * (P2 - P3))[k1_mat]
         off[k2]      = (P1 + rnd * (PB - P1) + F * (P2 - P3))[k2]
-        return np.clip(off, lo, hi)
+        labels = []
+        for i in range(N):
+            if bool(k1[i, 0]):
+                labels.append("frofi.current_to_rand_de")
+            elif bool(np.any(k2[i])):
+                labels.append("frofi.rand_to_best_crossover_de")
+            else:
+                labels.append("frofi.no_crossover_de")
+        return np.clip(off, lo, hi), labels
 
     def _env_select(self, pop: np.ndarray, off_pos: np.ndarray, off_fit: np.ndarray) -> np.ndarray:
         """FROFI environmental selection: feasibility-rule replacement + archive-based repair."""
@@ -84,12 +92,14 @@ class FROFIEngine(BaseEngine):
         N   = pop.shape[0]
 
         # DE offspring generation
-        off_pos = self._de_operator(pop)
+        off_pos, de_labels = self._de_operator(pop)
         off_fit = self._evaluate_population(off_pos)
         evals   = N
+        before_pop = pop.copy()
 
         # Environmental selection
         pop = self._env_select(pop, off_pos, off_fit)
+        operator_labels = [de_labels[i] if self.problem.is_better(pop[i, -1], before_pop[i, -1]) else "carryover" for i in range(N)]
 
         # Targeted mutation: if no feasible solution exists, mutate worst's single variable
         # (Framework constraint handler manages feasibility via evaluate, so we do stochastic single-gene mutation)
@@ -102,12 +112,13 @@ class FROFIEngine(BaseEngine):
         if self.problem.is_better(mut_fit, pop[worst_idx, -1]):
             pop[worst_idx, :-1] = mut_pos
             pop[worst_idx, -1]  = mut_fit
+            operator_labels[int(worst_idx)] = "frofi.targeted_mutation"
 
         bi = int(np.argmin(pop[:, -1]))
         bf = float(pop[bi, -1])
         bp = pop[bi, :-1].tolist()
 
-        state.payload      = dict(population=pop)
+        state.payload      = dict(population=pop, operator_labels=operator_labels)
         state.evaluations += evals
         state.step        += 1
         if self.problem.is_better(bf, state.best_fitness):

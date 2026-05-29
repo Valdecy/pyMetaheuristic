@@ -20,20 +20,25 @@ class ESCEngine(PortedPopulationEngine):
         best_idx = self._best_index(pop[:, -1]); best_pos = pop[best_idx, :-1].copy()
         lf = 1 - t / max_iter
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             r = np.random.random()
             if r < 0.33:
                 # Escape from worst
                 worst_idx = self._worst_index(pop[:, -1]); worst = pop[worst_idx, :-1]
                 new_pos[i] = pop[i, :-1] + lf * np.random.random(d) * (pop[i, :-1] - worst)
+                attempted_labels[i] = "esc.escape_from_worst_update"
             elif r < 0.67:
                 # Move toward best
                 new_pos[i] = pop[i, :-1] + lf * np.random.random(d) * (best_pos - pop[i, :-1])
+                attempted_labels[i] = "esc.move_toward_best_update"
             else:
                 # Explore randomly
                 new_pos[i] = lo + np.random.random(d) * (hi - lo)
+                attempted_labels[i] = "esc.random_exploration_update"
             new_pos[i] = np.clip(new_pos[i], lo, hi)
         new_fits = self._evaluate_population(new_pos); evals += n
         mask = self._better_mask(new_fits, pop[:, -1])
         pop[mask] = np.hstack([new_pos, new_fits[:, None]])[mask]
-        return pop, evals, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

@@ -35,6 +35,7 @@ class GBOEngine(PortedPopulationEngine):
         denom    = np.where(np.abs(worst_pos - best_pos) < EPS, EPS, worst_pos - best_pos)
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["gbo.gradient_search_rule_update"] * n
         for i in range(n):
             p1 = 2.0 * np.random.random() * alpha - alpha
             p2 = 2.0 * np.random.random() * alpha - alpha
@@ -59,6 +60,7 @@ class GBOEngine(PortedPopulationEngine):
 
             # Local escaping operator
             if np.random.random() < pr:
+                attempted_labels[i] = "gbo.local_escaping_operator_update"
                 f1  = np.random.uniform(-1, 1)
                 f2  = np.random.normal(0, 1)
                 L1  = round(1 - np.random.random())
@@ -79,4 +81,5 @@ class GBOEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

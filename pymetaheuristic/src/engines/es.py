@@ -41,4 +41,8 @@ class ESEngine(PortedPopulationEngine):
         combined = np.vstack((pop, child_pop))
         combined_sigmas = np.vstack((sigmas, np.asarray(child_sigmas)))
         keep = self._order(combined[:, -1])[:n]
-        return combined[keep], lam, {"sigma": combined_sigmas[keep]}
+        child_scale = np.mean(np.asarray(child_sigmas), axis=1)
+        split = float(np.median(child_scale))
+        child_labels = np.where(child_scale >= split, "es.large_step_mutation_offspring", "es.small_step_mutation_offspring")
+        operator_labels = ["es.parent_survivor" if int(idx) < n else str(child_labels[int(idx) - n]) for idx in keep]
+        return combined[keep], lam, {"sigma": combined_sigmas[keep], "operator_labels": operator_labels}
