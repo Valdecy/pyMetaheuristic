@@ -367,8 +367,55 @@ class OptimizationResult:
             "evaluations":        self.evaluations,
             "termination_reason": self.termination_reason,
             "history":            self.history,
+            "population_snapshots": self.population_snapshots,
+            "capabilities":       self.capabilities,
             "metadata":           self.metadata,
         }
+
+    def evomapx_analysis(self, **kwargs):
+        """Build an EvoMapX report for this single-algorithm result.
+
+        This mirrors the package-level ``pymetaheuristic.evomapx_analysis``
+        function, but keeps the public README/Colab style working:
+        ``result.evomapx_analysis(level="operator")``.
+        """
+        from ..evomapx import evomapx_analysis
+        return evomapx_analysis(self, **kwargs)
+
+    def explain_evomapx(self, **kwargs) -> str:
+        """Return a textual EvoMapX explanation for this result."""
+        from ..evomapx import evomapx_analysis, explain_evomapx
+        return explain_evomapx(evomapx_analysis(self, **kwargs))
+
+    def plot_evomapx_attribution(self, **kwargs):
+        """Plot the EvoMapX attribution/OAM heatmap for this result."""
+        from ..evomapx import plot_attribution_heatmap
+        return plot_attribution_heatmap(self, **kwargs)
+
+    def plot_evomapx_cds(self, **kwargs):
+        """Plot the EvoMapX Convergence Driver Score bars for this result."""
+        from ..evomapx import plot_cds_bar
+        return plot_cds_bar(self, **kwargs)
+
+    def plot_evomapx_cds_time_series(self, **kwargs):
+        """Plot the EvoMapX CDS time series for this result."""
+        from ..evomapx import plot_cds_time_series
+        return plot_cds_time_series(self, **kwargs)
+
+    def plot_evomapx_peg(self, **kwargs):
+        """Plot the EvoMapX population evolution graph for this result."""
+        from ..evomapx import plot_population_evolution_graph
+        return plot_population_evolution_graph(self, **kwargs)
+
+    def export_evomapx_json(self, filepath, **kwargs) -> str:
+        """Export this result's EvoMapX report as JSON."""
+        from ..evomapx import export_evomapx_json
+        return export_evomapx_json(self, filepath, **kwargs)
+
+    def export_evomapx_csv(self, filepath, **kwargs) -> str:
+        """Export this result's EvoMapX attribution table as CSV."""
+        from ..evomapx import export_evomapx_csv
+        return export_evomapx_csv(self, filepath, **kwargs)
 
 
 # ---------------------------------------------------------------------------
