@@ -63,7 +63,7 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
    - [2.12 Save, Load, and Checkpoint](#212-save-load-and-checkpoint) --- [[Colab Demo] ](https://colab.research.google.com/drive/1detpXqDFMO-rNUpCSiN0RnuljUt5xD-E?usp=sharing) ---
    - [2.13 Benchmark Runner](#213-benchmark-runner) --- [[Colab Demo] ](https://colab.research.google.com/drive/1ZMw5RLFIU-EBPJoNp3kNyXg1KCU1KlFA?usp=sharing) ---
    - [2.14 Benchmark Study](#214-benchmark-study) --- [[Colab Demo] ](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing) ---
-   - [2.15 EvoMapX Explainability](#215-evomapx-explainability) --- [[Colab Demo] ](https://colab.research.google.com/drive/1yEDSdtUaiAhzpZX9KgVUsjhz0Q08w-B8?usp=sharing) ---
+   - [2.15 EvoMapX Explainability](#215-evomapx-explainability) --- [[Colab Demo] ](https://colab.research.google.com/drive/1qhv8gPJci0VfIcr4N2etgc19A29wOPLl?usp=sharing) ---
 3. [Algorithm Details](#3-algorithm-details)
 4. [Test Functions](#4-test-functions) --- [[Colab Demo]](https://colab.research.google.com/drive/132-yqoaJKkJ4gf6yqjrV1siXVvZ3ZgE7?usp=sharing) ---
 5. [Other Libraries](#5-other-libraries)
