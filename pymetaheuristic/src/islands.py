@@ -339,6 +339,7 @@ class IslandSystem:
     objective: Literal["min", "max"] = "min"
     constraints: Any = None
     constraint_handler: Any = None
+    variable_types: list[Any] | None = None
     repair_function: Any = None
     penalty_coefficient: float = 1e6
     equality_tolerance: float = 1e-6
@@ -375,6 +376,7 @@ class IslandSystem:
             "objective": self.objective,
             "constraints": self.constraints,
             "constraint_handler": self.constraint_handler,
+            "variable_types": self.variable_types,
             "repair_function": self.repair_function,
             "penalty_coefficient": self.penalty_coefficient,
             "equality_tolerance": self.equality_tolerance,
@@ -463,6 +465,7 @@ class IslandSystem:
             "objective": self.objective,
             "constraints": self.constraints,
             "constraint_handler": self.constraint_handler,
+            "variable_types": list(self.variable_types) if self.variable_types is not None else None,
             "repair_function": self.repair_function,
             "penalty_coefficient": self.penalty_coefficient,
             "equality_tolerance": self.equality_tolerance,

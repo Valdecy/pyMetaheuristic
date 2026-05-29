@@ -176,6 +176,7 @@ class CooperativeRunner:
         objective: str = "min",
         constraints=None,
         constraint_handler=None,
+        variable_types=None,
         repair_function=None,
         penalty_coefficient: float = 1e6,
         equality_tolerance: float = 1e-6,
@@ -208,6 +209,7 @@ class CooperativeRunner:
         self.objective = objective
         self.constraints = constraints
         self.constraint_handler = constraint_handler
+        self.variable_types = None if variable_types is None else list(variable_types)
         self.repair_function = repair_function
         self.penalty_coefficient = penalty_coefficient
         self.equality_tolerance = equality_tolerance
@@ -401,6 +403,7 @@ class CooperativeRunner:
                 objective=self.objective,
                 constraints=self.constraints,
                 constraint_handler=self.constraint_handler,
+                variable_types=self.variable_types,
                 repair_function=self.repair_function,
                 penalty_coefficient=self.penalty_coefficient,
                 equality_tolerance=self.equality_tolerance,
@@ -583,6 +586,10 @@ class CooperativeRunner:
         best_fitness = None
         for (label, engine), hist in zip(islands, histories):
             result = engine.finalize(states_map[label])
+            if result.best_position is not None:
+                decoded_best = engine.problem.apply_variable_types(result.best_position).astype(float).tolist()
+                result.best_position = decoded_best
+                states_map[label].best_position = decoded_best
             result.history = hist
             island_results[label] = result
             if best_fitness is None or engine.problem.is_better(result.best_fitness, best_fitness):
@@ -600,6 +607,7 @@ class CooperativeRunner:
             'objective': self.objective,
             'min_values': list(self.min_values),
             'max_values': list(self.max_values),
+            'variable_types': list(self.variable_types) if self.variable_types is not None else None,
             'max_steps': self.max_steps,
             'seed': self.seed,
             'migration_interval': self.migration_interval,
@@ -651,6 +659,7 @@ class CooperativeRunner:
                 'islands': [label for label, _ in islands],
                 'adjacency': adjacency,
                 'constraint_handler': self.constraint_handler or 'none',
+                'variable_types': list(self.variable_types) if self.variable_types is not None else None,
                 'execution_backend_requested': self.execution_backend,
                 'execution_backend_used': actual_backend,
                 'n_jobs': self.n_jobs,
@@ -680,6 +689,7 @@ def replay_cooperative_result(result_or_manifest, target_function, objective: st
         min_values=manifest['min_values'],
         max_values=manifest['max_values'],
         objective=objective or manifest.get('objective', 'min'),
+        variable_types=copy.deepcopy(manifest.get('variable_types')),
         max_steps=manifest['max_steps'],
         migration_interval=manifest['migration_interval'],
         migration_size=manifest['migration_size'],

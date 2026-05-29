@@ -68,11 +68,92 @@ class ProblemSpec:
     def _resample_attempts(self) -> int:
         return int(self.metadata.get("resample_attempts", 25))
 
-    def clip_position(self, position) -> np.ndarray:
+    def _normalize_variable_types(self) -> list[Any]:
+        """Return one variable-type descriptor per dimension.
+
+        Supported descriptors are intentionally permissive so old scripts keep
+        working and mixed/discrete benchmark wrappers can be explicit:
+
+        - None, "float", "real", "continuous": continuous variable.
+        - "int", "integer", "discrete": nearest integer.
+        - "binary", "bool", "boolean": 0/1 variable.
+        - "step:<h>" or "step:<h>:round|ceil|floor": multiple of h.
+        - dict(type="step", step=h, mode="round|ceil|floor").
+        """
+        vt = self.variable_types
+        if vt is None:
+            return [None] * self.dimension
+        if isinstance(vt, str):
+            vt = [vt] * self.dimension
+        else:
+            vt = list(vt)
+        if len(vt) == 1 and self.dimension != 1:
+            vt = vt * self.dimension
+        if len(vt) != self.dimension:
+            raise ValueError(
+                f"variable_types must have length {self.dimension}; received {len(vt)}"
+            )
+        return vt
+
+    @staticmethod
+    def _parse_step_descriptor(descriptor: Any) -> tuple[float | None, str]:
+        if isinstance(descriptor, dict):
+            step = descriptor.get("step", descriptor.get("quantum", descriptor.get("multiple")))
+            mode = str(descriptor.get("mode", descriptor.get("rounding", "round"))).lower()
+            return (None if step is None else float(step), mode)
+        text = str(descriptor).strip().lower()
+        # Accept: step:0.0625, step:0.0625:ceil, multiple:0.0625:floor
+        if text.startswith(("step:", "multiple:", "quantum:")):
+            parts = text.split(":")
+            step = float(parts[1]) if len(parts) >= 2 and parts[1] else None
+            mode = parts[2] if len(parts) >= 3 and parts[2] else "round"
+            return step, mode
+        return None, "round"
+
+    def apply_variable_types(self, position) -> np.ndarray:
+        """Clip a candidate and project it onto declared variable domains.
+
+        This is deliberately implemented in ProblemSpec rather than in each
+        individual engine so solo optimizers, island systems, candidate
+        injection, callbacks, and benchmark wrappers all use the same decoding
+        rule.  The returned array is always numeric and has the same dimension
+        as the problem.
+        """
         pos = np.asarray(position, dtype=float).copy()
         lo = np.asarray(self.min_values, dtype=float)
         hi = np.asarray(self.max_values, dtype=float)
+        pos = np.clip(pos, lo, hi)
+        for i, descriptor in enumerate(self._normalize_variable_types()):
+            if descriptor is None:
+                continue
+            if isinstance(descriptor, dict):
+                kind = str(descriptor.get("type", descriptor.get("kind", "float"))).lower()
+            else:
+                kind = str(descriptor).strip().lower()
+            if kind in {"", "float", "real", "continuous", "double"}:
+                continue
+            if kind in {"int", "integer", "discrete", "ordinal"}:
+                pos[i] = np.round(pos[i])
+            elif kind in {"binary", "bool", "boolean"}:
+                threshold = 0.5 if lo[i] <= 0.0 <= hi[i] and lo[i] <= 1.0 <= hi[i] else (lo[i] + hi[i]) / 2.0
+                pos[i] = 1.0 if pos[i] >= threshold else 0.0
+            elif kind.startswith(("step:", "multiple:", "quantum:")) or (isinstance(descriptor, dict) and kind in {"step", "multiple", "quantum"}):
+                step, mode = self._parse_step_descriptor(descriptor)
+                if step is None or step <= 0:
+                    raise ValueError(f"Invalid step variable descriptor at index {i}: {descriptor!r}")
+                scaled = pos[i] / step
+                if mode in {"ceil", "ceiling", "up"}:
+                    pos[i] = np.ceil(scaled) * step
+                elif mode in {"floor", "down"}:
+                    pos[i] = np.floor(scaled) * step
+                else:
+                    pos[i] = np.round(scaled) * step
+            else:
+                raise ValueError(f"Unsupported variable type at index {i}: {descriptor!r}")
         return np.clip(pos, lo, hi)
+
+    def clip_position(self, position) -> np.ndarray:
+        return self.apply_variable_types(position)
 
     def _assign_back(self, original, new_value: np.ndarray) -> None:
         try:
@@ -85,7 +166,7 @@ class ProblemSpec:
 
     def _repair_position(self, position) -> np.ndarray:
         raw = np.asarray(position, dtype=float).copy()
-        repaired = self.clip_position(raw)
+        repaired = self.apply_variable_types(raw)
         repair_fn = self.metadata.get("repair_function")
         use_raw = bool(self.metadata.get("use_raw_repair_input", False))
         if callable(repair_fn):
@@ -95,13 +176,13 @@ class ProblemSpec:
             except TypeError:
                 candidate = repair_fn(seed_input.copy())
             if candidate is not None:
-                repaired = self.clip_position(candidate)
+                repaired = self.apply_variable_types(candidate)
         return repaired
 
     def _resample_position(self) -> np.ndarray:
         lo = np.asarray(self.min_values, dtype=float)
         hi = np.asarray(self.max_values, dtype=float)
-        return np.random.uniform(lo, hi, self.dimension)
+        return self.apply_variable_types(np.random.uniform(lo, hi, self.dimension))
 
     def _normalize_constraint_value(self, value) -> float:
         tol = self._equality_tolerance()
@@ -172,7 +253,10 @@ class ProblemSpec:
         return float(raw_fitness) - coeff * violation
 
     def evaluate_details(self, position, apply_handler: bool = True) -> dict[str, Any]:
-        pos = np.asarray(position, dtype=float).copy()
+        # Variable-domain projection is always active, not only for constrained
+        # problems.  This ensures integer, binary, and stepped variables are
+        # respected before the objective and constraints see the candidate.
+        pos = self.apply_variable_types(position)
         handler = self._handler()
         if self.has_constraints and apply_handler:
             if handler == "repair":
@@ -586,7 +670,7 @@ class BaseEngine(ABC):
                     )
                 lo = np.asarray(engine.problem.min_values, dtype=float)
                 hi = np.asarray(engine.problem.max_values, dtype=float)
-                arr = np.clip(arr, lo, hi)
+                arr = np.vstack([engine.problem.apply_variable_types(row) for row in np.clip(arr, lo, hi)])
                 cache["positions"] = arr
                 cache["built"] = True
                 return arr
@@ -786,6 +870,14 @@ class BaseEngine(ABC):
                 )
 
         result = self.finalize(state)
+        # Ensure reported best positions obey declared variable domains even
+        # for engines that internally use continuous latent vectors.  The
+        # stored best_fitness is left unchanged because it already came from
+        # evaluating the projected candidate through ProblemSpec.evaluate().
+        if result.best_position is not None:
+            decoded_best = self.problem.apply_variable_types(result.best_position).astype(float).tolist()
+            result.best_position = decoded_best
+            state.best_position = decoded_best
         result.history = history
         result.population_snapshots = snapshots
         if state.best_position is not None:
@@ -977,10 +1069,7 @@ class BaseEngine(ABC):
         return None
 
     def _clip_position(self, position) -> list[float]:
-        clipped = []
-        for x, lo, hi in zip(position, self.problem.min_values, self.problem.max_values):
-            clipped.append(float(min(max(x, lo), hi)))
-        return clipped
+        return self.problem.apply_variable_types(position).astype(float).tolist()
 
     def _fitness_order(self, fitness_values, descending: bool = False):
         import numpy as _np

@@ -282,6 +282,8 @@ def _build_engineering_problem(key: str, lower=None, upper=None):
         variable_types = ["int"] * len(min_values)
         metadata["discrete"] = True
     elif key == "pressure_vessel_discrete":
+        # Ts and Th are rounded upward to multiples of 1/16; R and L are continuous.
+        variable_types = ["step:0.0625:ceil", "step:0.0625:ceil", "float", "float"]
         metadata["discrete_thickness"] = True
 
     return ConstrainedFunctionalProblem(

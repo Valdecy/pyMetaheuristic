@@ -161,6 +161,7 @@ class OrchestratedRunner:
         objective: str = "min",
         constraints=None,
         constraint_handler=None,
+        variable_types=None,
         repair_function=None,
         penalty_coefficient: float = 1e6,
         equality_tolerance: float = 1e-6,
@@ -181,6 +182,7 @@ class OrchestratedRunner:
         self.objective = objective
         self.constraints = constraints
         self.constraint_handler = constraint_handler
+        self.variable_types = None if variable_types is None else list(variable_types)
         self.repair_function = repair_function
         self.penalty_coefficient = penalty_coefficient
         self.equality_tolerance = equality_tolerance
@@ -231,6 +233,7 @@ class OrchestratedRunner:
                 objective=self.objective,
                 constraints=self.constraints,
                 constraint_handler=self.constraint_handler,
+                variable_types=self.variable_types,
                 repair_function=self.repair_function,
                 penalty_coefficient=self.penalty_coefficient,
                 equality_tolerance=self.equality_tolerance,
@@ -354,6 +357,10 @@ class OrchestratedRunner:
         best_fitness = None
         for label, engine in engines.items():
             result = engine.finalize(states[label])
+            if result.best_position is not None:
+                decoded_best = engine.problem.apply_variable_types(result.best_position).astype(float).tolist()
+                result.best_position = decoded_best
+                states[label].best_position = decoded_best
             result.history = histories[label]
             island_results[label] = result
             if best_fitness is None or engine.problem.is_better(result.best_fitness, best_fitness):
@@ -373,6 +380,7 @@ class OrchestratedRunner:
             metadata={
                 "checkpoint_interval": self.config.orchestration.checkpoint_interval,
                 "constraint_handler": self.constraint_handler or "none",
+                "variable_types": list(self.variable_types) if self.variable_types is not None else None,
                 "islands": list(engines.keys()),
                 "execution_backend_requested": self.execution_backend,
                 "execution_backend_used": actual_backend,
@@ -409,6 +417,7 @@ def orchestrated_optimize(*args, **kwargs) -> OrchestratedCooperativeResult:
             objective=kwargs.get("objective", "min"),
             constraints=kwargs.get("constraints"),
             constraint_handler=kwargs.get("constraint_handler"),
+            variable_types=kwargs.get("variable_types"),
             repair_function=kwargs.get("repair_function"),
             penalty_coefficient=kwargs.get("penalty_coefficient", 1e6),
             equality_tolerance=kwargs.get("equality_tolerance", 1e-6),
