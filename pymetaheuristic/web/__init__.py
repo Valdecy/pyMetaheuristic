@@ -109,7 +109,7 @@ def launch(
             webbrowser.open(url)
 
         print(f"Server running at {url}")
-        print("Terminate the web service using: pymetaheuristic.web.web_stop() \n")
+        print("Terminate the web service using: pymetaheuristic.web_stop() \n")
 
         # Store reference so the user can stop it
         import pymetaheuristic.web as _web_module
@@ -153,8 +153,8 @@ def web_stop() -> None:
 
     Usage::
 
-        import pymetaheuristic.web as w
-        w.web_stop()
+        import pymetaheuristic
+        pymetaheuristic.web_stop()
     """
     import pymetaheuristic.web as _web_module
     srv = getattr(_web_module, "_server_instance", None)

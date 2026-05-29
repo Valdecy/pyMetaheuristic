@@ -346,7 +346,10 @@ table.dtbl td.td-executed.no{color:var(--rose)}
 .ibar-card{background:rgba(9,13,26,.72);border:1px solid var(--bd);border-radius:14px;overflow:hidden}
 .ibar-body{padding:14px 18px;display:flex;flex-direction:column;gap:9px}
 .ibar-row{display:flex;align-items:center;gap:10px}
-.ibar-lbl{font-family:var(--fm);font-size:.68rem;color:var(--t2);width:96px;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ibar-lbl{font-family:var(--fm);font-size:.68rem;color:var(--t2);width:220px;max-width:42vw;flex-shrink:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ibarlbl-src{color:var(--t3);font-size:.58rem;margin-left:4px}
+.evomapx-note{font-size:.62rem;color:var(--t3);margin:2px 0 8px;line-height:1.35}
+.evomapx-subval{font-size:.55rem;color:var(--t3);margin-top:2px;text-align:right;white-space:nowrap}
 .ibar-trk{flex:1;height:7px;background:var(--s3);border-radius:99px;overflow:hidden}
 .ibar-fill{height:100%;border-radius:99px;transition:width .6s var(--e)}
 .ibar-val{font-family:var(--fm);font-size:.67rem;color:var(--cyan);flex-shrink:0;min-width:80px;text-align:right}
@@ -1811,7 +1814,15 @@ function renderResultsSkeleton(){
     }
 
     if(outputs.snapshot) rc.insertAdjacentHTML('beforeend',`<div class="chart-card">
-      <div class="chart-hdr"><span class="chart-ttl">Population Snapshot (last step)</span><span class="snapshot-info" id="snap-info" style="color:var(--t3);font-size:.62rem"></span></div>
+      <div class="chart-hdr">
+        <span class="chart-ttl">Population Snapshot</span>
+        <div class="chart-ctrls" style="gap:8px;align-items:center">
+          <select id="snapshot-select" class="fld fld-sm" style="width:auto;min-width:145px;height:28px;padding:0 8px;font-size:.66rem" onchange="renderSelectedSnapshot(this.value)">
+            <option value="">Waiting…</option>
+          </select>
+          <span class="snapshot-info" id="snap-info" style="color:var(--t3);font-size:.62rem"></span>
+        </div>
+      </div>
       <div class="chart-body" style="height:220px"><canvas id="chart-snapshot"></canvas></div>
     </div>`);
 
@@ -2033,15 +2044,102 @@ function initCharts(){
   if(outputs.island_conv) charts['islands']=makeIslandChart();
 }
 
-function setScale(chartId,scale,btn){
-  const c=charts[chartId];if(!c)return;
-  c.options.scales.y.type=scale;c.update();
-  btn.closest('.chart-ctrls')?.querySelectorAll('.scbtn').forEach(b=>b.classList.toggle('active',b===btn));
+function chartKeyFromCanvasId(chartId){
+  return {
+    'chart-conv-s':'conv-s',
+    'chart-conv-e':'conv-e',
+    'chart-global':'global',
+    'chart-div':'div',
+    'chart-expl':'expl',
+    'chart-islands':'islands',
+    'chart-snapshot':'snapshot',
+  }[chartId]||chartId;
 }
-function setScaleById(chartId,scale,btn){
-  const c=charts[chartId];if(!c)return;
-  c.options.scales.y.type=scale;c.update();
-  btn.closest('.chart-ctrls')?.querySelectorAll('.scbtn').forEach(b=>b.classList.toggle('active',b===btn));
+function valuesForChart(c){
+  const vals=[];
+  (c?.data?.datasets||[]).forEach(ds=>{
+    (ds.data||[]).forEach(v=>{
+      if(v&&typeof v==='object'&&'y' in v) vals.push(+v.y);
+      else vals.push(+v);
+    });
+  });
+  return vals.filter(Number.isFinite);
+}
+function setYAxisScale(chartId,scale,btn){
+  const key=chartKeyFromCanvasId(chartId);
+  const c=charts[key]||charts[chartId];if(!c)return;
+  const wantLog=scale==='log'||scale==='logarithmic';
+  const yScale=c.options.scales?.y||{};
+  c.options.scales.y=yScale;
+  if(wantLog){
+    const vals=valuesForChart(c);
+    const positives=vals.filter(v=>v>0);
+    if(!positives.length){
+      alert('Log scale needs positive y values. This run has no positive fitness values in the plotted series.');
+      return;
+    }
+    c.options.scales.y.type='logarithmic';
+    c.options.scales.y.min=Math.min(...positives);
+  }else{
+    c.options.scales.y.type='linear';
+    delete c.options.scales.y.min;
+  }
+  c.update();
+  btn?.closest('.chart-ctrls')?.querySelectorAll('.scbtn').forEach(b=>b.classList.toggle('active',b===btn));
+}
+function setScale(chartId,scale,btn){setYAxisScale(chartId,scale,btn);}
+function setScaleById(chartId,scale,btn){setYAxisScale(chartId,scale,btn);}
+
+function setupSnapshotSelector(snaps){
+  const sel=document.getElementById('snapshot-select');
+  if(!sel)return;
+  if(!snaps?.length){sel.innerHTML='<option value="">No snapshots</option>';sel.disabled=true;return;}
+  sel.innerHTML=snaps.map((s,i)=>{
+    const step=s?.step??i;
+    const n=(s?.population||[]).length;
+    const label=`Step ${esc(String(step))} · ${n} agents`;
+    return `<option value="${i}" ${i===snaps.length-1?'selected':''}>${label}</option>`;
+  }).join('');
+  sel.disabled=snaps.length<2;
+}
+function renderSelectedSnapshot(value){
+  const idx=parseInt(value,10);
+  renderPopulationSnapshot(Number.isFinite(idx)?idx:null);
+}
+function renderPopulationSnapshot(index=null){
+  const snaps=lastResult?.population_snapshots||[];
+  if(!snaps.length)return;
+  let idx=index==null?snaps.length-1:index;
+  idx=Math.max(0,Math.min(snaps.length-1,idx));
+  const snap=snaps[idx];
+  const canvas=document.getElementById('chart-snapshot');const info=document.getElementById('snap-info');
+  const pop=snap.population||[];const step=snap.step;
+  if(info)info.textContent=`Snapshot ${idx+1}/${snaps.length} · Step ${step} · ${pop.length} agents`;
+  if(!canvas||!pop.length)return;
+  const dims=(pop[0]?.position||[]).length;
+  const ctx=canvas.getContext('2d');
+  if(charts.snapshot)try{charts.snapshot.destroy();}catch(_){}
+  if(dims>=2){
+    const fits=pop.map(a=>+a.fitness).filter(Number.isFinite);
+    const minF=fits.length?Math.min(...fits):0,maxF=fits.length?Math.max(...fits):1,rngF=maxF-minF||1;
+    const data=pop.map((a,i)=>({x:+a.position[0],y:+a.position[1],r:5,fitness:+a.fitness,agent:i+1}));
+    charts.snapshot=new Chart(ctx,{type:'bubble',
+      data:{datasets:[{label:'Agents',data,
+        backgroundColor:data.map(pt=>{const t=Number.isFinite(pt.fitness)?(pt.fitness-minF)/rngF:0.5;return `rgba(${Math.round(56+t*180)},${Math.round(189-t*154)},${Math.round(248-t*200)},0.7)`;}),
+        borderColor:'rgba(255,255,255,.1)',borderWidth:0.5,
+      }]},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`A${i.raw.agent}: (${fmt(i.raw.x)}, ${fmt(i.raw.y)}) f=${fmt(i.raw.fitness)}`}}},
+        scales:{
+          x:{grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
+          y:{grid:{color:'rgba(255,255,255,.035)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
+        }}});
+  }else{
+    charts.snapshot=new Chart(ctx,{type:'bar',
+      data:{labels:pop.map((_,i)=>`A${i+1}`),datasets:[{label:'Position x1',data:pop.map(a=>+a.position[0]),backgroundColor:'rgba(56,189,248,.5)',borderColor:'#38bdf8',borderWidth:1}]},
+      options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:9}},border:{display:false}},y:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}}}}});
+  }
 }
 
 /* ════════════════════ POLLING ════════════════════ */
@@ -2176,42 +2274,10 @@ function finalizeResults(d){
       }
     }
 
-    /* Population snapshot scatter */
+    /* Population snapshot selector + scatter/bar view */
     if(outputs.snapshot&&d.population_snapshots?.length){
-      const lastSnap=d.population_snapshots[d.population_snapshots.length-1];
-      const canvas=document.getElementById('chart-snapshot');const info=document.getElementById('snap-info');
-      const pop=lastSnap.population||[];const step=lastSnap.step;
-      if(info)info.textContent=`Step ${step} — ${pop.length} agents`;
-      if(canvas&&pop.length){
-        const dims=(pop[0]?.position||[]).length;
-        if(dims>=2){
-          // 2D scatter: x1 vs x2, coloured by fitness
-          const fits=pop.map(a=>a.fitness).filter(isFinite);
-          const minF=Math.min(...fits),maxF=Math.max(...fits),rngF=maxF-minF||1;
-          const data=pop.map(a=>({x:a.position[0],y:a.position[1],r:5,fitness:a.fitness}));
-          if(charts.snapshot)try{charts.snapshot.destroy();}catch(_){}
-          const ctx=canvas.getContext('2d');
-          charts.snapshot=new Chart(ctx,{type:'bubble',
-            data:{datasets:[{label:'Agents',data,
-              backgroundColor:data.map(pt=>{const t=isFinite(pt.fitness)?(pt.fitness-minF)/rngF:0.5;return `rgba(${Math.round(56+t*180)},${Math.round(189-t*154)},${Math.round(248-t*200)},0.7)`;}),
-              borderColor:'rgba(255,255,255,.1)',borderWidth:0.5,
-            }]},
-            options:{responsive:true,maintainAspectRatio:false,animation:false,
-              plugins:{legend:{display:false},tooltip:{callbacks:{label:i=>`(${fmt(i.raw.x)}, ${fmt(i.raw.y)}) f=${fmt(i.raw.fitness)}`}}},
-              scales:{
-                x:{grid:{color:'rgba(255,255,255,.028)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
-                y:{grid:{color:'rgba(255,255,255,.035)',drawBorder:false},ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}},
-              }}});
-        }else{
-          // 1D: show bar chart of positions
-          const ctx=canvas.getContext('2d');
-          if(charts.snapshot)try{charts.snapshot.destroy();}catch(_){}
-          charts.snapshot=new Chart(ctx,{type:'bar',
-            data:{labels:pop.map((_,i)=>`A${i+1}`),datasets:[{label:'Position x1',data:pop.map(a=>a.position[0]),backgroundColor:'rgba(56,189,248,.5)',borderColor:'#38bdf8',borderWidth:1}]},
-            options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},
-              scales:{x:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:9}},border:{display:false}},y:{ticks:{color:'#475569',font:{family:'JetBrains Mono',size:10}},border:{display:false}}}}});
-        }
-      }
+      setupSnapshotSelector(d.population_snapshots);
+      renderPopulationSnapshot(d.population_snapshots.length-1);
     }
 
     if(outputs.evomapx) renderEvoMapX(d.evomapx||d.result?.evomapx);
@@ -2473,28 +2539,63 @@ function renderBmTables(rows,algorithms,functions){
 }
 
 /* ════════════════════ HELPERS ════════════════════ */
+function evomapxShortLabel(lbl){
+  let s=String(lbl||'');
+  s=s.replace('.step_impl_evaluation_l','.impl_eval_l');
+  s=s.replace('.step_evaluation_l','.step_eval_l');
+  s=s.replace('.initialize_evaluation_l','.init_eval_l');
+  s=s.replace('.inject_candidates_evaluation_l','.inject_eval_l');
+  return s;
+}
+function evomapxPct(v){
+  const p=(+v||0)*100;
+  if(Math.abs(p)>0 && Math.abs(p)<0.1)return p.toFixed(4)+'%';
+  if(Math.abs(p)<10)return p.toFixed(2)+'%';
+  return p.toFixed(1)+'%';
+}
 function renderEvoMapX(payload){
   const body=document.getElementById('evomapx-body');if(!body)return;
   const data=payload||{};
   if(data.error){body.innerHTML=`<div style="color:var(--rose);font-size:.75rem">${esc(data.error)}</div>`;return;}
-  const cds=data.cds_normalized||{};
-  const entries=Object.entries(cds).filter(([,v])=>v!=null).sort((a,b)=>(+b[1])- (+a[1]));
-  if(!entries.length){body.innerHTML='<div style="color:var(--t3);font-size:.75rem">No positive EvoMapX contribution detected yet.</div>';return;}
-  const driver=entries[0];
-  const bars=entries.slice(0,12).map(([lbl,val],i)=>{
-    const pct=Math.max(4,Math.min(100,Math.round((+val||0)*100)));
-    const col=ISLAND_COLORS[i%ISLAND_COLORS.length];
-    return `<div class="ibar-row">
-      <div class="ibar-lbl" title="${esc(lbl)}">${esc(lbl)}</div>
-      <div class="ibar-trk"><div class="ibar-fill" style="width:${pct}%;background:${col}"></div></div>
-      <div class="ibar-val" style="color:${col}">${((+val||0)*100).toFixed(1)}%</div>
-    </div>`;
-  }).join('');
+  const scores=(data.driver_scores||[]).filter(r=>r&&r.label).sort((a,b)=>(+b.score||0)-(+a.score||0));
+  const fallback=Object.entries(data.cds_normalized||{}).map(([label,score])=>({label,score,positive:null,signed:(data.cds_raw||{})[label],active_steps:null,mode:'cds'})).sort((a,b)=>(+b.score||0)-(+a.score||0));
+  const entries=(scores.length?scores:fallback).filter(r=>r.score!=null);
+  const top=entries[0];
+  const topScore=top?(+top.score||0):0;
+  const lvl=data.level?` · level ${esc(String(data.level))}`:'';
   const mig=data.migration_attribution||{};
   const migTxt=(mig.total_positive_improvement!=null)?` · migration gain ${fmt(mig.total_positive_improvement)}`:'';
-  const lvl=data.level?` · level ${esc(String(data.level))}`:'';
-  const note=data.support_note?`<div style="font-size:.62rem;color:var(--t3);margin:2px 0 8px">${esc(data.support_note)}</div>`:'';
-  body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">Main convergence driver: <span style="color:var(--gold)">${esc(driver[0])}</span>${lvl}${migTxt}</div>${note}${bars}`;
+  const mode=data.driver_mode||top?.mode||'positive';
+  const sourceLike=entries.some(r=>String(r.label||'').includes('_evaluation_l')||String(r.label||'').includes('_eval_l'));
+  const noteBits=[];
+  if(data.support_note)noteBits.push(esc(data.support_note));
+  if(mode==='activity')noteBits.push('No positive convergence-driver mass was detected after normalization; the bars show absolute operator activity so the panel does not report a false driver.');
+  if(sourceLike)noteBits.push('Some labels are source-location probes; use the full tooltip or line suffix to distinguish them.');
+  const note=noteBits.length?`<div class="evomapx-note">${noteBits.join('<br>')}</div>`:'';
+  if(!entries.length || topScore<=1e-12){
+    body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">Main convergence driver: <span style="color:var(--t3)">none detected</span>${lvl}${migTxt}</div>${note}<div style="color:var(--t3);font-size:.75rem">No non-zero EvoMapX contribution/activity to display.</div>`;
+    return;
+  }
+  const driverTxt=mode==='activity'?'Most active probe':'Main convergence driver';
+  const bars=entries.slice(0,12).map((r,i)=>{
+    const lbl=String(r.label||'');
+    const val=+r.score||0;
+    const pct=Math.max(0,Math.min(100,val*100));
+    const barPct=pct>0&&pct<1?1:pct;
+    const col=ISLAND_COLORS[i%ISLAND_COLORS.length];
+    const shortLbl=evomapxShortLabel(lbl);
+    const signed=(r.signed!=null)?`net ${fmt(r.signed)}`:'';
+    const pos=(r.positive!=null)?`Δ+ ${fmt(r.positive)}`:'';
+    const active=(r.active_steps!=null)?`active ${Math.round(+r.active_steps)}`:'';
+    const sub=[pos,signed,active].filter(Boolean).join(' · ');
+    const src=lbl.includes('_evaluation_l')||lbl.includes('_eval_l')?'<span class="ibarlbl-src">source</span>':'';
+    return `<div class="ibar-row">
+      <div class="ibar-lbl" title="${esc(lbl)}">${esc(shortLbl)}${src}</div>
+      <div class="ibar-trk"><div class="ibar-fill" style="width:${barPct}%;background:${col}"></div></div>
+      <div class="ibar-val" style="color:${col}"><div>${evomapxPct(val)}</div>${sub?`<div class="evomapx-subval">${esc(sub)}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">${driverTxt}: <span style="color:var(--gold)" title="${esc(top.label)}">${esc(evomapxShortLabel(top.label))}</span>${lvl}${migTxt}</div>${note}${bars}`;
 }
 
 function renderPos(pos){

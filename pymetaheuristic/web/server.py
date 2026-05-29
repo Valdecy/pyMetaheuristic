@@ -440,15 +440,54 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
     try:
         report = evomapx_analysis(result, level=level)
         data = report.to_dict() if hasattr(report, "to_dict") else dict(report)
+        labels = list(data.get("labels", []) or [])
+        activity = data.get("activity", {}) or {}
+        cds_raw = data.get("cds_raw", {}) or {}
+        # Web-facing scores are computed from positive contribution first.
+        # If the run has no positive mass, fall back to absolute activity so
+        # the UI does not claim a false "main convergence driver" with 0.0% bars.
+        driver_rows = []
+        for label in labels or list(cds_raw.keys()) or list(activity.keys()):
+            a = activity.get(label, {}) or {}
+            signed = float(a.get("total_contribution", cds_raw.get(label, 0.0)) or 0.0)
+            positive = float(a.get("total_positive_contribution", max(0.0, signed)) or 0.0)
+            negative = float(a.get("total_negative_contribution", min(0.0, signed)) or 0.0)
+            absolute = float(abs(positive) + abs(negative))
+            active_steps = float(a.get("active_steps", 0.0) or 0.0)
+            driver_rows.append({
+                "label": str(label),
+                "positive": positive,
+                "negative": negative,
+                "signed": signed,
+                "absolute": absolute,
+                "active_steps": active_steps,
+            })
+        total_positive = sum(max(0.0, r["positive"]) for r in driver_rows)
+        total_absolute = sum(max(0.0, r["absolute"]) for r in driver_rows)
+        if total_positive > 1.0e-12:
+            driver_mode = "positive"
+            for r in driver_rows:
+                r["score"] = max(0.0, r["positive"]) / total_positive
+        elif total_absolute > 1.0e-12:
+            driver_mode = "activity"
+            for r in driver_rows:
+                r["score"] = max(0.0, r["absolute"]) / total_absolute
+        else:
+            driver_mode = "none"
+            for r in driver_rows:
+                r["score"] = 0.0
+        driver_rows.sort(key=lambda r: r.get("score", 0.0), reverse=True)
         return _json_safe({
             "objective": data.get("objective"),
             "level": data.get("level"),
             "support_note": "Operator-level EvoMapX is available for all registered algorithms; cooperative runs also expose island and migration attribution.",
-            "labels": data.get("labels", []),
+            "labels": labels,
             "steps": data.get("steps", []),
             "cds_normalized": data.get("cds_normalized", {}),
-            "cds_raw": data.get("cds_raw", {}),
-            "activity": data.get("activity", {}),
+            "cds_raw": cds_raw,
+            "driver_scores": driver_rows,
+            "driver_mode": driver_mode,
+            "activity": activity,
             "summary": data.get("summary", {}),
             "migration_attribution": data.get("migration_attribution", {}),
             "normalized_attribution": data.get("normalized_attribution", {}),

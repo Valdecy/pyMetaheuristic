@@ -97,6 +97,7 @@ from .src.evomapx import (
     plot_population_evolution_graph,
     population_evolution_graph,
 )
+from .src.evomapx_validation import validate_evomapx_engines
 
 from .src.evomapx_profiles import (
     EvoMapXProfile,
@@ -190,7 +191,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "7.1.1"
+__version__ = "7.2.1"
 
 __all__ = [
     "FUNCTIONS",
@@ -228,7 +229,7 @@ __all__ = [
     "export_evomapx_json", "migration_attribution",
     "operator_attribution_matrix", "peg_summary", "plot_attribution_heatmap",
     "plot_cds_bar", "plot_cds_time_series", "plot_population_evolution_graph",
-    "population_evolution_graph",
+    "population_evolution_graph", "validate_evomapx_engines",
     "get_algorithm_info", "get_test_function", "get_test_problem",
     "list_algorithms", "optimize", "orchestrated_optimize",
     "plot_benchmark_summary", "plot_benchmark_barplots", "plot_benchmark_boxplots",
@@ -266,6 +267,7 @@ __all__ = [
     "load_checkpoint", "load_result",
     "result_from_json", "result_to_json",
     "save_checkpoint", "save_result",
+    "web_app", "web_stop",
 ]
 
 from . import src  # noqa: E402
@@ -274,3 +276,8 @@ reference = src.reference
 def web_app(host="127.0.0.1", port=8765, open_browser=True):
     from .web import launch
     launch(host=host, port=port, open_browser=open_browser)
+
+
+def web_stop():
+    from .web import web_stop as _web_stop
+    return _web_stop()
