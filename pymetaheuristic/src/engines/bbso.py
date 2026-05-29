@@ -82,12 +82,14 @@ class BBSOEngine(PortedPopulationEngine):
             raise ValueError("population_reduction must be in [0, 1].")
 
         new_rows: list[np.ndarray] = []
+        new_labels: list[str] = []
         evals = 0
         safe_hi = np.where(np.abs(self._hi) > 1.0e-12, self._hi, self._span)
 
         for i in range(n):
             best_trial = None
             best_trial_fitness = self.problem.worst_fitness()
+            best_trial_label = "bbso.coordinated_following_trial"
 
             # MATLAB source uses for j = 2:i (1-based). In Python this is
             # j = 1, ..., i, so the first bug has no coordinated trial.
@@ -112,19 +114,26 @@ class BBSOEngine(PortedPopulationEngine):
                 if self._is_better(trial_fitness, best_trial_fitness):
                     best_trial = trial.copy()
                     best_trial_fitness = trial_fitness
+                    best_trial_label = "bbso.self_following_trial" if j == i else "bbso.coordinated_following_trial"
 
             if best_trial is not None:
                 new_rows.append(np.append(best_trial, best_trial_fitness))
+                new_labels.append(best_trial_label)
 
         if new_rows:
             candidates = np.vstack([pop, np.vstack(new_rows)])
+            candidate_labels = ["carryover"] * n + new_labels
         else:
             candidates = pop
+            candidate_labels = ["carryover"] * n
 
-        candidates = candidates[self._order(candidates[:, -1])]
+        order = self._order(candidates[:, -1])
+        candidates = candidates[order]
+        ordered_labels = [candidate_labels[int(k)] for k in order]
         progress_ratio = min(1.0, (state.evaluations + evals) / self._max_evaluations_hint)
         n_new = int(round(n - reduction * n * progress_ratio))
         n_new = max(self._min_population_size(n), min(n, n_new))
         pop = candidates[:n_new].copy()
+        operator_labels = ordered_labels[:n_new]
         self._n = pop.shape[0]
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

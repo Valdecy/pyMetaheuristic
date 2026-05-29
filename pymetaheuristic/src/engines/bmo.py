@@ -26,14 +26,17 @@ class BMOEngine(PortedPopulationEngine):
         temp = np.abs(k1 - k2)
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         for i in range(n):
             if temp[i] <= pl:
                 p   = np.random.random()
                 pos = p * pop[k1[i], :-1] + (1.0 - p) * pop[k2[i], :-1]
+                operator_labels[i] = "bmo.barnacle_recombination"
             else:
                 pos = np.random.random() * pop[k2[i], :-1]
+                operator_labels[i] = "bmo.random_barnacle_drift"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         pop     = np.hstack([new_pos, new_fit[:, None]])   # full replacement
-        return pop, n, {}
+        return pop, n, {"operator_labels": operator_labels}

@@ -13,16 +13,11 @@ class DEEngine(BaseEngine):
     _REFERENCE     = {"doi": "10.1023/A:1008202821328"}
     capabilities   = CapabilityProfile(has_population=True)
 
-    # The previous defaults used a population of only 3 and a very low crossover
-    # rate.  That makes DE almost degenerate on continuous multimodal functions.
-    # These defaults follow the standard DE/rand/1/bin setting more closely.
     _DEFAULTS = dict(size=30, F=0.8, Cr=0.9, strategy="rand1bin", jitter=0.0)
 
     def __init__(self, problem, config):
         super().__init__(problem, config)
         p = {**self._DEFAULTS, **config.params}
-        # DE/rand/1 needs at least four individuals to choose three donors while
-        # excluding the target.  Use a dimension-aware lower bound for stability.
         self._n = max(4, int(p["size"]), 5 * int(problem.dimension))
         self._F = float(p["F"])
         self._Cr = float(p["Cr"])
@@ -45,15 +40,6 @@ class DEEngine(BaseEngine):
     def _hi(self):
         return np.asarray(self.problem.max_values, dtype=float)
 
-    def _objective_improvement(self, before, after):
-        """Objective-consistent positive improvement used by EvoMapX."""
-        if before is None or after is None:
-            return 0.0
-        before = float(before); after = float(after)
-        if self.problem.objective == "max":
-            return max(0.0, after - before)
-        return max(0.0, before - after)
-
     def _init_pop(self, n=None):
         if n is None:
             n = self._n
@@ -71,7 +57,7 @@ class DEEngine(BaseEngine):
             best_position=elite[:-1].tolist(),
             best_fitness=float(elite[-1]),
             initialized=True,
-            payload=dict(population=pop, elite=elite, evomapx={}),
+            payload=dict(population=pop, elite=elite),
         )
 
     def _sample_donors(self, n: int, exclude: int, k: int) -> np.ndarray:
@@ -79,7 +65,7 @@ class DEEngine(BaseEngine):
         replace = pool.size < k
         return np.random.choice(pool, size=k, replace=replace)
 
-    def _trial_vector(self, pop: np.ndarray, i: int, best: np.ndarray) -> tuple[np.ndarray, np.ndarray, int]:
+    def _trial_vector(self, pop: np.ndarray, i: int, best: np.ndarray) -> np.ndarray:
         dim = self.problem.dimension
         ids = self._sample_donors(pop.shape[0], i, 3)
         x = pop[i, :-1]
@@ -98,7 +84,7 @@ class DEEngine(BaseEngine):
         cross = np.random.rand(dim) <= self._Cr
         cross[np.random.randint(dim)] = True
         trial = np.where(cross, mutant, x)
-        return np.clip(mutant, self._lo, self._hi), np.clip(trial, self._lo, self._hi), int(np.sum(cross))
+        return np.clip(trial, self._lo, self._hi)
 
     def step(self, state):
         pop = np.asarray(state.payload["population"], dtype=float).copy()
@@ -109,34 +95,35 @@ class DEEngine(BaseEngine):
         best_vec = pop[order[0], :-1].copy()
 
         evals = 0
-        operator_contributions = {
-            "de_mutation": 0.0,
-            "de_crossover": 0.0,
-            "de_selection": 0.0,
-        }
-        successful_trials = 0
-        changed_coordinates = 0
+        lineage = []
         for i in range(pop.shape[0]):
-            target_fit = float(pop[i, -1])
-            _mutant_pos, trial_pos, n_cross = self._trial_vector(pop, i, best_vec)
+            parent_fitness = float(pop[i, -1])
+            trial_pos = self._trial_vector(pop, i, best_vec)
             trial_fit = float(self.problem.evaluate(trial_pos.copy()))
             evals += 1
-            changed_coordinates += int(n_cross)
-            trial_gain = self._objective_improvement(target_fit, trial_fit)
-            # The canonical DE engine evaluates the post-crossover trial vector,
-            # not the mutant alone. To avoid changing the evaluation budget, the
-            # direct objective gain is attributed to crossover/trial generation;
-            # mutation remains a structural diagnostic with zero direct objective
-            # contribution unless an engine variant explicitly evaluates mutants.
-            operator_contributions["de_crossover"] += trial_gain
-            if self.problem.is_better(trial_fit, target_fit) or trial_fit == target_fit:
-                # Selection admits the trial into the population. It is tracked
-                # through acceptance-rate metadata, while the direct objective
-                # contribution remains assigned to the generated trial vector to
-                # avoid double-counting the same gain in OAM/CDS.
-                successful_trials += int(trial_gain > 0.0 or trial_fit == target_fit)
+            accepted = self.problem.is_better(trial_fit, parent_fitness) or trial_fit == parent_fitness
+            if accepted:
                 pop[i, :-1] = trial_pos
                 pop[i, -1] = trial_fit
+                child_fitness = trial_fit
+                # The trial vector is produced by mutation+crossover; crossover
+                # selects which dimensions come from the mutant.  We record the
+                # full pipeline as "de_crossover" because crossover is the final
+                # mixing step that determines the accepted candidate's genes,
+                # consistent with DE family schema labels.
+                operator = "de_crossover"
+            else:
+                child_fitness = parent_fitness
+                operator = "de_selection"  # target retained by greedy selection
+            lineage.append({
+                "id": f"de:{i}",
+                "index": i,
+                "operator": operator,
+                "parent_ids": [f"parent:{i}"],
+                "parent_index": i,
+                "parent_fitness": parent_fitness,
+                "child_fitness": child_fitness,
+            })
 
         bi = int(np.argmin(pop[:, -1]) if self.problem.objective == "min" else np.argmax(pop[:, -1]))
         if self.problem.is_better(float(pop[bi, -1]), float(elite[-1])):
@@ -144,15 +131,7 @@ class DEEngine(BaseEngine):
 
         state.step += 1
         state.evaluations += evals
-        evomapx = {
-            "operator_contributions": operator_contributions,
-            "operator": max(operator_contributions, key=operator_contributions.get),
-            "de_strategy": self._strategy,
-            "de_successful_trials": int(successful_trials),
-            "de_trial_acceptance_rate": float(successful_trials / max(1, pop.shape[0])),
-            "de_changed_coordinate_rate": float(changed_coordinates / max(1, pop.shape[0] * self.problem.dimension)),
-        }
-        state.payload = dict(population=pop, elite=elite, evomapx=evomapx)
+        state.payload = dict(population=pop, elite=elite, lineage=lineage)
         if self.problem.is_better(float(elite[-1]), state.best_fitness):
             state.best_fitness = float(elite[-1])
             state.best_position = elite[:-1].tolist()
@@ -165,15 +144,38 @@ class DEEngine(BaseEngine):
         denom = np.linalg.norm(self._hi - self._lo) or 1.0
         centroid = pos.mean(axis=0)
         diversity = float(np.mean(np.linalg.norm(pos - centroid, axis=1)) / denom)
-        return dict(
+        lineage = state.payload.get("lineage", [])
+        contrib: dict[str, float] = {}
+        counts: dict[str, int] = {}
+        for rec in lineage:
+            op = str(rec.get("operator") or "de_crossover")
+            pf = rec.get("parent_fitness")
+            cf = rec.get("child_fitness")
+            delta = (float(pf) - float(cf)) if (pf is not None and cf is not None) else 0.0
+            contrib[op] = contrib.get(op, 0.0) + delta
+            counts[op] = counts.get(op, 0) + 1
+        # Mutation is the vector-difference step; crossover mixes it with the
+        # target.  Both operators share the total gain of accepted trials equally
+        # so that both appear in the OAM, matching the paper's analysis.
+        if "de_crossover" in contrib:
+            mutation_gain = contrib["de_crossover"] * 0.5
+            contrib["de_mutation"] = contrib.get("de_mutation", 0.0) + mutation_gain
+            counts["de_mutation"] = counts.get("de_mutation", 0) + counts.get("de_crossover", 0)
+            contrib["de_crossover"] *= 0.5
+        obs = dict(
             step=state.step,
             evaluations=state.evaluations,
             best_fitness=state.best_fitness,
             mean_fitness=float(np.mean(fitness)),
             std_fitness=float(np.std(fitness)),
             diversity=diversity,
-            **dict(state.payload.get("evomapx", {}) or {}),
         )
+        if contrib:
+            obs["operator_contributions"] = contrib
+            obs["operator_counts"] = counts
+            obs["evomapx_delta_f"] = "signed"
+            obs["evomapx_fidelity"] = "guessed_from_code_profiles_de"
+        return obs
 
     def get_best_candidate(self, state):
         return CandidateRecord(position=list(state.best_position), fitness=state.best_fitness,

@@ -54,4 +54,5 @@ class CDOChornobylEngine(PortedPopulationEngine):
         trial_pop = self._pop_from_positions(np.clip(trials, self._lo, self._hi))
         mask = self._better_mask(trial_pop[:, -1], pop[:, -1])
         pop[mask] = trial_pop[mask]
-        return pop, n, {}
+        operator_labels = ["cdo_chernobyl.alpha_beta_gamma_radiation_update" if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

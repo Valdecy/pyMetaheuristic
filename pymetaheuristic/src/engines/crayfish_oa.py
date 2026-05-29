@@ -49,13 +49,16 @@ class CrayfishOAEngine(PortedPopulationEngine):
         eps = 1e-12
 
         trial = pop[:, :-1].copy()
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             if temp > 30.0:
                 if np.random.random() < 0.5:
                     trial[i] = pop[i, :-1] + C * np.random.random(dim) * (xf - pop[i, :-1])
+                    attempted_labels[i] = "crayfish_oa.high_temperature_shelter_update"
                 else:
                     z = np.random.randint(0, n, size=dim)
                     trial[i] = pop[i, :-1] - pop[z, np.arange(dim)] + xf
+                    attempted_labels[i] = "crayfish_oa.high_temperature_competition_update"
             else:
                 denom = abs(float(state.best_fitness)) + eps
                 P = 3.0 * np.random.random() * (abs(float(pop[i, -1])) + eps) / denom
@@ -64,8 +67,10 @@ class CrayfishOAEngine(PortedPopulationEngine):
                     xfood = np.exp(-1.0 / max(P, eps)) * xfood
                     theta = 2.0 * np.pi * np.random.random(dim)
                     trial[i] = pop[i, :-1] + (np.cos(theta) - np.sin(theta)) * xfood * p
+                    attempted_labels[i] = "crayfish_oa.food_competition_update"
                 else:
                     trial[i] = (pop[i, :-1] - xfood) * p + p * np.random.random(dim) * pop[i, :-1]
+                    attempted_labels[i] = "crayfish_oa.food_intake_update"
 
         trial = np.clip(trial, self._lo, self._hi)
         fit = self._evaluate_population(trial)
@@ -79,4 +84,5 @@ class CrayfishOAEngine(PortedPopulationEngine):
         pop[mask, :-1] = trial[mask]
         pop[mask, -1] = fit[mask]
 
-        return pop, evals, {"global_position": global_position, "global_fitness": global_fitness}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"global_position": global_position, "global_fitness": global_fitness, "operator_labels": operator_labels}

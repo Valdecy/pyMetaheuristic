@@ -28,6 +28,7 @@ class BEAEngine(PortedPopulationEngine):
         nsp = max(1, int(self._params.get("nsp", 2)))
         ngh = float(state.payload.get("ngh", self._params.get("ngh", 0.15)))
         new_rows = []
+        operator_labels = []
         evals = 0
         for rank in range(m):
             recruits = nep if rank < e else nsp
@@ -37,11 +38,19 @@ class BEAEngine(PortedPopulationEngine):
             cand_pop = self._pop_from_positions(cand)
             evals += recruits
             pool = np.vstack((pop[rank:rank+1], cand_pop))
-            new_rows.append(pool[self._best_index(pool[:, -1])])
+            chosen = self._best_index(pool[:, -1])
+            new_rows.append(pool[chosen])
+            if chosen == 0:
+                operator_labels.append("carryover")
+            elif rank < e:
+                operator_labels.append("bea.elite_site_neighbourhood_search")
+            else:
+                operator_labels.append("bea.selected_site_neighbourhood_search")
         scouts = max(0, pop.shape[0] - len(new_rows))
         if scouts:
             scout_pop = self._pop_from_positions(self._new_positions(scouts))
             evals += scouts
             new_rows.extend(list(scout_pop))
+            operator_labels.extend(["bea.scout_site_global_search"] * scouts)
         new_pop = np.vstack(new_rows)
-        return new_pop, evals, {"ngh": max(1e-12, ngh * float(self._params.get("shrink", 0.95)))}
+        return new_pop, evals, {"ngh": max(1e-12, ngh * float(self._params.get("shrink", 0.95))), "operator_labels": operator_labels}

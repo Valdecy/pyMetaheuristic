@@ -44,6 +44,7 @@ class CAT_SOEngine(BaseEngine):
         v=self._init_pop()  # velocities (reuse pop shape)
         c_sm=int((1-self._mr)*self._n)
         flag=[0 if i<c_sm else 1 for i in range(self._n)]; np.random.shuffle(flag)
+        operator_labels = ["carryover"] * self._n
         bi=np.argmin(pop[:,-1]); best_cat=pop[bi,:].copy()
         for i in range(self._n):
             if flag[i]==0:
@@ -52,16 +53,20 @@ class CAT_SOEngine(BaseEngine):
                 copies=np.clip(pop[:,:-1]+dm*sc*pop[:,:-1],lo,hi)
                 cf=self._evaluate_population(copies); evals+=self._n
                 ic=np.argmin(cf)
-                if cf[ic]<pop[i,-1]: pop[i,:-1]=copies[ic,:]; pop[i,-1]=cf[ic]
+                if cf[ic]<pop[i,-1]:
+                    disp = copies[ic, :] - pop[i, :-1]
+                    pop[i,:-1]=copies[ic,:]; pop[i,-1]=cf[ic]
+                    operator_labels[i] = "cat_so.seeking_mode_expansive_copy_update" if float(np.mean(disp)) >= 0.0 else "cat_so.seeking_mode_contracting_copy_update"
             else:
                 v[i,:-1]=np.clip(v[i,:-1]+np.random.rand(dim)*self._c1*(best_cat[:-1]-pop[i,:-1]),-np.array(self.problem.max_values)*2,np.array(self.problem.max_values)*2)
                 pop[i,:-1]=np.clip(pop[i,:-1]+v[i,:-1],lo,hi)
                 pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
+                operator_labels[i] = "cat_so.tracing_mode_velocity_update"
         bi2=np.argmin(pop[:,-1])
         if pop[bi2,-1]<best_cat[-1]: best_cat=pop[bi2,:].copy()
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,operator_labels=operator_labels)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state

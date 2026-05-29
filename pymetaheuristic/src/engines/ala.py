@@ -28,6 +28,7 @@ class ALAEngine(PortedPopulationEngine):
         RB=np.random.randn(n,d); F=np.random.choice([-1,1])
         theta=2*np.arctan(1-t/max_iter)
         new_pos=np.empty_like(pop[:,:-1])
+        attempted_labels=["ala.carryover"]*n
         for i in range(n):
             E=2*np.log(1/max(np.random.random(),1e-300))*theta
             if E>1:
@@ -35,21 +36,26 @@ class ALAEngine(PortedPopulationEngine):
                     r1=2*np.random.random(d)-1
                     ra=pop[np.random.randint(n),:-1]
                     new_pos[i]=best_pos+F*RB[i]*(r1*(best_pos-pop[i,:-1])+(1-r1)*(pop[i,:-1]-ra))
+                    attempted_labels[i]="ala.high_energy_digging_walk"
                 else:
                     r2=np.random.random()*(1+np.sin(0.5*t))
                     ra=pop[np.random.randint(n),:-1]
                     new_pos[i]=pop[i,:-1]+F*r2*(best_pos-ra)
+                    attempted_labels[i]="ala.high_energy_lemming_migration"
             else:
                 if np.random.random()<0.5:
                     radius=np.linalg.norm(best_pos-pop[i,:-1])
                     r3=np.random.random()
                     spiral=radius*(np.sin(2*np.pi*r3)+np.cos(2*np.pi*r3))
                     new_pos[i]=best_pos+F*pop[i,:-1]*spiral*np.random.random()
+                    attempted_labels[i]="ala.low_energy_spiral_foraging"
                 else:
                     G=2*np.sign(np.random.random()-0.5)*(1-t/max_iter)
                     new_pos[i]=best_pos+F*G*_levy1d(d)*(best_pos-pop[i,:-1])
+                    attempted_labels[i]="ala.low_energy_levy_escape"
         new_pos=np.clip(new_pos,lo,hi)
         new_fits=self._evaluate_population(new_pos); evals+=n
         mask=self._better_mask(new_fits,pop[:,-1])
         pop[mask]=np.hstack([new_pos,new_fits[:,None]])[mask]
-        return pop, evals, {}
+        operator_labels=[attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

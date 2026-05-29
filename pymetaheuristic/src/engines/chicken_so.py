@@ -18,7 +18,9 @@ class CHICKEN_SOEngine(BaseEngine):
         p={**self._DEFAULTS,**config.params}
         self._n=int(p["size"]); self._g=int(p["g"])
         self._rr=float(p["rooster_ratio"]); self._hr=float(p["hen_ratio"])
-        if config.seed is not None: np.random.seed(config.seed)
+        if config.seed is not None:
+            np.random.seed(config.seed)
+            random.seed(config.seed)
 
     def _init_pop(self):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)

@@ -177,6 +177,7 @@ class CPOEngine(PortedPopulationEngine):
         second_best = pop[order[1 if len(order) > 1 else 0], :-1].copy()
 
         trials = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         energies = []
         fatigues = []
         for i in range(n):
@@ -188,8 +189,10 @@ class CPOEngine(PortedPopulationEngine):
 
             if cm >= 0.2 and r1 <= 0.5:
                 trial = self._luring_trial(x, best, second_best, a, a1, levy, c1, t, max_iter)
+                operator_labels[i] = "cpo.aroma_luring_trial"
             else:
                 trial = self._predation_trial(x, best, cm, a, a1, levy, c1)
+                operator_labels[i] = "cpo.predation_feeding_trial"
             trials[i] = trial
 
         fitness = self._evaluate_population(trials)
@@ -202,4 +205,5 @@ class CPOEngine(PortedPopulationEngine):
             "levy": levy,
             "mean_energy": float(np.mean(energies)) if energies else None,
             "mean_fatigue": float(np.mean(fatigues)) if fatigues else None,
+            "operator_labels": operator_labels,
         }

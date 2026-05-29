@@ -48,6 +48,7 @@ class AVOAEngine(PortedPopulationEngine):
         best2  = pop[order[1], :-1].copy() if n > 1 else best1.copy()
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         for i in range(n):
             F        = ppp * (2.0 * np.random.random() - 1.0)
             rand_pos = best1 if np.random.random() < alpha else best2
@@ -55,8 +56,10 @@ class AVOAEngine(PortedPopulationEngine):
             if abs(F) >= 1.0:                          # Exploration
                 if np.random.random() < p1:
                     pos = rand_pos - (abs(2.0 * np.random.random() * rand_pos - pop[i, :-1])) * F
+                    operator_labels[i] = "avoa.exploration_vulture_soaring"
                 else:
                     pos = rand_pos - F + np.random.random() * (self._span * np.random.random() + self._lo)
+                    operator_labels[i] = "avoa.random_roost_exploration"
             else:                                       # Exploitation
                 if abs(F) < 0.5:                        # Phase 1
                     b1, b2 = best1, best2
@@ -64,19 +67,23 @@ class AVOAEngine(PortedPopulationEngine):
                         A = b1 - (b1 * pop[i, :-1]) / (b1 - pop[i, :-1] ** 2 + EPS) * F
                         B = b2 - (b2 * pop[i, :-1]) / (b2 - pop[i, :-1] ** 2 + EPS) * F
                         pos = (A + B) / 2.0
+                        operator_labels[i] = "avoa.convergent_competition_exploitation"
                     else:
                         pos = rand_pos - abs(rand_pos - pop[i, :-1]) * F * _levy_avoa(dim)
+                        operator_labels[i] = "avoa.levy_food_exploitation"
                 else:                                   # Phase 2
                     if np.random.random() < p3:
                         pos = (abs(2.0 * np.random.random() * rand_pos - pop[i, :-1])) * \
                               (F + np.random.random()) - (rand_pos - pop[i, :-1])
+                        operator_labels[i] = "avoa.aggressive_siege_exploitation"
                     else:
                         s1  = rand_pos * (np.random.random() * pop[i, :-1] / (2.0 * np.pi)) * np.cos(pop[i, :-1])
                         s2  = rand_pos * (np.random.random() * pop[i, :-1] / (2.0 * np.pi)) * np.sin(pop[i, :-1])
                         pos = rand_pos - (s1 + s2)
+                        operator_labels[i] = "avoa.spiral_siege_exploitation"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         # AVOA replaces all (no greedy in original)
         new_fit = self._evaluate_population(new_pos)
         pop     = np.hstack([new_pos, new_fit[:, None]])
-        return pop, n, {}
+        return pop, n, {"operator_labels": operator_labels}

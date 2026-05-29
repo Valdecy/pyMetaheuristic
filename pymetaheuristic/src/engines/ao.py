@@ -55,24 +55,30 @@ class AOEngine(PortedPopulationEngine):
         y_sp  = r_ * np.cos(phi)
 
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             levy  = _levy_ao(dim)
             if t <= (2.0 / 3.0) * T:               # Exploration (Eqs. 3–5)
                 if np.random.random() < 0.5:        # Eq. 3
                     pos = best_pos * (1.0 - t / T) + np.random.random() * (x_mean - best_pos)
+                    attempted_labels[i] = "ao.high_soar_vertical_stoop"
                 else:                               # Eq. 5
                     j   = np.random.choice([k for k in range(n) if k != i])
                     pos = best_pos * levy + pop[j, :-1] + np.random.random() * (y_sp - x_sp)
+                    attempted_labels[i] = "ao.contour_flight_exploration"
             else:                                    # Exploitation (Eqs. 13–14)
                 if np.random.random() < 0.5:        # Eq. 13
                     pos = alpha * (best_pos - x_mean) - np.random.random() * (
                         np.random.random() * self._span + self._lo) * delta
+                    attempted_labels[i] = "ao.low_flight_attack"
                 else:                               # Eq. 14
                     pos = QF * best_pos - (g2 * pop[i, :-1] * np.random.random()) - g2 * levy + np.random.random() * g1
+                    attempted_labels[i] = "ao.walk_and_grab_prey"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

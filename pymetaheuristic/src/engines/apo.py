@@ -34,6 +34,7 @@ class APOEngine(PortedPopulationEngine):
         ri_set = set(ri)
 
         new_pop = pop[:, :-1].copy()
+        attempted_labels = ["carryover"] * n
 
         pah = 0.5 * (1 + np.cos(t / max_iter * np.pi))
         f = np.random.random() * (1 + np.cos(t / max_iter * np.pi))
@@ -44,12 +45,14 @@ class APOEngine(PortedPopulationEngine):
                 pdr = 0.5 * (1 + np.cos((1 - (i+1)/n) * np.pi))
                 if np.random.random() < pdr:
                     new_pop[i] = np.random.uniform(lo, hi)
+                    attempted_labels[i] = "apo.dormancy_random_restart"
                 else:
                     flag = np.random.choice([-1, 1])
                     Mr = np.zeros(d); Mr[np.random.permutation(d)[:max(1, int(np.ceil(np.random.random()*d)))]] = 1
                     new_pop[i] = np.clip(
                         pop[i, :-1] + flag * np.random.random() * np.random.uniform(lo, hi) * Mr,
                         lo, hi)
+                    attempted_labels[i] = "apo.dormancy_local_perturbation"
             else:
                 j = np.random.randint(n)
                 if np.random.random() < pah:
@@ -61,6 +64,7 @@ class APOEngine(PortedPopulationEngine):
                     epn = wa * (pop[km, :-1] - pop[kp, :-1])
                     new_pop[i] = np.clip(
                         pop[i, :-1] + f * (pop[j, :-1] - pop[i, :-1] + epn) * Mf, lo, hi)
+                    attempted_labels[i] = "apo.foraging_reproduction_update"
                 else:
                     km = max(0, i-1); kp = min(n-1, i+1)
                     wh = np.exp(-abs(pop[km, -1] / (pop[kp, -1] + 1e-300)))
@@ -69,8 +73,10 @@ class APOEngine(PortedPopulationEngine):
                     Xnear = (1 + flag * np.random.randint(1, max(2, d)) * (1 - t/max_iter)) * pop[i, :-1]
                     new_pop[i] = np.clip(
                         pop[i, :-1] + f * (Xnear - pop[i, :-1] + epn) * Mf, lo, hi)
+                    attempted_labels[i] = "apo.autotrophic_foraging_update"
 
         new_fits = self._evaluate_population(new_pop); evals += n
         mask = self._better_mask(new_fits, pop[:, -1])
         pop[mask] = np.hstack([new_pop, new_fits[:, None]])[mask]
-        return pop, evals, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

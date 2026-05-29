@@ -60,7 +60,7 @@ from .bfo                 import BFOEngine
 from .bipop_cmaes         import BIPOPCMAESEngine
 from .bka                 import BKAEngine
 from .bmo                 import BMOEngine
-from .bo_bonobo           import BonobOEngine
+from .bono                import BonobOEngine
 from .boa                 import BOAEngine
 from .bps                 import BPSEngine
 from .bro                 import BROEngine
@@ -444,7 +444,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     BWOEngine, 
     BacterialColonyOEngine, 
     BasinHoppingEngine, 
-    BonobOEngine, 
+    BonobOEngine,
     CAEngine, 
     CAT_SOEngine, 
     CCOEngine, 

@@ -20,30 +20,38 @@ class CROEngine(PortedPopulationEngine):
         n, dim = pop.shape[0], self.problem.dimension
         larvae_n = max(1, int(n * float(self._params.get("larvae_factor", 1.0))))
         larvae = []
+        larvae_labels = []
         elite = pop[self._order(pop[:, -1])[:max(2, n // 3)], :-1]
         for _ in range(larvae_n):
             if np.random.rand() < float(self._params.get("broadcast_prob", 0.5)) and elite.shape[0] > 1:
                 a, b = elite[np.random.choice(elite.shape[0], 2, replace=False)]
                 w = np.random.rand(dim)
                 child = w * a + (1.0 - w) * b
+                larva_label = "cro.broadcast_spawning_recombination"
             else:
                 parent = pop[np.random.randint(n), :-1]
                 child = parent.copy()
+                larva_label = "cro.brooding_clone_mutation"
             mask = np.random.rand(dim) < float(self._params.get("mutation_rate", 0.1))
             if not np.any(mask):
                 mask[np.random.randint(dim)] = True
             child[mask] += np.random.normal(0.0, 0.1 * self._span[mask])
             larvae.append(np.clip(child, self._lo, self._hi))
+            larvae_labels.append(larva_label)
         larvae_pop = self._pop_from_positions(np.asarray(larvae))
         evals = larvae_pop.shape[0]
-        for larva in larvae_pop:
+        operator_labels = ["carryover"] * n
+        for _li, larva in enumerate(larvae_pop):
             w = self._worst_index(pop[:, -1])
             if self._is_better(larva[-1], pop[w, -1]) or np.random.rand() < 0.05:
                 pop[w] = larva
+                operator_labels[int(w)] = larvae_labels[int(_li)]
         dep = np.random.rand(n) < float(self._params.get("depredation_prob", 0.05))
         if np.any(dep):
             worst = self._order(pop[:, -1])[-int(dep.sum()):]
             repl = self._pop_from_positions(self._new_positions(len(worst)))
             evals += len(worst)
             pop[worst] = repl
-        return pop, evals, {}
+            for _idx in worst:
+                operator_labels[int(_idx)] = "cro.depredation_random_reseeding"
+        return pop, evals, {"operator_labels": operator_labels}

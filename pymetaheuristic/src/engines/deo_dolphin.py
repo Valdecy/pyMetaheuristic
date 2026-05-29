@@ -39,6 +39,7 @@ class DEODolphinEngine(PortedPopulationEngine):
         best = pop[order[0], :-1].copy()
         current = pop.copy()
         evals = 0
+        operator_labels = ["carryover"] * n
         radius = float(self._params.get("search_radius", 0.25)) * (1.0 - progress)
         power = float(self._params.get("convergence_power", 2.0))
 
@@ -55,6 +56,16 @@ class DEODolphinEngine(PortedPopulationEngine):
             move = ref + np.random.uniform(-radius, radius, dim) * self._span
             candidate[gate] = move[gate]
             candidate[~gate] = xi[~gate] + np.random.randn(np.sum(~gate)) * radius * 0.5 * self._span[~gate]
+            elite_cut = max(1, int(np.ceil(0.25 * n)))
+            elite_refs = set(int(x) for x in order[:elite_cut])
+            if ref_idx in elite_refs and float(np.mean(gate)) >= 0.5:
+                attempted_label = "deo_dolphin.elite_reference_echo_guidance"
+            elif ref_idx in elite_refs:
+                attempted_label = "deo_dolphin.elite_jitter_echo_guidance"
+            elif float(np.mean(gate)) >= 0.5:
+                attempted_label = "deo_dolphin.peer_reference_echo_guidance"
+            else:
+                attempted_label = "deo_dolphin.peer_jitter_echo_guidance"
             candidate = 0.5 * candidate + 0.5 * best
             candidate = np.clip(candidate, self._lo, self._hi)
             fit = float(self.problem.evaluate(candidate))
@@ -62,4 +73,5 @@ class DEODolphinEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
-        return current, evals, {}
+                operator_labels[i] = attempted_label
+        return current, evals, {"operator_labels": operator_labels}

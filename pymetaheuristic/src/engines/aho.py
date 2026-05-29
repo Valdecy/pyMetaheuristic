@@ -37,6 +37,7 @@ class AHOEngine(PortedPopulationEngine):
         improved_any = False
         omega_scale = float(self._params.get("omega", 0.10)) * np.mean(self._span)
         best_idx = self._best_index(current[:, -1])
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             xi = current[i, :-1]
@@ -47,6 +48,7 @@ class AHOEngine(PortedPopulationEngine):
             theta0 = ((-1) ** b) * alpha * np.pi
             prey = xk.copy()
             mod_dims = np.random.choice(dim, size=(2 if abs(np.sin(theta0)) > 0.5 and dim > 1 else 1), replace=False)
+            attempted_label = "aho.double_shot_prey_projection" if len(mod_dims) > 1 else "aho.single_shot_prey_projection"
             prey[mod_dims[0]] += omega_scale * np.sin(2.0 * theta0)
             if len(mod_dims) > 1:
                 prey[mod_dims[1]] += omega_scale * (np.sin(theta0) ** 2)
@@ -59,6 +61,7 @@ class AHOEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
+                operator_labels[i] = attempted_label
                 improved_any = True
 
         stagnation = int(state.payload.get("stagnation", 0))
@@ -78,6 +81,7 @@ class AHOEngine(PortedPopulationEngine):
                 if self._is_better(fit, current[i, -1]):
                     current[i, :-1] = candidate
                     current[i, -1] = fit
+                    operator_labels[int(i)] = "aho.levy_stagnation_rescue"
             stagnation = 0
 
-        return current, evals, {"stagnation": stagnation}
+        return current, evals, {"stagnation": stagnation, "operator_labels": operator_labels}

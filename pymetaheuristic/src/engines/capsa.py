@@ -33,36 +33,45 @@ class CapSAEngine(PortedPopulationEngine):
         fol = np.random.randint(0, n, n)
         v += a1*(pbest-pop[:, :-1])*np.random.random((n,d)) + a2*(gbest-pop[:, :-1])*np.random.random((n,d))
         new_pos = pop[:, :-1].copy()
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             r = np.random.random()
             if i < n//2:
                 if np.random.random() >= 0.1:
                     if r <= 0.15:
                         new_pos[i] = gbest + bf*(v[i]**2*np.sin(2*np.random.random()*1.5))/g
+                        attempted_labels[i] = "capsa.jumping_global_motion"
                     elif r <= 0.30:
                         new_pos[i] = gbest + cr*bf*(v[i]**2*np.sin(2*np.random.random()*1.5))/g
+                        attempted_labels[i] = "capsa.long_jump_global_motion"
                     elif r <= 0.90:
                         new_pos[i] = pop[i, :-1] + v[i]
+                        attempted_labels[i] = "capsa.velocity_swing_update"
                     elif r <= 0.95:
                         new_pos[i] = gbest + bf*np.sin(np.random.random()*1.5)
+                        attempted_labels[i] = "capsa.best_swing_update"
                     else:
                         new_pos[i] = gbest + bf*(v[i]-v0[i])
+                        attempted_labels[i] = "capsa.velocity_memory_update"
                 else:
                     new_pos[i] = tau*(lo + np.random.random(d)*(hi-lo))
+                    attempted_labels[i] = "capsa.random_tree_leap"
             else:
                 eps = ((np.random.random()+2*np.random.random())-(3*np.random.random()))/(1+np.random.random())
                 fi = fol[i]
                 prev = max(0, i-1)
                 pos2 = gbest + 2*(pbest[fi]-pop[i, :-1])*eps + 2*(pop[i, :-1]-pbest[i])*eps
                 new_pos[i] = (pos2+new_pos[prev])/2
+                attempted_labels[i] = "capsa.group_following_update"
         v0 = v.copy()
         new_pos = np.clip(new_pos, lo, hi)
         new_fits = self._evaluate_population(new_pos); evals += n
         mask = self._better_mask(new_fits, pfit)
         pbest[mask] = new_pos[mask]; pfit[mask] = new_fits[mask]
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
         pop = np.hstack([new_pos, new_fits[:, None]])
         bi = self._best_index(pfit)
         if self._is_better(pfit[bi], float(self._evaluate_population(gbest[None])[0])):
             gbest = pbest[bi].copy()
         state.payload.update({"v":v,"v0":v0,"pbest":pbest,"pfit":pfit,"gbest":gbest})
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

@@ -26,15 +26,18 @@ class BOAEngine(PortedPopulationEngine):
         best_idx = self._best_index(pop[:, -1])
         best_pos = pop[best_idx, :-1].copy()
         S = pop[:, :-1].copy()
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             FP = sm * (pop[i, -1] ** pe)
             if np.random.random() < p:
                 dis = np.random.random() * np.random.random() * best_pos - pop[i, :-1]
                 S[i] = pop[i, :-1] + dis * FP
+                attempted_labels[i] = "boa.global_fragrance_attraction"
             else:
                 jk = np.random.choice(n, 2, replace=False)
                 dis = np.random.random()**2 * pop[jk[0], :-1] - pop[jk[1], :-1]
                 S[i] = pop[i, :-1] + dis * FP
+                attempted_labels[i] = "boa.local_fragrance_random_walk"
             S[i] = np.clip(S[i], lo, hi)
         new_fits = self._evaluate_population(S); evals += n
         mask = self._better_mask(new_fits, pop[:, -1])
@@ -42,4 +45,5 @@ class BOAEngine(PortedPopulationEngine):
         max_iter = self._params.get("max_iterations", 1000)
         sm = sm + 0.025 / (sm * max_iter)
         state.payload["sm"] = sm
-        return pop, evals, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, evals, {"operator_labels": operator_labels}

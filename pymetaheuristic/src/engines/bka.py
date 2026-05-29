@@ -23,24 +23,31 @@ class BKAEngine(PortedPopulationEngine):
         max_iter = self._params.get("max_iterations", 1000)
         order = self._order(pop[:, -1])
         leader_pos = pop[order[0], :-1].copy()
+        operator_labels = ["carryover"] * n
         for i in range(n):
             n_val = 0.05 * np.exp(-2 * (t / max_iter)**2)
             if p < r:
                 new_pos = pop[i, :-1] + n_val * (1 + np.sin(r)) * pop[i, :-1]
+                phase1_label = "bka.sine_soaring_update"
             else:
                 new_pos = pop[i, :-1] * (n_val * (2*np.random.random(d)-1) + 1)
+                phase1_label = "bka.random_soaring_update"
             new_pos = np.clip(new_pos, lo, hi)
             new_fit = float(self._evaluate_population(new_pos[None])[0]); evals += 1
             if self._is_better(new_fit, pop[i, -1]):
                 pop[i] = np.append(new_pos, new_fit)
+                operator_labels[i] = phase1_label
             m = 2 * np.sin(r + np.pi/2)
             s = np.random.randint(0, n)
             cauchy = np.tan((np.random.random(d) - 0.5) * np.pi)
             if pop[i, -1] < pop[s, -1]:
                 new_pos2 = np.clip(pop[i, :-1] + cauchy * (pop[i, :-1] - leader_pos), lo, hi)
+                phase2_label = "bka.peer_repulsion_cauchy_update"
             else:
                 new_pos2 = np.clip(pop[i, :-1] + cauchy * (leader_pos - m * pop[i, :-1]), lo, hi)
+                phase2_label = "bka.leader_attraction_cauchy_update"
             new_fit2 = float(self._evaluate_population(new_pos2[None])[0]); evals += 1
             if self._is_better(new_fit2, pop[i, -1]):
                 pop[i] = np.append(new_pos2, new_fit2)
-        return pop, evals, {}
+                operator_labels[i] = phase2_label
+        return pop, evals, {"operator_labels": operator_labels}

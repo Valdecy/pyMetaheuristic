@@ -54,6 +54,7 @@ class CEOCosmicEngine(PortedPopulationEngine):
 
         current = pop.copy()
         evals = 0
+        operator_labels = ["carryover"] * n
         fit_best = float(current[order[0], -1])
         denom = abs(fit_best) + 1.0e-12
 
@@ -77,10 +78,13 @@ class CEOCosmicEngine(PortedPopulationEngine):
             align = alpha_t * (best - xi) * np.random.randn(dim)
             candidate = xi + exploration + force + align
 
+            label = "ceo_cosmic.exploration_attraction_alignment"
             if np.random.rand() < Pglobal:
                 candidate = candidate + np.random.randn(dim) * Rc
+                label = "ceo_cosmic.global_collision_update"
             if np.random.rand() < Preson:
                 candidate = candidate + 0.01 * np.random.randn(dim) * self._span
+                label = "ceo_cosmic.resonance_refinement_update"
 
             candidate = np.clip(candidate, self._lo, self._hi)
             fit = float(self.problem.evaluate(candidate))
@@ -88,4 +92,5 @@ class CEOCosmicEngine(PortedPopulationEngine):
             if self._is_better(fit, current[i, -1]):
                 current[i, :-1] = candidate
                 current[i, -1] = fit
-        return current, evals, {}
+                operator_labels[i] = label
+        return current, evals, {"operator_labels": operator_labels}

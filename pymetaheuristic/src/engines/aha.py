@@ -29,6 +29,7 @@ class AHAEngine(PortedPopulationEngine):
         lo, hi = self._lo, self._hi
         vt = state.payload["visit_table"]
         evals = 0
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             # Direction vector
@@ -66,6 +67,7 @@ class AHAEngine(PortedPopulationEngine):
                 vt[i, i] = np.nan
                 if self._is_better(new_fit, pop[i, -1]):
                     pop[i] = np.append(new_pos, new_fit)
+                    operator_labels[i] = "aha.guided_foraging"
                     vt[i, target] = 0
                     col_max = np.nanmax(vt, axis=1)
                     col_max[i] = np.nan
@@ -84,6 +86,7 @@ class AHAEngine(PortedPopulationEngine):
                 vt[i, i] = np.nan
                 if self._is_better(new_fit, pop[i, -1]):
                     pop[i] = np.append(new_pos, new_fit)
+                    operator_labels[i] = "aha.territorial_foraging"
                     col_max = np.nanmax(vt, axis=1)
                     col_max[i] = np.nan
                     vt[:, i] = col_max + 1
@@ -97,6 +100,8 @@ class AHAEngine(PortedPopulationEngine):
             new_pos = np.random.uniform(lo, hi)
             new_fit = float(self._evaluate_population(new_pos[None])[0]); evals += 1
             pop[worst] = np.append(new_pos, new_fit)
+            if 0 <= worst < len(operator_labels):
+                operator_labels[worst] = "aha.migration"
             vt[worst] += 1
             col_max = np.nanmax(vt, axis=1)
             col_max[worst] = np.nan
@@ -104,4 +109,4 @@ class AHAEngine(PortedPopulationEngine):
             vt[worst, worst] = np.nan
 
         state.payload["visit_table"] = vt
-        return pop, evals, {}
+        return pop, evals, {"operator_labels": operator_labels}

@@ -45,6 +45,7 @@ class CHIOEngine(PortedPopulationEngine):
 
         new_pos = pop[:, :-1].copy()
         evals   = 0
+        attempted_labels = ["carryover"] * n
         mean_fit = float(np.mean(pop[:, -1]))
 
         for i in range(n):
@@ -55,25 +56,30 @@ class CHIOEngine(PortedPopulationEngine):
                     if len(infected_idx):
                         k = np.random.choice(infected_idx)
                         pos[j] += np.random.random() * (pop[i, j] - pop[k, j])
+                        attempted_labels[i] = "chio.infected_contact_update"
                 elif r < 2.0 * brr / 3.0:                  # susceptible contact
                     if len(susceptible_idx):
                         k = np.random.choice(susceptible_idx)
                         pos[j] += np.random.random() * (pop[i, j] - pop[k, j])
+                        attempted_labels[i] = "chio.susceptible_contact_update"
                 elif r < brr:                               # immune contact
                     if len(immune_idx):
                         k_idx = immune_idx[np.argmin(pop[immune_idx, -1]) if self.problem.objective=="min"
                                            else np.argmax(pop[immune_idx, -1])]
                         pos[j] += np.random.random() * (pop[i, j] - pop[k_idx, j])
+                        attempted_labels[i] = "chio.immune_contact_update"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos); evals += n
+        operator_labels = ["carryover"] * n
         for i in range(n):
             if self._is_better(float(new_fit[i]), float(pop[i, -1])):
                 pop[i, :-1] = new_pos[i]; pop[i, -1] = new_fit[i]
+                operator_labels[i] = attempted_labels[i]
                 # Become infected if previously susceptible and above-average
                 if imm[i] == 0 and not self._is_better(float(pop[i, -1]), mean_fit):
                     imm[i] = 1; age[i] = 1
             else:
                 age[i] += 1
 
-        return pop, evals, {"immunity": imm, "age": age}
+        return pop, evals, {"immunity": imm, "age": age, "operator_labels": operator_labels}

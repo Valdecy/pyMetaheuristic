@@ -100,6 +100,7 @@ class AOOEngine(PortedPopulationEngine):
         levy = self._levy_matrix(n, dim, self._levy_beta)
         amplitude = self._bound_amplitude()
         new_positions = np.empty((n, dim), dtype=float)
+        operator_labels = ["carryover"] * n
 
         period = max(1, int(round(n / 10.0)))
         x_mean = pop[:, :-1].mean(axis=0)
@@ -110,14 +111,18 @@ class AOOEngine(PortedPopulationEngine):
                 one_based = i + 1
                 if one_based % period == 0:
                     pos = x_mean + wind
+                    operator_labels[i] = "aoo.mean_wind_animation_update"
                 elif one_based % period == 1:
                     pos = best + wind
+                    operator_labels[i] = "aoo.best_wind_animation_update"
                 else:
                     pos = pop[i, :-1] + wind
+                    operator_labels[i] = "aoo.self_wind_animation_update"
             elif np.random.random() > 0.5:
                 a = amplitude - np.abs(amplitude * progress * math.sin(2.0 * math.pi * np.random.random()))
                 roll = ((mass[i] * elasticity[i] + length[i] ** 2) / max(1, dim)) * np.random.uniform(-a, a, dim)
                 pos = best + roll + c * levy[i, :] * best
+                operator_labels[i] = "aoo.rolling_levy_animation_update"
             else:
                 k = 0.5 + 0.5 * np.random.random()
                 b = amplitude - np.abs(amplitude * progress * math.cos(2.0 * math.pi * np.random.random()))
@@ -134,9 +139,10 @@ class AOOEngine(PortedPopulationEngine):
                     * np.random.uniform(-b, b, dim)
                 )
                 pos = best + jump + c * levy[i, :] * best
+                operator_labels[i] = "aoo.projectile_jump_animation_update"
             new_positions[i, :] = np.clip(pos, self._lo, self._hi)
 
         new_fitness = self._evaluate_population(new_positions)
         pop[:, :-1] = new_positions
         pop[:, -1] = new_fitness
-        return pop, int(n), {}
+        return pop, int(n), {"operator_labels": operator_labels}

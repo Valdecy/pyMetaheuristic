@@ -34,6 +34,7 @@ class ARSEngine(BaseEngine):
 
     def step(self, state):
         pop=state.payload["population"]; ss=state.payload["step_size"]; thr=state.payload["threshold"]
+        operator_labels=["carryover"]*self._n
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         t=state.step
         # small step
@@ -55,15 +56,17 @@ class ARSEngine(BaseEngine):
             if pop_step[i,-1]<pop[i,-1] or pop_large[i,-1]<pop[i,-1]:
                 if pop_large[i,-1]<pop_step[i,-1]:
                     pop[i,:]=pop_large[i,:]; ss[i,:]=adj[i,:]
+                    operator_labels[i]="ars.large_step"
                 else:
                     pop[i,:]=pop_step[i,:]
+                    operator_labels[i]="ars.small_step"
                 thr[i]=0
             else:
                 thr[i]+=1
                 if thr[i]>=self._imt: thr[i]=0; ss[i,:]/=self._f2
         bi=np.argmin(pop[:,-1])
         state.step+=1; state.evaluations+=self._n*2
-        state.payload=dict(population=pop,step_size=ss,threshold=thr)
+        state.payload=dict(population=pop,step_size=ss,threshold=thr,operator_labels=operator_labels)
         if self.problem.is_better(float(pop[bi,-1]),state.best_fitness):
             state.best_fitness=float(pop[bi,-1]); state.best_position=pop[bi,:-1].tolist()
         return state

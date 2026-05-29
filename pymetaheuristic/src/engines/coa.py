@@ -32,6 +32,7 @@ class COAEngine(PortedPopulationEngine):
         ps       = 1.0 / nc          # probability of social condition
         p_leave  = 0.005 * nc ** 2   # leaving probability
         evals    = 0
+        operator_labels = ["carryover"] * n
 
         # Split into packs
         indices = np.arange(n)
@@ -51,14 +52,22 @@ class COAEngine(PortedPopulationEngine):
             for li, i in enumerate(pack_idx):
                 others = [x for x in range(len(pack_idx)) if x != li]
                 rc1, rc2 = np.random.choice(others, 2, replace=False)
-                pos = pop[i, :-1] + np.random.random() * (alpha_pos - pop[pack_idx[rc1], :-1]) \
-                                  + np.random.random() * (tendency  - pop[pack_idx[rc2], :-1])
+                r_alpha = np.random.random()
+                r_tendency = np.random.random()
+                alpha_component = r_alpha * (alpha_pos - pop[pack_idx[rc1], :-1])
+                tendency_component = r_tendency * (tendency - pop[pack_idx[rc2], :-1])
+                pos = pop[i, :-1] + alpha_component + tendency_component
                 new_pos[li] = np.clip(pos, self._lo, self._hi)
+                if float(np.linalg.norm(alpha_component)) >= float(np.linalg.norm(tendency_component)):
+                    operator_labels[int(i)] = "coa.alpha_social_condition_update"
+                else:
+                    operator_labels[int(i)] = "coa.tendency_social_condition_update"
 
             new_fit = self._evaluate_population(new_pos); evals += len(pack_idx)
             for li, i in enumerate(pack_idx):
                 if self._is_better(float(new_fit[li]), float(pop[i, -1])):
                     pop[i, :-1] = new_pos[li]; pop[i, -1] = new_fit[li]
+                    # keep the branch-specific label assigned when the candidate was generated
 
             # Pup birth (Eq. 7)
             id_dad, id_mom = np.random.choice(len(pack_idx), 2, replace=False)
@@ -72,6 +81,7 @@ class COAEngine(PortedPopulationEngine):
             if self._is_better(pup_fit, float(pop[worst_local, -1])):
                 oldest = pack_idx[np.argmax(ages[pack_idx])]
                 pop[oldest, :-1] = pup; pop[oldest, -1] = pup_fit
+                operator_labels[int(oldest)] = "coa.pup_birth_replacement"
                 ages[oldest] = 0
 
         # Migration between packs
@@ -81,6 +91,7 @@ class COAEngine(PortedPopulationEngine):
                 i1 = packs[p1][np.random.randint(len(packs[p1]))]
                 i2 = packs[p2][np.random.randint(len(packs[p2]))]
                 pop[[i1, i2]] = pop[[i2, i1]]
+                operator_labels[int(i1)], operator_labels[int(i2)] = "coa.migration_exchange", "coa.migration_exchange"
 
         ages += 1
-        return pop, evals, {"ages": ages, "n_packs": n_packs, "nc": nc}
+        return pop, evals, {"ages": ages, "n_packs": n_packs, "nc": nc, "operator_labels": operator_labels}

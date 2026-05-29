@@ -34,6 +34,7 @@ class AFTEngine(PortedPopulationEngine):
         followers = np.random.randint(0, n, size=n)
 
         new_pos = np.empty_like(pop[:, :-1])
+        operator_labels = ["carryover"] * n
         for i in range(n):
             direction = np.sign(np.random.random() - 0.5)
             lb_i = lb[i, :-1]
@@ -43,10 +44,13 @@ class AFTEngine(PortedPopulationEngine):
             if np.random.random() >= 0.5:
                 if np.random.random() > Pp:
                     pos = best_pos + movement * direction
+                    operator_labels[i] = "aft.best_guided_tracking"
                 else:
                     pos = self._lo + Td * self._span * np.random.random(dim)
+                    operator_labels[i] = "aft.random_treasure_search"
             else:
                 pos = best_pos - movement * direction
+                operator_labels[i] = "aft.opposition_tracking"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
@@ -56,4 +60,4 @@ class AFTEngine(PortedPopulationEngine):
             if self._is_better(float(new_fit[i]), float(lb[i, -1])):
                 lb[i] = new_pop[i]
         pop = new_pop          # full replacement (original paper replaces all)
-        return pop, n, {"local_best": lb}
+        return pop, n, {"local_best": lb, "operator_labels": operator_labels}

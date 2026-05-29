@@ -70,6 +70,7 @@ class CFOAEngine(PortedPopulationEngine):
         best_cost = float(np.min(costs))
 
         new_fisher = fisher.copy()
+        attempted_labels = ["carryover"] * n
         pos_order = np.random.permutation(n)
 
         if state.evaluations < budget / 2.0:
@@ -102,6 +103,7 @@ class CFOAEngine(PortedPopulationEngine):
                         + (fisher[r] - fisher[current]) * exp_term
                         + np.sqrt(abs(exp_term)) * rs
                     )
+                    attempted_labels[current] = "cfoa.individual_foraging_update"
                     i += 1
                 else:
                     ids = pos_order[i : i + group_size]
@@ -112,6 +114,8 @@ class CFOAEngine(PortedPopulationEngine):
                         + np.random.random((group_size, 1)) * (aim - fisher[ids])
                         + (1.0 - 2.0 * eval_ratio) * (np.random.random((group_size, dim)) * 2.0 - 1.0)
                     )
+                    for _idx in ids:
+                        attempted_labels[int(_idx)] = "cfoa.group_foraging_update"
                     i += group_size
         else:
             ratio = max(0.0, 1.0 - eval_ratio)
@@ -120,10 +124,12 @@ class CFOAEngine(PortedPopulationEngine):
             for i in range(n):
                 W = np.abs(best_pos - center) * (int(np.random.randint(1, 4)) / 3.0) * sigma
                 new_fisher[i] = best_pos + np.random.normal(0.0, W, dim)
+                attempted_labels[i] = "cfoa.late_gaussian_capture_update"
 
         new_fisher = np.clip(new_fisher, self._lo, self._hi)
         new_fit = self._evaluate_population(new_fisher)
         mask = self._better_mask(new_fit, fit)
         pop[mask, :-1] = new_fisher[mask]
         pop[mask, -1] = new_fit[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

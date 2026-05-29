@@ -26,6 +26,7 @@ class AROEngine(PortedPopulationEngine):
 
         theta  = 2.0 * (1.0 - t / T)                          # Eq. 15 decay factor
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
 
         for i in range(n):
             # Sparse random direction vector R  (Eq. 2)
@@ -41,6 +42,7 @@ class AROEngine(PortedPopulationEngine):
                 j     = np.random.randint(n)
                 noise = np.round(0.5 * (0.05 + np.random.random())) * np.random.normal(0, 1)
                 pos   = pop[j, :-1] + R * (pop[i, :-1] - pop[j, :-1]) + noise
+                attempted_labels[i] = "aro.detour_foraging"
             else:                                              # Random hiding  (Eqs. 11–13)
                 k2    = max(1, int(np.ceil(np.random.random() * dim)))
                 idx2  = np.random.choice(dim, k2, replace=False)
@@ -48,6 +50,7 @@ class AROEngine(PortedPopulationEngine):
                 H     = np.random.normal(0, 1) * (t / T)      # Eq. 8
                 b     = pop[i, :-1] + H * gr * pop[i, :-1]    # Eq. 13
                 pos   = pop[i, :-1] + R * (np.random.random() * b - pop[i, :-1])  # Eq. 11
+                attempted_labels[i] = "aro.random_hiding"
 
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
@@ -55,4 +58,5 @@ class AROEngine(PortedPopulationEngine):
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

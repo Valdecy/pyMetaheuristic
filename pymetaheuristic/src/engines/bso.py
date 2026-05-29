@@ -53,6 +53,7 @@ class BSOEngine(PortedPopulationEngine):
 
         m_sol   = max(1, n // m)
         new_pos = np.empty_like(pop[:, :-1])
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             c_id = lbls[i]
             if np.random.random() < p2:               # single-cluster idea
@@ -62,23 +63,29 @@ class BSOEngine(PortedPopulationEngine):
                 if len(c_members):
                     if np.random.random() < p3:
                         pos = ctrs[c_id] + eps * np.random.normal(0, 1, dim)
+                        attempted_labels[i] = "bso.single_cluster_center_idea"
                     else:
                         j = np.random.choice(c_members)
                         pos = pop[j, :-1] + np.random.normal(0, 1, dim)
+                        attempted_labels[i] = "bso.single_cluster_member_idea"
                 else:
                     pos = ctrs[c_id] + eps * np.random.normal(0, 1, dim)
+                    attempted_labels[i] = "bso.empty_cluster_center_idea"
             else:                                     # two-cluster idea
                 c1, c2 = np.random.choice(m, 2, replace=False)
                 if np.random.random() < p4:
                     pos = 0.5*(ctrs[c1] + ctrs[c2]) + eps * np.random.normal(0, 1, dim)
+                    attempted_labels[i] = "bso.two_cluster_center_blend"
                 else:
                     j1 = np.random.choice(np.where(lbls == c1)[0]) if np.any(lbls==c1) else 0
                     j2 = np.random.choice(np.where(lbls == c2)[0]) if np.any(lbls==c2) else 0
                     pos = 0.5*(pop[j1, :-1] + pop[j2, :-1]) + eps * np.random.normal(0, 1, dim)
+                    attempted_labels[i] = "bso.two_cluster_member_blend"
             new_pos[i] = np.clip(pos, self._lo, self._hi)
 
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n, {}
+        operator_labels = [attempted_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n, {"operator_labels": operator_labels}

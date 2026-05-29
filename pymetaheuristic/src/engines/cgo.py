@@ -23,6 +23,8 @@ class CGOEngine(PortedPopulationEngine):
         best_pos = pop[order[0], :-1].copy()
         new_pos  = np.empty_like(pop[:, :-1])
         seeds_all= []
+        best_seed_labels = ["carryover"] * n
+        seed_labels = ["cgo.current_seed_attractor", "cgo.best_seed_attractor", "cgo.mean_group_seed_attractor", "cgo.dimension_mutation_seed"]
         for i in range(n):
             s1, s2, s3 = np.random.choice([k for k in range(n) if k != i], 3, replace=False)
             MG = (pop[s1,:-1] + pop[s2,:-1] + pop[s3,:-1]) / 3.0
@@ -52,8 +54,10 @@ class CGOEngine(PortedPopulationEngine):
             block_fits = all_fits[i*4:(i+1)*4]
             bi = self._best_index(block_fits)
             new_pos[i] = all_seeds[i*4+bi]
+            best_seed_labels[i] = seed_labels[int(bi)]
         new_fit = self._evaluate_population(new_pos)
         new_pop = np.hstack([new_pos, new_fit[:, None]])
         mask    = self._better_mask(new_fit, pop[:, -1])
         pop[mask] = new_pop[mask]
-        return pop, n + 4*n, {}
+        operator_labels = [best_seed_labels[i] if bool(mask[i]) else "carryover" for i in range(n)]
+        return pop, n + 4*n, {"operator_labels": operator_labels}

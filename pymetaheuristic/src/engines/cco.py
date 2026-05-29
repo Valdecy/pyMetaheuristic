@@ -173,29 +173,41 @@ class CCOEngine(PortedPopulationEngine):
         Ji_all = self._aggregation_values(pop)
         die = float(self._params.get("death_probability", 0.05)) * (1.0 - C)
         evals = 0
+        operator_labels = ["carryover"] * n
 
         for i in range(n):
             Ji = float(Ji_all[i])
             exhausted = fail_counts[i] > max(1, int(0.8 * n))
+            attempted_label = "cco.carryover"
             if exhausted or np.random.rand() < die:
                 trial = self._death_or_parasitic(pop, C)
+                attempted_label = "cco.death_or_parasitic_restart"
             elif C > 0.55:
                 op = np.random.rand()
                 if op < 0.40:
                     trial = self._compressed_space(pop, i, C)
+                    attempted_label = "cco.compressed_space_search"
                 elif op < 0.75:
                     trial = self._surround_search(pop, i, C, T_shrink, Ji, Jin)
+                    attempted_label = "cco.surround_search"
                 else:
                     trial = self._spherical_search(pop, i, C)
+                    attempted_label = "cco.spherical_search"
             elif C > 0.25:
                 if np.random.rand() < 0.5:
                     trial = self._transition(pop, i, C, T_shrink)
+                    attempted_label = "cco.transition_search"
                 else:
                     trial = self._surround_search(pop, i, C, T_shrink, Ji, Jin)
+                    attempted_label = "cco.surround_search"
             else:
                 trial = self._chaotic_predation(pop, i, C, T_shrink, Ji, Jin)
+                attempted_label = "cco.chaotic_predation"
 
+            before_fit = float(pop[i, -1])
             self._greedy_single(pop, i, trial, fail_counts)
+            if self.problem.is_better(float(pop[i, -1]), before_fit):
+                operator_labels[i] = attempted_label
             evals += 1
 
-        return pop, evals, {"fail_counts": fail_counts, "initial_aggregation": Jin}
+        return pop, evals, {"fail_counts": fail_counts, "initial_aggregation": Jin, "operator_labels": operator_labels}

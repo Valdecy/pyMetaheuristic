@@ -32,11 +32,14 @@ class ChameleonSAEngine(PortedPopulationEngine):
         mu=2.0*np.exp(-(alpha*t/max_iter)**beta_)
         ch=np.random.randint(0,n,n)
         pos=pop[:, :-1].copy()
+        operator_labels=["carryover"]*n
         for i in range(n):
             if np.random.random()>=0.1:
                 pos[i]+=p1*(pbest[ch[i]]-pos[i])*np.random.random()+p2*(gbest-pos[i])*np.random.random()
+                operator_labels[i]="chameleon_sa.social_pbest_gbest_update"
             else:
                 pos[i]=gbest+mu*((hi-lo)*np.random.random(d)+lo)*np.sign(np.random.random()-0.5)
+                operator_labels[i]="chameleon_sa.random_global_exploration"
         a_val=2590*(1-np.exp(-np.log(t+1)))
         v=omega*v+p1*(pbest-pos)*np.random.random()+p2*(gbest-pos)*np.random.random()
         pos=pos+(v**2-v0**2)/(2*max(a_val,1e-10))
@@ -49,5 +52,5 @@ class ChameleonSAEngine(PortedPopulationEngine):
         if self._is_better(pfit[bi],float(self._evaluate_population(gbest[None])[0])):
             gbest=pbest[bi].copy()
         pop=np.hstack([pos,new_fits[:,None]])
-        state.payload.update({"v":v,"v0":v0,"pbest":pbest,"pfit":pfit,"gbest":gbest})
-        return pop, evals, {}
+        state.payload.update({"v":v,"v0":v0,"pbest":pbest,"pfit":pfit,"gbest":gbest,"operator_labels":operator_labels})
+        return pop, evals, {"operator_labels": operator_labels}

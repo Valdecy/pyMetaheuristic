@@ -26,27 +26,33 @@ class BSAEngine(PortedPopulationEngine):
         order = self._order(pop[:, -1])
         best_pos = pop[order[0], :-1].copy()
         EPS = 1e-30
+        operator_labels = ["carryover"] * n
 
         if t % ff != 0:
             pos_mean = pop[:, :-1].mean(axis=0)
             fit_sum  = float(np.sum(pop[:, -1])) + EPS
             new_pos  = np.empty_like(pop[:, :-1])
+            attempted_labels = ["carryover"] * n
             for i in range(n):
                 prob = np.random.random() * 0.2 + pff
                 if np.random.random() < prob:
                     pos = pop[i, :-1] + c1*np.random.random()*(lb[i,:-1]-pop[i,:-1]) + c2*np.random.random()*(best_pos-pop[i,:-1])
+                    attempted_labels[i] = "bsa.foraging_flight_update"
                 else:
                     A1 = a1*np.exp(-n*float(pop[i,-1])/(EPS+fit_sum))
                     k  = np.random.choice([x for x in range(n) if x!=i])
                     t1 = (float(pop[i,-1])-float(pop[k,-1])) / (abs(float(pop[i,-1])-float(pop[k,-1]))+EPS)
                     A2 = a2*np.exp(t1*n*float(pop[k,-1])/(fit_sum+EPS))
                     pos = pop[i,:-1] + A1*np.random.random()*(pos_mean-pop[i,:-1]) + A2*np.random.uniform(-1,1)*(best_pos-pop[i,:-1])
+                    attempted_labels[i] = "bsa.vigilance_flight_update"
                 new_pos[i] = np.clip(pos, self._lo, self._hi)
             new_fit = self._evaluate_population(new_pos)
             new_pop  = np.hstack([new_pos, new_fit[:,None]])
             mask = self._better_mask(new_fit, pop[:,-1])
             pop[mask] = new_pop[mask]
             for i in range(n):
+                if bool(mask[i]):
+                    operator_labels[i] = attempted_labels[i]
                 if self._is_better(float(pop[i,-1]), float(lb[i,-1])): lb[i] = pop[i]
         else:
             fit_list = pop[:,-1]
@@ -57,9 +63,12 @@ class BSAEngine(PortedPopulationEngine):
                 fit = float(self.problem.evaluate(np.clip(pos,self._lo,self._hi)))
                 if self._is_better(fit, float(pop[i,-1])):
                     pop[i,:-1] = np.clip(pos,self._lo,self._hi); pop[i,-1] = fit
+                    operator_labels[i] = "bsa.scrounger_random_flight_update"
             for i in range(0, n//2):
                 pos = pop[i,:-1] + np.random.random(dim)*(best_pos - pop[i,:-1]) + np.random.uniform(-1,1,dim)*(pop[min_i,:-1]-pop[i,:-1])
                 pos = np.clip(pos,self._lo,self._hi)
                 fit = float(self.problem.evaluate(pos))
-                if self._is_better(fit, float(pop[i,-1])): pop[i,:-1]=pos; pop[i,-1]=fit
-        return pop, n, {"local_best": lb}
+                if self._is_better(fit, float(pop[i,-1])):
+                    pop[i,:-1]=pos; pop[i,-1]=fit
+                    operator_labels[i] = "bsa.producer_guided_flight_update"
+        return pop, n, {"local_best": lb, "operator_labels": operator_labels}

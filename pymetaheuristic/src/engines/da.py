@@ -54,6 +54,7 @@ class DAEngine(BaseEngine):
         if pop[bi,-1]<food[0,-1]: food[0,:]=pop[bi,:].copy()
         if pop[wi,-1]>enemy[0,-1]: enemy[0,:]=pop[wi,:].copy()
         evals=0
+        operator_labels = ["carryover"] * self._n
         for i in range(self._n):
             nbs_d=[]; nbs_p=[]
             for j in range(self._n):
@@ -70,12 +71,15 @@ class DAEngine(BaseEngine):
             for k in range(self.problem.dimension):
                 if (df>r).all():
                     if len(nbs_p)>1:
+                        operator_labels[i] = "da.neighbour_alignment_update"
                         dl[i,k]=w*dl[i,k]+np.random.rand()*(a*A[k]+c*C[k]+s*S[k])
                     else:
+                        operator_labels[i] = "da.levy_flight_exploration"
                         lf=0.01*np.random.rand()*self._sigma/abs(np.random.rand())**(1/self._beta)
                         pop[i,:-1]+=lf*pop[i,:-1]
                         dl[i,k]=np.clip(dl[i,k],lo[k],hi[k]); break
                 else:
+                    operator_labels[i] = "da.food_enemy_swarm_update"
                     dl[i,k]=(a*A[k]+c*C[k]+s*S[k]+f*F[k]+e*E[k])+w*dl[i,k]
                 dl[i,k]=np.clip(dl[i,k],-delta_max[k],delta_max[k])
                 pop[i,k]=np.clip(pop[i,k]+dl[i,k],lo[k],hi[k])
@@ -83,7 +87,7 @@ class DAEngine(BaseEngine):
         bi2=np.argmin(pop[:,-1])
         if pop[bi2,-1]<food[0,-1]: food[0,:]=pop[bi2,:].copy()
         best=food[0,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,deltaflies=dl,food=food,enemy=enemy)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,deltaflies=dl,food=food,enemy=enemy,operator_labels=operator_labels)
         if self.problem.is_better(float(best[-1]),state.best_fitness):
             state.best_fitness=float(best[-1]); state.best_position=best[:-1].tolist()
         return state

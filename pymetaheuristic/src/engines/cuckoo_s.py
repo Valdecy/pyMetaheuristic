@@ -30,16 +30,18 @@ class CUCKOO_SEngine(BaseEngine):
     def initialize(self):
         pop=self._init_pop(); bi=np.argmin(pop[:,-1])
         elite=pop[bi,:].copy()
-
         return EngineState(step=0,evaluations=self._n,
             best_position=elite[:-1].tolist(),best_fitness=float(elite[-1]),
             initialized=True,payload=dict(population=pop,elite=elite))
 
     def step(self, state):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
-        pop=state.payload["population"]; elite=state.payload["elite"]
+        pop=state.payload["population"].copy(); elite=state.payload["elite"]
         evals=0
         mean=self._lv
+        lineage = []
+
+        # --- Lévy flight phase ------------------------------------------
         for i in range(self._n):
             rb=np.random.randint(self._n)
             u1=np.random.uniform(-0.5*np.pi,0.5*np.pi); u2=np.random.uniform(-0.5*np.pi,0.5*np.pi)
@@ -47,22 +49,56 @@ class CUCKOO_SEngine(BaseEngine):
             x2=(np.cos((2-mean)*u2)/(-np.log(v)))**((2-mean)/(mean-1)); lv=x1*x2
             ns=np.clip(pop[rb,:-1]+self._av*lv*pop[rb,:-1]*np.random.rand(self.problem.dimension),lo,hi)
             nf=self.problem.evaluate(ns); evals+=1
-            if nf<pop[rb,-1]: pop[rb,:-1]=ns; pop[rb,-1]=nf
-        # abandon worst nests
+            pf = float(pop[rb,-1])
+            if nf < pf:
+                pop[rb,:-1]=ns; pop[rb,-1]=nf
+                operator = "cs_levy_flight"
+                cf = float(nf)
+            else:
+                operator = "cs_unsuccessful_attempt"
+                cf = pf
+            lineage.append({
+                "id": f"cs:levy:{i}",
+                "index": rb,
+                "operator": operator,
+                "parent_ids": [f"parent:{rb}"],
+                "parent_index": rb,
+                "parent_fitness": pf,
+                "child_fitness": cf,
+            })
+
+        # --- Nest abandonment phase --------------------------------------
         ab=int(np.ceil(self._dr*self._n))+1
         nlist=np.argsort(pop[:,-1])[-ab:]
         bj=np.random.choice(self._n); bk=np.random.choice(self._n)
         while bk==bj: bk=np.random.choice(self._n)
         for i in nlist:
+            pf = float(pop[i,-1])
             r=np.random.rand(self.problem.dimension)
             if np.random.rand()>self._dr:
                 pop[i,:-1]=np.clip(pop[i,:-1]+r*(pop[bj,:-1]-pop[bk,:-1]),lo,hi)
                 pop[i,-1]=self.problem.evaluate(pop[i,:-1]); evals+=1
+                cf = float(pop[i,-1])
+                operator = "cs_abandoned_nest"
+            else:
+                cf = pf
+                operator = "cs_abandoned_nest"
+            lineage.append({
+                "id": f"cs:abandon:{i}",
+                "index": i,
+                "operator": operator,
+                "parent_ids": [f"parent:{i}"],
+                "parent_index": i,
+                "parent_fitness": pf,
+                "child_fitness": cf,
+            })
+
         combined=np.vstack([pop,pop]); combined=combined[combined[:,-1].argsort()]
         pop=combined[:self._n,:]
         bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite)
+        state.step+=1; state.evaluations+=evals
+        state.payload=dict(population=pop, elite=elite, lineage=lineage)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state
@@ -76,7 +112,17 @@ class CUCKOO_SEngine(BaseEngine):
         denom    = np.linalg.norm(hi - lo) or 1.0
         centroid = pos.mean(axis=0)
         diversity = float(np.mean(np.linalg.norm(pos - centroid, axis=1)) / denom)
-        return dict(
+        lineage = state.payload.get("lineage", [])
+        contrib: dict[str, float] = {}
+        counts: dict[str, int] = {}
+        for rec in lineage:
+            op = str(rec.get("operator") or "cs_levy_flight")
+            pf = rec.get("parent_fitness")
+            cf = rec.get("child_fitness")
+            delta = (float(pf) - float(cf)) if (pf is not None and cf is not None) else 0.0
+            contrib[op] = contrib.get(op, 0.0) + delta
+            counts[op] = counts.get(op, 0) + 1
+        obs = dict(
             step=state.step,
             evaluations=state.evaluations,
             best_fitness=state.best_fitness,
@@ -84,15 +130,24 @@ class CUCKOO_SEngine(BaseEngine):
             std_fitness=float(np.std(fitness)),
             diversity=diversity,
         )
+        if contrib:
+            obs["operator_contributions"] = contrib
+            obs["operator_counts"] = counts
+            obs["evomapx_delta_f"] = "signed"
+            obs["evomapx_fidelity"] = "guessed_from_code_profiles_cuckoo_s"
+        return obs
+
     def get_best_candidate(self,state):
         return CandidateRecord(position=list(state.best_position),fitness=state.best_fitness,
             source_algorithm=self.algorithm_id,source_step=state.step,role="best")
+
     def finalize(self,state):
         return OptimizationResult(algorithm_id=self.algorithm_id,
             best_position=list(state.best_position),best_fitness=state.best_fitness,
             steps=state.step,evaluations=state.evaluations,
             termination_reason=state.termination_reason,capabilities=self.capabilities,
             metadata=dict(algorithm_name=self.algorithm_name,elapsed_time=state.elapsed_time))
+
     def get_population(self,state):
         pop=state.payload["population"]
         return [CandidateRecord(position=pop[i,:-1].tolist(),fitness=float(pop[i,-1]),

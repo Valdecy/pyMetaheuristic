@@ -125,17 +125,21 @@ class BPSEngine(PortedPopulationEngine):
         beta = beta_max * (1.0 - t / Tmax)
 
         trials = np.empty_like(current)
+        attempted_labels = ["carryover"] * n
         for i in range(n):
             cm = abs((t / Tmax) * (2.0 * np.random.rand() - 1.0))
             if cm > c0:
                 if stagnation[i] >= patience:
                     candidate = current[i] + np.random.uniform(-1.0, 1.0, dim) * (best - gamma * np.random.rand(dim) * self._span)
+                    attempted_labels[i] = "bps.long_distance_flight"
                 else:
                     j = self._rand_indices(n, i, 1)[0]
                     delta = np.random.uniform(-1.0, 1.0, dim)
                     candidate = current[i] + np.random.rand(dim) * (current[j] - current[i]) + beta * delta
+                    attempted_labels[i] = "bps.local_tree_movement"
             else:
                 candidate = current[i] + np.random.rand(dim) * (best - omega * np.random.rand(dim) * pmean)
+                attempted_labels[i] = "bps.best_tree_attraction"
             trials[i] = self._reflect_into_box(candidate)
 
         trial_fit = self._evaluate_population(trials)
@@ -145,4 +149,5 @@ class BPSEngine(PortedPopulationEngine):
         new_pop[improved, -1] = trial_fit[improved]
         stagnation[improved] = 0
         stagnation[~improved] += 1
-        return new_pop, n, {"stagnation": stagnation}
+        operator_labels = [attempted_labels[i] if bool(improved[i]) else "carryover" for i in range(n)]
+        return new_pop, n, {"stagnation": stagnation, "operator_labels": operator_labels}

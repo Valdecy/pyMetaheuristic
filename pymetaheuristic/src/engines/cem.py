@@ -36,78 +36,24 @@ class CEMEngine(BaseEngine):
             best_position=elite[:-1].tolist(),best_fitness=float(elite[-1]),
             initialized=True,payload=dict(population=pop,elite=elite,mean=mn,std=sd))
 
-    def _objective_improvement(self, before, after):
-        """Return objective-consistent improvement for EvoMapX telemetry."""
-        if before is None or after is None:
-            return 0.0
-        before = float(before)
-        after = float(after)
-        if self.problem.objective == "max":
-            return max(0.0, after - before)
-        return max(0.0, before - after)
-
     def step(self, state):
         lo=np.array(self.problem.min_values); hi=np.array(self.problem.max_values)
         pop=state.payload["population"]; elite=state.payload["elite"]
         evals=0
         mn=state.payload["mean"]; sd=state.payload["std"]
-        prev_best = None if state.best_fitness is None else float(state.best_fitness)
-        prev_mean = np.array(mn, dtype=float).copy()
-        prev_std = np.array(sd, dtype=float).copy()
         guess=state.payload["population"]
         gs=guess[guess[:,-1].argsort()].copy()
-
-        # CEM native operators: preserve elites, sample from the current
-        # distribution, select the elite set, then update the distribution.
         ns=np.random.normal(mn,sd,(self._n-self._ks,self.problem.dimension))
         ns=np.clip(ns,lo,hi)
-        if self._n > self._ks:
-            gs[self._ks:,:-1]=ns
+        gs[self._ks:,:-1]=ns
         gs[:,-1]=self._evaluate_population(gs[:,:-1]); evals+=self._n
-
-        sorted_idx = np.argsort(gs[:,-1]) if self.problem.objective == "min" else np.argsort(gs[:,-1])[::-1]
-        top=gs[sorted_idx[:self._ks],:-1]
-        best_idx = int(sorted_idx[0])
-        best_iter_fitness = float(gs[best_idx, -1])
-        if self._n > self._ks:
-            sampled_fitness = gs[self._ks:, -1]
-            best_sampled = float(np.min(sampled_fitness) if self.problem.objective == "min" else np.max(sampled_fitness))
-        else:
-            best_sampled = None
-
+        top=gs[np.argsort(gs[:,-1])[:self._ks],:-1]
         mn=self._lr*mn+(1-self._lr)*np.mean(top,axis=0)
         sd=self._lr*sd+(1-self._lr)*np.std(top,axis=0); sd[sd<0.005]=3
-
         pop=gs; state.payload["mean"]=mn; state.payload["std"]=sd
-        bi = int(np.argmin(pop[:,-1]) if self.problem.objective == "min" else np.argmax(pop[:,-1]))
+        bi=np.argmin(pop[:,-1])
         if self.problem.is_better(float(pop[bi,-1]),float(elite[-1])): elite=pop[bi,:].copy()
-
-        range_norm = float(np.linalg.norm(hi - lo)) or 1.0
-        mean_shift = float(np.linalg.norm(np.asarray(mn) - prev_mean) / range_norm)
-        std_before = float(np.linalg.norm(prev_std) / range_norm)
-        std_after = float(np.linalg.norm(np.asarray(sd)) / range_norm)
-        std_contraction = max(0.0, std_before - std_after)
-        operator_contributions = {
-            "cem_sampling": self._objective_improvement(prev_best, best_sampled),
-            "cem_elite_selection": self._objective_improvement(prev_best, best_iter_fitness),
-            # Distribution update is a state-space adaptation rather than a direct
-            # new objective evaluation. It is reported separately in metadata and
-            # kept as zero contribution in OAM/CDS to avoid mixing fitness gains
-            # with scale-change diagnostics.
-            "cem_distribution_update": 0.0,
-        }
-        evomapx = {
-            "operator_contributions": operator_contributions,
-            "operator": max(operator_contributions, key=operator_contributions.get),
-            "cem_best_sampled_fitness": best_sampled,
-            "cem_best_iteration_fitness": best_iter_fitness,
-            "cem_mean_shift": mean_shift,
-            "cem_std_contraction": std_contraction,
-            "cem_elite_size": int(self._ks),
-            "cem_sampled_size": int(max(0, self._n - self._ks)),
-        }
-
-        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,mean=mn,std=sd,evomapx=evomapx)
+        state.step+=1; state.evaluations+=evals; state.payload=dict(population=pop,elite=elite,mean=mn,std=sd)
         if self.problem.is_better(float(elite[-1]),state.best_fitness):
             state.best_fitness=float(elite[-1]); state.best_position=elite[:-1].tolist()
         return state
@@ -130,7 +76,6 @@ class CEMEngine(BaseEngine):
             diversity=diversity,
             cem_mean=state.payload["mean"].tolist() if hasattr(state.payload.get("mean", None), "tolist") else None,
             cem_std=state.payload["std"].tolist() if hasattr(state.payload.get("std", None), "tolist") else None,
-            **dict(state.payload.get("evomapx", {}) or {}),
         )
     def get_best_candidate(self,state):
         return CandidateRecord(position=list(state.best_position),fitness=state.best_fitness,
