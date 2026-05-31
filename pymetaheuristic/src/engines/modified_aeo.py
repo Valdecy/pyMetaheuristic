@@ -20,7 +20,7 @@ class ModifiedAEOEngine(BaseEngine):
 
     algorithm_id = 'modified_aeo'
     algorithm_name = 'Modified Artificial Ecosystem-Based Optimization (MAEO)'
-    family = 'human'
+    family = 'nature'
     _REFERENCE = {'variant': 'ModifiedAEO', 'base_family': 'AEO', 'doi': '10.1109/ACCESS.2020.2973351'}
     _DEFAULTS = {"population_size": 100}
     _STRATEGY = 'nature'

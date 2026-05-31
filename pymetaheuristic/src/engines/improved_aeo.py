@@ -20,7 +20,7 @@ class ImprovedAEOEngine(BaseEngine):
 
     algorithm_id = 'improved_aeo'
     algorithm_name = 'Improved Artificial Ecosystem-based Optimization (ImprovedAEO)'
-    family = 'human'
+    family = 'nature'
     _REFERENCE = {'variant': 'ImprovedAEO', 'base_family': 'AEO', 'doi': '10.1016/j.ijhydene.2020.06.256'}
     _DEFAULTS = {"population_size": 100}
     _STRATEGY = 'nature'
