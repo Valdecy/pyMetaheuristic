@@ -13,7 +13,7 @@ def _levy1d(d,beta=1.5):
 class LFDEngine(PortedPopulationEngine):
     algorithm_id   = "lfd"
     algorithm_name = "Lévy Flight Distribution"
-    family         = "swarm"
+    family         = "distribution"
     _REFERENCE     = {"doi": "10.1016/j.engappai.2020.103731"}
     capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True,
         supports_checkpoint=True, supports_framework_constraints=True, supports_diversity_metrics=True)

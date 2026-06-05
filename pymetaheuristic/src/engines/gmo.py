@@ -8,7 +8,7 @@ from .protocol import (BaseEngine, CandidateRecord, CapabilityProfile,
 class GMOEngine(BaseEngine):
     algorithm_id   = "gmo"
     algorithm_name = "Geometric Mean Optimizer"
-    family         = "swarm"
+    family         = "math"
     _REFERENCE     = {"doi": "10.1007/s00500-023-08202-z"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(size=15, epsilon=0.001)

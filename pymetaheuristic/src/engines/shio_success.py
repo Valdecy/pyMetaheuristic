@@ -17,7 +17,7 @@ class SHIOSuccessEngine(PortedPopulationEngine):
     algorithm_name = "Success History Intelligent Optimizer"
     family = "swarm"
     _REFERENCE = {
-        "doi": "10.1016/j.cma.2024.117272",
+        "doi": "10.1007/s11227-021-04093-9",
         "title": "Success History Intelligent Optimizer",
         "year": 2024,
     }

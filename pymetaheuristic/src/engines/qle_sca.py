@@ -20,7 +20,7 @@ class QleSCAEngine(BaseEngine):
 
     algorithm_id = 'qle_sca'
     algorithm_name = 'QLE Sine Cosine Algorithm (QLE-SCA)'
-    family = 'swarm'
+    family = 'math'
     _REFERENCE = {'variant': 'QleSCA', 'base_family': 'SCA', 'doi': '10.1016/j.eswa.2021.116417'}
     _DEFAULTS = {"population_size": 100}
     _STRATEGY = 'trig'

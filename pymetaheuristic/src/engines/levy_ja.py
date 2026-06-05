@@ -20,7 +20,7 @@ class LevyJaEngine(BaseEngine):
 
     algorithm_id = 'levy_ja'
     algorithm_name = 'Levy-flight Jaya Algorithm (LJA)'
-    family = 'swarm'
+    family = 'distribution'
     _REFERENCE = {'variant': 'LevyJA', 'base_family': 'JA', 'doi': '10.1016/j.eswa.2020.113902'}
     _DEFAULTS = {"population_size": 100}
     _STRATEGY = 'leader'

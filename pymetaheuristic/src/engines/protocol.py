@@ -368,6 +368,7 @@ class CapabilityProfile:
     supports_mixed:                 bool = False
     supports_async_messages:        bool = False
     supports_diversity_metrics:     bool = False
+    supports_snapshot_fit:          bool = False
 
 
 # ---------------------------------------------------------------------------

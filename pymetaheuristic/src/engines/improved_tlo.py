@@ -20,7 +20,7 @@ class ImprovedTLOEngine(BaseEngine):
 
     algorithm_id = 'improved_tlo'
     algorithm_name = 'Improved Teaching-Learning-based Optimization (ImprovedTLO)'
-    family = 'swarm'
+    family = 'human'
     _REFERENCE = {'variant': 'ImprovedTLO', 'base_family': 'TLO', 'doi': '10.1016/j.scient.2012.12.005'}
     _DEFAULTS = {"population_size": 100}
     _STRATEGY = 'human'

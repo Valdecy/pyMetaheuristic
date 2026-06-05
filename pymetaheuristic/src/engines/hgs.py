@@ -8,7 +8,7 @@ class HGSEngine(PortedPopulationEngine):
     """Hunger Games Search — hunger-weighted position update inspired by animal foraging drives."""
     algorithm_id   = "hgs"
     algorithm_name = "Hunger Games Search"
-    family         = "swarm"
+    family         = "nature"
     _REFERENCE     = {"doi": "10.1016/j.eswa.2021.114864"}
     capabilities   = CapabilityProfile(
         has_population=True, supports_candidate_injection=True,

@@ -8,7 +8,7 @@ from .protocol import (BaseEngine, CandidateRecord, CapabilityProfile,
 class TLBOEngine(BaseEngine):
     algorithm_id   = "tlbo"
     algorithm_name = "Teaching Learning Based Optimization"
-    family         = "swarm"
+    family         = "human"
     _REFERENCE     = {"doi": "10.1016/j.cad.2010.12.015"}
     capabilities   = CapabilityProfile(has_population=True)
     _DEFAULTS = dict(population_size=50)
