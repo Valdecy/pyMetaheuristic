@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **374 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **375 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -1170,7 +1170,7 @@ The table below summarizes the optimization engines currently available in the l
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit | EvoMapX |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No | `adam.candidate_generation`<br>`adam.selection`<br>`adam.search_direction`<br>`adam.step_acceptance`<br>`adam.initialization` |
-| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | No | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
+| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | Yes | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
 <details>
 <summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
@@ -1178,16 +1178,16 @@ The table below summarizes the optimization engines currently available in the l
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | Snapshot Fit | EvoMapX |
 | --- | --- | --- | --- | --- | --- | --- | --- |
 | [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | No | `adam.candidate_generation`<br>`adam.selection`<br>`adam.search_direction`<br>`adam.step_acceptance`<br>`adam.initialization` |
-| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | No | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
+| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | Yes | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
 | [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | Yes | `acgwo.selection`<br>`acgwo.adaptive_weighted_pack_update`<br>`acgwo.alpha_guidance_trial`<br>`acgwo.beta_guidance_trial`<br>`acgwo.delta_guidance_trial` |
-| [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | No | `adaptive_eo.selection`<br>`adaptive_eo.adaptive_local_refinement`<br>`adaptive_eo.equilibrium_pool_guided_update` |
+| [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | Yes | `adaptive_eo.selection`<br>`adaptive_eo.adaptive_local_refinement`<br>`adaptive_eo.equilibrium_pool_guided_update` |
 | [Adaptive Exploration State-Space Particle Swarm Optimization](https://doi.org/10.1016/j.swevo.2025.101868) | `aesspso` | swarm | Yes | Yes | No | Yes | `aesspso.adaptive_velocity_position_update` |
-| [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | No | `aiw_pso.position_update`<br>`aiw_pso.selection`<br>`aiw_pso.velocity_update`<br>`aiw_pso.elite_local_refinement` |
+| [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | Yes | `aiw_pso.position_update`<br>`aiw_pso.selection`<br>`aiw_pso.velocity_update`<br>`aiw_pso.elite_local_refinement` |
 | [Adaptive Random Search](https://doi.org/10.1002/nav.20422) | `ars` | trajectory | Yes | Yes | No | Yes | `ars.small_step`<br>`ars.large_step` |
 | [African Vultures Optimization Algorithm](https://doi.org/10.1016/j.cie.2021.107408) | `avoa` | swarm | Yes | Yes | No | Yes | `avoa.exploration_vulture_soaring`<br>`avoa.random_roost_exploration`<br>`avoa.convergent_competition_exploitation`<br>`avoa.levy_food_exploitation`<br>`avoa.aggressive_siege_exploitation`<br>`avoa.spiral_siege_exploitation` |
 | [Ali Baba and the Forty Thieves](https://doi.org/10.1007/s00521-021-06392-x) | `aft` | human | Yes | Yes | No | Yes | `aft.best_guided_tracking`<br>`aft.random_treasure_search`<br>`aft.opposition_tracking` |
 | [Anarchic Society Optimization](https://doi.org/10.1109/CEC.2011.5949940) | `aso` | swarm | Yes | Yes | No | Yes | `aso.anarchic_social_position_update` |
-| [Animated Oat Optimization Algorithm](https://doi.org/10.1016/j.knosys.2025.113589) | `aoo` | swarm | Yes | No | No | No | `aoo.mean_wind_animation_update`<br>`aoo.best_wind_animation_update`<br>`aoo.self_wind_animation_update`<br>`aoo.rolling_levy_animation_update`<br>`aoo.projectile_jump_animation_update` |
+| [Animated Oat Optimization Algorithm](https://doi.org/10.1016/j.knosys.2025.113589) | `aoo` | swarm | Yes | No | No | Yes | `aoo.mean_wind_animation_update`<br>`aoo.best_wind_animation_update`<br>`aoo.self_wind_animation_update`<br>`aoo.rolling_levy_animation_update`<br>`aoo.projectile_jump_animation_update` |
 | [Ant Colony Optimization (Continuous)](https://doi.org/10.1016/j.ejor.2006.06.046) | `acor` | swarm | Yes | Yes | No | Yes | `acor.archive_kernel_sampling_update` |
 | [Ant Colony Optimization](https://doi.org/10.1109/3477.484436) | `aco` | swarm | Yes | No | No | Yes | `aco.pheromone_weighted_perturbation_in_each_dimension` |
 | [Ant Lion Optimizer](https://doi.org/10.1016/j.advengsoft.2015.01.010) | `alo` | swarm | Yes | Yes | No | Yes | `alo.random_walk`<br>`alo.state_update`<br>`alo.candidate_generation`<br>`alo.selection`<br>`alo.combine` |
@@ -1234,11 +1234,11 @@ The table below summarizes the optimization engines currently available in the l
 | [Camel Algorithm](https://doi.org/10.13140/RG.2.2.21814.56649) | `camel` | swarm | Yes | Yes | No | Yes | `camel.endurance_temperature_update`<br>`camel.selection` |
 | [Capuchin Search Algorithm](https://doi.org/10.1007/s00521-020-05145-6) | `capsa` | swarm | Yes | Yes | No | Yes | `capsa.jumping_global_motion`<br>`capsa.long_jump_global_motion`<br>`capsa.velocity_swing_update`<br>`capsa.best_swing_update`<br>`capsa.velocity_memory_update`<br>`capsa.random_tree_leap`<br>`capsa.group_following_update` |
 | [Cat Swarm Optimization](https://doi.org/10.1007/978-3-540-36668-3_94) | `cat_so` | swarm | Yes | Yes | No | Yes | `cat_so.seeking_mode_expansive_copy_update`<br>`cat_so.seeking_mode_contracting_copy_update`<br>`cat_so.tracing_mode_velocity_update` |
-| [Catch Fish Optimization Algorithm](https://doi.org/10.1007/s10586-024-04618-w) | `cfoa` | swarm | Yes | No | No | No | `cfoa.individual_foraging_update`<br>`cfoa.group_foraging_update`<br>`cfoa.late_gaussian_capture_update` |
-| [Cauchy-Gaussian mutation and improved search strategy GWO](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | No | `cg_gwo.selection`<br>`cg_gwo.elite_local_refinement`<br>`cg_gwo.leader_guided_population_update` |
+| [Catch Fish Optimization Algorithm](https://doi.org/10.1007/s10586-024-04618-w) | `cfoa` | swarm | Yes | No | No | Yes | `cfoa.individual_foraging_update`<br>`cfoa.group_foraging_update`<br>`cfoa.late_gaussian_capture_update` |
+| [Cauchy-Gaussian mutation and improved search strategy GWO](https://doi.org/10.1038/s41598-022-23713-9) | `cg_gwo` | swarm | Yes | No | No | Yes | `cg_gwo.selection`<br>`cg_gwo.elite_local_refinement`<br>`cg_gwo.leader_guided_population_update` |
 | [Chameleon Swarm Algorithm](https://doi.org/10.1016/j.eswa.2021.114685) | `chameleon_sa` | swarm | Yes | Yes | No | Yes | `chameleon_sa.social_pbest_gbest_update`<br>`chameleon_sa.random_global_exploration` |
 | [Chaos Game Optimization](https://doi.org/10.1007/s10462-020-09867-w) | `cgo` | math | Yes | Yes | No | Yes | `cgo.current_seed_attractor`<br>`cgo.best_seed_attractor`<br>`cgo.mean_group_seed_attractor`<br>`cgo.dimension_mutation_seed` |
-| [Chaotic-based Grey Wolf Optimizer](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | No | `chaotic_gwo.selection`<br>`chaotic_gwo.elite_local_refinement`<br>`chaotic_gwo.leader_guided_population_update` |
+| [Chaotic-based Grey Wolf Optimizer](https://doi.org/10.1016/j.jcde.2017.02.005) | `chaotic_gwo` | swarm | Yes | No | No | Yes | `chaotic_gwo.selection`<br>`chaotic_gwo.elite_local_refinement`<br>`chaotic_gwo.leader_guided_population_update` |
 | [Cheetah Based Optimization](https://doi.org/10.1038/s41598-022-14338-z) | `cddo` | swarm | Yes | Yes | No | Yes | `cddo.cheetah_chase_position_update` |
 | [Cheetah Optimizer](https://doi.org/10.1038/s41598-022-14338-z) | `cdo` | swarm | Yes | Yes | No | Yes | `cdo.alpha_cheetah_attack_component`<br>`cdo.beta_cheetah_attack_component`<br>`cdo.gamma_cheetah_attack_component` |
 | [Chernobyl Disaster Optimizer](https://doi.org/10.1016/j.compstruc.2023.107488) | `cdo_chernobyl` | physics | Yes | Yes | No | Yes | `cdo_chernobyl.alpha_beta_gamma_radiation_update`<br>`cdo_chernobyl.cdo_chernobyl_position_update`<br>`cdo_chernobyl.selection` |
@@ -1247,7 +1247,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Chimp Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113338) | `choa` | swarm | Yes | Yes | No | Yes | `choa.chimp_hunting_position_update` |
 | [Chinese Pangolin Optimizer](https://doi.org/10.1007/s11227-025-07004-4) | `cpo` | swarm | Yes | No | No | Yes | `cpo.aroma_luring_trial`<br>`cpo.predation_feeding_trial` |
 | [Circle-Based Search Algorithm](https://doi.org/10.3390/math10101626) | `circle_sa` | math | Yes | Yes | No | Yes | `circle_sa.circle_position_update` |
-| [Circulatory System Based Optimization](https://doi.org/10.1016/j.egyr.2025.04.007) | `csbo` | swarm | Yes | Yes | No | Yes | `csbo.systolic`<br>`csbo.diastolic` |
+| [Circulatory System Based Optimization](https://doi.org/10.1016/j.egyr.2025.04.007) | `csbo` | nature | Yes | Yes | No | Yes | `csbo.systolic`<br>`csbo.diastolic` |
 | [Clonal Selection Algorithm](https://doi.org/10.1109/TEVC.2002.1011539) | `clonalg` | evolutionary | Yes | Yes | No | Yes | `clonalg.candidate_generation`<br>`clonalg.selection`<br>`clonalg.cloning`<br>`clonalg.hypermutation` |
 | [Coati Optimization Algorithm](https://doi.org/10.1016/j.knosys.2022.110011) | `coati_oa` | swarm | Yes | Yes | No | Yes | `coati_oa.candidate_generation`<br>`coati_oa.selection`<br>`coati_oa.behavioral_move` |
 | [Cockroach Swarm Optimization](https://doi.org/10.1109/ICCET.2010.5485993) | `cockroach_so` | swarm | Yes | Yes | No | Yes | `cockroach_so.dispersal`<br>`cockroach_so.replacement`<br>`cockroach_so.state_update` |
@@ -1269,13 +1269,13 @@ The table below summarizes the optimization engines currently available in the l
 | [Deep Sleep Optimiser](https://doi.org/10.1109/ACCESS.2023.3298105) | `dso` | human | Yes | Yes | No | Yes | `dso.deep_sleep_decay_update`<br>`dso.slow_wave_recovery_update` |
 | [Deer Hunting Optimization Algorithm](https://doi.org/10.1093/comjnl/bxy133) | `doa` | human | Yes | Yes | No | Yes | `doa.hunting`<br>`doa.search`<br>`doa.state_update`<br>`doa.exploitation_move`<br>`doa.replacement` |
 | [Dhole Optimization Algorithm](https://doi.org/10.1007/s10586-024-05005-1) | `dhole_oa` | swarm | Yes | No | No | Yes | `dhole_oa.searching_stage`<br>`dhole_oa.encircling_stage`<br>`dhole_oa.large_prey_attack`<br>`dhole_oa.small_prey_kill` |
-| [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | No | `jade.candidate_generation`<br>`jade.selection`<br>`jade.mutation`<br>`jade.crossover`<br>`jade.initialization` |
+| [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | Yes | `jade.candidate_generation`<br>`jade.selection`<br>`jade.mutation`<br>`jade.crossover`<br>`jade.initialization` |
 | [Differential Evolution MTS](https://doi.org/10.1109/CEC.2009.4983179) | `hde` | evolutionary | Yes | Yes | No | Yes | `hde.candidate_search`<br>`hde.selection`<br>`hde.differential_evolution_update` |
-| [Differential Evolution with Self-Adaptive Populations](https://doi.org/10.1007/s00500-005-0537-1) | `sap_de` | evolutionary | Yes | No | No | No | `sap_de.selection`<br>`sap_de.elite_local_refinement`<br>`sap_de.self_adaptive_parameter_de_update` |
+| [Differential Evolution with Self-Adaptive Populations](https://doi.org/10.1007/s00500-005-0537-1) | `sap_de` | evolutionary | Yes | No | No | Yes | `sap_de.selection`<br>`sap_de.elite_local_refinement`<br>`sap_de.self_adaptive_parameter_de_update` |
 | [Differential Evolution](https://doi.org/10.1023/A:1008202821328) | `de` | evolutionary | Yes | Yes | No | Yes | `de.differential_mutation_crossover_selection` |
 | [Dispersive Fly Optimization](https://doi.org/10.15439/2014F142) | `dfo` | swarm | Yes | Yes | No | Yes | `dfo.dispersive_fly_neighbour_update`<br>`dfo.elite_disturbance_update`<br>`dfo.selection` |
-| [Diversity enhanced Strategy based Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2022.109100) | `ds_gwo` | swarm | Yes | No | No | No | `ds_gwo.selection`<br>`ds_gwo.elite_local_refinement`<br>`ds_gwo.leader_guided_population_update` |
-| [Divine Religions Algorithm](https://doi.org/10.1007/s10586-024-04954-x) | `dra` | human | Yes | No | No | No | `dra.selection`<br>`dra.dialectic_interaction_update` |
+| [Diversity enhanced Strategy based Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2022.109100) | `ds_gwo` | swarm | Yes | No | No | Yes | `ds_gwo.selection`<br>`ds_gwo.elite_local_refinement`<br>`ds_gwo.leader_guided_population_update` |
+| [Divine Religions Algorithm](https://doi.org/10.1007/s10586-024-04954-x) | `dra` | human | Yes | No | No | Yes | `dra.selection`<br>`dra.dialectic_interaction_update` |
 | [Dolphin Echolocation Optimization](https://doi.org/10.1016/j.advengsoft.2016.05.002) | `deo_dolphin` | swarm | Yes | Yes | No | Yes | `deo_dolphin.elite_reference_echo_guidance`<br>`deo_dolphin.elite_jitter_echo_guidance`<br>`deo_dolphin.peer_reference_echo_guidance`<br>`deo_dolphin.peer_jitter_echo_guidance` |
 | [Dragonfly Algorithm](https://doi.org/10.1007/s00521-015-1920-1) | `da` | swarm | Yes | Yes | No | Yes | `da.neighbour_alignment_update`<br>`da.levy_flight_exploration`<br>`da.food_enemy_swarm_update` |
 | [Dream Optimization Algorithm](https://doi.org/10.1016/j.cma.2024.117718) | `dream_oa` | human | Yes | No | No | Yes | `dream_oa.dream_generation_refinement_update` |
@@ -1286,26 +1286,26 @@ The table below summarizes the optimization engines currently available in the l
 | [Earthworm Optimization Algorithm](https://doi.org/10.1504/IJBIC.2015.10004283) | `eoa` | swarm | Yes | Yes | No | Yes | `eoa.crossover`<br>`eoa.state_update`<br>`eoa.mutation`<br>`eoa.candidate_generation`<br>`eoa.selection`<br>`eoa.reproduction` |
 | [Ecological Cycle Optimizer](https://doi.org/10.48550/arXiv.2508.20458) | `ecological_cycle_o` | swarm | Yes | Yes | No | Yes | `ecological_cycle_o.selection`<br>`ecological_cycle_o.ecological_cycle_transition_update`<br>`ecological_cycle_o.eval_accept_group` |
 | [Educational Competition Optimizer](https://doi.org/10.3390/biomimetics10030176) | `eco` | human | Yes | Yes | No | Yes | `eco.primary_competition_update`<br>`eco.sine_cosine_learning_update`<br>`eco.best_weighted_learning_update`<br>`eco.levy_exam_update` |
-| [Eel and Grouper Optimizer](https://doi.org/10.1007/s10586-024-04545-w) | `eel_grouper_o` | swarm | Yes | No | No | No | `eel_grouper_o.eel_weighted_hunting_update`<br>`eel_grouper_o.grouper_weighted_hunting_update` |
+| [Eel and Grouper Optimizer](https://doi.org/10.1007/s10586-024-04545-w) | `eel_grouper_o` | swarm | Yes | No | No | Yes | `eel_grouper_o.eel_weighted_hunting_update`<br>`eel_grouper_o.grouper_weighted_hunting_update` |
 | [Efficient Global Optimization](https://doi.org/10.1023/A:1008306431147) | `ego` | distribution | Yes | Yes | No | Yes | `ego.expected_improvement_candidate_generation` |
-| [Efficient and Robust Grey Wolf Optimizer](https://doi.org/10.1007/s00500-019-03939-y) | `er_gwo` | swarm | Yes | No | No | No | `er_gwo.selection`<br>`er_gwo.elite_local_refinement`<br>`er_gwo.leader_guided_population_update` |
+| [Efficient and Robust Grey Wolf Optimizer](https://doi.org/10.1007/s00500-019-03939-y) | `er_gwo` | swarm | Yes | No | No | Yes | `er_gwo.selection`<br>`er_gwo.elite_local_refinement`<br>`er_gwo.leader_guided_population_update` |
 | [Egret Swarm Optimization Algorithm](https://doi.org/10.3390/biomimetics7040144) | `esoa` | swarm | Yes | Yes | No | Yes | `esoa.behavioral_move`<br>`esoa.selection`<br>`esoa.egret_sit_and_wait_update` |
 | [Electric Charged Particles Optimization](https://doi.org/10.1007/s10462-020-09890-x) | `ecpo` | physics | Yes | Yes | No | Yes | `ecpo.electric_charge_random_perturbation` |
-| [Electric Eel Foraging Optimization](https://doi.org/10.1016/j.eswa.2023.122200) | `eefo` | swarm | Yes | No | No | No | `eefo.interaction_migration`<br>`eefo.resting_area_update`<br>`eefo.levy_hunting_update`<br>`eefo.prey_capture_update` |
+| [Electric Eel Foraging Optimization](https://doi.org/10.1016/j.eswa.2023.122200) | `eefo` | swarm | Yes | No | No | Yes | `eefo.interaction_migration`<br>`eefo.resting_area_update`<br>`eefo.levy_hunting_update`<br>`eefo.prey_capture_update` |
 | [Electrical Storm Optimization](https://doi.org/10.3390/make7010024) | `eso` | physics | Yes | Yes | No | Yes | `eso.electric_storm_field_update` |
 | [Electromagnetic Field Optimization](https://doi.org/10.1016/j.swevo.2015.07.002) | `efo` | physics | Yes | Yes | No | Yes | `efo.electromagnetic_field_update`<br>`efo.random_field_reinitialization`<br>`efo.dimension_reset_mutation` |
 | [Elephant Herding Optimization](https://doi.org/10.1109/ISCBI.2015.8) | `eho` | swarm | Yes | Yes | No | Yes | `eho.long_range_clan_best_guided_update`<br>`eho.short_range_clan_best_guided_update`<br>`eho.matriarch_center_update`<br>`eho.separating_random_relocation` |
 | [Elk Herd Optimizer](https://doi.org/10.1007/s10462-023-10680-4) | `elk_ho` | swarm | Yes | Yes | No | Yes | `elk_ho.selection`<br>`elk_ho.family_mating_position_update` |
 | [Emperor Penguin Colony](https://doi.org/10.1016/j.knosys.2018.06.001) | `epc` | swarm | Yes | Yes | No | Yes | `epc.spiral_attraction_update`<br>`epc.thermal_mutation_update` |
 | [Energy Valley Optimizer](https://doi.org/10.1038/s41598-022-27344-y) | `evo` | physics | Yes | Yes | No | Yes | `evo.exploration`<br>`evo.state_update`<br>`evo.exploitation` |
-| [Enhanced Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.3027654) | `enhanced_aeo` | nature | Yes | No | No | No | `enhanced_aeo.selection`<br>`enhanced_aeo.ecosystem_producer_consumer_update`<br>`enhanced_aeo.enhanced_decomposition_refinement` |
-| [Enhanced Tug of War Optimization](https://doi.org/10.1016/j.procs.2020.03.063) | `enhanced_two` | physics | Yes | No | No | No | `enhanced_two.candidate_generation`<br>`enhanced_two.selection`<br>`enhanced_two.force_update`<br>`enhanced_two.state_update`<br>`enhanced_two.initialization` |
+| [Enhanced Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.3027654) | `enhanced_aeo` | nature | Yes | No | No | Yes | `enhanced_aeo.selection`<br>`enhanced_aeo.ecosystem_producer_consumer_update`<br>`enhanced_aeo.enhanced_decomposition_refinement` |
+| [Enhanced Tug of War Optimization](https://doi.org/10.1016/j.procs.2020.03.063) | `enhanced_two` | physics | Yes | No | No | Yes | `enhanced_two.candidate_generation`<br>`enhanced_two.selection`<br>`enhanced_two.force_update`<br>`enhanced_two.state_update`<br>`enhanced_two.initialization` |
 | [Enzyme Activity Optimizer](https://doi.org/10.1007/s11227-025-07052-w) | `eao` | nature | Yes | Yes | No | Yes | `eao.sinusoidal_best_substrate_update`<br>`eao.vector_scaled_differential_substrate_update`<br>`eao.scalar_scaled_differential_substrate_update` |
 | [Equilibrium Optimizer](https://doi.org/10.1016/j.knosys.2019.105190) | `eo` | physics | Yes | Yes | No | Yes | `eo.equilibrium_position_update` |
 | [Escape Algorithm](https://doi.org/10.1007/s10462-024-11008-6) | `esc` | human | Yes | Yes | No | Yes | `esc.escape_from_worst_update`<br>`esc.move_toward_best_update`<br>`esc.random_exploration_update` |
 | [Evolution Strategy (Mu + Lambda)](https://doi.org/10.1023/A:1015059928466) | `es` | evolutionary | Yes | Yes | No | Yes | `es.parent_survivor`<br>`es.large_step_mutation_offspring`<br>`es.small_step_mutation_offspring` |
 | [Evolutionary Programming](https://doi.org/10.1007/BF00175356) | `ep` | evolutionary | Yes | Yes | No | Yes | `ep.parent_survivor`<br>`ep.large_strategy_mutation_offspring`<br>`ep.small_strategy_mutation_offspring` |
-| [Expanded Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `ex_gwo` | swarm | Yes | No | No | No | `ex_gwo.selection`<br>`ex_gwo.elite_local_refinement`<br>`ex_gwo.leader_guided_population_update` |
+| [Expanded Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `ex_gwo` | swarm | Yes | No | No | Yes | `ex_gwo.selection`<br>`ex_gwo.elite_local_refinement`<br>`ex_gwo.leader_guided_population_update` |
 | [Exponential Distribution Optimizer](https://doi.org/10.1007/s10462-023-10403-9) | `edo` | math | Yes | Yes | No | Yes | `edo.distribution_update`<br>`edo.candidate_generation`<br>`edo.state_update` |
 | [Exponential-Trigonometric Optimization](https://doi.org/10.1016/j.cma.2024.117411) | `eto` | math | Yes | Yes | No | Yes | `eto.exponential_orbit_update`<br>`eto.trigonometric_orbit_update` |
 | [Extra-Trees Bayesian Optimization](https://doi.org/10.1007/s10994-006-6226-1) | `et_bo` | surrogate | No | No | No | No | `et_bo.update` |
@@ -1328,7 +1328,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Fox Optimizer](https://doi.org/10.1007/s10489-022-03533-0) | `fox` | swarm | Yes | Yes | No | Yes | `fox.prey_jump_exploitation`<br>`fox.current_to_random_walk_update`<br>`fox.best_radius_random_walk` |
 | [Frilled Lizard Optimization](https://doi.org/10.32604/cmc.2024.053189) | `flo` | swarm | Yes | Yes | No | Yes | `flo.update` |
 | [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | Yes | `ffa.fruitfly_smell_search_update` |
-| [Fuzzy Hierarchical Operator - Grey Wolf Optimizer](https://doi.org/10.1016/j.asoc.2017.03.048) | `fuzzy_gwo` | swarm | Yes | No | No | No | `fuzzy_gwo.selection`<br>`fuzzy_gwo.elite_local_refinement`<br>`fuzzy_gwo.leader_guided_population_update` |
+| [Fuzzy Hierarchical Operator - Grey Wolf Optimizer](https://doi.org/10.1016/j.asoc.2017.03.048) | `fuzzy_gwo` | swarm | Yes | No | No | Yes | `fuzzy_gwo.selection`<br>`fuzzy_gwo.elite_local_refinement`<br>`fuzzy_gwo.leader_guided_population_update` |
 | [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | Yes | `gska.gaining_sharing_knowledge_update` |
 | [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | No | `gp_bo.update` |
 | [Gazelle Optimization Algorithm](https://doi.org/10.1007/s00521-022-07854-6) | `gazelle_oa` | swarm | Yes | Yes | No | Yes | `gazelle_oa.brownian_foraging_update`<br>`gazelle_oa.levy_elite_transition_update`<br>`gazelle_oa.levy_foraging_update`<br>`gazelle_oa.random_patch_avoidance_update`<br>`gazelle_oa.peer_difference_escape_update` |
@@ -1336,12 +1336,12 @@ The table below summarizes the optimization engines currently available in the l
 | [Generalized Normal Distribution Optimizer](https://doi.org/10.1016/j.enconman.2020.113301) | `gndo` | math | Yes | Yes | No | Yes | `gndo.generalized_normal_local_update`<br>`gndo.difference_vector_global_update` |
 | [Genetic Algorithm](https://doi.org/10.7551/mitpress/1090.001.0001) | `ga` | evolutionary | Yes | Yes | No | Yes | `ga.candidate_generation`<br>`ga.selection`<br>`ga.breed`<br>`ga.mutate` |
 | [Genghis Khan Shark Optimizer](https://doi.org/10.1016/j.aei.2023.102210) | `gkso` | swarm | Yes | Yes | No | Yes | `gkso.genghis_khan_crossover_exploration`<br>`gkso.shark_hunting_pso_update` |
-| [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | swarm | Yes | Yes | No | Yes | `gmo.marketing_guidance_update` |
+| [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | math | Yes | Yes | No | Yes | `gmo.marketing_guidance_update` |
 | [Germinal Center Optimization](https://doi.org/10.1016/j.ifacol.2018.07.300) | `gco` | human | Yes | Yes | No | Yes | `gco.dark_zone_mutation_update` |
 | [Geyser Inspired Algorithm](https://doi.org/10.1007/s42235-023-00437-8) | `gea` | physics | Yes | Yes | No | Yes | `gea.neighbour_geyser_eruption_update`<br>`gea.pressure_random_eruption_update` |
 | [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo` | swarm | Yes | No | No | Yes | `gpoo.octopus_tentacle_prey_position_update` |
 | [Giant Trevally Optimizer](https://doi.org/10.1109/ACCESS.2022.3223388) | `gto` | swarm | Yes | Yes | No | Yes | `gto.candidate_search`<br>`gto.selection`<br>`gto.candidate_generation`<br>`gto.behavioral_move` |
-| [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | No | `gso_glider_snake.glider_snake_position_update` |
+| [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | Yes | `gso_glider_snake.glider_snake_position_update` |
 | [Glowworm Swarm Optimization](https://doi.org/10.1007/978-3-319-51595-3) | `gso` | swarm | Yes | Yes | No | Yes | `gso.glowworm_luciferin_movement_update` |
 | [Golden Jackal Optimizer](https://doi.org/10.1016/j.eswa.2022.116924) | `gjo` | swarm | Yes | Yes | No | Yes | `gjo.male_female_exploitation`<br>`gjo.male_female_exploration` |
 | [Gradient-Based Optimizer](https://doi.org/10.1007/s11831-022-09872-y) | `gbo` | math | Yes | Yes | No | Yes | `gbo.gradient_search_rule_update`<br>`gbo.local_escaping_operator_update` |
@@ -1364,30 +1364,30 @@ The table below summarizes the optimization engines currently available in the l
 | [Horse Herd Optimization Algorithm](https://doi.org/10.1016/j.knosys.2020.106711) | `horse_oa` | swarm | Yes | Yes | No | Yes | `horse_oa.dominant_stallion_update`<br>`horse_oa.experienced_horse_social_update`<br>`horse_oa.middle_rank_grazing_update`<br>`horse_oa.foal_exploration_update` |
 | [Human Conception Optimizer](https://doi.org/10.1038/s41598-022-25031-6) | `hco` | human | Yes | Yes | No | Yes | `hco.conception_growth_update` |
 | [Human Evolutionary Optimization Algorithm](https://doi.org/10.1016/j.eswa.2023.122638) | `heoa` | human | Yes | Yes | No | Yes | `heoa.elite_local_refinement`<br>`heoa.learner_levy_best_attraction`<br>`heoa.explorer_centroid_escape`<br>`heoa.follower_best_contraction`<br>`heoa.risk_taker_best_sampling` |
-| [Hunger Games Search](https://doi.org/10.1016/j.eswa.2021.114864) | `hgs` | swarm | Yes | Yes | No | Yes | `hgs.random_hunger_exploration`<br>`hgs.hunger_weighted_approach`<br>`hgs.hunger_weighted_retreat` |
+| [Hunger Games Search](https://doi.org/10.1016/j.eswa.2021.114864) | `hgs` | nature | Yes | Yes | No | Yes | `hgs.random_hunger_exploration`<br>`hgs.hunger_weighted_approach`<br>`hgs.hunger_weighted_retreat` |
 | [Hunting Search Algorithm](https://doi.org/10.1109/ICSCCW.2009.5379451) | `hus` | swarm | Yes | Yes | No | Yes | `hus.update` |
 | [Hybrid Bat Algorithm](https://doi.org/10.48550/arXiv.1303.6310) | `hba` | swarm | Yes | Yes | No | Yes | `hba.bat_frequency_movement`<br>`hba.de_local_search` |
-| [Hybrid Grey Wolf - Whale Optimization Algorithm](https://doi.org/10.1177/10775463211003402) | `gwo_woa` | swarm | Yes | No | No | No | `gwo_woa.selection`<br>`gwo_woa.elite_local_refinement`<br>`gwo_woa.leader_guided_population_update` |
-| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICACCS.2019.8728514) | `hi_woa` | swarm | Yes | No | No | No | `hi_woa.selection`<br>`hi_woa.elite_local_refinement`<br>`hi_woa.whale_position_update` |
+| [Hybrid Grey Wolf - Whale Optimization Algorithm](https://doi.org/10.1177/10775463211003402) | `gwo_woa` | swarm | Yes | No | No | Yes | `gwo_woa.selection`<br>`gwo_woa.elite_local_refinement`<br>`gwo_woa.leader_guided_population_update` |
+| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICACCS.2019.8728514) | `hi_woa` | swarm | Yes | No | No | Yes | `hi_woa.selection`<br>`hi_woa.elite_local_refinement`<br>`hi_woa.whale_position_update` |
 | [Hybrid Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `hsaba` | swarm | Yes | Yes | No | Yes | `hsaba.local_bat_random_walk`<br>`hsaba.velocity_bat_update`<br>`hsaba.differential_evolution_refinement` |
 | [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | No | Yes | Yes | `ipop_cmaes.update` |
 | [Imperialist Competitive Algorithm](https://doi.org/10.1109/CEC.2007.4425083) | `ica` | human | Yes | Yes | No | Yes | `ica.assimilation`<br>`ica.imperialist_revolution`<br>`ica.colony_revolution`<br>`ica.intra_empire_competition` |
-| [Improved Adaptive Grey Wolf Optimization](https://doi.org/10.1007/s10462-024-10821-3) | `iagwo` | swarm | Yes | No | No | No | `iagwo.adaptive_alpha_beta_delta_update` |
-| [Improved Artificial Ecosystem-based Optimization](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | nature | Yes | No | No | No | `improved_aeo.selection`<br>`improved_aeo.ecosystem_producer_consumer_update`<br>`improved_aeo.improved_decomposition_refinement` |
-| [Improved Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `iaro` | swarm | Yes | No | No | No | `iaro.improved_rabbit_global_update`<br>`iaro.elite_local_refinement`<br>`iaro.selection` |
+| [Improved Adaptive Grey Wolf Optimization](https://doi.org/10.1007/s10462-024-10821-3) | `iagwo` | swarm | Yes | No | No | Yes | `iagwo.adaptive_alpha_beta_delta_update` |
+| [Improved Artificial Ecosystem-based Optimization](https://doi.org/10.1016/j.ijhydene.2020.06.256) | `improved_aeo` | nature | Yes | No | No | Yes | `improved_aeo.selection`<br>`improved_aeo.ecosystem_producer_consumer_update`<br>`improved_aeo.improved_decomposition_refinement` |
+| [Improved Artificial Rabbits Optimization](https://doi.org/10.1016/j.engappai.2022.105082) | `iaro` | swarm | Yes | No | No | Yes | `iaro.improved_rabbit_global_update`<br>`iaro.elite_local_refinement`<br>`iaro.selection` |
 | [Improved Grey Wolf Optimizer](https://doi.org/10.1016/j.eswa.2020.113917) | `i_gwo` | swarm | Yes | Yes | No | Yes | `i_gwo.selection`<br>`i_gwo.alpha_guidance_trial`<br>`i_gwo.beta_guidance_trial`<br>`i_gwo.delta_guidance_trial`<br>`i_gwo.mean_leader_position_update` |
 | [Improved Kepler Optimization Algorithm](https://doi.org/10.1016/j.eswa.2025.128216) | `ikoa` | physics | Yes | Yes | No | Yes | `ikoa.selection`<br>`ikoa.assignment_matching_position_update`<br>`ikoa.improved_matching_refinement_update` |
 | [Improved L-SHADE](https://doi.org/10.1109/CEC.2016.7743922) | `ilshade` | evolutionary | Yes | Yes | No | Yes | `ilshade.linear_population_reduction_mutation_selection` |
 | [Improved Multi-Operator Differential Evolution](https://doi.org/10.1109/CEC48606.2020.9185577) | `imode` | evolutionary | Yes | Yes | No | Yes | `imode.candidate_generation`<br>`imode.selection`<br>`imode.state_update`<br>`imode.initialization`<br>`imode.mutation`<br>`imode.crossover` |
-| [Improved Opposite-based Learning Grey Wolf Optimizer](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | No | `iobl_gwo.selection`<br>`iobl_gwo.elite_local_refinement`<br>`iobl_gwo.leader_guided_population_update` |
-| [Improved Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `improved_qsa` | human | Yes | No | No | No | `improved_qsa.selection`<br>`improved_qsa.queue_business_one_update`<br>`improved_qsa.queue_business_two_refinement` |
-| [Improved Teaching-Learning-based Optimization](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | swarm | Yes | No | No | No | `improved_tlo.selection`<br>`improved_tlo.elite_local_refinement`<br>`improved_tlo.teacher_learner_population_update` |
+| [Improved Opposite-based Learning Grey Wolf Optimizer](https://doi.org/10.1007/s12652-020-02153-1) | `iobl_gwo` | swarm | Yes | No | No | Yes | `iobl_gwo.selection`<br>`iobl_gwo.elite_local_refinement`<br>`iobl_gwo.leader_guided_population_update` |
+| [Improved Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `improved_qsa` | human | Yes | No | No | Yes | `improved_qsa.selection`<br>`improved_qsa.queue_business_one_update`<br>`improved_qsa.queue_business_two_refinement` |
+| [Improved Teaching-Learning-based Optimization](https://doi.org/10.1016/j.scient.2012.12.005) | `improved_tlo` | human | Yes | No | No | Yes | `improved_tlo.selection`<br>`improved_tlo.elite_local_refinement`<br>`improved_tlo.teacher_learner_population_update` |
 | [Improved Whale Optimization Algorithm](https://doi.org/10.1016/j.jcde.2019.02.002) | `i_woa` | swarm | Yes | Yes | No | Yes | `i_woa.polynomial_breeding_refinement` |
-| [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | No | `incremental_gwo.selection`<br>`incremental_gwo.elite_local_refinement`<br>`incremental_gwo.leader_guided_population_update` |
+| [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | Yes | `incremental_gwo.selection`<br>`incremental_gwo.elite_local_refinement`<br>`incremental_gwo.leader_guided_population_update` |
 | [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | Yes | `iwo.seed_dispersal_colonization_update` |
 | [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | No | Yes | No | `ils.update` |
 | [Ivy Algorithm](https://doi.org/10.1016/j.knosys.2024.111850) | `ivya` | nature | Yes | Yes | No | Yes | `ivya.neighbor_growth_update`<br>`ivya.best_growth_update` |
-| [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | swarm | Yes | Yes | No | Yes | `jy.best_away_from_worst_update` |
+| [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | math | Yes | Yes | No | Yes | `jy.best_away_from_worst_update` |
 | [Jellyfish Search Optimizer](https://doi.org/10.1016/j.amc.2020.125535) | `jso` | swarm | Yes | Yes | No | Yes | `jso.ocean_current_swarm_motion_update` |
 | [Komodo Mlipir Algorithm](https://doi.org/10.1016/j.asoc.2021.108043) | `kma` | swarm | Yes | Yes | No | Yes | `kma.update` |
 | [Krill Herd Algorithm](https://doi.org/10.1016/j.asoc.2016.08.041) | `kha` | swarm | Yes | No | No | Yes | `kha.crossover`<br>`kha.diffusion`<br>`kha.mutation`<br>`kha.selection`<br>`kha.state_update`<br>`kha.induced_movement_update` |
@@ -1400,9 +1400,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Liver Cancer Algorithm](https://doi.org/10.1016/j.compbiomed.2023.107389) | `lca` | nature | Yes | Yes | No | Yes | `lca.best_cell_replication`<br>`lca.peer_lateral_invasion`<br>`lca.angiogenesis_mutation` |
 | [Lungs Performance-Based Optimization](https://doi.org/10.1016/j.cma.2023.116582) | `lpo` | nature | Yes | Yes | No | Yes | `lpo.lichen_growth_propagation_update` |
 | [Lyrebird Optimization Algorithm](https://doi.org/10.1016/j.cma.2023.116436) | `loa_lyrebird` | swarm | Yes | Yes | No | Yes | `loa_lyrebird.better_bird_imitation_update`<br>`loa_lyrebird.escape_step_update` |
-| [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | swarm | Yes | Yes | No | Yes | `lfd.levy_flight_search` |
-| [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | swarm | Yes | No | No | No | `levy_ja.candidate_search`<br>`levy_ja.selection`<br>`levy_ja.candidate_generation`<br>`levy_ja.initialization` |
-| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | No | `laro.candidate_search`<br>`laro.selection`<br>`laro.candidate_generation`<br>`laro.initialization` |
+| [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | distribution | Yes | Yes | No | Yes | `lfd.levy_flight_search` |
+| [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | distribution | Yes | No | No | Yes | `levy_ja.candidate_search`<br>`levy_ja.selection`<br>`levy_ja.candidate_generation`<br>`levy_ja.initialization` |
+| [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | Yes | `laro.candidate_search`<br>`laro.selection`<br>`laro.candidate_generation`<br>`laro.initialization` |
 | [Magnificent Frigatebird Optimization](https://doi.org/10.32604/cmc.2024.054317) | `mfo` | swarm | Yes | No | No | Yes | `mfo.exploration_move`<br>`mfo.exploitation_move`<br>`mfo.replacement` |
 | [Manta Ray Foraging Optimization](https://doi.org/10.1016/j.engappai.2019.103300) | `mrfo` | swarm | Yes | Yes | No | Yes | `mrfo.chain_foraging`<br>`mrfo.cyclone_random_foraging`<br>`mrfo.cyclone_best_foraging`<br>`mrfo.somersault_foraging` |
 | [Mantis Shrimp Optimization Algorithm](https://doi.org/10.3390/math13091500) | `mshoa` | swarm | Yes | Yes | No | Yes | `mshoa.smasher_attack_update`<br>`mshoa.spearer_circular_attack_update`<br>`mshoa.defense_position_update` |
@@ -1410,8 +1410,8 @@ The table below summarizes the optimization engines currently available in the l
 | [Market Game Optimization Algorithm](https://doi.org/10.1016/j.asoc.2024.112466) | `mgoa_market` | human | Yes | Yes | No | Yes | `mgoa_market.market_gradient_position_update` |
 | [Memetic Algorithm](https://doi.org/10.1007/978-3-540-92910-9_29) | `memetic_a` | evolutionary | Yes | Yes | No | Yes | `memetic_a.candidate_generation`<br>`memetic_a.selection`<br>`memetic_a.recombination`<br>`memetic_a.mutation`<br>`memetic_a.mutate`<br>`memetic_a.xhc` |
 | [Mirage-Search Optimizer](https://doi.org/10.1016/j.advengsoft.2025.103883) | `mso` | physics | Yes | Yes | No | Yes | `mso.superior_mirage_search_update`<br>`mso.inferior_mirage_search_update` |
-| [Modified Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.2973351) | `modified_aeo` | nature | Yes | No | No | No | `modified_aeo.selection`<br>`modified_aeo.ecosystem_producer_consumer_update`<br>`modified_aeo.modified_decomposition_refinement` |
-| [Modified Equilibrium Optimizer](https://doi.org/10.1016/j.asoc.2020.106542) | `modified_eo` | physics | Yes | No | No | No | `modified_eo.selection`<br>`modified_eo.modified_equilibrium_pool_update`<br>`modified_eo.modified_local_refinement` |
+| [Modified Artificial Ecosystem-Based Optimization](https://doi.org/10.1109/ACCESS.2020.2973351) | `modified_aeo` | nature | Yes | No | No | Yes | `modified_aeo.selection`<br>`modified_aeo.ecosystem_producer_consumer_update`<br>`modified_aeo.modified_decomposition_refinement` |
+| [Modified Equilibrium Optimizer](https://doi.org/10.1016/j.asoc.2020.106542) | `modified_eo` | physics | Yes | No | No | Yes | `modified_eo.selection`<br>`modified_eo.modified_equilibrium_pool_update`<br>`modified_eo.modified_local_refinement` |
 | [Monarch Butterfly Optimization](https://doi.org/10.1007/s00521-015-1923-y) | `mbo` | swarm | Yes | Yes | No | Yes | `mbo.monarch_migration_adjusting_update` |
 | [Monkey King Evolution V1](https://doi.org/10.1016/j.knosys.2016.01.009) | `mke` | evolutionary | Yes | Yes | No | Yes | `mke.king_learning_fluctuation_update`<br>`mke.peer_knowledge_difference_update` |
 | [Moss Growth Optimization](https://doi.org/10.1093/jcde/qwae080) | `moss_go` | nature | Yes | Yes | No | Yes | `moss_go.water_dispersal_growth_update` |
@@ -1432,12 +1432,13 @@ The table below summarizes the optimization engines currently available in the l
 | [Narwhal Optimizer](https://doi.org/10.1038/s41598-024-61278-8) | `nwoa` | swarm | Yes | Yes | No | Yes | `nwoa.exploration_move`<br>`nwoa.exploitation_move`<br>`nwoa.replacement` |
 | [Nelder-Mead Method](https://doi.org/10.1093/comjnl/7.4.308) | `nmm` | trajectory | Yes | Yes | No | Yes | `nmm.reflection_update`<br>`nmm.expansion_update`<br>`nmm.contraction_update`<br>`nmm.shrink_update` |
 | [Neural Network-Based Dimensionality Reduction Evolutionary Algorithm](https://doi.org/10.1109/TEVC.2024.3400398) | `nndrea_so` | evolutionary | Yes | Yes | No | Yes | `nndrea_so.nn_weight_de_stage`<br>`nndrea_so.solution_de_stage` |
+| [New Caledonian Crow Learning Algorithm](https://doi.org/10.1016/j.asoc.2020.106325) | `nccla` | swarm | Yes | No | No | Yes | `nccla.vertical_social_learning`<br>`nccla.horizontal_social_learning`<br>`nccla.individual_learning`<br>`nccla.juvenile_reinforcement`<br>`nccla.parent_reinforcement`<br>`nccla.parent_selection` |
 | [Nizar Optimization Algorithm](https://doi.org/10.1007/s11227-023-05579-4) | `noa` | math | Yes | Yes | No | Yes | `noa.newton_position_update` |
 | [Northern Goshawk Optimization](https://doi.org/10.1109/ACCESS.2021.3133286) | `ngo` | swarm | Yes | Yes | No | Yes | `ngo.phase_one_update`<br>`ngo.pursuit_exploitation_update`<br>`ngo.selection` |
 | [Nuclear Reaction Optimization](https://doi.org/10.1109/ACCESS.2019.2918406) | `nro` | physics | Yes | Yes | No | Yes | `nro.nuclear_fission_update`<br>`nro.nuclear_fusion_update`<br>`nro.selection` |
 | [Numeric Crunch Algorithm](https://doi.org/10.1007/s00500-023-08925-z) | `nca` | math | Yes | Yes | No | Yes | `nca.acceleration_hyperbolic_contraction_random_subset_components` |
-| [Opposition-based Coral Reefs Optimization](https://doi.org/10.2991/ijcis.d.190930.003) | `ocro` | evolutionary | Yes | No | No | No | `ocro.candidate_generation`<br>`ocro.selection`<br>`ocro.position_update`<br>`ocro.state_update`<br>`ocro.initialization` |
-| [Opposition-based learning Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2021.107139) | `ogwo` | swarm | Yes | No | No | No | `ogwo.selection`<br>`ogwo.elite_local_refinement`<br>`ogwo.leader_guided_population_update` |
+| [Opposition-based Coral Reefs Optimization](https://doi.org/10.2991/ijcis.d.190930.003) | `ocro` | evolutionary | Yes | No | No | Yes | `ocro.candidate_generation`<br>`ocro.selection`<br>`ocro.position_update`<br>`ocro.state_update`<br>`ocro.initialization` |
+| [Opposition-based learning Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2021.107139) | `ogwo` | swarm | Yes | No | No | Yes | `ogwo.selection`<br>`ogwo.elite_local_refinement`<br>`ogwo.leader_guided_population_update` |
 | [Optimal Foraging Algorithm](https://doi.org/10.1016/j.eswa.2022.117735) | `ofa` | swarm | Yes | Yes | No | Yes | `ofa.owl_neighbour_flight_update` |
 | [Osprey Optimization Algorithm](https://doi.org/10.3389/fmech.2022.1126450) | `ooa` | swarm | Yes | Yes | No | Yes | `ooa.hunting`<br>`ooa.search`<br>`ooa.selection`<br>`ooa.state_update`<br>`ooa.fish_carrying_local_update` |
 | [Parameter-Free Bat Algorithm](https://www.iztok-jr-fister.eu/static/publications/124.pdf) | `plba` | swarm | Yes | Yes | No | Yes | `plba.path_looping_bat_update` |
@@ -1449,14 +1450,14 @@ The table below summarizes the optimization engines currently available in the l
 | [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | Yes | `poa.prey_pursuit_update`<br>`poa.water_surface_winging_update` |
 | [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245) | `petio` | human | Yes | No | No | Yes | `petio.performance_evaluation_teaching_update` |
 | [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | Yes | `pko.diving_beating_rate_update`<br>`pko.crest_angle_foraging_update`<br>`pko.hovering_attack_update`<br>`pko.population_escape_update` |
-| [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4) | `pfa_polar_fox` | swarm | Yes | No | No | No | `pfa_polar_fox.exploitation`<br>`pfa_polar_fox.selection`<br>`pfa_polar_fox.state_update`<br>`pfa_polar_fox.experience_phase`<br>`pfa_polar_fox.leader_guided_refinement_update`<br>`pfa_polar_fox.leader_phase` |
+| [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4) | `pfa_polar_fox` | swarm | Yes | No | No | Yes | `pfa_polar_fox.exploitation`<br>`pfa_polar_fox.selection`<br>`pfa_polar_fox.state_update`<br>`pfa_polar_fox.experience_phase`<br>`pfa_polar_fox.leader_guided_refinement_update`<br>`pfa_polar_fox.leader_phase` |
 | [Polar Lights Optimizer](https://doi.org/10.1016/j.neucom.2024.128427) | `plo` | physics | Yes | Yes | No | Yes | `plo.aurora_global_local_update`<br>`plo.polar_light_collision_update` |
 | [Political Optimizer](https://doi.org/10.1016/j.knosys.2020.105709) | `political_o` | human | Yes | Yes | No | Yes | `political_o.candidate_generation`<br>`political_o.selection`<br>`political_o.parliamentary` |
 | [Poor and Rich Optimization Algorithm](https://doi.org/10.1016/j.engappai.2019.08.025) | `pro` | human | Yes | Yes | No | Yes | `pro.learning`<br>`pro.state_update`<br>`pro.candidate_generation`<br>`pro.selection` |
 | [Population-Based Incremental Learning](https://doi.org/10.1109/SSE62657.2024.00022) | `pbil` | distribution | No | No | No | No | `pbil.update` |
 | [Prairie Dog Optimization Algorithm](https://doi.org/10.1007/s00521-022-07530-9) | `pdo` | swarm | Yes | Yes | No | Yes | `pdo.prairie_dog_burrow_alarm_update` |
 | [Puma Optimizer](https://doi.org/10.1007/s10586-023-04221-5) | `puma_o` | swarm | Yes | Yes | No | Yes | `puma_o.update` |
-| [QLE Sine Cosine Algorithm](https://doi.org/10.1016/j.eswa.2021.116285) | `qle_sca` | swarm | Yes | No | No | No | `qle_sca.candidate_generation`<br>`qle_sca.selection`<br>`qle_sca.learning`<br>`qle_sca.state_update`<br>`qle_sca.initialization` |
+| [QLE Sine Cosine Algorithm](https://doi.org/10.1016/j.eswa.2021.116417) | `qle_sca` | math | Yes | No | No | Yes | `qle_sca.candidate_generation`<br>`qle_sca.selection`<br>`qle_sca.learning`<br>`qle_sca.state_update`<br>`qle_sca.initialization` |
 | [Quadratic Interpolation Optimization](https://doi.org/10.1016/j.cma.2023.116446) | `qio` | math | Yes | Yes | No | Yes | `qio.three_point_quadratic_interpolation`<br>`qio.two_point_reflection_interpolation` |
 | [Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `qsa` | human | Yes | Yes | No | Yes | `qsa.business1`<br>`qsa.business2`<br>`qsa.business3` |
 | [RIME-ice Algorithm](https://doi.org/10.1016/j.neucom.2023.02.010) | `rime` | physics | Yes | Yes | No | Yes | `rime.hard_rime_puncture_update` |
@@ -1483,7 +1484,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Search Space Independent Operator Based Deep Reinforcement Learning](https://www.ieee-jas.net/en/article/doi/10.1109/JAS.2025.125444) | `ssio_rl` | evolutionary | Yes | Yes | No | Yes | `ssio_rl.update` |
 | [Secretary Bird Optimization Algorithm](https://doi.org/10.1007/s10462-024-10729-y) | `sboa` | swarm | Yes | Yes | No | Yes | `sboa.update` |
 | [Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `saba` | swarm | Yes | Yes | No | Yes | `saba.self_adaptive_bat_update` |
-| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2005.1554904) | `sade` | evolutionary | Yes | No | No | No | `sade.selection`<br>`sade.adaptive_strategy_de_update`<br>`sade.elite_local_refinement` |
+| [Self-Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2005.1554904) | `sade` | evolutionary | Yes | No | No | Yes | `sade.selection`<br>`sade.adaptive_strategy_de_update`<br>`sade.elite_local_refinement` |
 | [Self-Adaptive Differential Evolution](https://doi.org/10.1109/TEVC.2006.872133) | `jde` | evolutionary | Yes | Yes | No | Yes | `jde.de_trial`<br>`jde.f_self_adaptation_trial`<br>`jde.cr_self_adaptation_trial`<br>`jde.f_cr_self_adaptation_trial` |
 | [Sequential Quadratic Programming](https://doi.org/10.1017/S0962492900002518) | `sqp` | math | No | No | No | No | `sqp.update` |
 | [Serval Optimization Algorithm](https://doi.org/10.3390/biomimetics7040204) | `serval_oa` | swarm | Yes | Yes | No | Yes | `serval_oa.hunting`<br>`serval_oa.selection`<br>`serval_oa.state_update` |
@@ -1491,7 +1492,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Siberian Tiger Optimization](https://doi.org/10.1109/ACCESS.2022.3229964) | `sto` | swarm | Yes | Yes | No | Yes | `sto.prey_hunting_update`<br>`sto.range_reduction_update` |
 | [Simple Optimization Algorithm](https://scispace.com/pdf/an-efficient-metaheuristic-algorithm-for-engineering-2vvsafbir9.pdf) | `sopt` | distribution | Yes | Yes | No | Yes | `sopt.statistical_population_selection_update` |
 | [Simulated Annealing](https://doi.org/10.1126/science.220.4598.671) | `sa` | trajectory | No | Yes | Yes | No | `sa.update` |
-| [Sine Cosine Algorithm](https://doi.org/10.1016/j.knosys.2015.12.022) | `sine_cosine_a` | swarm | Yes | Yes | No | Yes | `sine_cosine_a.sine_position_update`<br>`sine_cosine_a.cosine_position_update` |
+| [Sine Cosine Algorithm](https://doi.org/10.1016/j.knosys.2015.12.022) | `sine_cosine_a` | math | Yes | Yes | No | Yes | `sine_cosine_a.sine_position_update`<br>`sine_cosine_a.cosine_position_update` |
 | [Singer Optimization Algorithm](https://doi.org/10.22266/ijies2025.0630.09) | `singer_oa` | human | Yes | Yes | No | Yes | `singer_oa.imitation_mimicry_phase`<br>`singer_oa.creation_perturbation_phase` |
 | [Sinh Cosh Optimizer](https://doi.org/10.1016/j.knosys.2023.111081) | `scho` | math | Yes | Yes | No | Yes | `scho.scholar_chess_position_update` |
 | [Slime Mould Algorithm](https://doi.org/10.1016/j.future.2020.03.055) | `sma` | nature | Yes | Yes | No | Yes | `sma.random_dispersion_update`<br>`sma.best_weighted_oscillation_update`<br>`sma.contracting_vibration_update` |
@@ -1508,9 +1509,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Starfish Optimization Algorithm](https://doi.org/10.1007/s00521-024-10694-1) | `sfoa` | swarm | Yes | Yes | No | Yes | `sfoa.foraging`<br>`sfoa.state_update`<br>`sfoa.exploitation_move`<br>`sfoa.replacement`<br>`sfoa.exploration` |
 | [Steepest Descent](https://doi.org/10.1006/hmat.1996.2146) | `sd` | math | No | No | No | No | `sd.candidate_generation`<br>`sd.selection`<br>`sd.search_direction`<br>`sd.step_acceptance`<br>`sd.initialization` |
 | [Stellar Oscillator Optimization](https://doi.org/10.1007/s10586-024-04976-5) | `soo` | physics | Yes | Yes | No | Yes | `soo.selection`<br>`soo.1_oscillatory_position`<br>`soo.2_top_3_average_oscillatory` |
-| [Student Psychology Based Optimization](https://doi.org/10.1016/j.advengsoft.2020.102804) | `spbo` | swarm | Yes | Yes | No | Yes | `spbo.groups`<br>`spbo.selection`<br>`spbo.average_student_phase_update`<br>`spbo.best_student`<br>`spbo.excellent_student_phase_update` |
+| [Student Psychology Based Optimization](https://doi.org/10.1016/j.advengsoft.2020.102804) | `spbo` | human | Yes | Yes | No | Yes | `spbo.groups`<br>`spbo.selection`<br>`spbo.average_student_phase_update`<br>`spbo.best_student`<br>`spbo.excellent_student_phase_update` |
 | [Success-History Adaptive Differential Evolution](https://doi.org/10.1109/CEC.2014.6900380) | `shade` | evolutionary | Yes | Yes | No | Yes | `shade.success_history_mutation_crossover_selection` |
-| [Success-History Intelligent Optimizer](https://doi.org/10.1016/j.cma.2024.117272) | `shio_success` | swarm | Yes | Yes | No | Yes | `shio_success.best_history_guidance`<br>`shio_success.second_history_guidance`<br>`shio_success.third_history_guidance` |
+| [Success-History Intelligent Optimizer](https://doi.org/10.1007/s11227-021-04093-9) | `shio_success` | swarm | Yes | Yes | No | Yes | `shio_success.best_history_guidance`<br>`shio_success.second_history_guidance`<br>`shio_success.third_history_guidance` |
 | [Superb Fairy-wren Optimization Algorithm](https://doi.org/10.1007/s10586-024-04901-w) | `superb_foa` | swarm | Yes | Yes | No | Yes | `superb_foa.global_smell_random_update`<br>`superb_foa.levy_food_attraction`<br>`superb_foa.best_food_convergence` |
 | [Supply-Demand-Based Optimization](https://doi.org/10.1109/ACCESS.2019.2919408) | `supply_do` | human | Yes | Yes | No | Yes | `supply_do.quantity_equilibrium_update`<br>`supply_do.price_equilibrium_update` |
 | [Surrogate-Assisted Cooperative Co-Evolutionary Algorithm of Minamo II](https://doi.org/10.1007/978-3-319-97773-7_4) | `sacc_eam2` | evolutionary | Yes | Yes | No | Yes | `sacc_eam2.even_subcomponent_de_update`<br>`sacc_eam2.odd_subcomponent_de_update` |
@@ -1522,7 +1523,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Symbiotic Organisms Search](https://doi.org/10.1016/j.compstruc.2014.03.007) | `sos` | swarm | Yes | Yes | No | Yes | `sos.candidate_generation`<br>`sos.selection`<br>`sos.mutualism`<br>`sos.comensalism`<br>`sos.parasitism` |
 | [Tabu Search](https://doi.org/10.1287/ijoc.1.3.190) | `ts` | trajectory | No | No | No | No | `ts.update` |
 | [Tasmanian Devil Optimization](https://doi.org/10.1109/ACCESS.2022.3151641) | `tdo` | swarm | Yes | Yes | No | Yes | `tdo.exploration`<br>`tdo.state_update`<br>`tdo.hunting`<br>`tdo.exploitation` |
-| [Teaching Learning Based Optimization](https://doi.org/10.1016/j.cad.2010.12.015) | `tlbo` | swarm | Yes | Yes | No | Yes | `tlbo.teacher_phase`<br>`tlbo.learner_phase` |
+| [Teaching Learning Based Optimization](https://doi.org/10.1016/j.cad.2010.12.015) | `tlbo` | human | Yes | Yes | No | Yes | `tlbo.teacher_phase`<br>`tlbo.learner_phase` |
 | [Teamwork Optimization Algorithm](https://doi.org/10.3390/s21134567) | `toa` | human | Yes | Yes | No | Yes | `toa.stage_1_supervisor_guidance`<br>`toa.learning`<br>`toa.state_update`<br>`toa.candidate_generation`<br>`toa.selection` |
 | [Termite Life Cycle Optimizer](https://doi.org/10.1016/j.eswa.2022.119211) | `tlco` | swarm | Yes | Yes | No | Yes | `tlco.teacher_phase_update`<br>`tlco.learner_phase_update`<br>`tlco.selection` |
 | [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | Yes | `thro.throwing_race_update` |
@@ -1541,9 +1542,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Water Cycle Algorithm](https://doi.org/10.1016/j.compstruc.2012.07.010) | `wca` | nature | Yes | Yes | No | Yes | `wca.stream_toward_river`<br>`wca.stream_river_exchange`<br>`wca.river_toward_sea`<br>`wca.evaporation_raining` |
 | [Water Uptake and Transport in Plants](https://doi.org/10.1007/s00521-025-11228-z) | `wutp` | nature | Yes | Yes | No | Yes | `wutp.horizontal_water_transport_update` |
 | [Wave Optimization Algorithm](https://doi.org/10.1016/j.cor.2014.10.008) | `wo_wave` | physics | Yes | Yes | No | Yes | `wo_wave.wave_propagation_position_update` |
-| [Wavelet Mutation and Quadratic Interpolation MRFO](https://doi.org/10.1016/j.knosys.2021.108071) | `wmqimrfo` | swarm | Yes | No | No | No | `wmqimrfo.selection`<br>`wmqimrfo.elite_local_refinement`<br>`wmqimrfo.weighted_multi_quadratic_mrfo_update` |
+| [Wavelet Mutation and Quadratic Interpolation MRFO](https://doi.org/10.1016/j.knosys.2021.108071) | `wmqimrfo` | swarm | Yes | No | No | Yes | `wmqimrfo.selection`<br>`wmqimrfo.elite_local_refinement`<br>`wmqimrfo.weighted_multi_quadratic_mrfo_update` |
 | [Weighting and Inertia Random Walk Optimizer](https://doi.org/10.1016/j.eswa.2022.116516) | `info` | math | Yes | Yes | No | Yes | `info.best_weighted_mean_rule`<br>`info.random_weighted_mean_rule` |
-| [Whale Fruit-fly Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113502) | `whale_foa` | swarm | Yes | No | No | No | `whale_foa.selection`<br>`whale_foa.elite_local_refinement`<br>`whale_foa.whale_position_update` |
+| [Whale Fruit-fly Optimization Algorithm](https://doi.org/10.1016/j.eswa.2020.113502) | `whale_foa` | swarm | Yes | No | No | Yes | `whale_foa.selection`<br>`whale_foa.elite_local_refinement`<br>`whale_foa.whale_position_update` |
 | [Whale Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2016.01.008) | `woa` | swarm | Yes | Yes | No | Yes | `woa.search_for_prey`<br>`woa.encircling_prey`<br>`woa.spiral_bubble_net` |
 | [White Shark Optimizer](https://doi.org/10.1016/j.knosys.2022.108457) | `wso` | swarm | Yes | Yes | No | Yes | `wso.white_shark_swarm_position_update` |
 | [Wildebeest Herd Optimization](https://doi.org/10.3233/JIFS-190495) | `who` | swarm | Yes | Yes | No | Yes | `who.selection`<br>`who.1_local_movement_milling`<br>`who.2_herd_instinct`<br>`who.social_memory` |
@@ -1612,22 +1613,22 @@ All functions below use the **minimization** convention.
 | Bohachevsky F2 | `bohachevsky_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Bohachevsky F3 | `bohachevsky_3` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Booth | `booth` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 3) |
-| Branin RCOS | `branin_rcos` | *x<sub>1</sub>* ∈ [-5, 10], *x<sub>2</sub>* ∈ [0, 15] | *f*<sup>*</sup> = 0.3978873577 at (-π, 12.275); (π, 2.275); (3π, 2.475) |
+| Branin RCOS | `branin_rcos` | *x<sub>1</sub>* ∈ [-5, 10], *x<sub>2</sub>* ∈ [0, 15] | *f*<sup>*</sup> = 0.3978873577; (-π, 12.275); (π, 2.275); (3π, 2.475) |
 | Bukin F6 | `bukin_6` | *x<sub>1</sub>* ∈ [-15, -5], *x<sub>2</sub>* ∈ [-3, 3] | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (-10, 1) |
-| Cross-in-Tray | `cross_in_tray` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -2.0626118708 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±1.349406609, ±1.349406609) |
+| Cross-in-Tray | `cross_in_tray` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -2.0626118708; *(x<sub>1</sub>, x<sub>2</sub>)* = (±1.349406609, ±1.349406609) |
 | Drop-Wave | `drop_wave` | [-5.12, 5.12]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | Easom | `easom` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = -1; *(x<sub>1</sub>, x<sub>2</sub>)* = (π, π) |
 | Eggholder | `eggholder` | [-512, 512]<sup>2</sup> | *f*<sup>*</sup> ≈ -959.6407; *(x<sub>1</sub>, x<sub>2</sub>)* ≈ (512, 404.2319) |
 | Goldstein-Price | `goldstein_price` | [-2, 2]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 3; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, -1) |
-| Himmelblau | `himmelblau` | [-5, 5]<sup>2</sup> | *f*<sup>*</sup> = 0 at (3, 2); (-2.805118, 3.131312); (-3.779310, -3.283186); (3.584428, -1.848126) |
+| Himmelblau | `himmelblau` | [-5, 5]<sup>2</sup> | *f*<sup>*</sup> = 0; (3, 2); (-2.805118, 3.131312); (-3.779310, -3.283186); (3.584428, -1.848126) |
 | Hölder Table | `holder_table` | [-10, 10]<sup>2</sup> | *f*<sup>*</sup> ≈ -19.208502568 at *(x<sub>1</sub>, x<sub>2</sub>)* = (±8.055023472, ±9.664590029) |
 | Levi F13 | `levi_13` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (1, 1) |
 | Matyas | `matyas` | [-10, 10]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 | McCormick | `mccormick` | *x<sub>1</sub>* ∈ [-1.5, 4], *x<sub>2</sub>* ∈ [-3, 4] | *f*<sup>*</sup> ≈ -1.913222955; *(x<sub>1</sub>, x<sub>2</sub>)* ≈ (-0.54719756, -1.54719756) |
 | Schaffer F2 | `schaffer_2` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
-| Schaffer F4 | `schaffer_4` | [-100, 100]<sup>2</sup> | *f*<sup>*</sup> ≈ 0.292578632 at (0, ±1.25313), (±1.25313, 0) |
+| Schaffer F4 | `schaffer_4` | [-100, 100]<sup>2</sup> | *f*<sup>*</sup> ≈ 0.292578632; (0, ±1.25313), (±1.25313, 0) |
 | Schaffer F6 | `schaffer_6` | [-100, 100]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
-| Six-Hump Camel Back | `six_hump_camel_back` | *x<sub>1</sub>* ∈ [-3, 3], *x<sub>2</sub>* ∈ [-2, 2] | *f*<sup>*</sup> ≈ -1.031628453 at (0.089842, -0.712656); (-0.089842, 0.712656) |
+| Six-Hump Camel Back | `six_hump_camel_back` | *x<sub>1</sub>* ∈ [-3, 3], *x<sub>2</sub>* ∈ [-2, 2] | *f*<sup>*</sup> ≈ -1.031628453; (0.089842, -0.712656); (-0.089842, 0.712656) |
 | Three-Hump Camel Back | `three_hump_camel_back` | [-5, 5]<sup>2</sup> | *f(x<sub>1</sub>, x<sub>2</sub>)* = 0; *(x<sub>1</sub>, x<sub>2</sub>)* = (0, 0) |
 
 ### D-Dimensional Functions
