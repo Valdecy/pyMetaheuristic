@@ -31,6 +31,11 @@ from .bbob import (
     list_bbob_functions,
 )
 
+for _bbob_name, _bbob_function in BBOB_FUNCTIONS.items():
+    globals()[_bbob_name] = _bbob_function
+
+del _bbob_name, _bbob_function
+
 
 ArrayLike = Sequence[float] | np.ndarray
 
