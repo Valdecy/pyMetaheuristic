@@ -21,6 +21,8 @@ __all__ = [
     "list_engineering_problems",
     "get_engineering_problem",
     "get_engineering_problem_spec",
+    "get_bbob_problem",
+    "list_bbob_problems",
 ]
 
 
@@ -239,10 +241,41 @@ TEST_FUNCTION_PROBLEM_SPECS = {
 }
 
 
+for _bbob_id in range(1, 25):
+    TEST_FUNCTION_PROBLEM_SPECS[f"bbob_f{_bbob_id:02d}"] = {
+        "lower": -5.0,
+        "upper": 5.0,
+        "latex": rf"f_{{{_bbob_id}}}^{{\mathrm{{BBOB}}}}(x)",
+        "origin": "COCO/BBOB noiseless single-objective benchmark suite",
+    }
+
+
+def _bbob_id_from_key(key: str) -> int | None:
+    if not key.startswith("bbob_f"):
+        return None
+    try:
+        return int(key.split("bbob_f", 1)[1][:2])
+    except (TypeError, ValueError):
+        return None
+
+
 
 def _build_functional_problem(key: str, dimension: int, lower=None, upper=None):
     from ..test_functions import get_test_function
     spec = TEST_FUNCTION_PROBLEM_SPECS[key]
+    metadata = {"origin": spec.get("origin"), "source": "Derived wrapper"}
+    bbob_id = _bbob_id_from_key(key)
+    if bbob_id is not None:
+        from ..bbob import BBOB_NAMES, get_bbob_optimum
+        x_star, f_star = get_bbob_optimum(bbob_id, dimension=int(dimension), instance=1)
+        metadata.update({
+            "suite": "BBOB",
+            "bbob_function_id": bbob_id,
+            "bbob_name": BBOB_NAMES[bbob_id],
+            "instance": 1,
+            "optimum": float(f_star),
+            "best_known_position": x_star.tolist(),
+        })
     return FunctionalProblem(
         dimension=int(dimension),
         lower=(spec["lower"](dimension) if callable(spec["lower"]) else spec["lower"]) if lower is None else lower,
@@ -250,7 +283,7 @@ def _build_functional_problem(key: str, dimension: int, lower=None, upper=None):
         name=key,
         function=get_test_function(key),
         latex=spec["latex"],
-        metadata={"origin": spec.get("origin"), "source": "Derived wrapper"},
+        metadata=metadata,
     )
 
 
@@ -309,8 +342,59 @@ def get_engineering_problem(name: str, lower=None, upper=None):
     return _build_engineering_problem(key, lower=lower, upper=upper)
 
 
-def list_test_problems(include_engineering: bool = True):
+def list_bbob_problems():
+    """Return BBOB benchmark IDs available as problem objects."""
+    return [f"bbob_f{i:02d}" for i in range(1, 25)]
+
+
+def get_bbob_problem(name: str | int, dimension: int = 2, instance: int = 1, lower=None, upper=None):
+    """Return a BBOB benchmark as a FunctionalProblem.
+
+    Parameters
+    ----------
+    name
+        Either an integer in 1..24 or a name like ``"bbob_f01"``.
+    dimension
+        Problem dimension, D >= 2.
+    instance
+        Deterministic BBOB instance.
+    """
+    from ..bbob import BBOB_NAMES, get_bbob_function, get_bbob_optimum
+
+    if isinstance(name, int):
+        fid = int(name)
+        key = f"bbob_f{fid:02d}"
+    else:
+        key = str(name).strip().lower()
+        fid = _bbob_id_from_key(key)
+    if fid is None or fid < 1 or fid > 24:
+        raise KeyError("Unknown BBOB problem. Use an integer 1..24 or a name like 'bbob_f01'.")
+
+    problem = get_bbob_function(fid, dimension=int(dimension), instance=int(instance))
+    x_star, f_star = get_bbob_optimum(fid, int(dimension), int(instance))
+    return FunctionalProblem(
+        dimension=int(dimension),
+        lower=[-5.0] * int(dimension) if lower is None else lower,
+        upper=[5.0] * int(dimension) if upper is None else upper,
+        name=key if int(instance) == 1 else f"{key}_i{int(instance):02d}",
+        function=problem,
+        latex=rf"f_{{{fid}}}^{{\mathrm{{BBOB}}}}(x)",
+        metadata={
+            "origin": "COCO/BBOB noiseless single-objective benchmark suite",
+            "source": "BBOB wrapper",
+            "suite": "BBOB",
+            "bbob_function_id": fid,
+            "bbob_name": BBOB_NAMES[fid],
+            "instance": int(instance),
+            "optimum": float(f_star),
+            "best_known_position": x_star.tolist(),
+        },
+    )
+
+def list_test_problems(include_engineering: bool = True, include_bbob: bool = True):
     names = set(TEST_PROBLEM_REGISTRY) | set(TEST_FUNCTION_PROBLEM_SPECS)
+    if not include_bbob:
+        names = {name for name in names if not name.startswith("bbob_f")}
     if include_engineering:
         names.update(list_engineering_problems())
     return sorted(names)
@@ -318,6 +402,9 @@ def list_test_problems(include_engineering: bool = True):
 
 def get_test_problem(name: str, dimension: int = 2, lower=None, upper=None):
     key = str(name).strip().lower()
+    bbob_id = _bbob_id_from_key(key)
+    if bbob_id is not None and key.startswith("bbob_f"):
+        return get_bbob_problem(key, dimension=dimension, instance=1, lower=lower, upper=upper)
     if key in TEST_PROBLEM_REGISTRY:
         cls = TEST_PROBLEM_REGISTRY[key]
         kwargs = {"dimension": int(dimension)}

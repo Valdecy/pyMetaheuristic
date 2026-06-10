@@ -36,6 +36,8 @@ from .problems import (
     list_engineering_problems,
     get_engineering_problem,
     get_engineering_problem_spec,
+    get_bbob_problem,
+    list_bbob_problems,
 )
 from .random import levy_flight
 from .repair import (
@@ -81,6 +83,7 @@ __all__ = [
     "AckleyProblem", "RosenbrockProblem", "ZakharovProblem",
     "full_array", "get_test_problem", "list_test_problems",
     "list_engineering_problems", "get_engineering_problem", "get_engineering_problem_spec",
+    "get_bbob_problem", "list_bbob_problems",
     # space
     "BaseVar", "BinaryVar", "CategoricalVar", "FloatVar",
     "IntegerVar", "PermutationVar",

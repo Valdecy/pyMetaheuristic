@@ -64,6 +64,12 @@ from .src.test_functions import (
     validate_engineering_benchmarks,
     get_cec2022_optimum,
     validate_cec2022_optima,
+    BBOB_FUNCTIONS,
+    BBOB_METADATA,
+    get_bbob_function,
+    get_bbob_optimum,
+    list_bbob_functions,
+    validate_bbob_optima,
 )
 from .src.actions import estimate_action_cost
 from .src.diagnostics import (
@@ -159,6 +165,8 @@ from .src.utils import (
     list_engineering_problems,
     get_engineering_problem,
     get_engineering_problem_spec,
+    get_bbob_problem,
+    list_bbob_problems,
     lhs_population,
     levy_flight,
     limit,
@@ -205,6 +213,8 @@ __all__ = [
     "validate_engineering_benchmarks",
     "get_cec2022_optimum",
     "validate_cec2022_optima",
+    "BBOB_FUNCTIONS", "BBOB_METADATA", "get_bbob_function",
+    "get_bbob_optimum", "list_bbob_functions", "validate_bbob_optima",
     "ActionOutcome", "ActionSpec", "AgentSnapshot", "BanditConfig",
     "BenchmarkProblem", "BenchmarkResult", "BenchmarkStudy", "ExperimentRecord",
     "ProblemSuite", "load_benchmark",
@@ -261,6 +271,7 @@ __all__ = [
     "levy_flight",
     "list_test_problems", "list_engineering_problems",
     "get_engineering_problem", "get_engineering_problem_spec",
+    "get_bbob_problem", "list_bbob_problems",
     "HyperparameterTuner", "BenchmarkRunner",
     "Island", "IslandConfig", "IslandSystem", "TopologyConfig",
     "MigrationConfig", "ExecutionConfig", "OrchestrationConfig",

@@ -22,6 +22,15 @@ from typing import Callable, Dict, Iterable, List, Mapping, Sequence
 
 import numpy as np
 
+from .bbob import (
+    BBOB_FUNCTIONS,
+    BBOB_METADATA,
+    BBOB_FUNCTION_IDS,
+    get_bbob_function,
+    get_bbob_optimum,
+    list_bbob_functions,
+)
+
 
 ArrayLike = Sequence[float] | np.ndarray
 
@@ -1469,6 +1478,7 @@ FUNCTIONS: Dict[str, Callable[..., float]] = {
     "cec_2022_f10": cec_2022_f10,
     "cec_2022_f11": cec_2022_f11,
     "cec_2022_f12": cec_2022_f12,
+    **BBOB_FUNCTIONS,
 }
 
 
@@ -1561,13 +1571,16 @@ TEST_FUNCTIONS: Dict[str, Dict[str, str]] = {
     "cec_2022_f10": {"name": "CEC 2022 F10", "domain": "D∈{2,10,20}; official bounds/data", "optimum": "f*=2400 at official shifted optimum"},
     "cec_2022_f11": {"name": "CEC 2022 F11", "domain": "D∈{2,10,20}; official bounds/data", "optimum": "f*=2600 at official shifted optimum"},
     "cec_2022_f12": {"name": "CEC 2022 F12", "domain": "D∈{2,10,20}; official bounds/data", "optimum": "f*=2700 at official shifted optimum"},
+    **BBOB_METADATA,
 }
 
 
-def list_test_functions(include_cec: bool = True, include_engineering: bool = True) -> List[str]:
+def list_test_functions(include_cec: bool = True, include_engineering: bool = True, include_bbob: bool = True) -> List[str]:
     names = sorted(FUNCTIONS.keys())
     if not include_cec:
         names = [name for name in names if not name.startswith("cec_2022_")]
+    if not include_bbob:
+        names = [name for name in names if not name.startswith("bbob_f")]
     if not include_engineering:
         engineering_ids = set(ENGINEERING_BENCHMARKS.keys())
         names = [name for name in names if name not in engineering_ids]
@@ -1682,7 +1695,31 @@ def validate_cec2022_optima(tol: float = 1e-7, dimensions: Iterable[int] = _CEC2
     return errors
 
 
-def validate_known_optima(tol: float = 1e-7, include_cec: bool = False) -> Dict[str, float]:
+def validate_bbob_optima(tol: float = 1e-7, dimensions: Iterable[int] = (2, 3, 5, 10, 20, 40), instances: Iterable[int] = (1,)) -> Dict[str, float]:
+    """Validate BBOB functions at their deterministic shifted optima.
+
+    Returns
+    -------
+    dict
+        Mapping ``bbob_fXX_iYY_DD`` to absolute error.
+    """
+    errors: Dict[str, float] = {}
+    for dimension in dimensions:
+        if int(dimension) < 2:
+            raise ValueError("BBOB dimensions must be >= 2.")
+        for instance in instances:
+            for func_num in BBOB_FUNCTION_IDS:
+                problem = get_bbob_function(func_num, dimension=int(dimension), instance=int(instance))
+                x_star, f_star = get_bbob_optimum(func_num, int(dimension), int(instance))
+                value = problem(x_star)
+                key = f"bbob_f{func_num:02d}_i{int(instance):02d}_D{int(dimension)}"
+                err = abs(float(value) - float(f_star))
+                errors[key] = err
+                if err > tol:
+                    raise AssertionError(f"{key}: expected {f_star}, got {value}, error={err}")
+    return errors
+
+def validate_known_optima(tol: float = 1e-7, include_cec: bool = False, include_bbob: bool = False) -> Dict[str, float]:
     """
     Evaluate a representative known global optimizer for each supported function.
 
@@ -1695,7 +1732,9 @@ def validate_known_optima(tol: float = 1e-7, include_cec: bool = False) -> Dict[
     -----
     CEC functions are skipped by default because they require the official external
     shift/rotation/shuffle data files. If ``include_cec=True``, the CEC functions
-    are checked at their official shifted optima.
+    are checked at their official shifted optima. BBOB functions are also skipped
+    by default because their optima are instance- and dimension-dependent; set
+    ``include_bbob=True`` to validate the default instance over standard dimensions.
     """
     tests = {
         "ackley": ([0, 0, 0], 0.0),
@@ -1769,6 +1808,10 @@ def validate_known_optima(tol: float = 1e-7, include_cec: bool = False) -> Dict[
     if include_cec:
         cec_errors = validate_cec2022_optima(tol=tol)
 
+    bbob_errors: Dict[str, float] = {}
+    if include_bbob:
+        bbob_errors = validate_bbob_optima(tol=tol)
+
     errors: Dict[str, float] = {}
     for name, (x, expected) in tests.items():
         value = FUNCTIONS[name](x)
@@ -1778,6 +1821,7 @@ def validate_known_optima(tol: float = 1e-7, include_cec: bool = False) -> Dict[
             raise AssertionError(f"{name}: expected {expected}, got {value}, error={err}")
 
     errors.update(cec_errors)
+    errors.update(bbob_errors)
     return errors
 
 
