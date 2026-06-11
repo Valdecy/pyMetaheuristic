@@ -1101,3 +1101,100 @@ def get_evomapx_operators(algorithm_id: str | None, family: str | None = None) -
 def list_evomapx_profiles() -> list[dict[str, Any]]:
     """Return all declared profiles as dictionaries."""
     return [EVOMAPX_OPERATOR_PROFILES[k].to_dict() for k in sorted(EVOMAPX_OPERATOR_PROFILES)]
+
+# ---------------------------------------------------------------------------
+# Addendum — New Caledonian Crow Learning Algorithm
+# ---------------------------------------------------------------------------
+EVOMAPX_OPERATOR_PROFILES["nccla"] = EvoMapXProfile(
+    algorithm_id="nccla",
+    family="human",
+    operators=(
+        "vertical_social_learning",
+        "horizontal_social_learning",
+        "individual_learning",
+        "juvenile_reinforcement",
+        "parent_reinforcement",
+        "parent_selection",
+    ),
+    fidelity="native",
+    phase="addendum_nccla",
+    notes=(
+        "Native NCCLA hook logs parent reinforcement and juvenile vertical social, "
+        "horizontal social, individual learning, and reinforcement transitions. "
+        "Parent selection is diagnostic metadata based on top-two sorted crows."
+    ),
+)
+
+# ---------------------------------------------------------------------------
+# Addendum — 2024–2025 metaheuristic paper ports
+# ---------------------------------------------------------------------------
+EVOMAPX_OPERATOR_PROFILES["agdo"] = EvoMapXProfile(
+    algorithm_id="agdo",
+    family="math",
+    operators=(
+        "progressive_gradient_momentum_integration",
+        "dynamic_gradient_interaction",
+        "trust_region_selection",
+        "system_optimization_operator",
+    ),
+    fidelity="native",
+    phase="addendum_2025_metaheuristics",
+    notes="Native AGDO hook labels Adam-inspired dynamic gradient interaction and logistic system-optimization replacements without extra objective evaluations.",
+)
+
+EVOMAPX_OPERATOR_PROFILES["dp"] = EvoMapXProfile(
+    algorithm_id="dp",
+    family="math",
+    operators=(
+        "delta_operation",
+        "realtime_learning_vector",
+        "inertial_learning_vector",
+        "greedy_selection",
+    ),
+    fidelity="native",
+    phase="addendum_2025_metaheuristics",
+    notes="Native Delta Plus hook labels accepted Delta-operation moves; realtime and inertial learning vectors are computed inside the engine state update.",
+)
+
+EVOMAPX_OPERATOR_PROFILES["lea"] = EvoMapXProfile(
+    algorithm_id="lea",
+    family="evolutionary",
+    operators=(
+        "stimulus_matching",
+        "value_phase",
+        "reflection_operation",
+        "role_phase",
+        "generational_replacement",
+    ),
+    fidelity="native",
+    phase="addendum_2025_metaheuristics",
+    notes="Native LEA hook labels pairwise value, reflection, and role-phase transformations for EvoMapX lineage.",
+)
+
+EVOMAPX_OPERATOR_PROFILES["ppo"] = EvoMapXProfile(
+    algorithm_id="ppo",
+    family="swarm",
+    operators=(
+        "escape_ejection",
+        "sexual_cannibalism_juvenile_generation",
+        "predation_local_search",
+        "historical_food_update",
+    ),
+    fidelity="native",
+    phase="addendum_2025_metaheuristics",
+    notes="Native PPO hook labels accepted cannibalism/juvenile-generation and predation local-search moves while preserving historical food guidance.",
+)
+
+EVOMAPX_OPERATOR_PROFILES["rrto"] = EvoMapXProfile(
+    algorithm_id="rrto",
+    family="swarm",
+    operators=(
+        "adaptive_step_size_wandering",
+        "absolute_difference_step",
+        "boundary_based_step",
+        "collision_boundary_handling",
+    ),
+    fidelity="native",
+    phase="addendum_2025_metaheuristics",
+    notes="Native RRTO hook labels accepted moves from its three RRT-inspired adaptive step-size strategies.",
+)

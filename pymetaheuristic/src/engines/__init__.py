@@ -28,6 +28,7 @@ from .aeo                 import AEOEngine
 from .aesspso             import AESSPSOEngine
 from .afsa                import AFSAEngine
 from .aft                 import AFTEngine
+from .agdo                import AGDOEngine
 from .agto                import AGTOEngine
 from .aha                 import AHAEngine
 from .aho                 import AHOEngine
@@ -113,6 +114,7 @@ from .dhole_oa            import DholeOAEngine
 from .dmoa                import DMOAEngine
 from .do_dandelion        import DandelionOEngine
 from .doa                 import DOAEngine
+from .dp                  import DPEngine
 from .dra                 import DRAEngine
 from .dream_oa            import DreamOAEngine
 from .ds_gwo              import DsGWOEngine
@@ -234,6 +236,7 @@ from .l2smea              import L2SMEAEngine
 from .laro                import LaroEngine
 from .lca                 import LCAEngine
 from .lco                 import LCOEngine
+from .lea                 import LEAEngine
 from .levy_ja             import LevyJaEngine
 from .lfd                 import LFDEngine
 from .liwo                import LiWOEngine
@@ -291,6 +294,7 @@ from .plba                import PLBAEngine
 from .plo                 import PLOEngine
 from .poa                 import POAEngine
 from .political_o         import PoliticalOEngine
+from .ppo                 import PPOEngine
 from .pro                 import PROEngine
 from .pso                 import PSOEngine
 from .pss                 import PSSEngine
@@ -307,6 +311,7 @@ from .rhso                import RHSOEngine
 from .rime                import RIMEEngine
 from .rmsprop             import RMSPropEngine
 from .roa                 import ROAEngine
+from .rrto                import RRTOEngine
 from .rsa                 import RSAEngine
 from .rso                 import RSOEngine
 from .run                 import RUNEngine
@@ -403,6 +408,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AESSPSOEngine,
     AFSAEngine, 
     AFTEngine, 
+    AGDOEngine, 
     AGTOEngine, 
     AHAEngine, 
     AHOEngine, 
@@ -488,6 +494,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     DFOEngine, 
     DMOAEngine,
     DOAEngine, 
+    DPEngine, 
     DRAEngine, 
     DSOEngine, 
     DVBAEngine, 
@@ -617,6 +624,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     LSHADECnEpSinEngine, 
     LSOSpectrumEngine, 
     LaroEngine, 
+    LEAEngine, 
     LevyJaEngine, 
     LiWOEngine, 
     MBOEngine, 
@@ -666,6 +674,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     PLBAEngine, 
     PLOEngine, 
     POAEngine, 
+    PPOEngine, 
     PROEngine, 
     PSOEngine, 
     PSSEngine, 
@@ -684,6 +693,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     RIMEEngine, 
     RMSPropEngine,
     ROAEngine, 
+    RRTOEngine, 
     RSAEngine, 
     RSOEngine, 
     RUNEngine, 
@@ -802,6 +812,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'aesspso', 
     'afsa', 
     'aft', 
+    'agdo', 
     'agto', 
     'aha',
     'aho', 
@@ -887,6 +898,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'dmoa', 
     'do_dandelion', 
     'doa', 
+    'dp', 
     'dra', 
     'dream_oa', 
     'ds_gwo', 
@@ -1008,6 +1020,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'laro', 
     'lca',
     'lco', 
+    'lea', 
     'levy_ja', 
     'lfd', 
     'liwo', 
@@ -1065,6 +1078,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'plo', 
     'poa', 
     'political_o', 
+    'ppo', 
     'pro',
     'pso', 
     'pss', 
@@ -1081,6 +1095,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'rime', 
     'rmsprop', 
     'roa', 
+    'rrto', 
     'rsa', 
     'rso',
     'run', 
@@ -1180,6 +1195,7 @@ _POPULATION_BASED: set[str] = {
     'aesspso', 
     'afsa', 
     'aft', 
+    'agdo', 
     'agto', 
     'aha', 
     'aho', 
@@ -1262,6 +1278,7 @@ _POPULATION_BASED: set[str] = {
     'dmoa', 
     'do_dandelion', 
     'doa', 
+    'dp', 
     'dra', 
     'dream_oa', 
     'ds_gwo', 
@@ -1376,6 +1393,7 @@ _POPULATION_BASED: set[str] = {
     'laro', 
     'lca', 
     'lco', 
+    'lea', 
     'levy_ja', 
     'lfd', 
     'liwo', 
@@ -1431,6 +1449,7 @@ _POPULATION_BASED: set[str] = {
     'plo', 
     'poa', 
     'political_o', 
+    'ppo', 
     'pro', 
     'pso', 
     'pss',
@@ -1445,6 +1464,7 @@ _POPULATION_BASED: set[str] = {
     'rhso', 
     'rime', 
     'roa', 
+    'rrto', 
     'rsa', 
     'rso', 
     'run', 
@@ -1842,6 +1862,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'aesspso', 
     'afsa', 
     'aft', 
+    'agdo', 
     'agto', 
     'aha', 
     'aho', 
@@ -1923,6 +1944,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'dmoa',
     'do_dandelion', 
     'doa', 
+    'dp', 
     'dra',
     'dream_oa', 
     'ds_gwo',
@@ -2037,6 +2059,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'laro',
     'lca',
     'lco', 
+    'lea', 
     'levy_ja',
     'lfd', 
     'liwo', 
@@ -2092,6 +2115,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'plo', 
     'poa', 
     'political_o', 
+    'ppo', 
     'pro', 
     'pso', 
     'pss', 
@@ -2106,6 +2130,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'rhso', 
     'rime', 
     'roa', 
+    'rrto', 
     'rsa', 
     'rso', 
     'run', 
@@ -2201,6 +2226,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'aesspso'            : 'Adaptive Exploration State-Space Particle Swarm Optimization',
     'afsa'               : 'Artificial Fish Swarm Algorithm',
     'aft'                : 'Ali Baba and the Forty Thieves',
+    'agdo'               : 'Adam Gradient Descent Optimizer',
     'agto'               : 'Artificial Gorilla Troops Optimizer',
     'aha'                : 'Artificial Hummingbird Algorithm',
     'aho'                : 'Archerfish Hunting Optimizer',
@@ -2286,6 +2312,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'dmoa'               : 'Dwarf Mongoose Optimization Algorithm',
     'do_dandelion'       : 'Dandelion Optimizer',
     'doa'                : 'Deer Hunting Optimization Algorithm',
+    'dp'                 : 'Delta Plus',
     'dra'                : 'Divine Religions Algorithm',
     'dream_oa'           : 'Dream Optimization Algorithm',
     'ds_gwo'             : 'Diversity enhanced Strategy based Grey Wolf Optimizer (DS-GWO)',
@@ -2407,6 +2434,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'laro'               : 'Lévy flight, and the selective opposition version of the artificial rabbit algorithm (LARO)',
     'lca'                : 'Liver Cancer Algorithm',
     'lco'                : 'Life Choice-Based Optimizer',
+    'lea'                : 'Love Evolution Algorithm',
     'levy_ja'            : 'Levy-flight Jaya Algorithm (LJA)',
     'lfd'                : 'Lévy Flight Distribution',
     'liwo'               : 'Leaf in Wind Optimization',
@@ -2464,6 +2492,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'plo'                : 'Polar Lights Optimizer',
     'poa'                : 'Pelican Optimization Algorithm',
     'political_o'        : 'Political Optimizer',
+    'ppo'                : 'Philoponella prominens Optimizer',
     'pro'                : 'Poor and Rich Optimization Algorithm',
     'pso'                : 'Particle Swarm Optimization',
     'pss'                : 'Pareto Sequential Sampling',
@@ -2480,6 +2509,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'rime'               : 'RIME-ice Algorithm',
     'rmsprop'            : 'RMSProp',
     'roa'                : 'Remora Optimization Algorithm',
+    'rrto'               : 'RRT-based Optimizer',
     'rsa'                : 'Reptile Search Algorithm',
     'rso'                : 'Rat Swarm Optimizer',
     'run'                : 'RUNge Kutta Optimizer',
@@ -2559,7 +2589,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'wo_wave'            : 'Wave Optimization Algorithm',
     'woa'                : 'Whale Optimization Algorithm',
     'wooa'               : 'Wolverine Optimization Algorithm',
-    'wso'                 : 'White Shark Optimizer',
+    'wso'                : 'White Shark Optimizer',
     'wutp'               : 'Water Uptake and Transport in Plants',
     'ydse'               : "Young's Double-Slit Experiment Optimizer",
     'zoa'                : 'Zebra Optimization Algorithm',
@@ -2579,6 +2609,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'aesspso'            : 'swarm',
     'afsa'               : 'swarm',
     'aft'                : 'human',
+    'agdo'               : 'math',
     'agto'               : 'swarm',
     'aha'                : 'swarm',
     'aho'                : 'swarm',
@@ -2664,6 +2695,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'dmoa'               : 'swarm',
     'do_dandelion'       : 'swarm',
     'doa'                : 'human',
+    'dp'                 : 'math',
     'dra'                : 'human',
     'dream_oa'           : 'human',
     'ds_gwo'             : 'swarm',
@@ -2785,6 +2817,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'laro'               : 'swarm',
     'lca'                : 'nature',
     'lco'                : 'human',
+    'lea'                : 'human',
     'levy_ja'            : 'distribution',
     'lfd'                : 'distribution',
     'liwo'               : 'physics',
@@ -2842,6 +2875,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'plo'                : 'physics',
     'poa'                : 'swarm',
     'political_o'        : 'human',
+    'ppo'                : 'swarm',
     'pro'                : 'human',
     'pso'                : 'swarm',
     'pss'                : 'math',
@@ -2858,6 +2892,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'rime'               : 'physics',
     'rmsprop'            : 'math',
     'roa'                : 'swarm',
+    'rrto'               : 'swarm',
     'rsa'                : 'swarm',
     'rso'                : 'swarm',
     'run'                : 'math',
@@ -2957,6 +2992,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'aesspso'            : '10.1016/j.swevo.2025.101868',
     'afsa'               : '10.1007/s10462-012-9342-2',
     'aft'                : '10.1007/s00521-021-06392-x',
+    'agdo'               : '10.1038/s41598-025-01678-9',
     'agto'               : '10.1002/int.22535',
     'aha'                : '10.1016/j.cma.2021.114194',
     'aho'                : '10.1016/j.engappai.2024.108081',
@@ -3042,6 +3078,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'dmoa'               : '10.1016/j.cma.2022.114570',
     'do_dandelion'       : '10.1016/j.engappai.2022.105075',
     'doa'                : '10.1093/comjnl/bxy133',
+    'dp'                 : '10.1007/s10586-024-05094-y',
     'dra'                : '10.1007/s10586-024-04954-x',
     'dream_oa'           : '10.1016/j.cma.2024.117718',
     'ds_gwo'             : '10.1016/j.knosys.2022.109100',
@@ -3163,6 +3200,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'laro'               : '10.3390/sym14112282',
     'lca'                : '10.1016/j.compbiomed.2023.107389',
     'lco'                : '10.1007/s00500-019-04443-z',
+    'lea'                : '10.1007/s11227-024-05905-4',
     'levy_ja'            : '10.1016/j.eswa.2020.113902',
     'lfd'                : '10.1016/j.engappai.2020.103731',
     'liwo'               : '10.1109/ACCESS.2024.3390670',
@@ -3220,6 +3258,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'plo'                : '10.1016/j.neucom.2024.128427',
     'poa'                : '10.3390/s22030855',
     'political_o'        : '10.1016/j.knosys.2020.105709',
+    'ppo'                : '10.1007/s10586-024-04761-4',
     'pro'                : '10.1016/j.engappai.2019.08.025',
     'pso'                : '10.1109/ICNN.1995.488968',
     'pss'                : '10.1007/s00500-021-05853-8',
@@ -3236,6 +3275,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'rime'               : '10.1016/j.neucom.2023.02.010',
     'rmsprop'            : 'https://www.youtube.com/watch?v=defQQqkXEfE',
     'roa'                : '10.1016/j.eswa.2021.115665',
+    'rrto'               : '10.1109/ACCESS.2025.3547537',
     'rsa'                : '10.1016/j.eswa.2021.116158',
     'rso'                : '10.1007/s12652-020-02580-0',
     'run'                : '10.1016/j.eswa.2021.115079',

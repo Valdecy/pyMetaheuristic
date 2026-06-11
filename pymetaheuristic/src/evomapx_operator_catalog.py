@@ -3794,3 +3794,130 @@ _SINGLE_EVAL_HONEST.update({
     "sboa": "sboa.update",
 })
 _SINGLE_OPERATOR_SEMANTIC_OK.update({"flo","kma","puma_o","rbmo","sboa"})
+
+# ---------------------------------------------------------------------------
+# Addendum — native NCCLA operator labels
+# ---------------------------------------------------------------------------
+_NCCLA_OPERATOR_LABELS = [
+    "nccla.vertical_social_learning",
+    "nccla.horizontal_social_learning",
+    "nccla.individual_learning",
+    "nccla.juvenile_reinforcement",
+    "nccla.parent_reinforcement",
+    "nccla.parent_selection",
+]
+_NCCLA_COMPOUND_SPLITS = {
+    "nccla.vertical_social_learning_juvenile_reinforcement": [
+        "nccla.vertical_social_learning",
+        "nccla.juvenile_reinforcement",
+    ],
+    "nccla.horizontal_social_learning_juvenile_reinforcement": [
+        "nccla.horizontal_social_learning",
+        "nccla.juvenile_reinforcement",
+    ],
+    "nccla.individual_learning_juvenile_reinforcement": [
+        "nccla.individual_learning",
+        "nccla.juvenile_reinforcement",
+    ],
+}
+_EXACT_COMPOUND_OPERATOR_SPLITS.update(_NCCLA_COMPOUND_SPLITS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["nccla"] = list(_NCCLA_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["nccla"] = list(_NCCLA_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_NCCLA_OPERATOR_LABELS)
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_NCCLA_COMPOUND_SPLITS.keys())
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_nccla = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id) == "nccla":
+        return list(_NCCLA_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_nccla(algorithm_id)
+
+_prev_expand_compound_operator_label_nccla = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    if label in _NCCLA_COMPOUND_SPLITS:
+        return list(_NCCLA_COMPOUND_SPLITS[label])
+    return _prev_expand_compound_operator_label_nccla(algorithm_id, label)
+
+# ---------------------------------------------------------------------------
+# Addendum — native operator labels for 2024–2025 metaheuristic paper ports
+# ---------------------------------------------------------------------------
+_ADDED_METAHEURISTIC_OPERATOR_LABELS = {
+    "agdo": [
+        "agdo.progressive_gradient_momentum_dynamic_interaction",
+        "agdo.system_optimization_operator",
+    ],
+    "dp": [
+        "dp.delta_operation",
+    ],
+    "lea": [
+        "lea.reflection_operation",
+        "lea.value_phase_reflection_operation",
+        "lea.value_phase_role_phase",
+    ],
+    "ppo": [
+        "ppo.escape_sexual_cannibalism_juvenile_generation",
+        "ppo.escape_predation_local_search",
+    ],
+    "rrto": [
+        "rrto.adaptive_step_size_wandering",
+        "rrto.absolute_difference_step",
+        "rrto.boundary_based_step",
+    ],
+}
+
+_ADDED_METAHEURISTIC_COMPOUND_SPLITS = {
+    "agdo.progressive_gradient_momentum_dynamic_interaction": [
+        "agdo.progressive_gradient_momentum_integration",
+        "agdo.dynamic_gradient_interaction",
+    ],
+    "lea.value_phase_reflection_operation": [
+        "lea.value_phase",
+        "lea.reflection_operation",
+    ],
+    "lea.value_phase_role_phase": [
+        "lea.value_phase",
+        "lea.role_phase",
+    ],
+    "ppo.escape_sexual_cannibalism_juvenile_generation": [
+        "ppo.escape_ejection",
+        "ppo.sexual_cannibalism_juvenile_generation",
+    ],
+    "ppo.escape_predation_local_search": [
+        "ppo.escape_ejection",
+        "ppo.predation_local_search",
+    ],
+}
+_EXACT_COMPOUND_OPERATOR_SPLITS.update(_ADDED_METAHEURISTIC_COMPOUND_SPLITS)
+
+for _aid, _labels in _ADDED_METAHEURISTIC_OPERATOR_LABELS.items():
+    try:
+        _ENGINE_OPERATOR_LABEL_OVERRIDES[_aid] = list(_labels)
+    except NameError:  # pragma: no cover - defensive for generated catalog variants
+        pass
+    ENGINE_OPERATOR_LABELS[_aid] = list(_labels)
+
+try:
+    for _labels in _ADDED_METAHEURISTIC_OPERATOR_LABELS.values():
+        _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_labels)
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_ADDED_METAHEURISTIC_COMPOUND_SPLITS.keys())
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_added_metaheuristics = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    aid = str(algorithm_id).lower()
+    if aid in _ADDED_METAHEURISTIC_OPERATOR_LABELS:
+        return list(_ADDED_METAHEURISTIC_OPERATOR_LABELS[aid])
+    return _prev_labels_for_algorithm_added_metaheuristics(algorithm_id)
+
+_prev_expand_compound_operator_label_added_metaheuristics = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    if label in _ADDED_METAHEURISTIC_COMPOUND_SPLITS:
+        return list(_ADDED_METAHEURISTIC_COMPOUND_SPLITS[label])
+    return _prev_expand_compound_operator_label_added_metaheuristics(algorithm_id, label)
