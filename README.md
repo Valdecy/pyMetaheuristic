@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **375 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **380 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -1178,7 +1178,7 @@ The table below summarizes the optimization engines currently available in the l
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | EvoMapX |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | `adam.candidate_generation`<br>`adam.selection`<br>`adam.search_direction`<br>`adam.step_acceptance`<br>`adam.initialization` |
-| [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
+| [Adam Gradient Descent Optimizer](https://doi.org/10.1038/s41598-025-01678-9) | `agdo` | math | Yes | No | No | `agdo.progressive_gradient_momentum_dynamic_interaction`<br>`agdo.system_optimization_operator` |
 <details>
 <summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
@@ -1186,6 +1186,7 @@ The table below summarizes the optimization engines currently available in the l
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | EvoMapX |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | `adam.candidate_generation`<br>`adam.selection`<br>`adam.search_direction`<br>`adam.step_acceptance`<br>`adam.initialization` |
+| [Adam Gradient Descent Optimizer](https://doi.org/10.1038/s41598-025-01678-9) | `agdo` | math | Yes | No | No | `agdo.progressive_gradient_momentum_dynamic_interaction`<br>`agdo.system_optimization_operator` |
 | [Adaptive Aquila Optimizer](https://doi.org/10.1016/j.rineng.2024.103261) | `aao` | swarm | Yes | No | No | `aao.adaptive_aquila_guidance`<br>`aao.position_update`<br>`aao.elite_local_refinement`<br>`aao.selection` |
 | [Adaptive Chaotic Grey Wolf Optimizer](https://doi.org/10.1007/s42835-023-01621-w) | `acgwo` | swarm | Yes | Yes | No | `acgwo.selection`<br>`acgwo.adaptive_weighted_pack_update`<br>`acgwo.alpha_guidance_trial`<br>`acgwo.beta_guidance_trial`<br>`acgwo.delta_guidance_trial` |
 | [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | `adaptive_eo.selection`<br>`adaptive_eo.adaptive_local_refinement`<br>`adaptive_eo.equilibrium_pool_guided_update` |
@@ -1276,6 +1277,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Dandelion Optimizer](https://doi.org/10.1016/j.engappai.2022.105075) | `do_dandelion` | swarm | Yes | Yes | No | `do_dandelion.rising_seed_phase`<br>`do_dandelion.descent_diffusion_phase`<br>`do_dandelion.elite_landing_phase`<br>`do_dandelion.candidate_generation`<br>`do_dandelion.selection` |
 | [Deep Sleep Optimiser](https://doi.org/10.1109/ACCESS.2023.3298105) | `dso` | human | Yes | Yes | No | `dso.deep_sleep_decay_update`<br>`dso.slow_wave_recovery_update` |
 | [Deer Hunting Optimization Algorithm](https://doi.org/10.1093/comjnl/bxy133) | `doa` | human | Yes | Yes | No | `doa.hunting`<br>`doa.search`<br>`doa.state_update`<br>`doa.exploitation_move`<br>`doa.replacement` |
+| [Delta Plus](https://doi.org/10.1007/s10586-024-05094-y) | `dp` | math | Yes | No | No | `dp.delta_operation` |
 | [Dhole Optimization Algorithm](https://doi.org/10.1007/s10586-024-05005-1) | `dhole_oa` | swarm | Yes | No | No | `dhole_oa.searching_stage`<br>`dhole_oa.encircling_stage`<br>`dhole_oa.large_prey_attack`<br>`dhole_oa.small_prey_kill` |
 | [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | `jade.candidate_generation`<br>`jade.selection`<br>`jade.mutation`<br>`jade.crossover`<br>`jade.initialization` |
 | [Differential Evolution MTS](https://doi.org/10.1109/CEC.2009.4983179) | `hde` | evolutionary | Yes | Yes | No | `hde.candidate_search`<br>`hde.selection`<br>`hde.differential_evolution_update` |
@@ -1411,6 +1413,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Lévy Flight Distribution](https://doi.org/10.1016/j.engappai.2020.103731) | `lfd` | distribution | Yes | Yes | No | `lfd.levy_flight_search` |
 | [Lévy Flight Jaya Algorithm](https://doi.org/10.1016/j.eswa.2020.113902) | `levy_ja` | distribution | Yes | No | No | `levy_ja.candidate_search`<br>`levy_ja.selection`<br>`levy_ja.candidate_generation`<br>`levy_ja.initialization` |
 | [Lévy Flight and Selective Opposition Artificial Rabbit Algorithm](https://doi.org/10.3390/sym14112282) | `laro` | swarm | Yes | No | No | `laro.candidate_search`<br>`laro.selection`<br>`laro.candidate_generation`<br>`laro.initialization` |
+| [Love Evolution Algorithm](https://doi.org/10.1007/s11227-024-05905-4) | `lea` | human | Yes | No | No | `lea.reflection_operation`<br>`lea.value_phase_reflection_operation`<br>`lea.value_phase_role_phase` |
 | [Magnificent Frigatebird Optimization](https://doi.org/10.32604/cmc.2024.054317) | `mfo` | swarm | Yes | No | No | `mfo.exploration_move`<br>`mfo.exploitation_move`<br>`mfo.replacement` |
 | [Manta Ray Foraging Optimization](https://doi.org/10.1016/j.engappai.2019.103300) | `mrfo` | swarm | Yes | Yes | No | `mrfo.chain_foraging`<br>`mrfo.cyclone_random_foraging`<br>`mrfo.cyclone_best_foraging`<br>`mrfo.somersault_foraging` |
 | [Mantis Shrimp Optimization Algorithm](https://doi.org/10.3390/math13091500) | `mshoa` | swarm | Yes | Yes | No | `mshoa.smasher_attack_update`<br>`mshoa.spearer_circular_attack_update`<br>`mshoa.defense_position_update` |
@@ -1456,6 +1459,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Particle Swarm Optimization](https://doi.org/10.1109/ICNN.1995.488968) | `pso` | swarm | Yes | Yes | No | `pso.inertia_velocity_update`<br>`pso.cognitive_memory_update`<br>`pso.social_global_update` |
 | [Pathfinder Algorithm](https://doi.org/10.1016/j.asoc.2019.03.012) | `pfa` | swarm | Yes | Yes | No | `pfa.pathfinder_position_update` |
 | [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | `poa.prey_pursuit_update`<br>`poa.water_surface_winging_update` |
+| [Philoponella prominens Optimizer](https://doi.org/10.1007/s10586-024-04761-4) | `ppo` | swarm | Yes | No | No | `ppo.escape_sexual_cannibalism_juvenile_generation`<br>`ppo.escape_predation_local_search` |
 | [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245) | `petio` | human | Yes | No | No | `petio.performance_evaluation_teaching_update` |
 | [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | `pko.diving_beating_rate_update`<br>`pko.crest_angle_foraging_update`<br>`pko.hovering_attack_update`<br>`pko.population_escape_update` |
 | [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4) | `pfa_polar_fox` | swarm | Yes | No | No | `pfa_polar_fox.exploitation`<br>`pfa_polar_fox.selection`<br>`pfa_polar_fox.state_update`<br>`pfa_polar_fox.experience_phase`<br>`pfa_polar_fox.leader_guided_refinement_update`<br>`pfa_polar_fox.leader_phase` |
@@ -1479,6 +1483,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Remora Optimization Algorithm](https://doi.org/10.1016/j.eswa.2021.115665) | `roa` | swarm | Yes | Yes | No | `roa.remora_attempt_update` |
 | [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | `rsa.reptile_hunting_encircling_update` |
 | [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648) | `rhso` | swarm | Yes | No | No | `rhso.rhinoceros_herd_position_update` |
+| [RRT-based Optimizer](https://doi.org/10.1109/ACCESS.2025.3547537) | `rrto` | swarm | Yes | No | No | `rrto.adaptive_step_size_wandering`<br>`rrto.absolute_difference_step`<br>`rrto.boundary_based_step` |
 | [Rüppell's Fox Optimizer](https://doi.org/10.1007/s10586-024-04950-1) | `rfo` | swarm | Yes | Yes | No | `rfo.red_fox_smell_search_update` |
 | [Sailfish Optimizer](https://doi.org/10.1016/j.engappai.2019.01.001) | `sfo` | swarm | Yes | Yes | No | `sfo.behavioral_move`<br>`sfo.selection` |
 | [Salp Swarm Algorithm](https://doi.org/10.1016/j.advengsoft.2017.07.002) | `ssa` | swarm | Yes | Yes | No | `ssa.leader_plus_food_guidance`<br>`ssa.leader_minus_food_guidance`<br>`ssa.follower_front_chain_update`<br>`ssa.follower_rear_chain_update` |
@@ -1694,18 +1699,18 @@ All functions below use the **minimization** convention.
 
 | Function | ID | Domain | Global Minimum |
 |---|---|---:|---:|
-| CEC 2022 F1 | `cec_2022_f01` | 2, 10, 20 | *f(x)* = 300 |
-| CEC 2022 F2 | `cec_2022_f02` | 2, 10, 20 | *f(x)* = 400 |
-| CEC 2022 F3 | `cec_2022_f03` | 2, 10, 20 | *f(x)* = 600 |
-| CEC 2022 F4 | `cec_2022_f04` | 2, 10, 20 | *f(x)* = 800 |
-| CEC 2022 F5 | `cec_2022_f05` | 2, 10, 20 | *f(x)* = 900 |
-| CEC 2022 F6 | `cec_2022_f06` | 10, 20 | *f(x)* = 1800 |
-| CEC 2022 F7 | `cec_2022_f07` | 10, 20 | *f(x)* = 2000 |
-| CEC 2022 F8 | `cec_2022_f08` | 10, 20 | *f(x)* = 2200 |
-| CEC 2022 F9 | `cec_2022_f09` | 2, 10, 20 | *f(x)* = 2300 |
-| CEC 2022 F10 | `cec_2022_f10` | 2, 10, 20 | *f(x)* = 2400 |
-| CEC 2022 F11 | `cec_2022_f11` | 2, 10, 20 | *f(x)* = 2600 |
-| CEC 2022 F12 | `cec_2022_f12` | 2, 10, 20 | *f(x)* = 2700 |
+| CEC 2022 F1 | `cec_2022_f01` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 300 |
+| CEC 2022 F2 | `cec_2022_f02` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 400 |
+| CEC 2022 F3 | `cec_2022_f03` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 600 |
+| CEC 2022 F4 | `cec_2022_f04` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 800 |
+| CEC 2022 F5 | `cec_2022_f05` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 900 |
+| CEC 2022 F6 | `cec_2022_f06` | [-100, 100]<sup>D</sup>, *D* = 10, 20 | *f(x)* = 1800 |
+| CEC 2022 F7 | `cec_2022_f07` | [-100, 100]<sup>D</sup>, *D* = 10, 20 | *f(x)* = 2000 |
+| CEC 2022 F8 | `cec_2022_f08` | [-100, 100]<sup>D</sup>, *D* = 10, 20 | *f(x)* = 2200 |
+| CEC 2022 F9 | `cec_2022_f09` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 2300 |
+| CEC 2022 F10 | `cec_2022_f10` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 2400 |
+| CEC 2022 F11 | `cec_2022_f11` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 2600 |
+| CEC 2022 F12 | `cec_2022_f12` | [-100, 100]<sup>D</sup>, *D* = 2, 10, 20 | *f(x)* = 2700 |
 
 ### BBOB Functions
 
@@ -1755,19 +1760,95 @@ Engineering benchmarks expose an objective function, along with bounds and const
 
 ### Notes
 
-| Note | Meaning |
-|---|---|
-| N1 | Alpine 2 and Cosine Mixture have sign-convention traps in the literature. This package uses minimization-compatible signs. |
-| N2 | Katsuura is implemented as the product expression minus 1, so the exposed minimum is 0 at the origin. |
-| N3 | Michalewicz has no single dimension-free closed-form optimum. For *m* = 10, common reference values are approximately: *D* = 2, *f*<sup>*</sup> = -1.8013; *D* = 5, *f*<sup>*</sup> = -4.6877; *D* = 10, *f*<sup>*</sup> = -9.6602. |
-| N4 | Modified Schwefel is exposed in shifted CEC-style coordinates, so the visible optimizer is 0<sub>D</sub>. |
-| N5 | Powell requires *D* to be a multiple of 4. |
-| N6 | This is the cumulative ridge implementation, not the BBOB sharp-ridge function. |
-| N7 | Step functions have optimizer intervals, not isolated optimizer points. |
-| N8 | Stepint is bound-dependent. With bounds [-5.12, 5.12]<sup>D</sup>, *f*<sup>*</sup> = 25 - 6*D*; without bounds, it is unbounded below. |
-| N9 | Engineering-design rows are constrained benchmarks. The Python module exposes `get_engineering_benchmark(id)` so users can pass the returned objective, bounds, and constraints directly to `pymetaheuristic.optimize`. |
-| N10 | Gear train is a discrete integer benchmark. The implementation rounds variables to the nearest integer tooth counts by default. |
-| N11 | Pressure vessel has two common variants. `pressure_vessel` is the continuous relaxation; `pressure_vessel_discrete` rounds shell/head thickness upward to multiples of 1/16 before objective and constraint evaluation. |
+<table>
+  <thead>
+    <tr>
+      <th align="left">Note</th>
+      <th align="left">Meaning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>N1</strong></td>
+      <td>
+        Alpine 2 and Cosine Mixture have sign-convention traps in the literature.
+        This package uses minimization-compatible signs.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N2</strong></td>
+      <td>
+        Katsuura is implemented as the product expression minus 1, so the exposed
+        minimum is 0 at the origin.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N3</strong></td>
+      <td>
+        Michalewicz has no single dimension-free closed-form optimum.
+        For <em>m</em> = 10, common reference values are approximately:<br>
+        <em>D</em> = 2, <em>f</em><sup>*</sup> = −1.8013;<br>
+        <em>D</em> = 5, <em>f</em><sup>*</sup> = −4.6877;<br>
+        <em>D</em> = 10, <em>f</em><sup>*</sup> = −9.6602.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N4</strong></td>
+      <td>
+        Modified Schwefel is exposed in shifted CEC-style coordinates, so the
+        visible optimizer is 0<sub>D</sub>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N5</strong></td>
+      <td>
+        Powell requires <em>D</em> to be a multiple of 4.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N6</strong></td>
+      <td>
+        This is the cumulative ridge implementation, not the BBOB sharp-ridge function.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N7</strong></td>
+      <td>
+        Step functions have optimizer intervals, not isolated optimizer points.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N8</strong></td>
+      <td>
+        Stepint is bound-dependent. With bounds [−5.12, 5.12]<sup>D</sup>,
+        <em>f</em><sup>*</sup> = 25 − 6<em>D</em>; without bounds, it is unbounded below.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N9</strong></td>
+      <td>
+        Engineering-design rows are constrained benchmarks. The Python module exposes
+        <code>get_engineering_benchmark(id)</code>, so users can pass the returned
+        objective, bounds, and constraints directly to <code>pymetaheuristic.optimize</code>.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N10</strong></td>
+      <td>
+        Gear train is a discrete integer benchmark. The implementation rounds variables
+        to the nearest integer tooth counts by default.
+      </td>
+    </tr>
+    <tr>
+      <td><strong>N11</strong></td>
+      <td>
+        Pressure vessel has two common variants. <code>pressure_vessel</code> is the
+        continuous relaxation; <code>pressure_vessel_discrete</code> rounds shell/head
+        thickness upward to multiples of 1/16 before objective and constraint evaluation.
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 
 ---
