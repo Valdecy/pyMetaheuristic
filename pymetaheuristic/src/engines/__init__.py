@@ -394,6 +394,7 @@ from .wooa                import WoOAEngine
 from .wso                 import WSOEngine
 from .wutp                import WUTPEngine
 from .ydse                import YDSEEngine
+from .yo                  import YOEngine
 from .zoa                 import ZOAEngine
 
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
@@ -776,6 +777,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     WmqimrfoEngine, 
     WoOAEngine, 
     YDSEEngine, 
+    YOEngine,
     ZOAEngine,    
 )
 
@@ -1178,6 +1180,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'wso', 
     'wutp', 
     'ydse',
+    'yo',
     'zoa',
 }
 
@@ -1541,6 +1544,7 @@ _POPULATION_BASED: set[str] = {
     'wso',
     'wutp', 
     'ydse', 
+    'yo',
     'zoa',
 }
 
@@ -2208,6 +2212,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'wso', 
     'wutp', 
     'ydse', 
+    'yo',
     'zoa',
 }
     
@@ -2592,6 +2597,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'wso'                : 'White Shark Optimizer',
     'wutp'               : 'Water Uptake and Transport in Plants',
     'ydse'               : "Young's Double-Slit Experiment Optimizer",
+    'yo'                 : 'Yukthi Opus',
     'zoa'                : 'Zebra Optimization Algorithm',
 }
 
@@ -2975,6 +2981,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'wso'                : 'swarm',
     'wutp'               : 'nature',
     'ydse'               : 'physics',
+    'yo'                 : 'trajectory',
     'zoa'                : 'swarm',
  }
 
@@ -3358,6 +3365,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'wso'                : '10.1016/j.knosys.2022.108457',
     'wutp'               : '10.1007/s00521-025-11228-z',
     'ydse'               : '10.1016/j.cma.2022.115652',
+    'yo'                 : '10.48550/arXiv.2601.01832',
     'zoa'                : '10.1109/ACCESS.2022.3172789',
  }
 

@@ -1198,3 +1198,31 @@ EVOMAPX_OPERATOR_PROFILES["rrto"] = EvoMapXProfile(
     phase="addendum_2025_metaheuristics",
     notes="Native RRTO hook labels accepted moves from its three RRT-inspired adaptive step-size strategies.",
 )
+
+# ---------------------------------------------------------------------------
+# Addendum — Yukthi Opus
+# ---------------------------------------------------------------------------
+EVOMAPX_OPERATOR_PROFILES["yo"] = EvoMapXProfile(
+    algorithm_id="yo",
+    family="trajectory",
+    operators=(
+        "mcmc_burn_in",
+        "post_burnin_selection",
+        "mcmc_proposal",
+        "greedy_refinement",
+        "simulated_annealing_acceptance",
+        "blacklist_filter",
+        "adaptive_reheating",
+        "elite_update",
+    ),
+    fidelity="native",
+    phase="addendum_yukthi_opus",
+    notes=(
+        "Native Yukthi Opus instrumentation logs MCMC burn-in, post-burnin selection, "
+        "MCMC proposal, greedy refinement, and SA acceptance as direct objective-improvement "
+        "operators. Blacklist filtering, adaptive reheating, and elite updates are diagnostic "
+        "operators with zero direct improvement unless the engine reports already-computed gains. "
+        "The current EvoMapXProfile schema has no direct_operators/diagnostic_operators fields, "
+        "so the separation is documented here and in result metadata."
+    ),
+)

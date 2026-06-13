@@ -3921,3 +3921,48 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if label in _ADDED_METAHEURISTIC_COMPOUND_SPLITS:
         return list(_ADDED_METAHEURISTIC_COMPOUND_SPLITS[label])
     return _prev_expand_compound_operator_label_added_metaheuristics(algorithm_id, label)
+
+# ---------------------------------------------------------------------------
+# Addendum — Yukthi Opus native operator labels
+# ---------------------------------------------------------------------------
+_YO_OPERATOR_LABELS = [
+    "yo.mcmc_burn_in",
+    "yo.post_burnin_selection",
+    "yo.mcmc_proposal",
+    "yo.greedy_refinement",
+    "yo.simulated_annealing_acceptance",
+    "yo.blacklist_filter",
+    "yo.adaptive_reheating",
+    "yo.elite_update",
+]
+_YO_COMPOUND_SPLITS = {
+    "yo.hybrid_mcmc_greedy_sa_update": [
+        "yo.mcmc_proposal",
+        "yo.greedy_refinement",
+        "yo.simulated_annealing_acceptance",
+    ],
+    "yo.burn_in_mcmc_update": ["yo.mcmc_burn_in"],
+}
+_EXACT_COMPOUND_OPERATOR_SPLITS.update(_YO_COMPOUND_SPLITS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["yo"] = list(_YO_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["yo"] = list(_YO_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_YO_OPERATOR_LABELS)
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_YO_COMPOUND_SPLITS.keys())
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_yo = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower() == "yo":
+        return list(_YO_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_yo(algorithm_id)
+
+_prev_expand_compound_operator_label_yo = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    if label in _YO_COMPOUND_SPLITS:
+        return list(_YO_COMPOUND_SPLITS[label])
+    return _prev_expand_compound_operator_label_yo(algorithm_id, label)

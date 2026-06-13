@@ -471,6 +471,64 @@ class EvoMapXProbe:
         before_best = None if before is None else before.best_fitness
         macro_delta = _fitness_better_delta(before_best, after.best_fitness, self.objective)
 
+        # Preserve engine-native operator telemetry when an engine explicitly
+        # declares native EvoMapX fidelity.  This is still passive: the probe
+        # only copies already-computed operator_contributions from observe(); it
+        # does not evaluate objectives, draw random numbers, reorder candidates,
+        # or alter optimizer state.
+        native_contribs = obs.get("operator_contributions")
+        native_fidelity = str(obs.get("evomapx_fidelity", obs.get("evomapx_fidelity_runtime", ""))).lower()
+        if self.level >= 2 and isinstance(native_contribs, dict) and native_contribs and "native" in native_fidelity:
+            native_counts_raw = obs.get("operator_counts", {})
+            native_counts = native_counts_raw if isinstance(native_counts_raw, dict) else {}
+            contributions: dict[str, float] = {}
+            counts: dict[str, int] = {}
+            for op, value in native_contribs.items():
+                try:
+                    val = float(value or 0.0)
+                except Exception:
+                    val = 0.0
+                if not math.isfinite(val):
+                    val = 0.0
+                op_str = str(op)
+                contributions[op_str] = float(max(0.0, val))
+                try:
+                    raw_count = native_counts.get(op, native_counts.get(op_str, None))
+                    counts[op_str] = max(0, int(raw_count)) if raw_count is not None else (1 if val > 0.0 else 0)
+                except Exception:
+                    counts[op_str] = 1 if val > 0.0 else 0
+            obs["operator_contributions"] = dict(contributions)
+            obs["operator_counts"] = dict(counts)
+            obs["evomapx_delta_f"] = obs.get("evomapx_delta_f", "objective_consistent_positive")
+            obs["evomapx_attribution_available"] = True
+            obs["evomapx_fidelity_runtime"] = "native_engine_operator_contributions"
+            obs["evomapx_probe_level"] = int(self.level)
+            obs["evomapx_macro_delta"] = float(macro_delta)
+            obs["evomapx_operator_candidate_delta_sum"] = dict(contributions)
+            for op, val in contributions.items():
+                for split_op, split_delta, split_share, split_size in _expanded_operator_parts(self.algorithm_id, op, float(val)):
+                    self.records.append({
+                        "step": int(after.step),
+                        "operator": split_op,
+                        "algorithm": self.algorithm_id,
+                        "raw_improvement": float(max(0.0, split_delta)),
+                        "positive_improvement": float(max(0.0, split_delta)),
+                        "n_applications": int(counts.get(op, counts.get(split_op, 1))),
+                        "source": "native_engine_operator_contributions",
+                        "metadata": {
+                            "macro_delta": float(macro_delta),
+                            "original_operator": op,
+                            "compound_split_size": int(split_size),
+                            "compound_split_fraction": float(split_share),
+                        },
+                    })
+            if self.level >= 1:
+                self._append_snapshot(after, phase="step")
+            self._before = None
+            self._active_step = None
+            self._step_evals = []
+            return obs
+
         # Evaluation-event telemetry is still useful for activity/counts and as a
         # fallback when lineage is unavailable. It is not used as the primary CDS
         # source when parent→child lineage can be computed.
