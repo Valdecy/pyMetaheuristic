@@ -512,53 +512,6 @@ _register_profiles(
 # Public API
 # ---------------------------------------------------------------------------
 
-_PRE_FINAL_SEMANTICIZE_OPERATOR_LABEL = semanticize_operator_label
-_PRE_FINAL_LABELS_FOR_ALGORITHM = labels_for_algorithm
-
-
-def _normalize_evomapx_label(algorithm_id: str, label: str | None) -> str | None:
-    if label in {None, ""}:
-        return label
-
-    aid = str(algorithm_id or "").strip()
-    raw = str(label).strip()
-
-    if not raw:
-        return raw
-
-    if raw == "carryover":
-        return f"{aid}.retained_parent" if aid else "retained_parent"
-
-    if raw == "initialization":
-        return f"{aid}.initialization" if aid else "initialization"
-
-    return raw
-
-
-def semanticize_operator_label(algorithm_id: str, label: str | None) -> str | None:  # type: ignore[override]
-    semantic = _PRE_FINAL_SEMANTICIZE_OPERATOR_LABEL(algorithm_id, label)
-    return _normalize_evomapx_label(algorithm_id, semantic)
-
-
-def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
-    aid = str(algorithm_id or "").strip()
-    out: list[str] = []
-
-    for raw in _PRE_FINAL_LABELS_FOR_ALGORITHM(aid):
-        label = semanticize_operator_label(aid, raw)
-        if label and label not in out:
-            out.append(label)
-
-    return out
-
-
-for _aid, _labels in list(ENGINE_OPERATOR_LABELS.items()):
-    _normalized: list[str] = []
-    for _raw_label in _labels:
-        _label = semanticize_operator_label(_aid, _raw_label)
-        if _label and _label not in _normalized:
-            _normalized.append(_label)
-    ENGINE_OPERATOR_LABELS[_aid] = _normalized
 
 def get_evomapx_profile(algorithm_id: str | None, family: str | None = None) -> EvoMapXProfile:
     """Return the declared EvoMapX operator profile for an algorithm ID."""
