@@ -29,6 +29,7 @@ class SOPTEngine(PortedPopulationEngine):
         supports_checkpoint=True,
         supports_framework_constraints=True,
         supports_diversity_metrics=True,
+        supports_snapshot_fit=True,
     )
     _DEFAULTS = dict(population_size=30, lambda1=1.0, offspring_size=None)
 
