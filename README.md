@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **380 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **381 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -670,8 +670,6 @@ In addition to ordinary uniform random initialization, **pymetaheuristic** suppo
 | Sobol sequence | `"sobol"` | Low-discrepancy quasi-random sampling for space-filling initialization. |
 | Chaotic initialization | `"chaotic:<map>"` | Uses one of the available chaotic maps, e.g. `"chaotic:tent"` or `"chaotic:logistic"`. |
 
-The simplest way to use Latin Hypercube initialization is:
-
 ```python
 import pymetaheuristic
 print(pymetaheuristic.AVAILABLE_INIT_STRATEGIES)
@@ -1170,7 +1168,7 @@ The table below summarizes the optimization engines currently available in the l
 - **Family** provides a coarse methodological grouping, 
 - **Population** indicates whether the algorithm maintains an explicit candidate population and can also show population snapshots, 
 - **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows,
-- **Restart** shows whether native restart support is declared. 
+- **Restart** shows whether native restart support is declared,
 - **EvoMapX** lists the semantic operator labels used by the passive EvoMapX resolver. Each label names an interpretable operator region of the algorithm (for example, `gwo.alpha_guidance`, `woa.spiral_bubble_net`, or `wca.evaporation_raining`), and the per-operator Convergence Driver Score is computed from the signed parent->child fitness change of the candidates that operator actually produced. The engines evaluate each operator output separately and therefore expose a multi-operator decomposition whose attribution responds to the seed and the objective. 
 
 ---
@@ -1564,6 +1562,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Wind Driven Optimization](https://doi.org/10.1109/APS.2010.5562213) | `wdo` | physics | Yes | Yes | No | `wdo.wind_velocity_position_update` |
 | [Wolverine Optimization Algorithm](https://doi.org/10.32604/cmes.2024.055171) | `wooa` | swarm | Yes | Yes | No | `wooa.scavenging_predator_following`<br>`wooa.prey_attack_update`<br>`wooa.fight_chase_local_update` |
 | [Young's Double-Slit Experiment Optimizer](https://doi.org/10.1016/j.cma.2022.115652) | `ydse` | physics | Yes | Yes | No | `ydse.central_bright_fringe_update`<br>`ydse.bright_fringe_interference_update`<br>`ydse.dark_fringe_interference_update` |
+| [Yukthi Opus](https://doi.org/10.48550/arXiv.2601.01832) | `yo` | trajectory | Yes | No | No | `yo.mcmc_burn_in`<br>`yo.post_burnin_selection`<br>`yo.mcmc_proposal`<br>`yo.greedy_refinement`<br>`yo.simulated_annealing_acceptance`<br>`yo.blacklist_filter`<br>`yo.adaptive_reheating`<br>`yo.elite_update` |
 | [Zebra Optimization Algorithm](https://doi.org/10.1109/ACCESS.2022.3172789) | `zoa` | swarm | Yes | Yes | No | `zoa.behavioral_move`<br>`zoa.selection`<br>`zoa.candidate_generation` |
 
 <br/>
