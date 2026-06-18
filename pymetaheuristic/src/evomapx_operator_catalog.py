@@ -3966,3 +3966,74 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if label in _YO_COMPOUND_SPLITS:
         return list(_YO_COMPOUND_SPLITS[label])
     return _prev_expand_compound_operator_label_yo(algorithm_id, label)
+
+# ---------------------------------------------------------------------------
+# Addendum — Tornado Optimizer with Coriolis Force native operator labels
+# ---------------------------------------------------------------------------
+_TOC_OPERATOR_LABELS = [
+    "toc.fitness_proportional_assignment",
+    "toc.coriolis_velocity_update",
+    "toc.windstorm_to_tornado_evolution",
+    "toc.windstorm_to_thunderstorm_evolution",
+    "toc.thunderstorm_to_tornado_evolution",
+    "toc.random_windstorm_formation",
+    "toc.role_exchange_replacement",
+]
+_TOC_DIRECT_OPERATOR_LABELS = [
+    "toc.windstorm_to_tornado_evolution",
+    "toc.windstorm_to_thunderstorm_evolution",
+    "toc.thunderstorm_to_tornado_evolution",
+    "toc.random_windstorm_formation",
+]
+_TOC_DIAGNOSTIC_OPERATOR_LABELS = [
+    "toc.fitness_proportional_assignment",
+    "toc.coriolis_velocity_update",
+    "toc.role_exchange_replacement",
+]
+_TOC_COMPOUND_SPLITS = {
+    "toc.windstorm_evolution_update": [
+        "toc.coriolis_velocity_update",
+        "toc.windstorm_to_tornado_evolution",
+        "toc.windstorm_to_thunderstorm_evolution",
+    ],
+    "toc.thunderstorm_evolution_update": ["toc.thunderstorm_to_tornado_evolution"],
+}
+try:
+    _EXACT_COMPOUND_OPERATOR_SPLITS.update(_TOC_COMPOUND_SPLITS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["toc"] = list(_TOC_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["toc"] = list(_TOC_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_TOC_OPERATOR_LABELS)
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_TOC_COMPOUND_SPLITS.keys())
+except NameError:  # pragma: no cover
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("toc")
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_toc = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower() == "toc":
+        return list(_TOC_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_toc(algorithm_id)
+
+_prev_expand_compound_operator_label_toc = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    if label in _TOC_COMPOUND_SPLITS:
+        return list(_TOC_COMPOUND_SPLITS[label])
+    return _prev_expand_compound_operator_label_toc(algorithm_id, label)
+
+# TOC now emits native paper-level operator contributions; remove the historical
+# monolithic single-operator guard so attribution does not collapse to the old
+# heuristic spiral label.
+try:
+    _SINGLE_EVAL_HONEST.pop("toc", None)
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("toc")
+except NameError:  # pragma: no cover
+    pass
