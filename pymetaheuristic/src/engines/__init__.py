@@ -243,6 +243,7 @@ from .liwo                import LiWOEngine
 from .loa                 import LOAEngine
 from .loa_lyrebird        import LOALyrebirdEngine
 from .lpo                 import LPOEngine
+from .lshade              import LSHADEEngine
 from .lshade_cnepsin      import LSHADECnEpSinEngine
 from .lso_spectrum        import LSOSpectrumEngine
 from .mbo                 import MBOEngine
@@ -254,6 +255,7 @@ from .mfo                 import MFOEngine
 from .mgo                 import MGOEngine
 from .mgoa_market         import MGOAMarketEngine
 from .misaco              import MiSACOEngine
+from .mlshade_rl          import MLSHADERLEngine
 from .mke                 import MKEEngine
 from .modified_aeo        import ModifiedAEOEngine
 from .modified_eo         import ModifiedEoEngine
@@ -622,6 +624,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     LOAEngine, 
     LOALyrebirdEngine, 
     LPOEngine, 
+    LSHADEEngine, 
     LSHADECnEpSinEngine, 
     LSOSpectrumEngine, 
     LaroEngine, 
@@ -636,6 +639,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     MFOEngine, 
     MGOAMarketEngine, 
     MGOEngine, 
+    MLSHADERLEngine, 
     MKEEngine, 
     MPAEngine, 
     MRFOEngine,
@@ -1029,6 +1033,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'loa', 
     'loa_lyrebird', 
     'lpo', 
+    'lshade', 
     'lshade_cnepsin', 
     'lso_spectrum', 
     'mbo', 
@@ -1040,6 +1045,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
+    'mlshade_rl', 
     'mke', 
     'modified_aeo', 
     'modified_eo', 
@@ -1403,6 +1409,7 @@ _POPULATION_BASED: set[str] = {
     'loa', 
     'loa_lyrebird', 
     'lpo', 
+    'lshade', 
     'lshade_cnepsin', 
     'lso_spectrum', 
     'mbo',
@@ -1414,6 +1421,7 @@ _POPULATION_BASED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
+    'mlshade_rl', 
     'mke', 
     'modified_aeo', 
     'modified_eo', 
@@ -1719,6 +1727,7 @@ _INJECTION_ENABLED: set[str] = {
     'loa', 
     'loa_lyrebird', 
     'lpo', 
+    'lshade', 
     'lshade_cnepsin',
     'lso_spectrum', 
     'mbo', 
@@ -1728,6 +1737,7 @@ _INJECTION_ENABLED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco',
+    'mlshade_rl',
     'mke', 
     'moss_go', 
     'mpa', 
@@ -1850,6 +1860,7 @@ _RESTART_ENABLED: set[str] = {
     'ils', 
     'ipop_cmaes', 
     'msls', 
+    'mlshade_rl', 
     'sa', 
     'vns',
 }
@@ -2071,6 +2082,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'loa', 
     'loa_lyrebird', 
     'lpo', 
+    'lshade', 
     'lshade_cnepsin', 
     'lso_spectrum', 
     'mbo',
@@ -2082,6 +2094,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
+    'mlshade_rl', 
     'mke', 
     'modified_aeo',
     'modified_eo',
@@ -2447,6 +2460,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'loa'                : 'Lion Optimization Algorithm',
     'loa_lyrebird'       : 'Lyrebird Optimization Algorithm',
     'lpo'                : 'Lungs Performance-Based Optimization',
+    'lshade'             : 'L-SHADE',
     'lshade_cnepsin'     : 'LSHADE-cnEpSin',
     'lso_spectrum'       : 'Light Spectrum Optimizer',
     'mbo'                : 'Monarch Butterfly Optimization',
@@ -2458,6 +2472,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'mgo'                : 'Mountain Gazelle Optimizer',
     'mgoa_market'        : 'Market Game Optimization Algorithm',
     'misaco'             : 'Multi-Surrogate-Assisted Ant Colony Optimization',
+    'mlshade_rl'         : 'mLSHADE-RL',
     'mke'                : 'Monkey King Evolution V1',
     'modified_aeo'       : 'Modified Artificial Ecosystem-Based Optimization (MAEO)',
     'modified_eo'        : 'Modified Equilibrium Optimizer (MEO)',
@@ -2831,6 +2846,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'loa'                : 'swarm',
     'loa_lyrebird'       : 'swarm',
     'lpo'                : 'nature',
+    'lshade'             : 'evolutionary',
     'lshade_cnepsin'     : 'evolutionary',
     'lso_spectrum'       : 'physics',
     'mbo'                : 'swarm',
@@ -2842,6 +2858,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'mgo'                : 'swarm',
     'mgoa_market'        : 'human',
     'misaco'             : 'swarm',
+    'mlshade_rl'         : 'evolutionary',
     'mke'                : 'evolutionary',
     'modified_aeo'       : 'nature',
     'modified_eo'        : 'physics',
@@ -3215,6 +3232,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'loa'                : '10.1016/j.jcde.2015.06.003',
     'loa_lyrebird'       : '10.1016/j.cma.2023.116436',
     'lpo'                : '10.1016/j.cma.2023.116582',
+    'lshade'             : '10.1109/CEC.2014.6900380',
     'lshade_cnepsin'     : '10.1109/CEC.2016.7744173',
     'lso_spectrum'       : '10.1016/j.asoc.2024.112318',
     'mbo'                : '10.1007/s00521-015-1923-y',
@@ -3226,6 +3244,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'mgo'                : '10.1016/j.advengsoft.2022.103282',
     'mgoa_market'        : '10.1016/j.asoc.2024.112466',
     'misaco'             : '10.1109/TCYB.2021.3064676',
+    'mlshade_rl'         : '10.48550/arXiv.2409.15994',
     'mke'                : '10.1016/j.knosys.2016.01.009',
     'modified_aeo'       : '10.1109/ACCESS.2020.2973351',
     'modified_eo'        : '10.1016/j.asoc.2020.106542',

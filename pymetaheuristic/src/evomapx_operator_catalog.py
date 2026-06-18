@@ -4037,3 +4037,47 @@ try:
     _SINGLE_OPERATOR_SEMANTIC_OK.discard("toc")
 except NameError:  # pragma: no cover
     pass
+
+# Addendum — native L-SHADE and mLSHADE-RL operator labels.
+_LSHADE_OPERATOR_LABELS = [
+    "lshade.mutation",
+    "lshade.crossover",
+    "lshade.selection",
+    "lshade.archive_update",
+    "lshade.success_history_update",
+    "lshade.population_reduction",
+]
+_MLSHADE_RL_OPERATOR_LABELS = [
+    "mlshade_rl.ms1_current_to_pbest_weight_archive",
+    "mlshade_rl.ms2_current_to_pbest_no_archive",
+    "mlshade_rl.ms3_current_to_ordpbest_weight",
+    "mlshade_rl.crossover",
+    "mlshade_rl.selection",
+    "mlshade_rl.strategy_probability_update",
+    "mlshade_rl.parameter_adaptation",
+    "mlshade_rl.archive_update",
+    "mlshade_rl.population_reduction",
+    "mlshade_rl.restart",
+    "mlshade_rl.local_search",
+]
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["lshade"] = list(_LSHADE_OPERATOR_LABELS)
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["mlshade_rl"] = list(_MLSHADE_RL_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["lshade"] = list(_LSHADE_OPERATOR_LABELS)
+ENGINE_OPERATOR_LABELS["mlshade_rl"] = list(_MLSHADE_RL_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_LSHADE_OPERATOR_LABELS)
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_MLSHADE_RL_OPERATOR_LABELS)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_lshade_family = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "lshade":
+        return list(_LSHADE_OPERATOR_LABELS)
+    if aid == "mlshade_rl":
+        return list(_MLSHADE_RL_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_lshade_family(algorithm_id)

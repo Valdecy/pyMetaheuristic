@@ -531,3 +531,37 @@ def get_evomapx_operators(algorithm_id: str | None, family: str | None = None) -
 def list_evomapx_profiles() -> list[dict[str, Any]]:
     """Return all declared profiles as dictionaries, sorted by algorithm ID."""
     return [EVOMAPX_OPERATOR_PROFILES[k].to_dict() for k in sorted(EVOMAPX_OPERATOR_PROFILES)]
+
+# Addendum — L-SHADE family engines added from supplied papers.
+EVOMAPX_OPERATOR_PROFILES["lshade"] = _profile(
+    "lshade",
+    "evolutionary",
+    (
+        "success-history parameter adaptation",
+        "current-to-pbest differential mutation",
+        "binomial crossover",
+        "greedy selection/replacement",
+        "archive update",
+        "linear population reduction",
+    ),
+    "native",
+    "lshade_family_addendum",
+    "Native engine telemetry logs L-SHADE mutation, crossover, selection, archive update, success-history update, and population reduction without instrumentation-side objective evaluations.",
+)
+EVOMAPX_OPERATOR_PROFILES["mlshade_rl"] = _profile(
+    "mlshade_rl",
+    "evolutionary",
+    (
+        "multi-operator differential mutation",
+        "covariance/binomial crossover",
+        "greedy selection/replacement",
+        "strategy probability adaptation",
+        "success-history parameter adaptation",
+        "restart",
+        "local search",
+        "linear population reduction",
+    ),
+    "native",
+    "lshade_family_addendum",
+    "Native engine telemetry logs mLSHADE-RL mutation-strategy contributions, crossover, selection, strategy/parameter adaptation, restart, local search, archive update, and population reduction. Local-search objective calls are part of the optimizer budget, not EvoMapX instrumentation.",
+)
