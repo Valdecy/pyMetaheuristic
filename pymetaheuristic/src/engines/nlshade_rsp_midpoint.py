@@ -1,6 +1,8 @@
 """pyMetaheuristic src — NL-SHADE-RSP-Midpoint Engine."""
 from __future__ import annotations
 
+from dataclasses import replace
+
 from ._shade_variants import ShadeVariantEngine
 
 
@@ -10,6 +12,7 @@ class NLSHADERspMidpointEngine(ShadeVariantEngine):
     algorithm_id = "nlshade_rsp_midpoint"
     algorithm_name = "NL-SHADE-RSP-Midpoint"
     family = "evolutionary"
+    capabilities = replace(ShadeVariantEngine.capabilities, supports_restart=True)
     _REFERENCE = {
         "doi": "10.1109/CEC55065.2022.9870220",
         "title": "A Version of NL-SHADE-RSP Algorithm with Midpoint for CEC 2022 Single Objective Bound Constrained Problems",
