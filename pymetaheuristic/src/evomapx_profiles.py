@@ -565,3 +565,46 @@ EVOMAPX_OPERATOR_PROFILES["mlshade_rl"] = _profile(
     "lshade_family_addendum",
     "Native engine telemetry logs mLSHADE-RL mutation-strategy contributions, crossover, selection, strategy/parameter adaptation, restart, local search, archive update, and population reduction. Local-search objective calls are part of the optimizer budget, not EvoMapX instrumentation.",
 )
+
+# Addendum — SHADE-family and Secant engines from supplied papers.
+_SHADE_SUPPLIED_OPERATORS = (
+    "success-history parameter adaptation",
+    "current-to-pbest/order-pbest differential mutation",
+    "binomial crossover",
+    "rank-biased sampling/archive update",
+    "greedy selection/replacement",
+    "population reduction",
+)
+for _aid, _name, _extra in [
+    ("jso_de", "jSO Differential Evolution", ("weighted pbest mutation",)),
+    ("lshade_epsin", "LSHADE-EpSin", ("ensemble sinusoidal adaptation", "Gaussian-walk local search")),
+    ("lshade_rsp", "LSHADE-RSP", ("rank-based selective pressure",)),
+    ("lshade_spacma", "LSHADE-SPACMA", ("CMA-ES-style elite covariance sampling",)),
+    ("ilshade_rsp", "iLSHADE-RSP", ("Cauchy target perturbation",)),
+    ("nlshade_lbc", "NL-SHADE-LBC", ("linear parameter-bias change", "nonlinear population reduction")),
+    ("nlshade_rsp", "NL-SHADE-RSP", ("nonlinear population reduction", "adaptive archive use")),
+    ("nlshade_rsp_midpoint", "NL-SHADE-RSP-Midpoint", ("population/two-cluster midpoint", "midpoint restart trigger")),
+    ("rde", "Reconstructed Differential Evolution", ("order-pbest strategy allocation", "strategy-ratio update")),
+]:
+    EVOMAPX_OPERATOR_PROFILES[_aid] = _profile(
+        _aid,
+        "evolutionary",
+        tuple(dict.fromkeys(_SHADE_SUPPLIED_OPERATORS + tuple(_extra))),
+        "native",
+        "supplied_shade_family_addendum",
+        f"Native engine telemetry logs {_name} operator contributions without EvoMapX-side objective evaluations.",
+    )
+
+EVOMAPX_OPERATOR_PROFILES["secant_oa"] = _profile(
+    "secant_oa",
+    "math",
+    (
+        "secant derivative-free update",
+        "stochastic exploitation around closest/farthest solutions",
+        "mutation gate",
+        "greedy selection/replacement",
+    ),
+    "native",
+    "supplied_secant_addendum",
+    "Native engine telemetry logs SOA secant and stochastic exploitation phases without EvoMapX-side objective evaluations.",
+)

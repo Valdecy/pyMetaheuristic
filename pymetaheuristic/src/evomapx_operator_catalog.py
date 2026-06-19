@@ -4081,3 +4081,77 @@ def labels_for_algorithm(algorithm_id):  # type: ignore[override]
     if aid == "mlshade_rl":
         return list(_MLSHADE_RL_OPERATOR_LABELS)
     return _prev_labels_for_algorithm_lshade_family(algorithm_id)
+
+# Addendum — supplied SHADE-family and Secant engine-native operator labels.
+_SUPPLIED_NATIVE_OPERATOR_LABELS = {
+    "jso_de": [
+        "jso_de.mutation", "jso_de.crossover", "jso_de.selection",
+        "jso_de.archive_update", "jso_de.success_history_update",
+        "jso_de.population_reduction",
+    ],
+    "lshade_epsin": [
+        "lshade_epsin.mutation", "lshade_epsin.crossover", "lshade_epsin.selection",
+        "lshade_epsin.archive_update", "lshade_epsin.success_history_update",
+        "lshade_epsin.population_reduction", "lshade_epsin.ensemble_sinusoidal_adaptation",
+        "lshade_epsin.gaussian_walk_local_search",
+    ],
+    "lshade_rsp": [
+        "lshade_rsp.mutation", "lshade_rsp.crossover", "lshade_rsp.selection",
+        "lshade_rsp.archive_update", "lshade_rsp.success_history_update",
+        "lshade_rsp.population_reduction", "lshade_rsp.rank_selective_pressure",
+    ],
+    "lshade_spacma": [
+        "lshade_spacma.mutation", "lshade_spacma.crossover", "lshade_spacma.selection",
+        "lshade_spacma.archive_update", "lshade_spacma.success_history_update",
+        "lshade_spacma.population_reduction", "lshade_spacma.cma_es_sampling",
+    ],
+    "ilshade_rsp": [
+        "ilshade_rsp.mutation", "ilshade_rsp.crossover", "ilshade_rsp.selection",
+        "ilshade_rsp.archive_update", "ilshade_rsp.success_history_update",
+        "ilshade_rsp.population_reduction", "ilshade_rsp.rank_selective_pressure",
+        "ilshade_rsp.cauchy_target_perturbation",
+    ],
+    "nlshade_lbc": [
+        "nlshade_lbc.mutation", "nlshade_lbc.crossover", "nlshade_lbc.selection",
+        "nlshade_lbc.archive_update", "nlshade_lbc.success_history_update",
+        "nlshade_lbc.population_reduction", "nlshade_lbc.rank_selective_pressure",
+        "nlshade_lbc.linear_bias_change",
+    ],
+    "nlshade_rsp": [
+        "nlshade_rsp.mutation", "nlshade_rsp.crossover", "nlshade_rsp.selection",
+        "nlshade_rsp.archive_update", "nlshade_rsp.success_history_update",
+        "nlshade_rsp.population_reduction", "nlshade_rsp.rank_selective_pressure",
+    ],
+    "nlshade_rsp_midpoint": [
+        "nlshade_rsp_midpoint.mutation", "nlshade_rsp_midpoint.crossover", "nlshade_rsp_midpoint.selection",
+        "nlshade_rsp_midpoint.archive_update", "nlshade_rsp_midpoint.success_history_update",
+        "nlshade_rsp_midpoint.population_reduction", "nlshade_rsp_midpoint.rank_selective_pressure",
+        "nlshade_rsp_midpoint.midpoint_evaluation", "nlshade_rsp_midpoint.midpoint_restart",
+    ],
+    "rde": [
+        "rde.mutation", "rde.order_pbest_mutation", "rde.crossover", "rde.selection",
+        "rde.archive_update", "rde.success_history_update", "rde.population_reduction",
+        "rde.rank_selective_pressure", "rde.cauchy_target_perturbation", "rde.strategy_ratio_update",
+    ],
+    "secant_oa": [
+        "secant_oa.secant_update", "secant_oa.stochastic_exploitation",
+        "secant_oa.mutation_gate", "secant_oa.selection",
+    ],
+}
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES.update({k: list(v) for k, v in _SUPPLIED_NATIVE_OPERATOR_LABELS.items()})
+except NameError:  # pragma: no cover
+    pass
+ENGINE_OPERATOR_LABELS.update({k: list(v) for k, v in _SUPPLIED_NATIVE_OPERATOR_LABELS.items()})
+try:
+    for _labels in _SUPPLIED_NATIVE_OPERATOR_LABELS.values():
+        _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_labels)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_supplied_family = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    _aid = str(algorithm_id).lower().replace("-", "_")
+    if _aid in _SUPPLIED_NATIVE_OPERATOR_LABELS:
+        return list(_SUPPLIED_NATIVE_OPERATOR_LABELS[_aid])
+    return _prev_labels_for_algorithm_supplied_family(algorithm_id)

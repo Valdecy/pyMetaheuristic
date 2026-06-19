@@ -15,389 +15,399 @@ from .protocol import (
     ProblemSpec,
 )
 
-from .aaa                 import AAAEngine
-from .aao                 import AAOEngine
-from .abco                import ABCOEngine
-from .acgwo               import ACGWOEngine
-from .aco                 import ACOEngine
-from .acor                import ACOREngine
-from .adam                import AdamEngine
-from .adaptive_eo         import AdaptiveEoEngine
-from .aefa                import AEFAEngine
-from .aeo                 import AEOEngine
-from .aesspso             import AESSPSOEngine
-from .afsa                import AFSAEngine
-from .aft                 import AFTEngine
-from .agdo                import AGDOEngine
-from .agto                import AGTOEngine
-from .aha                 import AHAEngine
-from .aho                 import AHOEngine
-from .aiw_pso             import AiwPSOEngine
-from .ala                 import ALAEngine
-from .alo                 import ALOEngine
-from .ao                  import AOEngine
-from .aoa                 import AOAEngine
-from .aoo                 import AOOEngine
-from .apo                 import APOEngine
-from .arch_oa             import ARCHOAEngine
-from .aro                 import AROEngine
-from .ars                 import ARSEngine
-from .artemisinin_o       import ArtemisininOEngine
-from .aso                 import ASOEngine
-from .aso_atom            import ASOAtomEngine
-from .autov               import AutoVEngine
-from .avoa                import AVOAEngine
-from .bacterial_colony_o  import BacterialColonyOEngine
-from .basin_hopping       import BasinHoppingEngine
-from .bat_a               import BATAEngine
-from .bbo                 import BBOEngine
-from .bboa                import BBOAEngine
-from .bbso                import BBSOEngine
-from .bco                 import BCOEngine
-from .bea                 import BEAEngine
-from .bes                 import BESEngine
-from .bfgs                import BFGSEngine
-from .bfo                 import BFOEngine
-from .bipop_cmaes         import BIPOPCMAESEngine
-from .bka                 import BKAEngine
-from .bmo                 import BMOEngine
-from .bono                import BonobOEngine
-from .boa                 import BOAEngine
-from .bps                 import BPSEngine
-from .bro                 import BROEngine
-from .bsa                 import BSAEngine
-from .bso                 import BSOEngine
-from .bspga               import BSPGAEngine
-from .btoa                import BTOAEngine
-from .bwo                 import BWOEngine
-from .ca                  import CAEngine
-from .camel               import CamelEngine
-from .capsa               import CapSAEngine
-from .cat_so              import CAT_SOEngine
-from .cco                 import CCOEngine
-from .cddo                import CDDOEngine
-from .cddo_child          import CDDOChildEngine
-from .cdo                 import CDOEngine
-from .cdo_chernobyl       import CDOChornobylEngine
-from .cem                 import CEMEngine
-from .ceo_cosmic          import CEOCosmicEngine
-from .cfoa                import CFOAEngine
-from .cg_gwo              import CgGWOEngine
-from .cgo                 import CGOEngine
-from .chameleon_sa        import ChameleonSAEngine
-from .chaotic_gwo         import ChaoticGWOEngine
-from .chicken_so          import CHICKEN_SOEngine
-from .chio                import CHIOEngine
-from .choa                import ChOAEngine
-from .circle_sa           import CIRCLESAEngine
-from .clonalg             import CLONALGEngine
-from .cmaes               import CMAESEngine
-from .coa                 import COAEngine
-from .coati_oa            import COATI_OAEngine
-from .cockroach_so        import COCKROACH_SOEngine
-from .compact_ga          import CompactGAEngine
-from .coot                import COOTEngine
-from .cpo                 import CPOEngine
-from .crayfish_oa         import CrayfishOAEngine
-from .cro                 import CROEngine
-from .csa                 import CSAEngine
-from .csbo                import CSBOEngine
-from .cso                 import CSOEngine
-from .cuckoo_s            import CUCKOO_SEngine
-from .da                  import DAEngine
-from .dbo                 import DBOEngine
-from .ddao                import DDAOEngine
-from .de                  import DEEngine
-from .deo_dolphin         import DEODolphinEngine
-from .dfo                 import DFOEngine
-from .dhole_oa            import DholeOAEngine
-from .dmoa                import DMOAEngine
-from .do_dandelion        import DandelionOEngine
-from .doa                 import DOAEngine
-from .dp                  import DPEngine
-from .dra                 import DRAEngine
-from .dream_oa            import DreamOAEngine
-from .ds_gwo              import DsGWOEngine
-from .dso                 import DSOEngine
-from .dvba                import DVBAEngine
-from .eao                 import EAOEngine
-from .eco                 import ECOEngine
-from .ecological_cycle_o  import EcologicalCycleOEngine
-from .ecpo                import ECPOEngine
-from .edo                 import EDOEngine
-from .eefo                import EEFOEngine
-from .eel_grouper_o       import EelGrouperOEngine
-from .efo                 import EFOEngine
-from .ego                 import EGOEngine
-from .eho                 import EHOEngine
-from .elk_ho              import ElkHOEngine
-from .enhanced_aeo        import EnhancedAEOEngine
-from .enhanced_two        import EnhancedTWOEngine
-from .eo                  import EOEngine
-from .eoa                 import EOAEngine
-from .ep                  import EPEngine
-from .epc                 import EPCEngine
-from .er_gwo              import ErGWOEngine
-from .es                  import ESEngine
-from .esc                 import ESCEngine
-from .eso                 import ESOEngine
-from .esoa                import ESOAEngine
-from .et_bo               import ETBOEngine
-from .eto                 import ETOEngine
-from .evo                 import EVOEngine
-from .ex_gwo              import ExGWOEngine
-from .fata                import FATAEngine
-from .fbio                import FBIOEngine
-from .fda                 import FDAEngine
-from .fdo                 import FDOEngine
-from .fep                 import FEPEngine
-from .ffa                 import FFAEngine
-from .ffo                 import FFOEngine
-from .firefly_a           import FIREFLY_AEngine
-from .fla                 import FLAEngine
-from .flo                 import FLOEngine
-from .flood_a             import FloodAEngine
-from .foa                 import FOAEngine
-from .foa_fossa           import FOAFossaEngine
-from .fox                 import FOXEngine
-from .fpa                 import FPAEngine
-from .frcg                import FRCGEngine
-from .frofi               import FROFIEngine
-from .fss                 import FSSEngine
-from .fuzzy_gwo           import FuzzyGWOEngine
-from .fwa                 import FWAEngine
-from .ga                  import GAEngine
-from .gazelle_oa          import GazelleOAEngine
-from .gbo                 import GBOEngine
-from .gbrt_bo             import GBRTBOEngine
-from .gco                 import GCOEngine
-from .gea                 import GEAEngine
-from .ggo                 import GGOEngine
-from .gja                 import GJAEngine
-from .gjo                 import GJOEngine
-from .gkso                import GKSOEngine
-from .gmo                 import GMOEngine
-from .gndo                import GNDOEngine
-from .go_growth           import GOGrowthEngine
-from .goa                 import GOAEngine
-from .gp_bo               import GPBOEngine
-from .gpoo                import GPOOEngine
-from .gpso                import GPSOEngine
-from .grasp               import GRASPEngine
-from .gsa                 import GSAEngine
-from .gska                import GSKAEngine
-from .gso                 import GSOEngine
-from .gso_glider_snake    import GSOGliderSnakeEngine
-from .gto                 import GTOEngine
-from .gwo                 import GWOEngine
-from .gwo_woa             import GWOWOAEngine
-from .hba                 import HBAEngine
-from .hba_honey           import HBAHoneyEngine
-from .hbo                 import HBOEngine
-from .hc                  import HCEngine
-from .hco                 import HCOEngine
-from .hde                 import HDEEngine
-from .heoa                import HEOAEngine
-from .hgs                 import HGSEngine
-from .hgso                import HGSOEngine
-from .hho                 import HHOEngine
-from .hi_woa              import HiWOAEngine
-from .hiking_oa           import HikingOAEngine
-from .ho_hippo            import HippoEngine
-from .horse_oa            import HorseOAEngine
-from .hsa                 import HSAEngine
-from .hsaba               import HSABAEngine
-from .hus                 import HUSEngine
-from .i_gwo               import I_GWOEngine
-from .i_woa               import I_WOAEngine
-from .iagwo               import IAGWOEngine
-from .iaro                import IaroEngine
-from .ica                 import ICAEngine
-from .ikoa                import IKOAEngine
-from .ils                 import ILSEngine
-from .ilshade             import ILSHADEEngine
-from .imode               import IMODEEngine
-from .improved_aeo        import ImprovedAEOEngine
-from .improved_qsa        import ImprovedQSAEngine
-from .improved_tlo        import ImprovedTLOEngine
-from .incremental_gwo     import IncrementalGWOEngine
-from .info                import INFOEngine
-from .iobl_gwo            import IoblGWOEngine
-from .ipop_cmaes          import IPOPCMAESEngine
-from .ivya                import IVYAEngine
-from .iwo                 import IWOEngine
-from .jade                import JadeEngine
-from .jde                 import JDEEngine
-from .jso                 import JSOEngine
-from .jy                  import JYEngine
-from .kha                 import KHAEngine
-from .kma                 import KMAEngine
-from .l2smea              import L2SMEAEngine
-from .laro                import LaroEngine
-from .lca                 import LCAEngine
-from .lco                 import LCOEngine
-from .lea                 import LEAEngine
-from .levy_ja             import LevyJaEngine
-from .lfd                 import LFDEngine
-from .liwo                import LiWOEngine
-from .loa                 import LOAEngine
-from .loa_lyrebird        import LOALyrebirdEngine
-from .lpo                 import LPOEngine
-from .lshade              import LSHADEEngine
-from .lshade_cnepsin      import LSHADECnEpSinEngine
-from .lso_spectrum        import LSOSpectrumEngine
-from .mbo                 import MBOEngine
-from .memetic_a           import MEMETIC_AEngine
-from .mfa                 import MFAEngine
-from .mfea                import MFEAEngine
-from .mfea2               import MFEA2Engine
-from .mfo                 import MFOEngine
-from .mgo                 import MGOEngine
-from .mgoa_market         import MGOAMarketEngine
-from .misaco              import MiSACOEngine
-from .mlshade_rl          import MLSHADERLEngine
-from .mke                 import MKEEngine
-from .modified_aeo        import ModifiedAEOEngine
-from .modified_eo         import ModifiedEoEngine
-from .moss_go             import MossGOEngine
-from .mpa                 import MPAEngine
-from .mrfo                import MRFOEngine
-from .msa_e               import MSAEngine
-from .mshoa               import MSHOAEngine
-from .msls                import MSLSEngine
-from .mso                 import MSOEngine
-from .mtbo                import MTBOEngine
-from .mts                 import MTSEngine
-from .mvo                 import MVOEngine
-from .mvpa                import MVPAEngine
-from .nca                 import NCAEngine
-from .nccla               import NCCLAEngine
-from .ngo                 import NGOEngine
-from .nlapsmjso_eda       import NLAPSMJSOEDAEngine
-from .nmm                 import NMMEngine
-from .nmra                import NMRAEngine
-from .nndrea_so           import NNDREASOEngine
-from .noa                 import NOAEngine
-from .nro                 import NROEngine
-from .nwoa                import NWOAEngine
-from .ocro                import OcroEngine
-from .ofa                 import OFAEngine
-from .ogwo                import OgwoEngine
-from .ooa                 import OOAEngine
-from .parrot_o            import ParrotOEngine
-from .pbil                import PBILEngine
-from .pcx                 import PCXEngine
-from .pdo                 import PDOEngine
-from .petio               import PETIOEngine
-from .pfa                 import PFAEngine
-from .pfa_polar_fox       import PFAPolarFoxEngine
-from .pko                 import PKOEngine
-from .plba                import PLBAEngine
-from .plo                 import PLOEngine
-from .poa                 import POAEngine
-from .political_o         import PoliticalOEngine
-from .ppo                 import PPOEngine
-from .pro                 import PROEngine
-from .pso                 import PSOEngine
-from .pss                 import PSSEngine
-from .puma_o              import PumaOEngine
-from .qio                 import QIOEngine
-from .qle_sca             import QleSCAEngine
-from .qsa                 import QSAEngine
-from .random_s            import RANDOM_SEngine
-from .rbmo                import RBMOEngine
-from .rcco                import RCCOEngine
-from .rf_bo               import RFBOEngine
-from .rfo                 import RFOEngine
-from .rhso                import RHSOEngine
-from .rime                import RIMEEngine
-from .rmsprop             import RMSPropEngine
-from .roa                 import ROAEngine
-from .rrto                import RRTOEngine
-from .rsa                 import RSAEngine
-from .rso                 import RSOEngine
-from .run                 import RUNEngine
-from .sa                  import SAEngine
-from .saba                import SABAEngine
-from .sacc_eam2           import SACCEAMIIEngine
-from .sacoso              import SACOSOEngine
-from .sade                import SadeEngine
-from .sade_amss           import SADEAMSSEngine
-from .sade_atdsc          import SADEATDSCEngine
-from .sade_sammon         import SADESammonEngine
-from .samso               import SAMSOEngine
-from .sap_de              import SapDEEngine
-from .sapo                import SAPOEngine
-from .saro                import SAROEngine
-from .sbo                 import SBOEngine
-from .sboa                import SBOAEngine
-from .scho                import SCHOEngine
-from .scso                import SCSoEngine
-from .sd                  import SDEngine
-from .seaho               import SeaHOEngine
-from .serval_oa           import SERVALOAEngine
-from .sfo                 import SFOEngine
-from .sfoa                import SFOAEngine
-from .shade               import SHADEEngine
-from .shio                import SHIOEngine
-from .shio_success        import SHIOSuccessEngine
-from .sho                 import SHOEngine
-from .sine_cosine_a       import SINE_COSINE_AEngine
-from .singer_oa           import SingerOAEngine
-from .slo                 import SLOEngine
-from .sma                 import SMAEngine
-from .smo                 import SMOEngine
-from .snow_oa             import SnowOAEngine
-from .so_snake            import SnakeOptimizerEngine
-from .soa                 import SOAEngine
-from .soo                 import SOOEngine
-from .sopt                import SOPTEngine
-from .sos                 import SOSEngine
-from .sparrow_sa          import SparrowSAEngine
-from .spbo                import SPBOEngine
-from .sqp                 import SQPEngine
-from .squirrel_sa         import SquirrelSAEngine
-from .srsr                import SRSREngine
-from .srsr_robotics       import SRSRRoboticsEngine
-from .ssa                 import SSAEngine
-from .ssdo                import SSDOEngine
-from .ssio_rl             import SSIORLEngine
-from .sso                 import SSOEngine
-from .sspider_a           import SSPIDERAEngine
-from .sto                 import STOEngine
-from .superb_foa          import SuperbFOAEngine
-from .supply_do           import SupplyDOEngine
-from .tdo                 import TDOEngine
-from .tfwo                import TFWOEngine
-from .thro                import THROEngine
-from .tlbo                import TLBOEngine
-from .tlco                import TLCOEngine
-from .toa                 import TOAEngine
-from .toc                 import TOCEngine
-from .tpo                 import TPOEngine
-from .tree_seed_a         import TreeSeedAEngine
-from .ts                  import TSEngine
-from .tsa                 import TSAEngine
-from .tso                 import TSOEngine
-from .ttao                import TTAOEngine
-from .two                 import TWOEngine
-from .vcs                 import VCSEngine
-from .vns                 import VNSEngine
-from .waoa                import WAOAEngine
-from .warso               import WARSOEngine
-from .wca                 import WCAEngine
-from .wdo                 import WDOEngine
-from .whale_foa           import WhaleFOAEngine
-from .who                 import WHOEngine
-from .wmqimrfo            import WmqimrfoEngine
-from .wo_wave             import WaveOptEngine
-from .woa                 import WOAEngine
-from .wooa                import WoOAEngine
-from .wso                 import WSOEngine
-from .wutp                import WUTPEngine
-from .ydse                import YDSEEngine
-from .yo                  import YOEngine
-from .zoa                 import ZOAEngine
+from .aaa                  import AAAEngine
+from .aao                  import AAOEngine
+from .abco                 import ABCOEngine
+from .acgwo                import ACGWOEngine
+from .aco                  import ACOEngine
+from .acor                 import ACOREngine
+from .adam                 import AdamEngine
+from .adaptive_eo          import AdaptiveEoEngine
+from .aefa                 import AEFAEngine
+from .aeo                  import AEOEngine
+from .aesspso              import AESSPSOEngine
+from .afsa                 import AFSAEngine
+from .aft                  import AFTEngine
+from .agdo                 import AGDOEngine
+from .agto                 import AGTOEngine
+from .aha                  import AHAEngine
+from .aho                  import AHOEngine
+from .aiw_pso              import AiwPSOEngine
+from .ala                  import ALAEngine
+from .alo                  import ALOEngine
+from .ao                   import AOEngine
+from .aoa                  import AOAEngine
+from .aoo                  import AOOEngine
+from .apo                  import APOEngine
+from .arch_oa              import ARCHOAEngine
+from .aro                  import AROEngine
+from .ars                  import ARSEngine
+from .artemisinin_o        import ArtemisininOEngine
+from .aso                  import ASOEngine
+from .aso_atom             import ASOAtomEngine
+from .autov                import AutoVEngine
+from .avoa                 import AVOAEngine
+from .bacterial_colony_o   import BacterialColonyOEngine
+from .basin_hopping        import BasinHoppingEngine
+from .bat_a                import BATAEngine
+from .bbo                  import BBOEngine
+from .bboa                 import BBOAEngine
+from .bbso                 import BBSOEngine
+from .bco                  import BCOEngine
+from .bea                  import BEAEngine
+from .bes                  import BESEngine
+from .bfgs                 import BFGSEngine
+from .bfo                  import BFOEngine
+from .bipop_cmaes          import BIPOPCMAESEngine
+from .bka                  import BKAEngine
+from .bmo                  import BMOEngine
+from .boa                  import BOAEngine
+from .bono                 import BonobOEngine
+from .bps                  import BPSEngine
+from .bro                  import BROEngine
+from .bsa                  import BSAEngine
+from .bso                  import BSOEngine
+from .bspga                import BSPGAEngine
+from .btoa                 import BTOAEngine
+from .bwo                  import BWOEngine
+from .ca                   import CAEngine
+from .camel                import CamelEngine
+from .capsa                import CapSAEngine
+from .cat_so               import CAT_SOEngine
+from .cco                  import CCOEngine
+from .cddo                 import CDDOEngine
+from .cddo_child           import CDDOChildEngine
+from .cdo                  import CDOEngine
+from .cdo_chernobyl        import CDOChornobylEngine
+from .cem                  import CEMEngine
+from .ceo_cosmic           import CEOCosmicEngine
+from .cfoa                 import CFOAEngine
+from .cg_gwo               import CgGWOEngine
+from .cgo                  import CGOEngine
+from .chameleon_sa         import ChameleonSAEngine
+from .chaotic_gwo          import ChaoticGWOEngine
+from .chicken_so           import CHICKEN_SOEngine
+from .chio                 import CHIOEngine
+from .choa                 import ChOAEngine
+from .circle_sa            import CIRCLESAEngine
+from .clonalg              import CLONALGEngine
+from .cmaes                import CMAESEngine
+from .coa                  import COAEngine
+from .coati_oa             import COATI_OAEngine
+from .cockroach_so         import COCKROACH_SOEngine
+from .compact_ga           import CompactGAEngine
+from .coot                 import COOTEngine
+from .cpo                  import CPOEngine
+from .crayfish_oa          import CrayfishOAEngine
+from .cro                  import CROEngine
+from .csa                  import CSAEngine
+from .csbo                 import CSBOEngine
+from .cso                  import CSOEngine
+from .cuckoo_s             import CUCKOO_SEngine
+from .da                   import DAEngine
+from .dbo                  import DBOEngine
+from .ddao                 import DDAOEngine
+from .de                   import DEEngine
+from .deo_dolphin          import DEODolphinEngine
+from .dfo                  import DFOEngine
+from .dhole_oa             import DholeOAEngine
+from .dmoa                 import DMOAEngine
+from .do_dandelion         import DandelionOEngine
+from .doa                  import DOAEngine
+from .dp                   import DPEngine
+from .dra                  import DRAEngine
+from .dream_oa             import DreamOAEngine
+from .ds_gwo               import DsGWOEngine
+from .dso                  import DSOEngine
+from .dvba                 import DVBAEngine
+from .eao                  import EAOEngine
+from .eco                  import ECOEngine
+from .ecological_cycle_o   import EcologicalCycleOEngine
+from .ecpo                 import ECPOEngine
+from .edo                  import EDOEngine
+from .eefo                 import EEFOEngine
+from .eel_grouper_o        import EelGrouperOEngine
+from .efo                  import EFOEngine
+from .ego                  import EGOEngine
+from .eho                  import EHOEngine
+from .elk_ho               import ElkHOEngine
+from .enhanced_aeo         import EnhancedAEOEngine
+from .enhanced_two         import EnhancedTWOEngine
+from .eo                   import EOEngine
+from .eoa                  import EOAEngine
+from .ep                   import EPEngine
+from .epc                  import EPCEngine
+from .er_gwo               import ErGWOEngine
+from .es                   import ESEngine
+from .esc                  import ESCEngine
+from .eso                  import ESOEngine
+from .esoa                 import ESOAEngine
+from .et_bo                import ETBOEngine
+from .eto                  import ETOEngine
+from .evo                  import EVOEngine
+from .ex_gwo               import ExGWOEngine
+from .fata                 import FATAEngine
+from .fbio                 import FBIOEngine
+from .fda                  import FDAEngine
+from .fdo                  import FDOEngine
+from .fep                  import FEPEngine
+from .ffa                  import FFAEngine
+from .ffo                  import FFOEngine
+from .firefly_a            import FIREFLY_AEngine
+from .fla                  import FLAEngine
+from .flo                  import FLOEngine
+from .flood_a              import FloodAEngine
+from .foa                  import FOAEngine
+from .foa_fossa            import FOAFossaEngine
+from .fox                  import FOXEngine
+from .fpa                  import FPAEngine
+from .frcg                 import FRCGEngine
+from .frofi                import FROFIEngine
+from .fss                  import FSSEngine
+from .fuzzy_gwo            import FuzzyGWOEngine
+from .fwa                  import FWAEngine
+from .ga                   import GAEngine
+from .gazelle_oa           import GazelleOAEngine
+from .gbo                  import GBOEngine
+from .gbrt_bo              import GBRTBOEngine
+from .gco                  import GCOEngine
+from .gea                  import GEAEngine
+from .ggo                  import GGOEngine
+from .gja                  import GJAEngine
+from .gjo                  import GJOEngine
+from .gkso                 import GKSOEngine
+from .gmo                  import GMOEngine
+from .gndo                 import GNDOEngine
+from .go_growth            import GOGrowthEngine
+from .goa                  import GOAEngine
+from .gp_bo                import GPBOEngine
+from .gpoo                 import GPOOEngine
+from .gpso                 import GPSOEngine
+from .grasp                import GRASPEngine
+from .gsa                  import GSAEngine
+from .gska                 import GSKAEngine
+from .gso                  import GSOEngine
+from .gso_glider_snake     import GSOGliderSnakeEngine
+from .gto                  import GTOEngine
+from .gwo                  import GWOEngine
+from .gwo_woa              import GWOWOAEngine
+from .hba                  import HBAEngine
+from .hba_honey            import HBAHoneyEngine
+from .hbo                  import HBOEngine
+from .hc                   import HCEngine
+from .hco                  import HCOEngine
+from .hde                  import HDEEngine
+from .heoa                 import HEOAEngine
+from .hgs                  import HGSEngine
+from .hgso                 import HGSOEngine
+from .hho                  import HHOEngine
+from .hi_woa               import HiWOAEngine
+from .hiking_oa            import HikingOAEngine
+from .ho_hippo             import HippoEngine
+from .horse_oa             import HorseOAEngine
+from .hsa                  import HSAEngine
+from .hsaba                import HSABAEngine
+from .hus                  import HUSEngine
+from .i_gwo                import I_GWOEngine
+from .i_woa                import I_WOAEngine
+from .iagwo                import IAGWOEngine
+from .iaro                 import IaroEngine
+from .ica                  import ICAEngine
+from .ikoa                 import IKOAEngine
+from .ils                  import ILSEngine
+from .ilshade              import ILSHADEEngine
+from .ilshade_rsp          import ILSHADERspEngine
+from .imode                import IMODEEngine
+from .improved_aeo         import ImprovedAEOEngine
+from .improved_qsa         import ImprovedQSAEngine
+from .improved_tlo         import ImprovedTLOEngine
+from .incremental_gwo      import IncrementalGWOEngine
+from .info                 import INFOEngine
+from .iobl_gwo             import IoblGWOEngine
+from .ipop_cmaes           import IPOPCMAESEngine
+from .ivya                 import IVYAEngine
+from .iwo                  import IWOEngine
+from .jade                 import JadeEngine
+from .jde                  import JDEEngine
+from .jso                  import JSOEngine
+from .jso_de               import JSODEEngine
+from .jy                   import JYEngine
+from .kha                  import KHAEngine
+from .kma                  import KMAEngine
+from .l2smea               import L2SMEAEngine
+from .laro                 import LaroEngine
+from .lca                  import LCAEngine
+from .lco                  import LCOEngine
+from .lea                  import LEAEngine
+from .levy_ja              import LevyJaEngine
+from .lfd                  import LFDEngine
+from .liwo                 import LiWOEngine
+from .loa                  import LOAEngine
+from .loa_lyrebird         import LOALyrebirdEngine
+from .lpo                  import LPOEngine
+from .lshade               import LSHADEEngine
+from .lshade_cnepsin       import LSHADECnEpSinEngine
+from .lshade_epsin         import LSHADEEpSinEngine
+from .lshade_rsp           import LSHADERspEngine
+from .lshade_spacma        import LSHADESpacmaEngine
+from .lso_spectrum         import LSOSpectrumEngine
+from .mbo                  import MBOEngine
+from .memetic_a            import MEMETIC_AEngine
+from .mfa                  import MFAEngine
+from .mfea                 import MFEAEngine
+from .mfea2                import MFEA2Engine
+from .mfo                  import MFOEngine
+from .mgo                  import MGOEngine
+from .mgoa_market          import MGOAMarketEngine
+from .misaco               import MiSACOEngine
+from .mke                  import MKEEngine
+from .mlshade_rl           import MLSHADERLEngine
+from .modified_aeo         import ModifiedAEOEngine
+from .modified_eo          import ModifiedEoEngine
+from .moss_go              import MossGOEngine
+from .mpa                  import MPAEngine
+from .mrfo                 import MRFOEngine
+from .msa_e                import MSAEngine
+from .mshoa                import MSHOAEngine
+from .msls                 import MSLSEngine
+from .mso                  import MSOEngine
+from .mtbo                 import MTBOEngine
+from .mts                  import MTSEngine
+from .mvo                  import MVOEngine
+from .mvpa                 import MVPAEngine
+from .nca                  import NCAEngine
+from .nccla                import NCCLAEngine
+from .ngo                  import NGOEngine
+from .nlapsmjso_eda        import NLAPSMJSOEDAEngine
+from .nlshade_lbc          import NLSHADELbcEngine
+from .nlshade_rsp          import NLSHADERspEngine
+from .nlshade_rsp_midpoint import NLSHADERspMidpointEngine
+from .nmm                  import NMMEngine
+from .nmra                 import NMRAEngine
+from .nndrea_so            import NNDREASOEngine
+from .noa                  import NOAEngine
+from .nro                  import NROEngine
+from .nwoa                 import NWOAEngine
+from .ocro                 import OcroEngine
+from .ofa                  import OFAEngine
+from .ogwo                 import OgwoEngine
+from .ooa                  import OOAEngine
+from .parrot_o             import ParrotOEngine
+from .pbil                 import PBILEngine
+from .pcx                  import PCXEngine
+from .pdo                  import PDOEngine
+from .petio                import PETIOEngine
+from .pfa                  import PFAEngine
+from .pfa_polar_fox        import PFAPolarFoxEngine
+from .pko                  import PKOEngine
+from .plba                 import PLBAEngine
+from .plo                  import PLOEngine
+from .poa                  import POAEngine
+from .political_o          import PoliticalOEngine
+from .ppo                  import PPOEngine
+from .pro                  import PROEngine
+from .pso                  import PSOEngine
+from .pss                  import PSSEngine
+from .puma_o               import PumaOEngine
+from .qio                  import QIOEngine
+from .qle_sca              import QleSCAEngine
+from .qsa                  import QSAEngine
+from .random_s             import RANDOM_SEngine
+from .rbmo                 import RBMOEngine
+from .rcco                 import RCCOEngine
+from .rde                  import RDEEngine
+from .rf_bo                import RFBOEngine
+from .rfo                  import RFOEngine
+from .rhso                 import RHSOEngine
+from .rime                 import RIMEEngine
+from .rmsprop              import RMSPropEngine
+from .roa                  import ROAEngine
+from .rrto                 import RRTOEngine
+from .rsa                  import RSAEngine
+from .rso                  import RSOEngine
+from .run                  import RUNEngine
+from .sa                   import SAEngine
+from .saba                 import SABAEngine
+from .sacc_eam2            import SACCEAMIIEngine
+from .sacoso               import SACOSOEngine
+from .sade                 import SadeEngine
+from .sade_amss            import SADEAMSSEngine
+from .sade_atdsc           import SADEATDSCEngine
+from .sade_sammon          import SADESammonEngine
+from .samso                import SAMSOEngine
+from .sap_de               import SapDEEngine
+from .sapo                 import SAPOEngine
+from .saro                 import SAROEngine
+from .sbo                  import SBOEngine
+from .sboa                 import SBOAEngine
+from .scho                 import SCHOEngine
+from .scso                 import SCSoEngine
+from .sd                   import SDEngine
+from .seaho                import SeaHOEngine
+from .secant_oa            import SecantOAEngine
+from .serval_oa            import SERVALOAEngine
+from .sfo                  import SFOEngine
+from .sfoa                 import SFOAEngine
+from .shade                import SHADEEngine
+from .shio                 import SHIOEngine
+from .shio_success         import SHIOSuccessEngine
+from .sho                  import SHOEngine
+from .sine_cosine_a        import SINE_COSINE_AEngine
+from .singer_oa            import SingerOAEngine
+from .slo                  import SLOEngine
+from .sma                  import SMAEngine
+from .smo                  import SMOEngine
+from .snow_oa              import SnowOAEngine
+from .so_snake             import SnakeOptimizerEngine
+from .soa                  import SOAEngine
+from .soo                  import SOOEngine
+from .sopt                 import SOPTEngine
+from .sos                  import SOSEngine
+from .sparrow_sa           import SparrowSAEngine
+from .spbo                 import SPBOEngine
+from .sqp                  import SQPEngine
+from .squirrel_sa          import SquirrelSAEngine
+from .srsr                 import SRSREngine
+from .srsr_robotics        import SRSRRoboticsEngine
+from .ssa                  import SSAEngine
+from .ssdo                 import SSDOEngine
+from .ssio_rl              import SSIORLEngine
+from .sso                  import SSOEngine
+from .sspider_a            import SSPIDERAEngine
+from .sto                  import STOEngine
+from .superb_foa           import SuperbFOAEngine
+from .supply_do            import SupplyDOEngine
+from .tdo                  import TDOEngine
+from .tfwo                 import TFWOEngine
+from .thro                 import THROEngine
+from .tlbo                 import TLBOEngine
+from .tlco                 import TLCOEngine
+from .toa                  import TOAEngine
+from .toc                  import TOCEngine
+from .tpo                  import TPOEngine
+from .tree_seed_a          import TreeSeedAEngine
+from .ts                   import TSEngine
+from .tsa                  import TSAEngine
+from .tso                  import TSOEngine
+from .ttao                 import TTAOEngine
+from .two                  import TWOEngine
+from .vcs                  import VCSEngine
+from .vns                  import VNSEngine
+from .waoa                 import WAOAEngine
+from .warso                import WARSOEngine
+from .wca                  import WCAEngine
+from .wdo                  import WDOEngine
+from .whale_foa            import WhaleFOAEngine
+from .who                  import WHOEngine
+from .wmqimrfo             import WmqimrfoEngine
+from .wo_wave              import WaveOptEngine
+from .woa                  import WOAEngine
+from .wooa                 import WoOAEngine
+from .wso                  import WSOEngine
+from .wutp                 import WUTPEngine
+from .ydse                 import YDSEEngine
+from .yo                   import YOEngine
+from .zoa                  import ZOAEngine
 
 _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AAAEngine, 
@@ -598,6 +608,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     IKOAEngine, 
     ILSEngine, 
     ILSHADEEngine, 
+    ILSHADERspEngine, 
     IMODEEngine, 
     INFOEngine, 
     IPOPCMAESEngine, 
@@ -612,6 +623,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     IncrementalGWOEngine, 
     IoblGWOEngine, 
     JDEEngine,
+    JSODEEngine, 
     JSOEngine, 
     JYEngine, 
     JadeEngine, 
@@ -620,15 +632,18 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     L2SMEAEngine, 
     LCAEngine, 
     LCOEngine, 
+    LEAEngine, 
     LFDEngine,
     LOAEngine, 
     LOALyrebirdEngine, 
     LPOEngine, 
-    LSHADEEngine, 
     LSHADECnEpSinEngine, 
+    LSHADEEngine, 
+    LSHADEEpSinEngine, 
+    LSHADERspEngine, 
+    LSHADESpacmaEngine, 
     LSOSpectrumEngine, 
     LaroEngine, 
-    LEAEngine, 
     LevyJaEngine, 
     LiWOEngine, 
     MBOEngine, 
@@ -639,8 +654,8 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     MFOEngine, 
     MGOAMarketEngine, 
     MGOEngine, 
-    MLSHADERLEngine, 
     MKEEngine, 
+    MLSHADERLEngine, 
     MPAEngine, 
     MRFOEngine,
     MSAEngine, 
@@ -659,6 +674,9 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     NCCLAEngine,
     NGOEngine, 
     NLAPSMJSOEDAEngine, 
+    NLSHADELbcEngine, 
+    NLSHADERspEngine, 
+    NLSHADERspMidpointEngine, 
     NMMEngine, 
     NMRAEngine, 
     NNDREASOEngine, 
@@ -692,6 +710,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     RANDOM_SEngine, 
     RBMOEngine, 
     RCCOEngine, 
+    RDEEngine, 
     RFBOEngine, 
     RFOEngine, 
     RHSOEngine, 
@@ -745,6 +764,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     SadeEngine, 
     SapDEEngine, 
     SeaHOEngine, 
+    SecantOAEngine, 
     SingerOAEngine, 
     SnakeOptimizerEngine, 
     SnowOAEngine, 
@@ -1006,6 +1026,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'ikoa', 
     'ils',  
     'ilshade', 
+    'ilshade_rsp', 
     'imode', 
     'improved_aeo', 
     'improved_qsa', 
@@ -1019,6 +1040,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'jade', 
     'jde', 
     'jso', 
+    'jso_de', 
     'jy', 
     'kha', 
     'kma', 
@@ -1035,6 +1057,9 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'lpo', 
     'lshade', 
     'lshade_cnepsin', 
+    'lshade_epsin', 
+    'lshade_rsp', 
+    'lshade_spacma', 
     'lso_spectrum', 
     'mbo', 
     'memetic_a',
@@ -1045,8 +1070,8 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
-    'mlshade_rl', 
     'mke', 
+    'mlshade_rl', 
     'modified_aeo', 
     'modified_eo', 
     'moss_go', 
@@ -1064,6 +1089,9 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'nccla',
     'ngo', 
     'nlapsmjso_eda', 
+    'nlshade_lbc', 
+    'nlshade_rsp', 
+    'nlshade_rsp_midpoint', 
     'nmm', 
     'nmra', 
     'nndrea_so', 
@@ -1097,6 +1125,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'random_s', 
     'rbmo',  
     'rcco', 
+    'rde', 
     'rf_bo', 
     'rfo', 
     'rhso', 
@@ -1125,6 +1154,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'scso', 
     'sd', 
     'seaho', 
+    'secant_oa', 
     'serval_oa', 
     'sfo', 
     'sfoa', 
@@ -1382,6 +1412,7 @@ _POPULATION_BASED: set[str] = {
     'ica', 
     'ikoa', 
     'ilshade', 
+    'ilshade_rsp', 
     'imode', 
     'improved_aeo', 
     'improved_qsa', 
@@ -1395,6 +1426,7 @@ _POPULATION_BASED: set[str] = {
     'jade', 
     'jde', 
     'jso', 
+    'jso_de', 
     'jy', 
     'kha', 
     'kma',
@@ -1411,6 +1443,9 @@ _POPULATION_BASED: set[str] = {
     'lpo', 
     'lshade', 
     'lshade_cnepsin', 
+    'lshade_epsin', 
+    'lshade_rsp', 
+    'lshade_spacma', 
     'lso_spectrum', 
     'mbo',
     'memetic_a', 
@@ -1421,8 +1456,8 @@ _POPULATION_BASED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
-    'mlshade_rl', 
     'mke', 
+    'mlshade_rl', 
     'modified_aeo', 
     'modified_eo', 
     'moss_go', 
@@ -1439,6 +1474,9 @@ _POPULATION_BASED: set[str] = {
     'nccla',
     'ngo', 
     'nlapsmjso_eda', 
+    'nlshade_lbc', 
+    'nlshade_rsp', 
+    'nlshade_rsp_midpoint', 
     'nmm', 
     'nmra', 
     'nndrea_so', 
@@ -1471,6 +1509,7 @@ _POPULATION_BASED: set[str] = {
     'random_s', 
     'rbmo', 
     'rcco', 
+    'rde', 
     'rfo', 
     'rhso', 
     'rime', 
@@ -1495,6 +1534,7 @@ _POPULATION_BASED: set[str] = {
     'scho', 
     'scso',
     'seaho', 
+    'secant_oa', 
     'serval_oa',
     'sfo',
     'sfoa', 
@@ -1711,12 +1751,14 @@ _INJECTION_ENABLED: set[str] = {
     'ica', 
     'ikoa', 
     'ilshade', 
+    'ilshade_rsp', 
     'imode', 
     'info', 
     'ivya', 
     'iwo', 
     'jde', 
     'jso', 
+    'jso_de', 
     'jy', 
     'kma',
     'l2smea', 
@@ -1729,6 +1771,9 @@ _INJECTION_ENABLED: set[str] = {
     'lpo', 
     'lshade', 
     'lshade_cnepsin',
+    'lshade_epsin', 
+    'lshade_rsp', 
+    'lshade_spacma', 
     'lso_spectrum', 
     'mbo', 
     'memetic_a', 
@@ -1737,8 +1782,8 @@ _INJECTION_ENABLED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco',
-    'mlshade_rl',
     'mke', 
+    'mlshade_rl',
     'moss_go', 
     'mpa', 
     'mrfo', 
@@ -1750,6 +1795,9 @@ _INJECTION_ENABLED: set[str] = {
     'mvpa', 
     'nca', 
     'ngo',
+    'nlshade_lbc', 
+    'nlshade_rsp', 
+    'nlshade_rsp_midpoint', 
     'nmm', 
     'nmra', 
     'nndrea_so', 
@@ -1775,6 +1823,7 @@ _INJECTION_ENABLED: set[str] = {
     'qsa',
     'random_s', 
     'rbmo', 
+    'rde', 
     'rfo', 
     'rime', 
     'roa', 
@@ -1796,6 +1845,7 @@ _INJECTION_ENABLED: set[str] = {
     'scho', 
     'scso', 
     'seaho', 
+    'secant_oa', 
     'serval_oa', 
     'sfo', 
     'sfoa', 
@@ -1859,8 +1909,9 @@ _RESTART_ENABLED: set[str] = {
     'grasp', 
     'ils', 
     'ipop_cmaes', 
-    'msls', 
     'mlshade_rl', 
+    'msls', 
+    'nlshade_rsp_midpoint', 
     'sa', 
     'vns',
 }
@@ -2055,6 +2106,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'ica', 
     'ikoa',
     'ilshade', 
+    'ilshade_rsp', 
     'imode', 
     'improved_aeo',
     'improved_qsa',
@@ -2068,6 +2120,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'jade',
     'jde', 
     'jso', 
+    'jso_de', 
     'jy', 
     'kha', 
     'kma', 
@@ -2084,6 +2137,9 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'lpo', 
     'lshade', 
     'lshade_cnepsin', 
+    'lshade_epsin', 
+    'lshade_rsp', 
+    'lshade_spacma', 
     'lso_spectrum', 
     'mbo',
     'memetic_a', 
@@ -2094,8 +2150,8 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'mgo', 
     'mgoa_market', 
     'misaco', 
-    'mlshade_rl', 
     'mke', 
+    'mlshade_rl', 
     'modified_aeo',
     'modified_eo',
     'moss_go', 
@@ -2112,6 +2168,9 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'nccla',
     'ngo', 
     'nlapsmjso_eda', 
+    'nlshade_lbc', 
+    'nlshade_rsp', 
+    'nlshade_rsp_midpoint', 
     'nmm', 
     'nmra',
     'nndrea_so', 
@@ -2144,6 +2203,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'random_s',
     'rbmo', 
     'rcco', 
+    'rde', 
     'rfo', 
     'rhso', 
     'rime', 
@@ -2168,6 +2228,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'scho', 
     'scso', 
     'seaho',
+    'secant_oa', 
     'serval_oa', 
     'sfo', 
     'sfoa', 
@@ -2433,6 +2494,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'ikoa'               : 'Improved Kepler Optimization Algorithm',
     'ils'                : 'Iterated Local Search',
     'ilshade'            : 'Improved L-SHADE',
+    'ilshade_rsp'        : 'iLSHADE-RSP',
     'imode'              : 'Improved Multi-Operator Differential Evolution',
     'improved_aeo'       : 'Improved Artificial Ecosystem-based Optimization (ImprovedAEO)',
     'improved_qsa'       : 'Improved Queuing Search Algorithm (QSA)',
@@ -2446,6 +2508,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'jade'               : 'Differential Evolution (JADE)',
     'jde'                : 'Self-Adaptive Differential Evolution',
     'jso'                : 'Jellyfish Search Optimizer',
+    'jso_de'             : 'jSO Differential Evolution',
     'jy'                 : 'Jaya Algorithm',
     'kha'                : 'Krill Herd Algorithm',
     'kma'                : 'Komodo Mlipir Algorithm',
@@ -2462,6 +2525,9 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'lpo'                : 'Lungs Performance-Based Optimization',
     'lshade'             : 'L-SHADE',
     'lshade_cnepsin'     : 'LSHADE-cnEpSin',
+    'lshade_epsin'       : 'LSHADE-EpSin',
+    'lshade_rsp'         : 'LSHADE-RSP',
+    'lshade_spacma'      : 'LSHADE-SPACMA',
     'lso_spectrum'       : 'Light Spectrum Optimizer',
     'mbo'                : 'Monarch Butterfly Optimization',
     'memetic_a'          : 'Memetic Algorithm',
@@ -2472,8 +2538,8 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'mgo'                : 'Mountain Gazelle Optimizer',
     'mgoa_market'        : 'Market Game Optimization Algorithm',
     'misaco'             : 'Multi-Surrogate-Assisted Ant Colony Optimization',
-    'mlshade_rl'         : 'mLSHADE-RL',
     'mke'                : 'Monkey King Evolution V1',
+    'mlshade_rl'         : 'mLSHADE-RL',
     'modified_aeo'       : 'Modified Artificial Ecosystem-Based Optimization (MAEO)',
     'modified_eo'        : 'Modified Equilibrium Optimizer (MEO)',
     'moss_go'            : 'Moss Growth Optimization',
@@ -2491,6 +2557,9 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'nccla'              : 'New Caledonian Crow Learning Algorithm',
     'ngo'                : 'Northern Goshawk Optimization',
     'nlapsmjso_eda'      : 'NLAPSMjSO-EDA',
+    'nlshade_lbc'        : 'NL-SHADE-LBC',
+    'nlshade_rsp'        : 'NL-SHADE-RSP',
+    'nlshade_rsp_midpoint': 'NL-SHADE-RSP-Midpoint',
     'nmm'                : 'Nelder-Mead Method',
     'nmra'               : 'Naked Mole-Rat Algorithm',
     'nndrea_so'          : 'Neural Network-Based Dimensionality Reduction Evolutionary Algorithm (SO)',
@@ -2524,6 +2593,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'random_s'           : 'Random Search',
     'rbmo'               : 'Red-billed Blue Magpie Optimizer',
     'rcco'               : 'Rain-Cloud Condensation Optimizer',
+    'rde'                : 'Reconstructed Differential Evolution',
     'rf_bo'              : 'Random Forest Bayesian Optimization',
     'rfo'                : "Rüppell's Fox Optimizer",
     'rhso'               : 'Rock Hyraxes Swarm Optimization',
@@ -2552,6 +2622,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'scso'               : 'Sand Cat Swarm Optimization',
     'sd'                 : 'Steepest Descent',
     'seaho'              : 'Seahorse Optimizer',
+    'secant_oa'          : 'Secant Optimization Algorithm',
     'serval_oa'          : 'Serval Optimization Algorithm',
     'sfo'                : 'Sailfish Optimizer',
     'sfoa'               : 'Starfish Optimization Algorithm',
@@ -2819,6 +2890,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'ikoa'               : 'physics',
     'ils'                : 'trajectory',
     'ilshade'            : 'evolutionary',
+    'ilshade_rsp'        : 'evolutionary',
     'imode'              : 'evolutionary',
     'improved_aeo'       : 'nature',
     'improved_qsa'       : 'human',
@@ -2832,6 +2904,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'jade'               : 'evolutionary',
     'jde'                : 'evolutionary',
     'jso'                : 'swarm',
+    'jso_de'             : 'evolutionary',
     'jy'                 : 'math',
     'kha'                : 'swarm',
     'kma'                : 'swarm',
@@ -2848,6 +2921,9 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'lpo'                : 'nature',
     'lshade'             : 'evolutionary',
     'lshade_cnepsin'     : 'evolutionary',
+    'lshade_epsin'       : 'evolutionary',
+    'lshade_rsp'         : 'evolutionary',
+    'lshade_spacma'      : 'evolutionary',
     'lso_spectrum'       : 'physics',
     'mbo'                : 'swarm',
     'memetic_a'          : 'evolutionary',
@@ -2858,8 +2934,8 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'mgo'                : 'swarm',
     'mgoa_market'        : 'human',
     'misaco'             : 'swarm',
-    'mlshade_rl'         : 'evolutionary',
     'mke'                : 'evolutionary',
+    'mlshade_rl'         : 'evolutionary',
     'modified_aeo'       : 'nature',
     'modified_eo'        : 'physics',
     'moss_go'            : 'nature',
@@ -2877,6 +2953,9 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'nccla'              : 'swarm',
     'ngo'                : 'swarm',
     'nlapsmjso_eda'      : 'evolutionary',
+    'nlshade_lbc'        : 'evolutionary',
+    'nlshade_rsp'        : 'evolutionary',
+    'nlshade_rsp_midpoint': 'evolutionary',
     'nmm'                : 'trajectory',
     'nmra'               : 'swarm',
     'nndrea_so'          : 'evolutionary',
@@ -2910,6 +2989,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'random_s'           : 'trajectory',
     'rbmo'               : 'swarm',
     'rcco'               : 'physics',
+    'rde'                : 'evolutionary',
     'rf_bo'              : 'math',
     'rfo'                : 'swarm',
     'rhso'               : 'swarm',
@@ -2938,6 +3018,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'scso'               : 'swarm',
     'sd'                 : 'math',
     'seaho'              : 'swarm',
+    'secant_oa'          : 'math',
     'serval_oa'          : 'swarm',
     'sfo'                : 'swarm',
     'sfoa'               : 'swarm',
@@ -3205,6 +3286,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'ikoa'               : '10.1016/j.eswa.2025.128216',
     'ils'                : '10.1007/0-306-48056-5_11',
     'ilshade'            : '10.1109/CEC.2016.7743922',
+    'ilshade_rsp'        : '10.48550/arXiv.2006.02591',
     'imode'              : '10.1109/CEC48606.2020.9185577',
     'improved_aeo'       : '10.1016/j.ijhydene.2020.06.256',
     'improved_qsa'       : '10.1007/s12652-020-02849-4',
@@ -3218,6 +3300,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'jade'               : '10.1109/TEVC.2009.2014613',
     'jde'                : '10.1109/TEVC.2006.872133',
     'jso'                : '10.1016/j.amc.2020.125535',
+    'jso_de'             : '10.1109/CEC.2017.7969362',
     'jy'                 : '10.5267/j.ijiec.2015.8.004',
     'kha'                : '10.1016/j.asoc.2016.08.041',
     'kma'                : '10.1016/j.asoc.2021.108043',
@@ -3234,6 +3317,9 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'lpo'                : '10.1016/j.cma.2023.116582',
     'lshade'             : '10.1109/CEC.2014.6900380',
     'lshade_cnepsin'     : '10.1109/CEC.2016.7744173',
+    'lshade_epsin'       : '10.1109/CEC.2016.7744313',
+    'lshade_rsp'         : '10.1109/CEC.2018.8477957',
+    'lshade_spacma'      : '10.1109/CEC.2017.7969307',
     'lso_spectrum'       : '10.1016/j.asoc.2024.112318',
     'mbo'                : '10.1007/s00521-015-1923-y',
     'memetic_a'          : '10.1007/978-3-540-92910-9_29',
@@ -3244,8 +3330,8 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'mgo'                : '10.1016/j.advengsoft.2022.103282',
     'mgoa_market'        : '10.1016/j.asoc.2024.112466',
     'misaco'             : '10.1109/TCYB.2021.3064676',
-    'mlshade_rl'         : '10.48550/arXiv.2409.15994',
     'mke'                : '10.1016/j.knosys.2016.01.009',
+    'mlshade_rl'         : '10.48550/arXiv.2409.15994',
     'modified_aeo'       : '10.1109/ACCESS.2020.2973351',
     'modified_eo'        : '10.1016/j.asoc.2020.106542',
     'moss_go'            : '10.1093/jcde/qwae080',
@@ -3263,6 +3349,9 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'nccla'              : '10.1016/j.asoc.2020.106325',
     'ngo'                : '10.1109/ACCESS.2021.3133286',
     'nlapsmjso_eda'      : '10.3390/sym17020153',
+    'nlshade_lbc'        : '10.1109/CEC55065.2022.9870295',
+    'nlshade_rsp'        : '10.1109/CEC45853.2021.9504959',
+    'nlshade_rsp_midpoint': '10.1109/CEC55065.2022.9870220',
     'nmm'                : '10.1093/comjnl/7.4.308',
     'nmra'               : '10.1007/s00521-019-04464-7',
     'nndrea_so'          : '10.1109/TEVC.2024.3400398',
@@ -3296,6 +3385,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'random_s'           : '10.1016/j.advengsoft.2022.103141',
     'rbmo'               : '10.1007/s10462-024-10716-3',
     'rcco'               : '10.3390/eng6100281',
+    'rde'                : '10.48550/arXiv.2404.16280',
     'rf_bo'              : '10.1023/A:1010933404324',
     'rfo'                : '10.1007/s10586-024-04950-1',
     'rhso'               : '10.32604/cmc.2021.013648',
@@ -3324,6 +3414,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'scso'               : '10.1007/s00366-022-01604-x',
     'sd'                 : '10.1006/hmat.1996.2146',
     'seaho'              : '10.1007/s10489-022-03994-3',
+    'secant_oa'           : '10.1038/s41598-026-36691-z',
     'serval_oa'          : '10.3390/biomimetics7040204',
     'sfo'                : '10.1016/j.engappai.2019.01.001',
     'sfoa'               : '10.1007/s00521-024-10694-1',
