@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **393 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **394 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -1496,6 +1496,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | surrogate | No | No | No | `rf_bo.update` |
 | [Random Search](https://doi.org/10.1016/j.advengsoft.2022.103141) | `random_s` | trajectory | Yes | Yes | No | `random_s.random_sampling_update` |
 | [Rat Swarm Optimizer](https://doi.org/10.1007/s12652-020-02580-0) | `rso` | swarm | Yes | Yes | No | `rso.long_chasing_update`<br>`rso.short_chasing_update` |
+| [RDEx-SOP](https://doi.org/10.48550/arXiv.2603.27089) | `rdex_sop` | evolutionary | Yes | Yes | No | `rdex_sop.standard_branch_mutation`<br>`rdex_sop.exploitation_biased_mutation`<br>`rdex_sop.binomial_crossover`<br>`rdex_sop.cauchy_local_perturbation`<br>`rdex_sop.greedy_selection`<br>`rdex_sop.dynamic_pbest_selection`<br>`rdex_sop.hybrid_rate_update`<br>`rdex_sop.success_history_update`<br>`rdex_sop.linear_population_reduction`<br>`rdex_sop.bound_resampling` |
 | [Reconstructed Differential Evolution](https://doi.org/10.48550/arXiv.2404.16280) | `rde` | evolutionary | Yes | Yes | No | `rde.mutation_current_to_pbest`<br>`rde.mutation_current_to_order_pbest`<br>`rde.strategy_resource_allocation`<br>`rde.extended_rank_selective_pressure`<br>`rde.crossover`<br>`rde.cauchy_target_perturbation`<br>`rde.selection`<br>`rde.archive_update`<br>`rde.success_history_update`<br>`rde.linear_population_reduction`<br>`rde.bound_repair` |
 | [Red-billed Blue Magpie Optimizer](https://doi.org/10.1007/s10462-024-10716-3) | `rbmo` | swarm | Yes | Yes | No | `rbmo.update` |
 | [Remora Optimization Algorithm](https://doi.org/10.1016/j.eswa.2021.115665) | `roa` | swarm | Yes | Yes | No | `roa.remora_attempt_update` |
