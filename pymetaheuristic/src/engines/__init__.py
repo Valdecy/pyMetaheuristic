@@ -1633,6 +1633,7 @@ _INJECTION_ENABLED: set[str] = {
     'bco', 
     'bea', 
     'bes', 
+    'bipop_cmaes', 
     'bfo', 
     'bka', 
     'bmo',
