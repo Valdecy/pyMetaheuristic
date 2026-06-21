@@ -2558,7 +2558,8 @@ function renderEvoMapX(payload){
   const data=payload||{};
   if(data.error){body.innerHTML=`<div style="color:var(--rose);font-size:.75rem">${esc(data.error)}</div>`;return;}
   const scores=(data.driver_scores||[]).filter(r=>r&&r.label).sort((a,b)=>(+b.score||0)-(+a.score||0));
-  const fallback=Object.entries(data.cds_normalized||{}).map(([label,score])=>({label,score,positive:null,signed:(data.cds_raw||{})[label],active_steps:null,mode:'cds'})).sort((a,b)=>(+b.score||0)-(+a.score||0));
+  const execCounts=data.operator_execution_counts||{};
+  const fallback=Object.entries(data.cds_normalized||{}).map(([label,score])=>({label,score,positive:null,signed:(data.cds_raw||{})[label],active_steps:null,execution_count:execCounts[label],mode:'cds'})).sort((a,b)=>(+b.score||0)-(+a.score||0));
   const entries=(scores.length?scores:fallback).filter(r=>r.score!=null);
   const top=entries[0];
   const topScore=top?(+top.score||0):0;
@@ -2569,14 +2570,16 @@ function renderEvoMapX(payload){
   const sourceLike=entries.some(r=>String(r.label||'').includes('_evaluation_l')||String(r.label||'').includes('_eval_l'));
   const noteBits=[];
   if(data.support_note)noteBits.push(esc(data.support_note));
-  if(mode==='activity')noteBits.push('No positive convergence-driver mass was detected after normalization; the bars show absolute operator activity so the panel does not report a false driver.');
+  if(mode==='activity')noteBits.push('No positive convergence-driver mass was detected after normalization; the bars show absolute contribution activity so the panel does not report a false driver.');
+  if(mode==='execution')noteBits.push('No non-zero contribution mass was detected; bars show engine-side execution counts, not convergence attribution.');
+  if(entries.some(r=>r.execution_count!=null))noteBits.push('Execution counts report how often an operator ran; Δ+ and net report direct EvoMapX objective-improvement attribution.');
   if(sourceLike)noteBits.push('Some labels are source-location probes; use the full tooltip or line suffix to distinguish them.');
   const note=noteBits.length?`<div class="evomapx-note">${noteBits.join('<br>')}</div>`:'';
   if(!entries.length || topScore<=1e-12){
-    body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">Main convergence driver: <span style="color:var(--t3)">none detected</span>${lvl}${migTxt}</div>${note}<div style="color:var(--t3);font-size:.75rem">No non-zero EvoMapX contribution/activity to display.</div>`;
+    body.innerHTML=`<div style="font-size:.72rem;color:var(--t2);margin-bottom:6px">Main convergence driver: <span style="color:var(--t3)">none detected</span>${lvl}${migTxt}</div>${note}<div style="color:var(--t3);font-size:.75rem">No non-zero EvoMapX contribution to display.</div>`;
     return;
   }
-  const driverTxt=mode==='activity'?'Most active probe':'Main convergence driver';
+  const driverTxt=mode==='execution'?'Most executed operator':(mode==='activity'?'Most contribution-active probe':'Main convergence driver');
   const bars=entries.slice(0,12).map((r,i)=>{
     const lbl=String(r.label||'');
     const val=+r.score||0;
@@ -2586,8 +2589,9 @@ function renderEvoMapX(payload){
     const shortLbl=evomapxShortLabel(lbl);
     const signed=(r.signed!=null)?`net ${fmt(r.signed)}`:'';
     const pos=(r.positive!=null)?`Δ+ ${fmt(r.positive)}`:'';
-    const active=(r.active_steps!=null)?`active ${Math.round(+r.active_steps)}`:'';
-    const sub=[pos,signed,active].filter(Boolean).join(' · ');
+    const executed=(r.execution_count!=null)?`executed ${Math.round(+r.execution_count)}`:'';
+    const contribActive=(r.execution_count==null&&r.active_steps!=null)?`contrib-active ${Math.round(+r.active_steps)}`:'';
+    const sub=[pos,signed,executed,contribActive].filter(Boolean).join(' · ');
     const src=lbl.includes('_evaluation_l')||lbl.includes('_eval_l')?'<span class="ibarlbl-src">source</span>':'';
     return `<div class="ibar-row">
       <div class="ibar-lbl" title="${esc(lbl)}">${esc(shortLbl)}${src}</div>

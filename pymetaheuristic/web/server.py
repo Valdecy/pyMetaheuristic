@@ -435,6 +435,40 @@ def _json_safe(value):
     return value
 
 
+def _operator_execution_counts_from_result(result) -> dict[str, float]:
+    """Return engine-side operator execution counts for the web EvoMapX panel.
+
+    EvoMapX activity measures contribution-active steps.  Several native
+    operators, such as CMA-ES covariance and step-size updates, can execute
+    every generation while intentionally receiving zero direct Δf attribution.
+    Engines that expose ``operator_counts_total`` let the UI show this execution
+    activity without changing EvoMapX's contribution semantics.
+    """
+    history = getattr(result, "history", None) or []
+    if not isinstance(history, list):
+        return {}
+
+    # Prefer engine-reported totals from the most recent observation.
+    for row in reversed(history):
+        if not isinstance(row, dict):
+            continue
+        totals = row.get("operator_counts_total")
+        if isinstance(totals, dict) and totals:
+            return {str(k): float(v or 0.0) for k, v in totals.items()}
+
+    # Fallback for engines that only expose per-step operator_counts.
+    counts: dict[str, float] = {}
+    for row in history:
+        if not isinstance(row, dict):
+            continue
+        step_counts = row.get("operator_counts")
+        if not isinstance(step_counts, dict):
+            continue
+        for key, value in step_counts.items():
+            counts[str(key)] = counts.get(str(key), 0.0) + float(value or 0.0)
+    return counts
+
+
 def _evomapx_payload(result, level: str = "auto") -> dict:
     """Small JSON-safe EvoMapX summary for the web UI."""
     try:
@@ -443,17 +477,27 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
         labels = list(data.get("labels", []) or [])
         activity = data.get("activity", {}) or {}
         cds_raw = data.get("cds_raw", {}) or {}
+        execution_counts = _operator_execution_counts_from_result(result)
         # Web-facing scores are computed from positive contribution first.
-        # If the run has no positive mass, fall back to absolute activity so
-        # the UI does not claim a false "main convergence driver" with 0.0% bars.
+        # If the run has no positive mass, fall back to absolute contribution
+        # activity.  If even that is zero, use engine execution counts and label
+        # the panel accordingly instead of pretending they are convergence
+        # contributions.
+        label_order = []
+        for source in (labels, list(cds_raw.keys()), list(activity.keys()), list(execution_counts.keys())):
+            for label in source or []:
+                label = str(label)
+                if label not in label_order:
+                    label_order.append(label)
         driver_rows = []
-        for label in labels or list(cds_raw.keys()) or list(activity.keys()):
+        for label in label_order:
             a = activity.get(label, {}) or {}
             signed = float(a.get("total_contribution", cds_raw.get(label, 0.0)) or 0.0)
             positive = float(a.get("total_positive_contribution", max(0.0, signed)) or 0.0)
             negative = float(a.get("total_negative_contribution", min(0.0, signed)) or 0.0)
             absolute = float(abs(positive) + abs(negative))
             active_steps = float(a.get("active_steps", 0.0) or 0.0)
+            execution_count = float(execution_counts.get(label, active_steps) or 0.0)
             driver_rows.append({
                 "label": str(label),
                 "positive": positive,
@@ -461,9 +505,11 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
                 "signed": signed,
                 "absolute": absolute,
                 "active_steps": active_steps,
+                "execution_count": execution_count,
             })
         total_positive = sum(max(0.0, r["positive"]) for r in driver_rows)
         total_absolute = sum(max(0.0, r["absolute"]) for r in driver_rows)
+        total_execution = sum(max(0.0, r["execution_count"]) for r in driver_rows)
         if total_positive > 1.0e-12:
             driver_mode = "positive"
             for r in driver_rows:
@@ -472,6 +518,10 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
             driver_mode = "activity"
             for r in driver_rows:
                 r["score"] = max(0.0, r["absolute"]) / total_absolute
+        elif total_execution > 1.0e-12:
+            driver_mode = "execution"
+            for r in driver_rows:
+                r["score"] = max(0.0, r["execution_count"]) / total_execution
         else:
             driver_mode = "none"
             for r in driver_rows:
@@ -480,13 +530,14 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
         return _json_safe({
             "objective": data.get("objective"),
             "level": data.get("level"),
-            "support_note": "Operator-level EvoMapX is available for all registered algorithms; cooperative runs also expose island and migration attribution.",
+            "support_note": "Operator-level EvoMapX is available for all registered algorithms; cooperative runs also expose island and migration attribution. Bars show contribution share when available; the execution count is engine-side operator activity.",
             "labels": labels,
             "steps": data.get("steps", []),
             "cds_normalized": data.get("cds_normalized", {}),
             "cds_raw": cds_raw,
             "driver_scores": driver_rows,
             "driver_mode": driver_mode,
+            "operator_execution_counts": execution_counts,
             "activity": activity,
             "summary": data.get("summary", {}),
             "migration_attribution": data.get("migration_attribution", {}),
