@@ -316,6 +316,7 @@ from .random_s             import RANDOM_SEngine
 from .rbmo                 import RBMOEngine
 from .rcco                 import RCCOEngine
 from .rde                  import RDEEngine
+from .rdex_sop             import RDEXSOPEngine
 from .rf_bo                import RFBOEngine
 from .rfo                  import RFOEngine
 from .rhso                 import RHSOEngine
@@ -711,6 +712,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     RBMOEngine, 
     RCCOEngine, 
     RDEEngine, 
+    RDEXSOPEngine,
     RFBOEngine, 
     RFOEngine, 
     RHSOEngine, 
@@ -1126,6 +1128,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'rbmo',  
     'rcco', 
     'rde', 
+    'rdex_sop',
     'rf_bo', 
     'rfo', 
     'rhso', 
@@ -1510,6 +1513,7 @@ _POPULATION_BASED: set[str] = {
     'rbmo', 
     'rcco', 
     'rde', 
+    'rdex_sop',
     'rfo', 
     'rhso', 
     'rime', 
@@ -1825,6 +1829,7 @@ _INJECTION_ENABLED: set[str] = {
     'random_s', 
     'rbmo', 
     'rde', 
+    'rdex_sop',
     'rfo', 
     'rime', 
     'roa', 
@@ -2205,6 +2210,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'rbmo', 
     'rcco', 
     'rde', 
+    'rdex_sop',
     'rfo', 
     'rhso', 
     'rime', 
@@ -2595,6 +2601,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'rbmo'               : 'Red-billed Blue Magpie Optimizer',
     'rcco'               : 'Rain-Cloud Condensation Optimizer',
     'rde'                : 'Reconstructed Differential Evolution',
+    'rdex_sop'           : 'RDEx-SOP',
     'rf_bo'              : 'Random Forest Bayesian Optimization',
     'rfo'                : "Rüppell's Fox Optimizer",
     'rhso'               : 'Rock Hyraxes Swarm Optimization',
@@ -2991,6 +2998,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'rbmo'               : 'swarm',
     'rcco'               : 'physics',
     'rde'                : 'evolutionary',
+    'rdex_sop'           : 'evolutionary',
     'rf_bo'              : 'math',
     'rfo'                : 'swarm',
     'rhso'               : 'swarm',
@@ -3387,6 +3395,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'rbmo'               : '10.1007/s10462-024-10716-3',
     'rcco'               : '10.3390/eng6100281',
     'rde'                : '10.48550/arXiv.2404.16280',
+    'rdex_sop'           : '10.48550/arXiv.2603.27089',
     'rf_bo'              : '10.1023/A:1010933404324',
     'rfo'                : '10.1007/s10586-024-04950-1',
     'rhso'               : '10.32604/cmc.2021.013648',

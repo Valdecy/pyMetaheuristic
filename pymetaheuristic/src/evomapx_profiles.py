@@ -608,3 +608,24 @@ EVOMAPX_OPERATOR_PROFILES["secant_oa"] = _profile(
     "supplied_secant_addendum",
     "Native engine telemetry logs SOA secant and stochastic exploitation phases without EvoMapX-side objective evaluations.",
 )
+
+# Addendum — RDEx-SOP.
+EVOMAPX_OPERATOR_PROFILES["rdex_sop"] = _profile(
+    "rdex_sop",
+    "evolutionary",
+    (
+        "standard_branch_mutation",
+        "exploitation_biased_mutation",
+        "binomial_crossover",
+        "cauchy_local_perturbation",
+        "greedy_selection",
+        "dynamic_pbest_selection",
+        "hybrid_rate_update",
+        "success_history_update",
+        "linear_population_reduction",
+        "bound_resampling",
+    ),
+    "native",
+    "rdex_sop_addendum",
+    "Native RDEx-SOP telemetry logs the standard and exploitation-biased mutation branches, binomial crossover, accepted Cauchy local perturbation, greedy selection, dynamic pbest pressure, hybrid-rate adaptation, success-history adaptation, population reduction, and bound resampling without EvoMapX-side objective evaluations. Direct-improvement operators are the two mutation branches, crossover, Cauchy local perturbation, and greedy selection; control/update operators are diagnostic.",
+)

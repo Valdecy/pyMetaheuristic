@@ -4194,3 +4194,32 @@ def labels_for_algorithm(algorithm_id):  # type: ignore[override]
         _aid,
         list(_prev_labels_for_algorithm_carryover_qualified(algorithm_id)),
     )
+
+# Addendum — RDEx-SOP native operator labels.
+_RDEX_SOP_OPERATOR_LABELS = [
+    "rdex_sop.standard_branch_mutation",
+    "rdex_sop.exploitation_biased_mutation",
+    "rdex_sop.binomial_crossover",
+    "rdex_sop.cauchy_local_perturbation",
+    "rdex_sop.greedy_selection",
+    "rdex_sop.dynamic_pbest_selection",
+    "rdex_sop.hybrid_rate_update",
+    "rdex_sop.success_history_update",
+    "rdex_sop.linear_population_reduction",
+    "rdex_sop.bound_resampling",
+]
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["rdex_sop"] = list(_RDEX_SOP_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["rdex_sop"] = list(_RDEX_SOP_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_RDEX_SOP_OPERATOR_LABELS)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_labels_for_algorithm_rdex_sop = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "rdex_sop":
+        return list(_RDEX_SOP_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_rdex_sop(algorithm_id)
