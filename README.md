@@ -1192,7 +1192,6 @@ The table below summarizes the optimization engines currently available in the l
 <details>
 <summary><b>🔍 View complete Metaheuristic reference table</b></summary>
 <br/>
-
 | Algorithm | ID | Family | Population | Candidate Injection | Restart | EvoMapX |
 | --- | --- | --- | --- | --- | --- | --- |
 | [Adam (Adaptive Moment Estimation)](https://doi.org/10.48550/arXiv.1412.6980) | `adam` | math | No | No | No | `adam.candidate_generation`<br>`adam.selection`<br>`adam.search_direction`<br>`adam.step_acceptance`<br>`adam.initialization` |
@@ -1589,11 +1588,8 @@ The table below summarizes the optimization engines currently available in the l
 | [Young's Double-Slit Experiment Optimizer](https://doi.org/10.1016/j.cma.2022.115652) | `ydse` | physics | Yes | Yes | No | `ydse.central_bright_fringe_update`<br>`ydse.bright_fringe_interference_update`<br>`ydse.dark_fringe_interference_update` |
 | [Yukthi Opus](https://doi.org/10.48550/arXiv.2601.01832) | `yo` | trajectory | Yes | No | No | `yo.mcmc_burn_in`<br>`yo.post_burnin_selection`<br>`yo.mcmc_proposal`<br>`yo.greedy_refinement`<br>`yo.simulated_annealing_acceptance`<br>`yo.blacklist_filter`<br>`yo.adaptive_reheating`<br>`yo.elite_update` |
 | [Zebra Optimization Algorithm](https://doi.org/10.1109/ACCESS.2022.3172789) | `zoa` | swarm | Yes | Yes | No | `zoa.behavioral_move`<br>`zoa.selection`<br>`zoa.candidate_generation` |
-
 <br/>
 </details>
-
-
 
 ---
 ## 4. **Test Functions**
