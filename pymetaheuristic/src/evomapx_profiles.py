@@ -629,3 +629,25 @@ EVOMAPX_OPERATOR_PROFILES["rdex_sop"] = _profile(
     "rdex_sop_addendum",
     "Native RDEx-SOP telemetry logs the standard and exploitation-biased mutation branches, binomial crossover, accepted Cauchy local perturbation, greedy selection, dynamic pbest pressure, hybrid-rate adaptation, success-history adaptation, population reduction, and bound resampling without EvoMapX-side objective evaluations. Direct-improvement operators are the two mutation branches, crossover, Cauchy local perturbation, and greedy selection; control/update operators are diagnostic.",
 )
+
+
+# Addendum — BIPOP-CMA-ES native operator telemetry.
+EVOMAPX_OPERATOR_PROFILES["bipop_cmaes"] = _profile(
+    "bipop_cmaes",
+    "evolutionary",
+    (
+        "cmaes_sampling",
+        "elite_recombination",
+        "distribution_update",
+        "step_size_adaptation",
+        "large_population_restart",
+        "small_population_restart",
+        "budget_regime_selection",
+        "termination_check",
+        "boundary_repair",
+        "candidate_injection",
+    ),
+    "native",
+    "bipop_cmaes_native_addendum",
+    "Native BIPOP-CMA-ES telemetry logs CMA-ES sampling/recombination, model and step-size updates, budget-controlled large/small restarts, termination checks, bound repairs, and candidate injection without EvoMapX-side objective evaluations.",
+)

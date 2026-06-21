@@ -4273,3 +4273,52 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if aid == "ipop_cmaes" and lab in _IPOP_CMAES_OPERATOR_LABELS:
         return [lab]
     return _prev_expand_compound_operator_label_ipop_cmaes_native(algorithm_id, label)
+
+
+# Addendum — BIPOP-CMA-ES native operator labels.
+_BIPOP_CMAES_OPERATOR_LABELS = [
+    "bipop_cmaes.cmaes_sampling",
+    "bipop_cmaes.elite_recombination",
+    "bipop_cmaes.distribution_update",
+    "bipop_cmaes.step_size_adaptation",
+    "bipop_cmaes.large_population_restart",
+    "bipop_cmaes.small_population_restart",
+    "bipop_cmaes.budget_regime_selection",
+    "bipop_cmaes.termination_check",
+    "bipop_cmaes.boundary_repair",
+    "bipop_cmaes.candidate_injection",
+    "bipop_cmaes.initialization",
+]
+try:
+    _SINGLE_EVAL_HONEST.pop("bipop_cmaes", None)
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("bipop_cmaes")
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["bipop_cmaes"] = list(_BIPOP_CMAES_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["bipop_cmaes"] = list(_BIPOP_CMAES_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_BIPOP_CMAES_OPERATOR_LABELS)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_semanticize_operator_label_bipop_cmaes_native = semanticize_operator_label
+def semanticize_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "bipop_cmaes" and lab in _BIPOP_CMAES_OPERATOR_LABELS:
+        return lab
+    return _prev_semanticize_operator_label_bipop_cmaes_native(algorithm_id, label)
+
+_prev_labels_for_algorithm_bipop_cmaes_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "bipop_cmaes":
+        return list(_BIPOP_CMAES_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_bipop_cmaes_native(algorithm_id)
+
+_prev_expand_compound_operator_label_bipop_cmaes_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "bipop_cmaes" and lab in _BIPOP_CMAES_OPERATOR_LABELS:
+        return [lab]
+    return _prev_expand_compound_operator_label_bipop_cmaes_native(algorithm_id, label)
