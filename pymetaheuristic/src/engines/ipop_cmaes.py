@@ -29,6 +29,19 @@ class IPOPCMAESEngine(BaseEngine):
     algorithm_id = "ipop_cmaes"
     algorithm_name = "IPOP-CMA-ES"
     family = "evolutionary"
+    _EVOMAPX_DIRECT_OPERATORS = (
+        "ipop_cmaes.cmaes_sampling",
+        "ipop_cmaes.elite_recombination",
+        "ipop_cmaes.candidate_injection",
+    )
+    _EVOMAPX_DIAGNOSTIC_OPERATORS = (
+        "ipop_cmaes.initialization",
+        "ipop_cmaes.distribution_update",
+        "ipop_cmaes.step_size_adaptation",
+        "ipop_cmaes.population_restart",
+        "ipop_cmaes.boundary_penalty",
+    )
+    _EVOMAPX_OPERATORS = _EVOMAPX_DIRECT_OPERATORS + _EVOMAPX_DIAGNOSTIC_OPERATORS
     _REFERENCE = {
         "doi": "10.1109/CEC.2005.1554902",
         "title": "A restart CMA evolution strategy with increasing population size",
@@ -62,6 +75,12 @@ class IPOPCMAESEngine(BaseEngine):
         # Numerical safety.
         "min_sigma": 1.0e-300,
         "max_sigma_multiplier": 10.0,
+        # Web-app and simple API runs often set max_steps but not
+        # max_evaluations.  IPOP doubles lambda after restarts, so a
+        # step-only budget can otherwise grow into very large generations.
+        # When enabled, a step-only run is interpreted as a fixed-budget run
+        # with max_steps * initial_population_size evaluations.
+        "step_budget_evaluation_cap": True,
     }
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
@@ -83,16 +102,45 @@ class IPOPCMAESEngine(BaseEngine):
         self._boundary_penalty = max(0.0, float(self._params.get("boundary_penalty", 1.0e6)))
         self._min_sigma = max(1.0e-300, float(self._params.get("min_sigma", 1.0e-300)))
         self._max_sigma = max(self._min_sigma, float(self._params.get("max_sigma_multiplier", 10.0)) * float(np.max(self._span)))
+        self._step_budget_evaluation_cap = bool(self._params.get("step_budget_evaluation_cap", True))
+        self._effective_max_evaluations = self._resolve_effective_max_evaluations()
+
+    def _resolve_effective_max_evaluations(self) -> int | None:
+        """Return the hard evaluation cap used internally by IPOP-CMA-ES.
+
+        The paper and most CMA-ES comparisons are fixed-budget in objective
+        evaluations.  pyMetaheuristic's web app, however, commonly supplies
+        only max_steps.  Since IPOP-CMA-ES changes lambda across restarts,
+        max_steps alone is not a stable cost unit.  The inferred cap keeps
+        step-only runs responsive without affecting explicit max_evaluations
+        runs.
+        """
+        if self.config.max_evaluations is not None:
+            return max(0, int(self.config.max_evaluations))
+        if self._step_budget_evaluation_cap and self.config.max_steps is not None:
+            return max(1, int(self.config.max_steps) * int(self._base_lambda))
+        return None
+
+    def _mark_inferred_budget_stop(self, state: EngineState) -> None:
+        if self.config.max_evaluations is None and self._effective_max_evaluations is not None:
+            state.termination_reason = "max_evaluations_inferred_from_steps"
+            state.terminated = True
+
+    def _zero_operator_float_map(self) -> dict[str, float]:
+        return {label: 0.0 for label in self._EVOMAPX_OPERATORS}
+
+    def _zero_operator_count_map(self) -> dict[str, int]:
+        return {label: 0 for label in self._EVOMAPX_OPERATORS}
 
     @staticmethod
     def _default_lambda(dim: int) -> int:
         return max(4, 4 + int(math.floor(3.0 * math.log(max(2, dim)))))
 
     def _remaining_evaluations(self, state: EngineState | None = None, used: int = 0) -> int | None:
-        if self.config.max_evaluations is None:
+        if self._effective_max_evaluations is None:
             return None
         done = int(getattr(state, "evaluations", 0) if state is not None else 0)
-        return max(0, int(self.config.max_evaluations) - done - int(used))
+        return max(0, int(self._effective_max_evaluations) - done - int(used))
 
     def _is_better(self, a: float, b: float) -> bool:
         return self.problem.is_better(float(a), float(b))
@@ -163,24 +211,17 @@ class IPOPCMAESEngine(BaseEngine):
         evals = 1
         old_counts = dict((carried or {}).get("operator_counts", {}))
         old_contrib = dict((carried or {}).get("operator_contributions", {}))
-        operator_counts = {
-            "ipop_cmaes.initialization": int(old_counts.get("ipop_cmaes.initialization", 0)) + 1,
-            "ipop_cmaes.cmaes_sampling": int(old_counts.get("ipop_cmaes.cmaes_sampling", 0)),
-            "ipop_cmaes.elite_recombination": int(old_counts.get("ipop_cmaes.elite_recombination", 0)),
-            "ipop_cmaes.distribution_update": int(old_counts.get("ipop_cmaes.distribution_update", 0)),
-            "ipop_cmaes.population_restart": int(old_counts.get("ipop_cmaes.population_restart", 0)),
-            "ipop_cmaes.boundary_penalty": int(old_counts.get("ipop_cmaes.boundary_penalty", 0)) + int(penalty > 0.0),
-            "ipop_cmaes.candidate_injection": int(old_counts.get("ipop_cmaes.candidate_injection", 0)),
-        }
-        operator_contributions = {
-            "ipop_cmaes.initialization": float(old_contrib.get("ipop_cmaes.initialization", 0.0)),
-            "ipop_cmaes.cmaes_sampling": float(old_contrib.get("ipop_cmaes.cmaes_sampling", 0.0)),
-            "ipop_cmaes.elite_recombination": float(old_contrib.get("ipop_cmaes.elite_recombination", 0.0)),
-            "ipop_cmaes.distribution_update": float(old_contrib.get("ipop_cmaes.distribution_update", 0.0)),
-            "ipop_cmaes.population_restart": float(old_contrib.get("ipop_cmaes.population_restart", 0.0)),
-            "ipop_cmaes.boundary_penalty": float(old_contrib.get("ipop_cmaes.boundary_penalty", 0.0)),
-            "ipop_cmaes.candidate_injection": float(old_contrib.get("ipop_cmaes.candidate_injection", 0.0)),
-        }
+        operator_counts = self._zero_operator_count_map()
+        operator_contributions = self._zero_operator_float_map()
+        for label in self._EVOMAPX_OPERATORS:
+            operator_counts[label] = int(old_counts.get(label, 0))
+            operator_contributions[label] = float(old_contrib.get(label, 0.0))
+        operator_counts["ipop_cmaes.initialization"] += 1
+        operator_counts["ipop_cmaes.boundary_penalty"] += int(penalty > 0.0)
+        last_operator_counts = self._zero_operator_count_map()
+        last_operator_contributions = self._zero_operator_float_map()
+        last_operator_counts["ipop_cmaes.initialization"] = 1
+        last_operator_counts["ipop_cmaes.boundary_penalty"] = int(penalty > 0.0)
         payload = {
             "mean": phenotype.copy(),
             "sigma": float(sigma0),
@@ -208,6 +249,8 @@ class IPOPCMAESEngine(BaseEngine):
             "restart_reason": "initialization" if restart_index == 0 else "independent_restart",
             "operator_counts": operator_counts,
             "operator_contributions": operator_contributions,
+            "last_operator_counts": last_operator_counts,
+            "last_operator_contributions": last_operator_contributions,
             "injections": int((carried or {}).get("injections", 0)),
         }
         return payload, evals
@@ -277,6 +320,10 @@ class IPOPCMAESEngine(BaseEngine):
         payload, evals = self._start_run(restart_index, carried=carried, seed=seed)
         payload["operator_counts"]["ipop_cmaes.population_restart"] = old_counts.get("ipop_cmaes.population_restart", 0) + 1
         payload["operator_contributions"]["ipop_cmaes.population_restart"] = old_contrib.get("ipop_cmaes.population_restart", 0.0)
+        payload["last_operator_counts"] = self._zero_operator_count_map()
+        payload["last_operator_contributions"] = self._zero_operator_float_map()
+        payload["last_operator_counts"]["ipop_cmaes.initialization"] = 1
+        payload["last_operator_counts"]["ipop_cmaes.population_restart"] = 1
         payload["restart_reason"] = str(reason)
         state.payload = payload
         state.evaluations += int(evals)
@@ -288,6 +335,7 @@ class IPOPCMAESEngine(BaseEngine):
     def step(self, state: EngineState) -> EngineState:
         remaining = self._remaining_evaluations(state)
         if remaining is not None and remaining <= 0:
+            self._mark_inferred_budget_stop(state)
             return state
 
         p = state.payload
@@ -335,16 +383,34 @@ class IPOPCMAESEngine(BaseEngine):
         # Respect hard budgets: if a partial generation is too small to update
         # the distribution, still use the evaluated points to refresh the best.
         if lam_eval < mu:
+            last_counts = self._zero_operator_count_map()
+            last_contrib = self._zero_operator_float_map()
+            last_counts["ipop_cmaes.cmaes_sampling"] = 1
+            last_counts["ipop_cmaes.boundary_penalty"] = int(np.count_nonzero(penalties > 0.0))
+            if self.problem.objective == "min":
+                partial_improvement = max(0.0, previous_best - float(state.best_fitness))
+            else:
+                partial_improvement = max(0.0, float(state.best_fitness) - previous_best)
+            last_contrib["ipop_cmaes.cmaes_sampling"] = float(partial_improvement)
+            counts = p.setdefault("operator_counts", self._zero_operator_count_map())
+            contrib = p.setdefault("operator_contributions", self._zero_operator_float_map())
+            counts["ipop_cmaes.cmaes_sampling"] = int(counts.get("ipop_cmaes.cmaes_sampling", 0)) + 1
+            counts["ipop_cmaes.boundary_penalty"] = int(counts.get("ipop_cmaes.boundary_penalty", 0)) + int(np.count_nonzero(penalties > 0.0))
+            contrib["ipop_cmaes.cmaes_sampling"] = float(contrib.get("ipop_cmaes.cmaes_sampling", 0.0)) + float(partial_improvement)
             p.update(
                 population=pop,
                 run_step=int(p["run_step"]) + 1,
                 run_evaluations=int(p["run_evaluations"]) + int(lam_eval),
                 penalty_last=float(np.mean(penalties)) if penalties.size else 0.0,
+                last_operator_counts=last_counts,
+                last_operator_contributions=last_contrib,
             )
             p["best_history"].append(float(state.best_fitness))
             state.payload = p
             state.step += 1
             state.evaluations += int(lam_eval)
+            if self._remaining_evaluations(state) == 0:
+                self._mark_inferred_budget_stop(state)
             return state
 
         x_sel = x[order[:mu]]
@@ -367,6 +433,25 @@ class IPOPCMAESEngine(BaseEngine):
         sigma = sigma * math.exp((cs / damps) * (norm_ps / chi_n - 1.0))
         sigma = float(np.clip(sigma, self._min_sigma, self._max_sigma))
 
+        if self.problem.objective == "min":
+            improvement = max(0.0, previous_best - float(state.best_fitness))
+        else:
+            improvement = max(0.0, float(state.best_fitness) - previous_best)
+
+        last_counts = self._zero_operator_count_map()
+        last_contrib = self._zero_operator_float_map()
+        last_counts["ipop_cmaes.cmaes_sampling"] = 1
+        last_counts["ipop_cmaes.elite_recombination"] = 1
+        last_counts["ipop_cmaes.distribution_update"] = 1
+        last_counts["ipop_cmaes.step_size_adaptation"] = 1
+        last_counts["ipop_cmaes.boundary_penalty"] = int(np.count_nonzero(penalties > 0.0))
+        # The immediate best-so-far improvement is generated by the sampled
+        # offspring and the elite/parent recombination-selection step.  The
+        # covariance and step-size updates are diagnostic model updates, so they
+        # receive activity counts but no direct objective-improvement credit.
+        last_contrib["ipop_cmaes.cmaes_sampling"] = 0.5 * float(improvement)
+        last_contrib["ipop_cmaes.elite_recombination"] = 0.5 * float(improvement)
+
         p.update(
             mean=mean,
             sigma=sigma,
@@ -377,29 +462,22 @@ class IPOPCMAESEngine(BaseEngine):
             run_step=int(p["run_step"]) + 1,
             run_evaluations=int(p["run_evaluations"]) + int(lam_eval),
             penalty_last=float(np.mean(penalties)) if penalties.size else 0.0,
+            last_operator_counts=last_counts,
+            last_operator_contributions=last_contrib,
         )
         p["best_history"].append(float(state.best_fitness))
-        counts = p.setdefault("operator_counts", {})
-        contrib = p.setdefault("operator_contributions", {})
-        for key in (
-            "ipop_cmaes.cmaes_sampling",
-            "ipop_cmaes.elite_recombination",
-            "ipop_cmaes.distribution_update",
-        ):
-            counts[key] = int(counts.get(key, 0)) + 1
-        counts["ipop_cmaes.boundary_penalty"] = int(counts.get("ipop_cmaes.boundary_penalty", 0)) + int(np.count_nonzero(penalties > 0.0))
-        if self.problem.objective == "min":
-            improvement = max(0.0, previous_best - float(state.best_fitness))
-        else:
-            improvement = max(0.0, float(state.best_fitness) - previous_best)
-        contrib["ipop_cmaes.cmaes_sampling"] = float(contrib.get("ipop_cmaes.cmaes_sampling", 0.0)) + improvement
-        contrib["ipop_cmaes.elite_recombination"] = float(contrib.get("ipop_cmaes.elite_recombination", 0.0)) + improvement
-        contrib["ipop_cmaes.distribution_update"] = float(contrib.get("ipop_cmaes.distribution_update", 0.0)) + improvement
-        contrib["ipop_cmaes.boundary_penalty"] = float(contrib.get("ipop_cmaes.boundary_penalty", 0.0))
+        counts = p.setdefault("operator_counts", self._zero_operator_count_map())
+        contrib = p.setdefault("operator_contributions", self._zero_operator_float_map())
+        for key, value in last_counts.items():
+            counts[key] = int(counts.get(key, 0)) + int(value)
+        for key, value in last_contrib.items():
+            contrib[key] = float(contrib.get(key, 0.0)) + float(value)
 
         state.payload = p
         state.step += 1
         state.evaluations += int(lam_eval)
+        if self._remaining_evaluations(state) == 0:
+            self._mark_inferred_budget_stop(state)
 
         reason = self._generation_stop_reason(state.payload)
         if reason is not None and self._remaining_evaluations(state) not in {0}:
@@ -428,8 +506,10 @@ class IPOPCMAESEngine(BaseEngine):
             "run_step": int(p.get("run_step", 0)),
             "run_evaluations": int(p.get("run_evaluations", 0)),
             "injections": int(p.get("injections", 0)),
-            "operator_counts": dict(p.get("operator_counts", {})),
-            "operator_contributions": dict(p.get("operator_contributions", {})),
+            "operator_counts": dict(p.get("last_operator_counts", p.get("operator_counts", {}))),
+            "operator_contributions": dict(p.get("last_operator_contributions", p.get("operator_contributions", {}))),
+            "operator_counts_total": dict(p.get("operator_counts", {})),
+            "operator_contributions_total": dict(p.get("operator_contributions", {})),
             "evomapx_delta_f": "direct_improvement",
             "evomapx_fidelity": "native",
             "native_evomapx_operator_labels": True,
@@ -443,7 +523,7 @@ class IPOPCMAESEngine(BaseEngine):
         return [
             CandidateRecord(
                 position=row[: self._dim].tolist(),
-                fitness=float(row[-1]),
+                fitness=float(row[self._dim]),
                 source_algorithm=self.algorithm_id,
                 source_step=int(state.step),
                 role="current",
@@ -498,9 +578,12 @@ class IPOPCMAESEngine(BaseEngine):
                 best_incoming_pos = phenotype.copy()
         state.evaluations += int(len(incoming_rows))
         state.payload["injections"] = int(state.payload.get("injections", 0)) + int(len(incoming_rows))
-        counts = state.payload.setdefault("operator_counts", {})
+        counts = state.payload.setdefault("operator_counts", self._zero_operator_count_map())
         counts["ipop_cmaes.candidate_injection"] = int(counts.get("ipop_cmaes.candidate_injection", 0)) + int(len(incoming_rows))
-        contrib = state.payload.setdefault("operator_contributions", {})
+        contrib = state.payload.setdefault("operator_contributions", self._zero_operator_float_map())
+        last_counts = self._zero_operator_count_map()
+        last_contrib = self._zero_operator_float_map()
+        last_counts["ipop_cmaes.candidate_injection"] = int(len(incoming_rows))
         if best_incoming_pos is not None and best_incoming_fit is not None:
             old_best = float(state.best_fitness)
             if self._is_better(best_incoming_fit, state.best_fitness):
@@ -510,6 +593,7 @@ class IPOPCMAESEngine(BaseEngine):
                     delta = max(0.0, old_best - best_incoming_fit)
                 else:
                     delta = max(0.0, best_incoming_fit - old_best)
+                last_contrib["ipop_cmaes.candidate_injection"] = float(delta)
                 contrib["ipop_cmaes.candidate_injection"] = float(contrib.get("ipop_cmaes.candidate_injection", 0.0)) + delta
             old_mean = np.asarray(state.payload.get("mean", best_incoming_pos), dtype=float)
             state.payload["mean"] = self._clip(0.5 * old_mean + 0.5 * best_incoming_pos)
@@ -521,6 +605,8 @@ class IPOPCMAESEngine(BaseEngine):
             combined = incoming_pop
         keep = max(1, min(int(state.payload.get("lambda", combined.shape[0])), combined.shape[0]))
         state.payload["population"] = combined[self._order(combined[:, -1])[:keep]].copy()
+        state.payload["last_operator_counts"] = last_counts
+        state.payload["last_operator_contributions"] = last_contrib
         return state
 
     def restart(self, state: EngineState, seeds: list[CandidateRecord] | None = None, preserve_best: bool = True) -> EngineState:
