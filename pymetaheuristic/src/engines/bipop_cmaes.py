@@ -39,7 +39,8 @@ class BIPOPCMAESEngine(RestartCMAESBase):
         p_small = float(self._params.get("small_population_probability", 0.5))
         p_small = min(1.0, max(0.0, p_small))
         large_count = int((restart_index + 1) // 2)
-        large_lambda = int(round(self._base_lambda * (self._population_multiplier ** max(1, large_count))))
+        large_uncapped = int(round(self._base_lambda * (self._population_multiplier ** max(1, large_count))))
+        large_lambda = self._cap_lambda(large_uncapped)
         if self._rng.random() < p_small:
             upper = max(self._base_lambda, large_lambda // 2)
             return int(self._rng.integers(max(4, self._base_lambda // 2), upper + 1))

@@ -353,6 +353,9 @@ class RestartCMAESBase(BaseEngine):
         restart_after_steps=60,
         improvement_tol=1.0e-12,
         population_multiplier=2.0,
+        # Practical cap for restart-driven CMA-ES population growth.  Set to
+        # None to recover the original unbounded IPOP-style schedule.
+        max_population_multiplier=4.0,
     )
 
     def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
@@ -364,6 +367,12 @@ class RestartCMAESBase(BaseEngine):
         self._restart_after_steps = max(1, int(self._params.get("restart_after_steps", 60)))
         self._improvement_tol = max(0.0, float(self._params.get("improvement_tol", 1.0e-12)))
         self._population_multiplier = max(1.01, float(self._params.get("population_multiplier", 2.0)))
+        max_population_multiplier = self._params.get("max_population_multiplier", 4.0)
+        self._max_population_multiplier = (
+            None
+            if max_population_multiplier is None
+            else max(1.0, float(max_population_multiplier))
+        )
 
     @property
     def _lo(self) -> np.ndarray:
@@ -424,8 +433,22 @@ class RestartCMAESBase(BaseEngine):
         chi_n = math.sqrt(dim) * (1.0 - 1.0 / (4.0 * dim) + 1.0 / (21.0 * dim * dim))
         return dict(mu=mu, weights=weights, mueff=mueff, cc=cc, cs=cs, c1=c1, cmu=cmu, damps=damps, chi_n=chi_n)
 
+    def _cap_lambda(self, lam: int) -> int:
+        """Apply the optional restart-population cap.
+
+        ``max_population_multiplier=None`` preserves the original unbounded
+        IPOP-style restart schedule.  Otherwise, lambda is capped at
+        ``base_lambda * max_population_multiplier``.
+        """
+        lam = max(4, int(lam))
+        if self._max_population_multiplier is None:
+            return lam
+        cap = max(4, int(round(self._base_lambda * self._max_population_multiplier)))
+        return min(lam, cap)
+
     def _next_lambda(self, restart_index: int, payload: dict[str, Any] | None = None) -> int:
-        return int(round(self._base_lambda * (self._population_multiplier ** max(0, restart_index))))
+        uncapped = int(round(self._base_lambda * (self._population_multiplier ** max(0, restart_index))))
+        return self._cap_lambda(uncapped)
 
     def _start_run_payload(
         self,
