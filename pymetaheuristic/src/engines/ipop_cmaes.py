@@ -61,6 +61,10 @@ class IPOPCMAESEngine(BaseEngine):
         # size, then multiply it by two at each independent restart.
         "population_size": None,
         "population_multiplier": 2.0,
+        # Practical package default: preserve IPOP doubling, but cap restart
+        # population growth at 4x the initial lambda unless the user disables
+        # the cap with max_population_multiplier=None.
+        "max_population_multiplier": 4.0,
         # Paper setting for [A, B]^n: sigma0 = (B - A) / 2.  For heterogeneous
         # boxes we use mean side length / 2 unless the user gives sigma0.
         "sigma0": None,
@@ -183,7 +187,15 @@ class IPOPCMAESEngine(BaseEngine):
         }
 
     def _lambda_for_restart(self, restart_index: int) -> int:
-        return max(4, int(round(self._base_lambda * (self._population_multiplier ** max(0, int(restart_index))))))
+        uncapped = max(
+            4,
+            int(round(self._base_lambda * (self._population_multiplier ** max(0, int(restart_index))))),
+        )
+        max_population_multiplier = self._params.get("max_population_multiplier", 4.0)
+        if max_population_multiplier is None:
+            return uncapped
+        cap = max(4, int(round(self._base_lambda * float(max_population_multiplier))))
+        return min(uncapped, cap)
 
     def _evaluate_candidate(self, raw: np.ndarray) -> tuple[np.ndarray, float, float]:
         """Evaluate candidate with standard CMA-style exterior boundary penalty."""
