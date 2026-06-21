@@ -436,11 +436,20 @@ class IPOPCMAESEngine(BaseEngine):
         }
         return obs
 
-    def get_population(self, state: EngineState):
+    def get_population(self, state: EngineState) -> list[CandidateRecord]:
         pop = np.asarray(state.payload.get("population", []), dtype=float)
         if pop.ndim != 2 or pop.shape[1] < self._dim + 1:
             return []
-        return [row[: self._dim].tolist() for row in pop]
+        return [
+            CandidateRecord(
+                position=row[: self._dim].tolist(),
+                fitness=float(row[-1]),
+                source_algorithm=self.algorithm_id,
+                source_step=int(state.step),
+                role="current",
+            )
+            for row in pop
+        ]
 
     def get_best_candidate(self, state: EngineState) -> CandidateRecord:
         return CandidateRecord(
