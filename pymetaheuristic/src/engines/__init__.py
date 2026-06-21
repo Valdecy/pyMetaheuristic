@@ -1754,6 +1754,7 @@ _INJECTION_ENABLED: set[str] = {
     'ilshade_rsp', 
     'imode', 
     'info', 
+    'ipop_cmaes', 
     'ivya', 
     'iwo', 
     'jde', 
