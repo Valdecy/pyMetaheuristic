@@ -4155,3 +4155,42 @@ def labels_for_algorithm(algorithm_id):  # type: ignore[override]
     if _aid in _SUPPLIED_NATIVE_OPERATOR_LABELS:
         return list(_SUPPLIED_NATIVE_OPERATOR_LABELS[_aid])
     return _prev_labels_for_algorithm_supplied_family(algorithm_id)
+
+
+# ---------------------------------------------------------------------------
+# Audit hygiene: qualify passive carryover labels.
+# ---------------------------------------------------------------------------
+# Some legacy addendum catalogs stored the passive non-operator bucket as the
+# bare label "carryover".  EvoMapX's audit expects every exported catalog label
+# to be namespaced by algorithm id.  This post-processing step keeps the same
+# semantics while exporting "<algorithm_id>.carryover" consistently.
+def _qualify_passive_carryover_labels(_aid: str, _labels: list[str]) -> list[str]:
+    _prefix = f"{str(_aid).lower().replace('-', '_')}."
+    _out: list[str] = []
+    for _label in _labels:
+        _lab = str(_label)
+        if _lab == "carryover":
+            _lab = _prefix + "carryover"
+        if _lab not in _out:
+            _out.append(_lab)
+    return _out
+
+try:
+    for _aid, _labels in list(ENGINE_OPERATOR_LABELS.items()):
+        ENGINE_OPERATOR_LABELS[_aid] = _qualify_passive_carryover_labels(_aid, list(_labels))
+    for _aid, _labels in list(_ENGINE_OPERATOR_LABEL_OVERRIDES.items()):
+        _ENGINE_OPERATOR_LABEL_OVERRIDES[_aid] = _qualify_passive_carryover_labels(_aid, list(_labels))
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS = {
+        (_lab if _lab != "carryover" else "passive.carryover")
+        for _lab in _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS
+    }
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+
+_prev_labels_for_algorithm_carryover_qualified = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    _aid = str(algorithm_id).lower().replace("-", "_")
+    return _qualify_passive_carryover_labels(
+        _aid,
+        list(_prev_labels_for_algorithm_carryover_qualified(algorithm_id)),
+    )
