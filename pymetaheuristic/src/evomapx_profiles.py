@@ -651,3 +651,25 @@ EVOMAPX_OPERATOR_PROFILES["bipop_cmaes"] = _profile(
     "bipop_cmaes_native_addendum",
     "Native BIPOP-CMA-ES telemetry logs CMA-ES sampling/recombination, model and step-size updates, budget-controlled large/small restarts, termination checks, bound repairs, and candidate injection without EvoMapX-side objective evaluations.",
 )
+
+# Addendum — L-SRTDE native operator telemetry.
+EVOMAPX_OPERATOR_PROFILES["l_srtde"] = _profile(
+    "l_srtde",
+    "evolutionary",
+    (
+        "success-rate F adaptation",
+        "success-rate pbest control",
+        "rank-selective pressure",
+        "r-new-to-ptop differential mutation",
+        "binomial crossover",
+        "bound resampling",
+        "selection",
+        "newest population update",
+        "top population update",
+        "crossover-memory update",
+        "linear population reduction",
+    ),
+    "native",
+    "l_srtde_addendum",
+    "Native L-SRTDE telemetry logs success-rate F and pbest control, rank-selective pressure, r-new-to-ptop mutation, binomial crossover, bound resampling, selection, newest/top population updates, crossover-memory adaptation, and linear population reduction without EvoMapX-side objective evaluations.",
+)

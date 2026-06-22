@@ -250,6 +250,7 @@ from .lshade_cnepsin       import LSHADECnEpSinEngine
 from .lshade_epsin         import LSHADEEpSinEngine
 from .lshade_rsp           import LSHADERspEngine
 from .lshade_spacma        import LSHADESpacmaEngine
+from .l_srtde              import LSRTDEEngine
 from .lso_spectrum         import LSOSpectrumEngine
 from .mbo                  import MBOEngine
 from .memetic_a            import MEMETIC_AEngine
@@ -643,6 +644,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     LSHADEEpSinEngine, 
     LSHADERspEngine, 
     LSHADESpacmaEngine, 
+    LSRTDEEngine, 
     LSOSpectrumEngine, 
     LaroEngine, 
     LevyJaEngine, 
@@ -1062,6 +1064,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'lshade_epsin', 
     'lshade_rsp', 
     'lshade_spacma', 
+    'l_srtde', 
     'lso_spectrum', 
     'mbo', 
     'memetic_a',
@@ -1449,6 +1452,7 @@ _POPULATION_BASED: set[str] = {
     'lshade_epsin', 
     'lshade_rsp', 
     'lshade_spacma', 
+    'l_srtde', 
     'lso_spectrum', 
     'mbo',
     'memetic_a', 
@@ -2147,6 +2151,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'lshade_epsin', 
     'lshade_rsp', 
     'lshade_spacma', 
+    'l_srtde', 
     'lso_spectrum', 
     'mbo',
     'memetic_a', 
@@ -2536,6 +2541,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'lshade_epsin'       : 'LSHADE-EpSin',
     'lshade_rsp'         : 'LSHADE-RSP',
     'lshade_spacma'      : 'LSHADE-SPACMA',
+    'l_srtde'            : 'L-SRTDE',
     'lso_spectrum'       : 'Light Spectrum Optimizer',
     'mbo'                : 'Monarch Butterfly Optimization',
     'memetic_a'          : 'Memetic Algorithm',
@@ -2933,6 +2939,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'lshade_epsin'       : 'evolutionary',
     'lshade_rsp'         : 'evolutionary',
     'lshade_spacma'      : 'evolutionary',
+    'l_srtde'            : 'evolutionary',
     'lso_spectrum'       : 'physics',
     'mbo'                : 'swarm',
     'memetic_a'          : 'evolutionary',
@@ -3330,6 +3337,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'lshade_epsin'       : '10.1109/CEC.2016.7744313',
     'lshade_rsp'         : '10.1109/CEC.2018.8477957',
     'lshade_spacma'      : '10.1109/CEC.2017.7969307',
+    'l_srtde'            : '10.1109/CEC60901.2024.10611907',
     'lso_spectrum'       : '10.1016/j.asoc.2024.112318',
     'mbo'                : '10.1007/s00521-015-1923-y',
     'memetic_a'          : '10.1007/978-3-540-92910-9_29',

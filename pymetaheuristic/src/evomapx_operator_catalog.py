@@ -4322,3 +4322,51 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if aid == "bipop_cmaes" and lab in _BIPOP_CMAES_OPERATOR_LABELS:
         return [lab]
     return _prev_expand_compound_operator_label_bipop_cmaes_native(algorithm_id, label)
+
+# Addendum — L-SRTDE native operator labels.
+_L_SRTDE_OPERATOR_LABELS = [
+    "l_srtde.success_rate_f_adaptation",
+    "l_srtde.success_rate_pbest_control",
+    "l_srtde.rank_selective_pressure",
+    "l_srtde.r_new_to_ptop_mutation",
+    "l_srtde.binomial_crossover",
+    "l_srtde.bound_resampling",
+    "l_srtde.selection",
+    "l_srtde.newest_population_update",
+    "l_srtde.top_population_update",
+    "l_srtde.crossover_memory_update",
+    "l_srtde.linear_population_reduction",
+]
+try:
+    _SINGLE_EVAL_HONEST.pop("l_srtde", None)
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("l_srtde")
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["l_srtde"] = list(_L_SRTDE_OPERATOR_LABELS)
+except NameError:  # pragma: no cover - defensive for generated catalog variants
+    pass
+ENGINE_OPERATOR_LABELS["l_srtde"] = list(_L_SRTDE_OPERATOR_LABELS)
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_L_SRTDE_OPERATOR_LABELS)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_semanticize_operator_label_l_srtde_native = semanticize_operator_label
+def semanticize_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "l_srtde" and lab in _L_SRTDE_OPERATOR_LABELS:
+        return lab
+    return _prev_semanticize_operator_label_l_srtde_native(algorithm_id, label)
+
+_prev_labels_for_algorithm_l_srtde_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "l_srtde":
+        return list(_L_SRTDE_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_l_srtde_native(algorithm_id)
+
+_prev_expand_compound_operator_label_l_srtde_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "l_srtde" and lab in _L_SRTDE_OPERATOR_LABELS:
+        return [lab]
+    return _prev_expand_compound_operator_label_l_srtde_native(algorithm_id, label)
