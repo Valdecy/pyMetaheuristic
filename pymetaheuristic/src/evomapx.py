@@ -408,7 +408,51 @@ def attribution_records(
             })
         return records
 
-    # 3) Explicit records captured by the passive EvoMapX probe. Prefer
+    # 3) Native engine operator telemetry should take precedence over passive
+    # candidate-lineage records.  Some engines (for example MFEA-II, CMA-ES,
+    # GGO and the SHADE family) expose paper-native operator_contributions in
+    # ordinary run history.  If a passive probe also recorded a coarse macro
+    # candidate event such as ``mfea2.update``, using the probe first would hide
+    # the native breakdown and make all README/EvoMapX operators look like zero
+    # contributors in the web UI.
+    if history and level in {"operator", "auto"}:
+        alg = _get(result, "algorithm_id", None) or _get(result, "algorithm", None) or "algorithm"
+        has_native_contribs = any(
+            isinstance(row.get("operator_contributions") or row.get("evomapx_operator_contributions"), dict)
+            and bool(row.get("operator_contributions") or row.get("evomapx_operator_contributions"))
+            for row in history
+        )
+        if has_native_contribs:
+            for i, row in enumerate(history):
+                curr = row.get("global_best_fitness", row.get("best_fitness"))
+                if curr is None:
+                    continue
+                contribs = row.get("operator_contributions") or row.get("evomapx_operator_contributions")
+                if not isinstance(contribs, dict) or not contribs:
+                    continue
+                for op, value in contribs.items():
+                    expanded = _expand_label_value(alg, op, float(value or 0.0))
+                    for split_op, split_value, split_share, split_size in expanded:
+                        records.append({
+                            "step": int(row.get("step", i + 1)),
+                            "label": str(split_op),
+                            "algorithm": alg,
+                            "raw_improvement": float(split_value),
+                            "positive_improvement": _positive(split_value, positive_only=positive_only),
+                            "n_applications": _operator_count(row, str(op)),
+                            "source": "operator_contributions",
+                            "metadata": {
+                                **dict(row),
+                                "operator": str(split_op),
+                                "original_operator": str(op),
+                                "compound_split_size": int(split_size),
+                                "compound_split_fraction": float(split_share),
+                            },
+                        })
+            if records:
+                return records
+
+    # 4) Explicit records captured by the passive EvoMapX probe. Prefer
     # parent→child lineage deltas when available, because they implement the
     # paper's OAM quantity directly: Δf = f(parent) - f(child) for minimization
     # and Δf = f(child) - f(parent) for maximization. Older event-fallback

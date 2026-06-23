@@ -3795,6 +3795,20 @@ _SINGLE_EVAL_HONEST.update({
 })
 _SINGLE_OPERATOR_SEMANTIC_OK.update({"flo","kma","puma_o","rbmo","sboa"})
 
+
+# Native telemetry engines must not be collapsed to a fabricated single macro
+# operator by the conservative single-eval fallback.  Their engine observations
+# expose paper-native operator_counts/operator_contributions, and the web UI
+# should attribute convergence to those README/EvoMapX labels rather than to
+# coarse labels such as ``mfea2.update`` or ``cmaes.update``.
+_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "lshade", "ilshade"}
+for _aid in _NATIVE_TELEMETRY_ENGINES:
+    try:
+        _SINGLE_EVAL_HONEST.pop(_aid, None)
+        _SINGLE_OPERATOR_SEMANTIC_OK.discard(_aid)
+    except Exception:
+        pass
+
 # ---------------------------------------------------------------------------
 # Addendum — native NCCLA operator labels
 # ---------------------------------------------------------------------------
@@ -6453,3 +6467,39 @@ def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[overri
         return list(_README_OPERATOR_LABEL_OVERRIDES[aid])
     return _prev_labels_for_algorithm_readme_sync(algorithm_id)
 
+
+# ---------------------------------------------------------------------------
+# Native telemetry label preservation
+# ---------------------------------------------------------------------------
+# Engines below emit paper-native operator_contributions directly in their
+# observations.  Their labels already match the README table and should not be
+# decomposed by the generic compound-splitting fallback into abstract labels
+# such as ``mfea2.selection`` or ``mfea2.candidate_generation``.
+_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "lshade", "ilshade"}
+_PREVIOUS_EXPAND_COMPOUND_NATIVE_TELEMETRY = expand_compound_operator_label
+
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid in _NATIVE_TELEMETRY_ENGINES:
+        native_labels = list(_README_OPERATOR_LABEL_OVERRIDES.get(aid, ENGINE_OPERATOR_LABELS.get(aid, [])))
+        if raw in native_labels:
+            return [raw]
+        # If only a passive macro event is available, expand it to the published
+        # native label set rather than displaying a hidden ``<aid>.update`` row.
+        # Normal runs should not reach this branch because evomapx.py now
+        # prioritizes native operator_contributions from history.
+        if raw in {f"{aid}.update", f"{aid}_update"} and native_labels:
+            return list(native_labels)
+    return _PREVIOUS_EXPAND_COMPOUND_NATIVE_TELEMETRY(algorithm_id, label)
+
+try:
+    for _aid in _NATIVE_TELEMETRY_ENGINES:
+        _SINGLE_EVAL_HONEST.pop(_aid, None)
+        _SINGLE_OPERATOR_SEMANTIC_OK.discard(_aid)
+except Exception:
+    pass
+
+__all__ = list(dict.fromkeys(list(__all__) + ["expand_compound_operator_label"]))
