@@ -1278,7 +1278,7 @@ _B0_B2_EXACT_SEMANTIC_REWRITE = {
     "jade.step_evaluation_l313": "jade.archive_parameter_refinement",
     "jde.step_impl_evaluation_l37": "jde.self_adaptive_de_mutation_crossover_selection",
     "shade.step_impl_evaluation_l43": "shade.success_history_mutation_crossover_selection",
-    "ilshade.step_impl_evaluation_l44": "ilshade.linear_population_reduction_mutation_selection",
+    "ilshade.step_impl_evaluation_l44": "ilshade.current_to_pbest_mutation",
     "lshade_cnepsin.step_impl_evaluation_l112": "lshade_cnepsin.cn_epsin_mutation_crossover_selection",
     "sade.step_evaluation_l301": "sade.adaptive_strategy_de_update",
     "sade.step_evaluation_l313": "sade.elite_local_refinement",
@@ -1385,7 +1385,7 @@ _EXACT_COMPOUND_OPERATOR_SPLITS = {
     # Early evolutionary/CMA/DE family compounds.
     "jde.self_adaptive_de_mutation_crossover_selection": ("jde.parameter_adaptation", "jde.mutation", "jde.crossover", "jde.selection"),
     "shade.success_history_mutation_crossover_selection": ("shade.success_history_update", "shade.mutation", "shade.crossover", "shade.selection"),
-    "ilshade.linear_population_reduction_mutation_selection": ("ilshade.population_reduction", "ilshade.mutation", "ilshade.selection"),
+    "ilshade.current_to_pbest_mutation": ("ilshade.current_to_pbest_mutation", "ilshade.binomial_crossover", "ilshade.greedy_selection"),
     "lshade_cnepsin.cn_epsin_mutation_crossover_selection": ("lshade_cnepsin.cn_epsin_adaptation", "lshade_cnepsin.mutation", "lshade_cnepsin.crossover", "lshade_cnepsin.selection"),
     "bbo.migration_mutation_selection_update": ("bbo.migration", "bbo.mutation", "bbo.selection"),
     "ep.mutation_tournament_selection_update": ("ep.mutation", "ep.tournament_selection"),
@@ -3692,7 +3692,7 @@ _SINGLE_EVAL_HONEST = {
 "i_woa": "i_woa.polynomial_breeding_refinement",
 "iagwo": "iagwo.adaptive_alpha_beta_delta_update",
 "ils": "ils.update",
-"ilshade": "ilshade.linear_population_reduction_mutation_selection",
+"ilshade": "ilshade.current_to_pbest_mutation",
 "ipop_cmaes": "ipop_cmaes.update",
 "iwo": "iwo.seed_dispersal_colonization_update",
 "jso": "jso.ocean_current_swarm_motion_update",
@@ -4084,6 +4084,13 @@ def labels_for_algorithm(algorithm_id):  # type: ignore[override]
 
 # Addendum — supplied SHADE-family and Secant engine-native operator labels.
 _SUPPLIED_NATIVE_OPERATOR_LABELS = {
+    "ilshade": [
+        "ilshade.current_to_pbest_mutation", "ilshade.binomial_crossover", "ilshade.greedy_selection",
+        "ilshade.external_archive_update", "ilshade.success_history_update",
+        "ilshade.linear_population_size_reduction", "ilshade.pbest_schedule",
+        "ilshade.fixed_memory_cell", "ilshade.early_parameter_control",
+        "ilshade.midpoint_bound_repair",
+    ],
     "jso_de": [
         "jso_de.mutation", "jso_de.crossover", "jso_de.selection",
         "jso_de.archive_update", "jso_de.success_history_update",
