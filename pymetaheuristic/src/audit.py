@@ -637,7 +637,12 @@ def _audit_evomapx_static(report: AuditReport, engines: Any, algorithm_id: str) 
     # expose algorithm-specific semantic operators.
     if operators and labels and fidelity == "native":
         suffixes = {str(label).split(".", 1)[-1] for label in labels}
-        op_tokens = {str(op).replace(" ", "_").replace("/", "_").replace("-", "_").lower() for op in operators}
+        # README/profile labels are fully qualified (e.g., ``lshade.parameter_sampling``),
+        # while the catalog-overlap diagnostic compares semantic suffixes.  Normalize
+        # both sides to suffix tokens so fully qualified public labels do not generate
+        # false warnings.
+        profile_suffixes = {str(op).split(".", 1)[-1] for op in operators}
+        op_tokens = {s.replace(" ", "_").replace("/", "_").replace("-", "_").lower() for s in profile_suffixes}
         suffix_tokens = {s.replace(" ", "_").replace("/", "_").replace("-", "_").lower() for s in suffixes}
         if op_tokens & suffix_tokens:
             report.add("PASS", "evomapx.profile_catalog_overlap", "Native profile operators overlap with catalog label suffixes.", algorithm_id)
