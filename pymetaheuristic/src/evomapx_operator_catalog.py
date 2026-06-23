@@ -4040,12 +4040,14 @@ except NameError:  # pragma: no cover
 
 # Addendum — native L-SHADE and mLSHADE-RL operator labels.
 _LSHADE_OPERATOR_LABELS = [
-    "lshade.mutation",
-    "lshade.crossover",
-    "lshade.selection",
-    "lshade.archive_update",
+    "lshade.parameter_sampling",
+    "lshade.current_to_pbest_mutation",
+    "lshade.midpoint_bound_repair",
+    "lshade.binomial_crossover",
+    "lshade.greedy_selection",
+    "lshade.external_archive_update",
     "lshade.success_history_update",
-    "lshade.population_reduction",
+    "lshade.linear_population_size_reduction",
 ]
 _MLSHADE_RL_OPERATOR_LABELS = [
     "mlshade_rl.ms1_current_to_pbest_weight_archive",
@@ -4370,59 +4372,3 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if aid == "l_srtde" and lab in _L_SRTDE_OPERATOR_LABELS:
         return [lab]
     return _prev_expand_compound_operator_label_l_srtde_native(algorithm_id, label)
-
-# Native CMA-ES 1996 operator labels exposed by the corrected engine.
-ENGINE_OPERATOR_LABELS["cmaes"] = [
-    "cmaes.offspring_sampling",
-    "cmaes.parent_selection",
-    "cmaes.evolution_path_update",
-    "cmaes.covariance_update",
-    "cmaes.step_size_update",
-    "cmaes.boundary_repair",
-    "cmaes.initialization",
-    "cmaes.candidate_injection",
-]
-
-# Override the older single-macro CMA-ES catalog entry after replacing the engine
-# with native 1996 CMA operator telemetry.
-_CMAES_NATIVE_OPERATOR_LABELS = [
-    "cmaes.offspring_sampling",
-    "cmaes.parent_selection",
-    "cmaes.evolution_path_update",
-    "cmaes.covariance_update",
-    "cmaes.step_size_update",
-    "cmaes.boundary_repair",
-    "cmaes.initialization",
-    "cmaes.candidate_injection",
-]
-try:
-    _SINGLE_EVAL_HONEST.pop("cmaes", None)
-except Exception:
-    pass
-try:
-    _ENGINE_OPERATOR_LABEL_OVERRIDES["cmaes"] = list(_CMAES_NATIVE_OPERATOR_LABELS)
-except Exception:
-    pass
-ENGINE_OPERATOR_LABELS["cmaes"] = list(_CMAES_NATIVE_OPERATOR_LABELS)
-
-_prev_labels_for_algorithm_cmaes_native = labels_for_algorithm
-def labels_for_algorithm(algorithm_id):  # type: ignore[override]
-    if str(algorithm_id).lower().replace("-", "_") == "cmaes":
-        return list(_CMAES_NATIVE_OPERATOR_LABELS)
-    return _prev_labels_for_algorithm_cmaes_native(algorithm_id)
-
-_prev_expand_compound_operator_label_cmaes_native = expand_compound_operator_label
-def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
-    aid = str(algorithm_id).lower().replace("-", "_")
-    lab = str(label) if label not in {None, ""} else label
-    if aid == "cmaes" and lab in _CMAES_NATIVE_OPERATOR_LABELS:
-        return [lab]
-    return _prev_expand_compound_operator_label_cmaes_native(algorithm_id, label)
-
-_prev_semanticize_operator_label_cmaes_native = semanticize_operator_label
-def semanticize_operator_label(algorithm_id, label):  # type: ignore[override]
-    aid = str(algorithm_id).lower().replace("-", "_")
-    lab = str(label) if label not in {None, ""} else label
-    if aid == "cmaes" and lab in _CMAES_NATIVE_OPERATOR_LABELS:
-        return lab
-    return _prev_semanticize_operator_label_cmaes_native(algorithm_id, label)

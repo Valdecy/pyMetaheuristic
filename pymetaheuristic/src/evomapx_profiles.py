@@ -537,16 +537,18 @@ EVOMAPX_OPERATOR_PROFILES["lshade"] = _profile(
     "lshade",
     "evolutionary",
     (
-        "success-history parameter adaptation",
+        "parameter sampling",
         "current-to-pbest differential mutation",
+        "midpoint bound repair",
         "binomial crossover",
         "greedy selection/replacement",
-        "archive update",
-        "linear population reduction",
+        "external archive update",
+        "success-history memory update",
+        "linear population-size reduction",
     ),
     "native",
     "lshade_family_addendum",
-    "Native engine telemetry logs L-SHADE mutation, crossover, selection, archive update, success-history update, and population reduction without instrumentation-side objective evaluations.",
+    "Native engine telemetry logs L-SHADE parameter sampling, current-to-pbest mutation, midpoint bound repair, binomial crossover, greedy selection, external archive update, success-history update, and linear population-size reduction without instrumentation-side objective evaluations.",
 )
 EVOMAPX_OPERATOR_PROFILES["mlshade_rl"] = _profile(
     "mlshade_rl",
@@ -672,23 +674,4 @@ EVOMAPX_OPERATOR_PROFILES["l_srtde"] = _profile(
     "native",
     "l_srtde_addendum",
     "Native L-SRTDE telemetry logs success-rate F and pbest control, rank-selective pressure, r-new-to-ptop mutation, binomial crossover, bound resampling, selection, newest/top population updates, crossover-memory adaptation, and linear population reduction without EvoMapX-side objective evaluations.",
-)
-
-# Addendum — paper-native CMA-ES operator telemetry.
-EVOMAPX_OPERATOR_PROFILES["cmaes"] = _profile(
-    "cmaes",
-    "evolutionary",
-    (
-        "offspring_sampling",
-        "parent_selection",
-        "evolution_path_update",
-        "covariance_update",
-        "step_size_update",
-        "boundary_repair",
-        "initialization",
-        "candidate_injection",
-    ),
-    "native",
-    "cmaes_1996_native_addendum",
-    "Native Hansen-Ostermeier CMA telemetry logs paper-style (1,lambda) normal offspring sampling, best-offspring parent selection, evolution-path cumulation, covariance update, cumulative step-size adaptation, bound repairs, initialization, and optional framework candidate injection without EvoMapX-side objective evaluations.",
 )
