@@ -86,7 +86,7 @@ def _register_profiles(*profiles: EvoMapXProfile) -> None:
 _register_profiles(
     _profile('de', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
     _profile('hde', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
-    _profile('ilshade', 'evolutionary', ('current-to-pbest mutation', 'binomial crossover', 'greedy selection/replacement', 'external archive update', 'success-history memory update', 'linear population-size reduction', 'p-best schedule', 'fixed 0.9 memory cell', 'early F/CR parameter control', 'midpoint bound repair'), 'native', 'ilshade_native_audit', 'Paper-specific iL-SHADE engine telemetry emits native DE variation, archive, memory, p-best, bound-repair, and population-reduction labels without extra objective evaluations.'),
+    _profile('ilshade', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
     _profile('imode', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
     _profile('jade', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
     _profile('jde', 'evolutionary', ('differential mutation', 'crossover/recombination', 'greedy selection/replacement', 'parameter adaptation/archive'), 'native-family', 'phase_2_de_pso_gwo_variants', 'Phase 2 native-family EvoMapX hook logs DE-style variation and replacement without extra objective evaluations.'),
@@ -672,4 +672,23 @@ EVOMAPX_OPERATOR_PROFILES["l_srtde"] = _profile(
     "native",
     "l_srtde_addendum",
     "Native L-SRTDE telemetry logs success-rate F and pbest control, rank-selective pressure, r-new-to-ptop mutation, binomial crossover, bound resampling, selection, newest/top population updates, crossover-memory adaptation, and linear population reduction without EvoMapX-side objective evaluations.",
+)
+
+# Addendum — paper-native CMA-ES operator telemetry.
+EVOMAPX_OPERATOR_PROFILES["cmaes"] = _profile(
+    "cmaes",
+    "evolutionary",
+    (
+        "offspring_sampling",
+        "parent_selection",
+        "evolution_path_update",
+        "covariance_update",
+        "step_size_update",
+        "boundary_repair",
+        "initialization",
+        "candidate_injection",
+    ),
+    "native",
+    "cmaes_1996_native_addendum",
+    "Native Hansen-Ostermeier CMA telemetry logs paper-style (1,lambda) normal offspring sampling, best-offspring parent selection, evolution-path cumulation, covariance update, cumulative step-size adaptation, bound repairs, initialization, and optional framework candidate injection without EvoMapX-side objective evaluations.",
 )

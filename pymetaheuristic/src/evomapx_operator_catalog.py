@@ -1278,7 +1278,7 @@ _B0_B2_EXACT_SEMANTIC_REWRITE = {
     "jade.step_evaluation_l313": "jade.archive_parameter_refinement",
     "jde.step_impl_evaluation_l37": "jde.self_adaptive_de_mutation_crossover_selection",
     "shade.step_impl_evaluation_l43": "shade.success_history_mutation_crossover_selection",
-    "ilshade.step_impl_evaluation_l44": "ilshade.current_to_pbest_mutation",
+    "ilshade.step_impl_evaluation_l44": "ilshade.linear_population_reduction_mutation_selection",
     "lshade_cnepsin.step_impl_evaluation_l112": "lshade_cnepsin.cn_epsin_mutation_crossover_selection",
     "sade.step_evaluation_l301": "sade.adaptive_strategy_de_update",
     "sade.step_evaluation_l313": "sade.elite_local_refinement",
@@ -1385,7 +1385,7 @@ _EXACT_COMPOUND_OPERATOR_SPLITS = {
     # Early evolutionary/CMA/DE family compounds.
     "jde.self_adaptive_de_mutation_crossover_selection": ("jde.parameter_adaptation", "jde.mutation", "jde.crossover", "jde.selection"),
     "shade.success_history_mutation_crossover_selection": ("shade.success_history_update", "shade.mutation", "shade.crossover", "shade.selection"),
-    "ilshade.current_to_pbest_mutation": ("ilshade.current_to_pbest_mutation", "ilshade.binomial_crossover", "ilshade.greedy_selection"),
+    "ilshade.linear_population_reduction_mutation_selection": ("ilshade.population_reduction", "ilshade.mutation", "ilshade.selection"),
     "lshade_cnepsin.cn_epsin_mutation_crossover_selection": ("lshade_cnepsin.cn_epsin_adaptation", "lshade_cnepsin.mutation", "lshade_cnepsin.crossover", "lshade_cnepsin.selection"),
     "bbo.migration_mutation_selection_update": ("bbo.migration", "bbo.mutation", "bbo.selection"),
     "ep.mutation_tournament_selection_update": ("ep.mutation", "ep.tournament_selection"),
@@ -3692,7 +3692,7 @@ _SINGLE_EVAL_HONEST = {
 "i_woa": "i_woa.polynomial_breeding_refinement",
 "iagwo": "iagwo.adaptive_alpha_beta_delta_update",
 "ils": "ils.update",
-"ilshade": "ilshade.current_to_pbest_mutation",
+"ilshade": "ilshade.linear_population_reduction_mutation_selection",
 "ipop_cmaes": "ipop_cmaes.update",
 "iwo": "iwo.seed_dispersal_colonization_update",
 "jso": "jso.ocean_current_swarm_motion_update",
@@ -4084,13 +4084,6 @@ def labels_for_algorithm(algorithm_id):  # type: ignore[override]
 
 # Addendum — supplied SHADE-family and Secant engine-native operator labels.
 _SUPPLIED_NATIVE_OPERATOR_LABELS = {
-    "ilshade": [
-        "ilshade.current_to_pbest_mutation", "ilshade.binomial_crossover", "ilshade.greedy_selection",
-        "ilshade.external_archive_update", "ilshade.success_history_update",
-        "ilshade.linear_population_size_reduction", "ilshade.pbest_schedule",
-        "ilshade.fixed_memory_cell", "ilshade.early_parameter_control",
-        "ilshade.midpoint_bound_repair",
-    ],
     "jso_de": [
         "jso_de.mutation", "jso_de.crossover", "jso_de.selection",
         "jso_de.archive_update", "jso_de.success_history_update",
@@ -4377,3 +4370,59 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if aid == "l_srtde" and lab in _L_SRTDE_OPERATOR_LABELS:
         return [lab]
     return _prev_expand_compound_operator_label_l_srtde_native(algorithm_id, label)
+
+# Native CMA-ES 1996 operator labels exposed by the corrected engine.
+ENGINE_OPERATOR_LABELS["cmaes"] = [
+    "cmaes.offspring_sampling",
+    "cmaes.parent_selection",
+    "cmaes.evolution_path_update",
+    "cmaes.covariance_update",
+    "cmaes.step_size_update",
+    "cmaes.boundary_repair",
+    "cmaes.initialization",
+    "cmaes.candidate_injection",
+]
+
+# Override the older single-macro CMA-ES catalog entry after replacing the engine
+# with native 1996 CMA operator telemetry.
+_CMAES_NATIVE_OPERATOR_LABELS = [
+    "cmaes.offspring_sampling",
+    "cmaes.parent_selection",
+    "cmaes.evolution_path_update",
+    "cmaes.covariance_update",
+    "cmaes.step_size_update",
+    "cmaes.boundary_repair",
+    "cmaes.initialization",
+    "cmaes.candidate_injection",
+]
+try:
+    _SINGLE_EVAL_HONEST.pop("cmaes", None)
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["cmaes"] = list(_CMAES_NATIVE_OPERATOR_LABELS)
+except Exception:
+    pass
+ENGINE_OPERATOR_LABELS["cmaes"] = list(_CMAES_NATIVE_OPERATOR_LABELS)
+
+_prev_labels_for_algorithm_cmaes_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "cmaes":
+        return list(_CMAES_NATIVE_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_cmaes_native(algorithm_id)
+
+_prev_expand_compound_operator_label_cmaes_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "cmaes" and lab in _CMAES_NATIVE_OPERATOR_LABELS:
+        return [lab]
+    return _prev_expand_compound_operator_label_cmaes_native(algorithm_id, label)
+
+_prev_semanticize_operator_label_cmaes_native = semanticize_operator_label
+def semanticize_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "cmaes" and lab in _CMAES_NATIVE_OPERATOR_LABELS:
+        return lab
+    return _prev_semanticize_operator_label_cmaes_native(algorithm_id, label)
