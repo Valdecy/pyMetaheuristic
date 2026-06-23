@@ -4040,14 +4040,12 @@ except NameError:  # pragma: no cover
 
 # Addendum — native L-SHADE and mLSHADE-RL operator labels.
 _LSHADE_OPERATOR_LABELS = [
-    "lshade.parameter_sampling",
-    "lshade.current_to_pbest_mutation",
-    "lshade.midpoint_bound_repair",
-    "lshade.binomial_crossover",
-    "lshade.greedy_selection",
-    "lshade.external_archive_update",
+    "lshade.mutation",
+    "lshade.crossover",
+    "lshade.selection",
+    "lshade.archive_update",
     "lshade.success_history_update",
-    "lshade.linear_population_size_reduction",
+    "lshade.population_reduction",
 ]
 _MLSHADE_RL_OPERATOR_LABELS = [
     "mlshade_rl.ms1_current_to_pbest_weight_archive",
@@ -4372,3 +4370,53 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
     if aid == "l_srtde" and lab in _L_SRTDE_OPERATOR_LABELS:
         return [lab]
     return _prev_expand_compound_operator_label_l_srtde_native(algorithm_id, label)
+
+# Native MFEA-II labels corrected from paper audit (online RMP matrix learning).
+ENGINE_OPERATOR_LABELS["mfea2"] = [
+    "mfea2.unified_initialization",
+    "mfea2.skill_factor_assignment",
+    "mfea2.scalar_fitness_selection",
+    "mfea2.univariate_model_building",
+    "mfea2.online_rmp_matrix_learning",
+    "mfea2.intratask_sbx_crossover",
+    "mfea2.intertask_sbx_transfer",
+    "mfea2.parent_centric_polynomial_mutation",
+    "mfea2.elitist_scalar_replacement",
+    "mfea2.boundary_repair",
+    "mfea2.candidate_injection",
+]
+
+# Final native MFEA-II override: remove earlier single-operator fallback and expose all paper-native operators.
+_MFEA2_NATIVE_OPERATOR_LABELS = [
+    "mfea2.unified_initialization",
+    "mfea2.skill_factor_assignment",
+    "mfea2.scalar_fitness_selection",
+    "mfea2.univariate_model_building",
+    "mfea2.online_rmp_matrix_learning",
+    "mfea2.intratask_sbx_crossover",
+    "mfea2.intertask_sbx_transfer",
+    "mfea2.parent_centric_polynomial_mutation",
+    "mfea2.elitist_scalar_replacement",
+    "mfea2.boundary_repair",
+    "mfea2.candidate_injection",
+]
+ENGINE_OPERATOR_LABELS["mfea2"] = list(_MFEA2_NATIVE_OPERATOR_LABELS)
+try:
+    _SINGLE_EVAL_HONEST.pop("mfea2", None)
+except Exception:  # pragma: no cover
+    pass
+_prev_labels_for_algorithm_mfea2_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "mfea2":
+        return list(_MFEA2_NATIVE_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_mfea2_native(algorithm_id)
+_prev_resolve_operator_label_mfea2_native = resolve_operator_label
+def resolve_operator_label(algorithm_id, filename, function, line=None):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "mfea2":
+        return None
+    return _prev_resolve_operator_label_mfea2_native(algorithm_id, filename, function, line)
+_prev_expand_compound_operator_label_mfea2_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
+    if str(algorithm_id).lower().replace("-", "_") == "mfea2" and str(label) in _MFEA2_NATIVE_OPERATOR_LABELS:
+        return [str(label)]
+    return _prev_expand_compound_operator_label_mfea2_native(algorithm_id, label)
