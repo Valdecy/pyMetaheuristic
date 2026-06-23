@@ -4371,52 +4371,62 @@ def expand_compound_operator_label(algorithm_id, label):  # type: ignore[overrid
         return [lab]
     return _prev_expand_compound_operator_label_l_srtde_native(algorithm_id, label)
 
-# Native MFEA-II labels corrected from paper audit (online RMP matrix learning).
-ENGINE_OPERATOR_LABELS["mfea2"] = [
-    "mfea2.unified_initialization",
-    "mfea2.skill_factor_assignment",
-    "mfea2.scalar_fitness_selection",
-    "mfea2.univariate_model_building",
-    "mfea2.online_rmp_matrix_learning",
-    "mfea2.intratask_sbx_crossover",
-    "mfea2.intertask_sbx_transfer",
-    "mfea2.parent_centric_polynomial_mutation",
-    "mfea2.elitist_scalar_replacement",
-    "mfea2.boundary_repair",
-    "mfea2.candidate_injection",
-]
 
-# Final native MFEA-II override: remove earlier single-operator fallback and expose all paper-native operators.
-_MFEA2_NATIVE_OPERATOR_LABELS = [
-    "mfea2.unified_initialization",
-    "mfea2.skill_factor_assignment",
-    "mfea2.scalar_fitness_selection",
-    "mfea2.univariate_model_building",
-    "mfea2.online_rmp_matrix_learning",
-    "mfea2.intratask_sbx_crossover",
-    "mfea2.intertask_sbx_transfer",
-    "mfea2.parent_centric_polynomial_mutation",
-    "mfea2.elitist_scalar_replacement",
-    "mfea2.boundary_repair",
-    "mfea2.candidate_injection",
+# Native MFEA operator labels audited from Gupta/Ong/Feng (2016) implementation.
+_NATIVE_MFEA_OPERATOR_LABELS = [
+    "mfea.unified_initialization",
+    "mfea.factorial_evaluation",
+    "mfea.factorial_rank_update",
+    "mfea.skill_factor_assignment",
+    "mfea.assortative_mating",
+    "mfea.intratask_sbx_crossover",
+    "mfea.intertask_sbx_transfer",
+    "mfea.parent_centric_gaussian_mutation",
+    "mfea.vertical_cultural_transmission",
+    "mfea.scalar_fitness_selection",
+    "mfea.elitist_replacement",
+    "mfea.boundary_repair",
+    "mfea.candidate_injection",
 ]
-ENGINE_OPERATOR_LABELS["mfea2"] = list(_MFEA2_NATIVE_OPERATOR_LABELS)
 try:
-    _SINGLE_EVAL_HONEST.pop("mfea2", None)
-except Exception:  # pragma: no cover
+    ENGINE_OPERATOR_LABELS["mfea"] = list(_NATIVE_MFEA_OPERATOR_LABELS)
+except Exception:
     pass
-_prev_labels_for_algorithm_mfea2_native = labels_for_algorithm
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["mfea"] = list(_NATIVE_MFEA_OPERATOR_LABELS)
+except Exception:
+    pass
+try:
+    _EXACT_COMPOUND_OPERATOR_SPLITS["mfea.assortative_mating_mutation_transfer_update"] = tuple(_NATIVE_MFEA_OPERATOR_LABELS[4:10])
+except Exception:
+    pass
+try:
+    DEFAULT_OPERATOR_LABEL["mfea"] = "mfea.assortative_mating"
+except Exception:
+    pass
+try:
+    _GENUINE_ENGINE_EMITTED_OPERATOR_LABELS.update(_NATIVE_MFEA_OPERATOR_LABELS)
+except NameError:  # pragma: no cover
+    pass
+
+_prev_semanticize_operator_label_mfea_native = semanticize_operator_label
+def semanticize_operator_label(algorithm_id, label):  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "mfea" and lab in _NATIVE_MFEA_OPERATOR_LABELS:
+        return lab
+    return _prev_semanticize_operator_label_mfea_native(algorithm_id, label)
+
+_prev_labels_for_algorithm_mfea_native = labels_for_algorithm
 def labels_for_algorithm(algorithm_id):  # type: ignore[override]
-    if str(algorithm_id).lower().replace("-", "_") == "mfea2":
-        return list(_MFEA2_NATIVE_OPERATOR_LABELS)
-    return _prev_labels_for_algorithm_mfea2_native(algorithm_id)
-_prev_resolve_operator_label_mfea2_native = resolve_operator_label
-def resolve_operator_label(algorithm_id, filename, function, line=None):  # type: ignore[override]
-    if str(algorithm_id).lower().replace("-", "_") == "mfea2":
-        return None
-    return _prev_resolve_operator_label_mfea2_native(algorithm_id, filename, function, line)
-_prev_expand_compound_operator_label_mfea2_native = expand_compound_operator_label
+    if str(algorithm_id).lower().replace("-", "_") == "mfea":
+        return list(_NATIVE_MFEA_OPERATOR_LABELS)
+    return _prev_labels_for_algorithm_mfea_native(algorithm_id)
+
+_prev_expand_compound_operator_label_mfea_native = expand_compound_operator_label
 def expand_compound_operator_label(algorithm_id, label):  # type: ignore[override]
-    if str(algorithm_id).lower().replace("-", "_") == "mfea2" and str(label) in _MFEA2_NATIVE_OPERATOR_LABELS:
-        return [str(label)]
-    return _prev_expand_compound_operator_label_mfea2_native(algorithm_id, label)
+    aid = str(algorithm_id).lower().replace("-", "_")
+    lab = str(label) if label not in {None, ""} else label
+    if aid == "mfea" and lab in _NATIVE_MFEA_OPERATOR_LABELS:
+        return [lab]
+    return _prev_expand_compound_operator_label_mfea_native(algorithm_id, label)
