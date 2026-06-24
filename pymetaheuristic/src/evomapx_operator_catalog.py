@@ -6604,3 +6604,83 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_misaco_paper(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# ---------------------------------------------------------------------------
+# Paper-faithful native telemetry overrides for SAMSO / L2SMEA / SAPO
+# ---------------------------------------------------------------------------
+_SAMSO_PAPER_NATIVE_LABELS = [
+    'samso.lhs_initialization',
+    'samso.rbf_model_fit',
+    'samso.rbf_optimum_infill',
+    'samso.s_swarm_pso_update',
+    'samso.l_swarm_tlbo_learner_update',
+    'samso.prescreen_exact_evaluation',
+    'samso.archive_update',
+]
+_L2SMEA_PAPER_NATIVE_LABELS = [
+    'l2smea.lhs_initialization',
+    'l2smea.gaussian_subspace_construction',
+    'l2smea.linear_subspace_surrogate_fit',
+    'l2smea.multi_task_candidate_search',
+    'l2smea.bi_criteria_infill_selection',
+    'l2smea.expensive_evaluation_archive_update',
+    'l2smea.gaussian_parameter_update',
+]
+_SAPO_PAPER_NATIVE_LABELS = [
+    'sapo.lhs_initialization',
+    'sapo.partial_selection_f_g_to_g',
+    'sapo.partial_selection_g_to_f',
+    'sapo.de_rand_1_binomial',
+    'sapo.de_best_1_binomial',
+    'sapo.reflection_bound_repair',
+    'sapo.cubic_rbf_fit_predict',
+    'sapo.feasibility_rule_selection',
+    'sapo.expensive_evaluation_archive_update',
+]
+_PAPER_NATIVE_LABELS_BY_ID = {
+    'samso': _SAMSO_PAPER_NATIVE_LABELS,
+    'l2smea': _L2SMEA_PAPER_NATIVE_LABELS,
+    'sapo': _SAPO_PAPER_NATIVE_LABELS,
+}
+try:
+    for _aid, _labels in _PAPER_NATIVE_LABELS_BY_ID.items():
+        ENGINE_OPERATOR_LABELS[_aid] = list(_labels)
+except Exception:
+    pass
+try:
+    for _aid, _labels in _PAPER_NATIVE_LABELS_BY_ID.items():
+        _ENGINE_OPERATOR_LABEL_OVERRIDES[_aid] = list(_labels)
+except Exception:
+    pass
+try:
+    for _aid, _labels in _PAPER_NATIVE_LABELS_BY_ID.items():
+        _README_OPERATOR_LABEL_OVERRIDES[_aid] = list(_labels)
+except Exception:
+    pass
+try:
+    _NATIVE_TELEMETRY_ENGINES.update(_PAPER_NATIVE_LABELS_BY_ID)
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_samso_l2smea_sapo = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace('-', '_')
+    if aid in _PAPER_NATIVE_LABELS_BY_ID:
+        return list(_PAPER_NATIVE_LABELS_BY_ID[aid])
+    return _previous_labels_for_algorithm_samso_l2smea_sapo(algorithm_id)
+
+_previous_expand_compound_samso_l2smea_sapo = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ''}:
+        return []
+    aid = str(algorithm_id or '').lower().replace('-', '_')
+    raw = str(label)
+    if aid in _PAPER_NATIVE_LABELS_BY_ID:
+        labels = _PAPER_NATIVE_LABELS_BY_ID[aid]
+        if raw in labels:
+            return [raw]
+        if raw in {f'{aid}.update', f'{aid}.step', f'{aid}_update'}:
+            return list(labels)
+    return _previous_expand_compound_samso_l2smea_sapo(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ['labels_for_algorithm', 'expand_compound_operator_label']))

@@ -2703,3 +2703,57 @@ for _aid, _operators in _README_OPERATOR_OVERRIDES.items():
             notes=_profile_current.notes,
         )
 
+
+# ---------------------------------------------------------------------------
+# Paper-faithful native telemetry overrides for SAMSO / L2SMEA / SAPO
+# ---------------------------------------------------------------------------
+EVOMAPX_OPERATOR_PROFILES['samso'] = EvoMapXProfile(
+    algorithm_id='samso',
+    family='swarm',
+    operators=(
+        'samso.lhs_initialization',
+        'samso.rbf_model_fit',
+        'samso.rbf_optimum_infill',
+        'samso.s_swarm_pso_update',
+        'samso.l_swarm_tlbo_learner_update',
+        'samso.prescreen_exact_evaluation',
+        'samso.archive_update',
+    ),
+    fidelity='native',
+    phase='paper_faithful_samso_l2smea_sapo',
+    notes='Native SAMSO telemetry: LHS archive initialization, RBF modeling/infill, dynamic SPSO/TLBO multiswarm updates, prescreened exact evaluations, and archive updates.',
+)
+EVOMAPX_OPERATOR_PROFILES['l2smea'] = EvoMapXProfile(
+    algorithm_id='l2smea',
+    family='evolutionary',
+    operators=(
+        'l2smea.lhs_initialization',
+        'l2smea.gaussian_subspace_construction',
+        'l2smea.linear_subspace_surrogate_fit',
+        'l2smea.multi_task_candidate_search',
+        'l2smea.bi_criteria_infill_selection',
+        'l2smea.expensive_evaluation_archive_update',
+        'l2smea.gaussian_parameter_update',
+    ),
+    fidelity='native',
+    phase='paper_faithful_samso_l2smea_sapo',
+    notes='Native L2SMEA telemetry: 2D LHS archive, Gaussian linear-subspace construction, subspace surrogate fit, subproblem search, bi-criterion infill, expensive evaluation, and Gaussian parameter update.',
+)
+EVOMAPX_OPERATOR_PROFILES['sapo'] = EvoMapXProfile(
+    algorithm_id='sapo',
+    family='evolutionary',
+    operators=(
+        'sapo.lhs_initialization',
+        'sapo.partial_selection_f_g_to_g',
+        'sapo.partial_selection_g_to_f',
+        'sapo.de_rand_1_binomial',
+        'sapo.de_best_1_binomial',
+        'sapo.reflection_bound_repair',
+        'sapo.cubic_rbf_fit_predict',
+        'sapo.feasibility_rule_selection',
+        'sapo.expensive_evaluation_archive_update',
+    ),
+    fidelity='native',
+    phase='paper_faithful_samso_l2smea_sapo',
+    notes='Native SAPO telemetry: alternating partial objective/constraint selection, DE trial generation, reflection repair, cubic RBF screening, feasibility-rule selection, and archive update.',
+)
