@@ -2627,7 +2627,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'sade_amss'          : 'Surrogate-Assisted Differential Evolution with Adaptive Multi-Subspace Search',
     'sade_atdsc'         : 'Surrogate-Assisted DE with Adaptive Training Data Selection Criterion',
     'sade_sammon'        : 'Sammon Mapping Assisted Differential Evolution',
-    'samso'              : 'Multiswarm-Assisted Expensive Optimization',
+    'samso'              : 'Surrogate-Assisted Multiswarm Optimization',
     'sap_de'             : 'Differential Evolution with Self-Adaptive Populations (SAP_DE)',
     'sapo'               : 'Surrogate-Assisted Partial Optimization',
     'saro'               : 'Search And Rescue Optimization',
