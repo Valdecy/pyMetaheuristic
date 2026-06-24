@@ -6552,3 +6552,55 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_et_bo_paper(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# ---------------------------------------------------------------------------
+# MiSACO paper-faithful native telemetry override
+# ---------------------------------------------------------------------------
+_MISACO_PAPER_NATIVE_LABELS = [
+    "misaco.lhs_initialization",
+    "misaco.acomv_offspring_generation",
+    "misaco.rbf_fit_selection",
+    "misaco.lsbt_fit_selection",
+    "misaco.random_selection",
+    "misaco.sqp_rbf_local_search",
+    "misaco.expensive_candidate_evaluation",
+    "misaco.archive_update",
+]
+try:
+    ENGINE_OPERATOR_LABELS["misaco"] = list(_MISACO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["misaco"] = list(_MISACO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["misaco"] = list(_MISACO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _NATIVE_TELEMETRY_ENGINES.add("misaco")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_misaco_paper = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "misaco":
+        return list(_MISACO_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_misaco_paper(algorithm_id)
+
+_previous_expand_compound_misaco_paper = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "misaco":
+        if raw in _MISACO_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"misaco.update", "misaco.step", "misaco_update"}:
+            return list(_MISACO_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_misaco_paper(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))

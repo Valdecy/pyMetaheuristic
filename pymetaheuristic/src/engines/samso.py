@@ -208,108 +208,6 @@ class L2SMEAEngine(BaseEngine):
                                 self.algorithm_id, state.step, "current") for i in range(arc.shape[0])]
 
 
-class MiSACOEngine(BaseEngine):
-    """Multi-Surrogate Assisted Ant Colony Optimization — fallback: ACO-style without surrogate."""
-    algorithm_id   = "misaco"
-    algorithm_name = "Multi-Surrogate-Assisted Ant Colony Optimization"
-    family         = "swarm"
-    capabilities   = CapabilityProfile(has_population=True, supports_candidate_injection=True)
-    _DEFAULTS      = dict(population_size=60, No=100)
-    _REFERENCE     = dict(doi="10.1109/TCYB.2021.3064676")
-
-    def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
-        super().__init__(problem, config)
-        p       = {**self._DEFAULTS, **config.params}
-        self._n = max(4, int(p["population_size"]))
-        self._No= max(4, int(p["No"]))
-        self._warned: set[str] = set()
-        if config.seed is not None:
-            np.random.seed(config.seed)
-
-    def _warn_once(self, key, msg):
-        if key not in self._warned:
-            warnings.warn(msg, stacklevel=3)
-            self._warned.add(key)
-
-    def initialize(self) -> EngineState:
-        self._warn_once("surrogate",
-            f"[{self.algorithm_id}] This algorithm normally delegates expensive evaluations to a surrogate model. "
-            "No surrogate is registered; all evaluations use the true objective function, "
-            "so the budget may be exhausted faster than intended.")
-        lo  = np.array(self.problem.min_values, dtype=float)
-        hi  = np.array(self.problem.max_values, dtype=float)
-        D   = self.problem.dimension
-        pos = lo + (np.random.permutation(self._n)[:, None] + np.random.rand(self._n, D)) / self._n * (hi - lo)
-        pos = np.clip(pos, lo, hi)
-        fit = self._evaluate_population(pos)
-        pop = np.hstack((pos, fit[:, None]))
-        bi  = int(np.argmin(fit))
-        return EngineState(step=0, evaluations=self._n,
-                           best_position=pos[bi].tolist(), best_fitness=float(fit[bi]),
-                           initialized=True, payload=dict(population=pop))
-
-    def step(self, state: EngineState) -> EngineState:
-        pop = np.array(state.payload["population"])
-        lo  = np.array(self.problem.min_values, dtype=float)
-        hi  = np.array(self.problem.max_values, dtype=float)
-        N, D = pop.shape[0], self.problem.dimension
-
-        order = np.argsort(pop[:, -1])
-        pop   = pop[order]
-
-        # ACO-style Gaussian sampling around ranked solutions
-        sigma = np.std(pop[:, :-1], axis=0) / max(N, 1) + 1e-12
-        q, xi = 1.0, 0.85
-        w     = np.exp(-np.arange(N) ** 2 / (2 * q ** 2 * N ** 2))
-        w    /= w.sum()
-        cands = []
-        for _ in range(min(self._No, 3)):  # evaluate 3 candidates per step to keep budget sane
-            i      = np.random.choice(N, p=w)
-            cand   = pop[i, :-1] + xi * sigma * np.random.randn(D)
-            cands.append(np.clip(cand, lo, hi))
-
-        cands    = np.array(cands)
-        cand_fit = self._evaluate_population(cands)
-        # Best evaluates truly
-        bi_c    = int(np.argmin(cand_fit))
-        new_row = np.hstack((cands[bi_c], [cand_fit[bi_c]]))
-        pop     = np.vstack((pop, new_row))
-        order2  = np.argsort(pop[:, -1])
-        pop     = pop[order2[:N]]
-
-        bi  = int(np.argmin(pop[:, -1]))
-        bf  = float(pop[bi, -1])
-        bp  = pop[bi, :-1].tolist()
-
-        state.payload      = dict(population=pop)
-        state.evaluations += len(cands)
-        state.step        += 1
-        if self.problem.is_better(bf, state.best_fitness):
-            state.best_fitness  = bf
-            state.best_position = bp
-        return state
-
-    def observe(self, state):
-        pop = state.payload["population"]
-        return dict(step=state.step, evaluations=state.evaluations, best_fitness=state.best_fitness,
-                    mean_fitness=float(np.mean(pop[:, -1])))
-
-    def get_best_candidate(self, state):
-        return CandidateRecord(list(state.best_position), state.best_fitness, self.algorithm_id, state.step, "best")
-
-    def finalize(self, state):
-        return OptimizationResult(algorithm_id=self.algorithm_id,
-                                  best_position=list(state.best_position), best_fitness=state.best_fitness,
-                                  steps=state.step, evaluations=state.evaluations,
-                                  termination_reason=state.termination_reason, capabilities=self.capabilities,
-                                  metadata=dict(algorithm_name=self.algorithm_name, elapsed_time=state.elapsed_time))
-
-    def get_population(self, state):
-        pop = state.payload["population"]
-        return [CandidateRecord(pop[i, :-1].tolist(), float(pop[i, -1]),
-                                self.algorithm_id, state.step, "current") for i in range(pop.shape[0])]
-
-
 class SAPOEngine(BaseEngine):
     """Surrogate-Assisted Partial Optimization — fallback: DE with alternating feasibility/objective focus."""
     algorithm_id   = "sapo"
@@ -434,3 +332,4 @@ class SAPOEngine(BaseEngine):
         arc = state.payload["archive"]
         return [CandidateRecord(arc[i, :-1].tolist(), float(arc[i, -1]),
                                 self.algorithm_id, state.step, "current") for i in range(arc.shape[0])]
+

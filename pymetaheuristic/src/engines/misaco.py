@@ -1,3 +1,646 @@
-"""Re-export from samso module."""
-from .samso import MiSACOEngine
+"""pyMetaheuristic src — MiSACO Engine.
+
+Paper-oriented implementation of Liu et al.'s Multisurrogate-Assisted Ant
+Colony Optimization for expensive problems with continuous and categorical
+variables.  The engine keeps pyMetaheuristic's numeric-vector interface: true
+categorical variables are represented by numeric labels, inferred from integer
+variable types or supplied through ``problem.metadata['categorical_indices']``
+and ``problem.metadata['categorical_values']``.
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
+import math
+from typing import Any
+
+import numpy as np
+
+from ._surrogate_bo import SimpleGBRTRegressor
+from .protocol import (
+    BaseEngine,
+    CandidateRecord,
+    CapabilityProfile,
+    EngineConfig,
+    EngineState,
+    OptimizationResult,
+    ProblemSpec,
+)
+
+
+@dataclass
+class _MixedRBFRegressor:
+    """Gaussian RBF surrogate using the paper's continuous + categorical metric."""
+
+    continuous_idx: np.ndarray
+    categorical_idx: np.ndarray
+    length_scale: float | str = "median"
+    regularization: float = 1.0e-8
+
+    def fit(self, X: np.ndarray, y: np.ndarray) -> "_MixedRBFRegressor":
+        self.X_ = np.asarray(X, dtype=float).copy()
+        self.y_ = np.asarray(y, dtype=float).copy()
+        dist = self._distance(self.X_, self.X_)
+        self.length_scale_ = self._resolve_length_scale(dist)
+        Phi = self._kernel_from_distance(dist)
+        ridge = max(float(self.regularization), 0.0)
+        eye = np.eye(Phi.shape[0], dtype=float)
+        for _ in range(8):
+            try:
+                self.weights_ = np.linalg.solve(Phi + ridge * eye, self.y_)
+                break
+            except np.linalg.LinAlgError:
+                ridge = 1.0e-10 if ridge <= 0.0 else ridge * 10.0
+        else:
+            self.weights_ = np.linalg.lstsq(Phi + (ridge + 1.0e-6) * eye, self.y_, rcond=None)[0]
+        return self
+
+    def _resolve_length_scale(self, dist: np.ndarray) -> float:
+        value = self.length_scale
+        if isinstance(value, str):
+            text = value.lower().strip()
+            if text in {"median", "auto"}:
+                positive = dist[dist > 1.0e-12]
+                if positive.size == 0:
+                    return 1.0
+                return max(float(np.median(positive)), 1.0e-12)
+            return float(text)
+        return max(float(value), 1.0e-12)
+
+    def _distance(self, A: np.ndarray, B: np.ndarray) -> np.ndarray:
+        A = np.asarray(A, dtype=float)
+        B = np.asarray(B, dtype=float)
+        out = np.zeros((A.shape[0], B.shape[0]), dtype=float)
+        if self.continuous_idx.size:
+            diff = A[:, None, self.continuous_idx] - B[None, :, self.continuous_idx]
+            out += np.sum(diff * diff, axis=2)
+        if self.categorical_idx.size:
+            neq = A[:, None, self.categorical_idx] != B[None, :, self.categorical_idx]
+            out += np.sum(neq.astype(float), axis=2)
+        return np.sqrt(np.maximum(out, 0.0))
+
+    def _kernel_from_distance(self, dist: np.ndarray) -> np.ndarray:
+        scaled = dist / self.length_scale_
+        return np.exp(-(scaled * scaled))
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        X = np.asarray(X, dtype=float)
+        if X.ndim == 1:
+            X = X.reshape(1, -1)
+        dist = self._distance(X, self.X_)
+        return self._kernel_from_distance(dist) @ self.weights_
+
+
+class MiSACOEngine(BaseEngine):
+    """MiSACO — multisurrogate-assisted ACO for mixed expensive optimization."""
+
+    algorithm_id = "misaco"
+    algorithm_name = "Multisurrogate-Assisted Ant Colony Optimization"
+    family = "swarm"
+    capabilities = CapabilityProfile(
+        has_population=True,
+        has_archive=True,
+        supports_candidate_injection=True,
+        supports_restart=False,
+        supports_checkpoint=True,
+        supports_framework_constraints=True,
+        supports_discrete=True,
+        supports_integer=True,
+        supports_mixed=True,
+        supports_diversity_metrics=True,
+    )
+    _REFERENCE = {
+        "doi": "10.1109/TCYB.2021.3064676",
+        "title": "Multisurrogate-Assisted Ant Colony Optimization for Expensive Optimization Problems With Continuous and Categorical Variables",
+        "authors": "Jiao Liu, Yong Wang, Guangyong Sun, Tong Pang",
+        "year": 2022,
+    }
+    _OPERATOR_LABELS = (
+        "misaco.lhs_initialization",
+        "misaco.acomv_offspring_generation",
+        "misaco.rbf_fit_selection",
+        "misaco.lsbt_fit_selection",
+        "misaco.random_selection",
+        "misaco.sqp_rbf_local_search",
+        "misaco.expensive_candidate_evaluation",
+        "misaco.archive_update",
+    )
+    _DEFAULTS = {
+        "archive_size": 60,        # K in the paper's solution archive SA
+        "population_size": 60,     # backwards-compatible alias for archive_size
+        "offspring_size": 100,     # M, size of OP generated by ACOMV
+        "M": 100,
+        "q": 0.05099,
+        "xi": 0.6795,             # width of search for continuous variables
+        "local_search_threshold": "5*n1",
+        "Nmin": "5*n1",
+        "local_search": True,
+        "rbf_length_scale": "median",
+        "rbf_regularization": 1.0e-8,
+        "lsbt_n_estimators": 50,
+        "lsbt_learning_rate": 0.10,
+        "lsbt_max_depth": 3,
+        "lsbt_min_samples_leaf": 1,
+        "sqp_maxiter": 40,
+        "duplicate_tolerance": 1.0e-12,
+    }
+
+    def __init__(self, problem: ProblemSpec, config: EngineConfig) -> None:
+        super().__init__(problem, config)
+        self._params = {**self._DEFAULTS, **config.params}
+        self._rng = np.random.default_rng(config.seed)
+        if config.seed is not None:
+            np.random.seed(config.seed)
+
+        self._lo = np.asarray(problem.min_values, dtype=float)
+        self._hi = np.asarray(problem.max_values, dtype=float)
+        self._span = np.where(self._hi > self._lo, self._hi - self._lo, 1.0)
+        self._continuous_idx, self._categorical_idx, self._cat_values = self._infer_variable_layout()
+        self._n1 = int(self._continuous_idx.size)
+        self._n2 = int(self._categorical_idx.size)
+
+        self._archive_size = max(1, int(self._params.get("archive_size", self._params.get("population_size", 60))))
+        self._offspring_size = max(3, int(self._params.get("offspring_size", self._params.get("M", self._params.get("No", 100)))))
+        self._q = max(float(self._params.get("q", 0.05099)), 1.0e-12)
+        self._xi = max(float(self._params.get("xi", 0.6795)), 0.0)
+        self._duplicate_tol = max(float(self._params.get("duplicate_tolerance", 1.0e-12)), 0.0)
+        self._last_operator_counts = {label: 0 for label in self._OPERATOR_LABELS}
+        self._last_operator_contributions = {label: 0.0 for label in self._OPERATOR_LABELS}
+
+    # ------------------------------------------------------------------
+    # Layout and domain handling
+    # ------------------------------------------------------------------
+
+    def _infer_variable_layout(self) -> tuple[np.ndarray, np.ndarray, dict[int, np.ndarray]]:
+        dim = int(self.problem.dimension)
+        metadata = dict(getattr(self.problem, "metadata", {}) or {})
+        forced_cats = metadata.get("categorical_indices", None)
+        if forced_cats is not None:
+            categorical = {int(i) for i in forced_cats}
+        else:
+            categorical = set()
+            try:
+                descriptors = self.problem._normalize_variable_types()
+            except Exception:
+                descriptors = [None] * dim
+            for i, desc in enumerate(descriptors):
+                kind = "" if desc is None else str(desc.get("type", desc.get("kind", "")) if isinstance(desc, dict) else desc).lower()
+                if kind in {"int", "integer", "discrete", "ordinal", "binary", "bool", "boolean"}:
+                    categorical.add(i)
+
+        cat_values_meta = metadata.get("categorical_values", {}) or {}
+        cat_values: dict[int, np.ndarray] = {}
+        for i in sorted(categorical):
+            values = None
+            if isinstance(cat_values_meta, dict):
+                values = cat_values_meta.get(i, cat_values_meta.get(str(i)))
+            elif isinstance(cat_values_meta, (list, tuple)) and i < len(cat_values_meta):
+                values = cat_values_meta[i]
+            if values is None:
+                lo_i, hi_i = self._lo[i], self._hi[i]
+                if abs(lo_i - round(lo_i)) <= 1.0e-12 and abs(hi_i - round(hi_i)) <= 1.0e-12 and hi_i - lo_i <= 500:
+                    values = np.arange(int(round(lo_i)), int(round(hi_i)) + 1, dtype=float)
+                else:
+                    values = np.array([lo_i, hi_i], dtype=float)
+            arr = np.unique(np.asarray(values, dtype=float))
+            if arr.size == 0:
+                arr = np.array([self._lo[i]], dtype=float)
+            cat_values[i] = np.clip(arr, self._lo[i], self._hi[i])
+
+        categorical_idx = np.array(sorted(categorical), dtype=int)
+        continuous_idx = np.array([i for i in range(dim) if i not in categorical], dtype=int)
+        return continuous_idx, categorical_idx, cat_values
+
+    def _project_position(self, position: np.ndarray) -> np.ndarray:
+        pos = np.asarray(position, dtype=float).copy()
+        pos = np.clip(pos, self._lo, self._hi)
+        for j in self._categorical_idx:
+            values = self._cat_values[int(j)]
+            pos[j] = values[int(np.argmin(np.abs(values - pos[j])))]
+        return self.problem.apply_variable_types(pos)
+
+    def _is_better(self, a: float, b: float) -> bool:
+        return self.problem.is_better(float(a), float(b))
+
+    def _order(self, fitness: np.ndarray) -> np.ndarray:
+        idx = np.argsort(fitness)
+        return idx if self.problem.objective == "min" else idx[::-1]
+
+    def _best_index(self, fitness: np.ndarray) -> int:
+        return int(self._order(np.asarray(fitness, dtype=float))[0])
+
+    # ------------------------------------------------------------------
+    # Initialization and ACOMV offspring generation
+    # ------------------------------------------------------------------
+
+    def _lhs_design(self, n: int) -> np.ndarray:
+        dim = int(self.problem.dimension)
+        X = np.empty((n, dim), dtype=float)
+        if self._continuous_idx.size:
+            for d in self._continuous_idx:
+                ranks = self._rng.permutation(n)
+                u = (ranks + self._rng.random(n)) / max(n, 1)
+                X[:, d] = self._lo[d] + u * self._span[d]
+        for d in self._categorical_idx:
+            values = self._cat_values[int(d)]
+            reps = int(math.ceil(n / max(1, values.size)))
+            tiled = np.tile(values, reps)[:n]
+            X[:, d] = self._rng.permutation(tiled)
+        return np.vstack([self._project_position(row) for row in X])
+
+    def _archive_weights(self, archive: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        order = self._order(archive[:, -1])
+        ranked = archive[order]
+        K = ranked.shape[0]
+        ranks = np.arange(1, K + 1, dtype=float)
+        denom = self._q * K * math.sqrt(2.0 * math.pi)
+        alpha = (1.0 / denom) * np.exp(-((ranks - 1.0) ** 2) / (2.0 * (self._q ** 2) * (K ** 2)))
+        if not np.isfinite(alpha).all() or alpha.sum() <= 0.0:
+            alpha = np.ones(K, dtype=float)
+        return ranked, alpha
+
+    def _generate_offspring(self, archive: np.ndarray, n_offspring: int) -> np.ndarray:
+        ranked, alpha = self._archive_weights(archive)
+        K = ranked.shape[0]
+        probs = alpha / alpha.sum()
+        X = np.empty((n_offspring, self.problem.dimension), dtype=float)
+        ref_indices = self._rng.choice(K, size=n_offspring, replace=True, p=probs)
+        archive_pos = ranked[:, :-1]
+
+        for out_i, ref_i in enumerate(ref_indices):
+            candidate = np.empty(self.problem.dimension, dtype=float)
+            ref = archive_pos[int(ref_i)]
+            if self._continuous_idx.size:
+                for d in self._continuous_idx:
+                    if K > 1:
+                        sigma = self._xi * float(np.sum(np.abs(archive_pos[:, d] - ref[d])) / (K - 1))
+                    else:
+                        sigma = 0.10 * self._span[d]
+                    if sigma <= 1.0e-30:
+                        sigma = 1.0e-3 * self._span[d]
+                    candidate[d] = ref[d] + self._rng.normal(0.0, sigma)
+
+            for d in self._categorical_idx:
+                values = self._cat_values[int(d)]
+                eta = int(sum(not np.any(np.isclose(archive_pos[:, d], v, atol=1.0e-12, rtol=0.0)) for v in values))
+                beta = np.zeros(values.size, dtype=float)
+                for t, value in enumerate(values):
+                    mask = np.isclose(archive_pos[:, d], value, atol=1.0e-12, rtol=0.0)
+                    ujt = int(mask.sum())
+                    if eta > 0 and ujt > 0:
+                        beta[t] = float(np.max(alpha[mask])) * ujt + self._q / eta
+                    elif eta > 0 and ujt == 0:
+                        beta[t] = self._q / eta
+                    elif eta == 0 and ujt > 0:
+                        beta[t] = float(np.max(alpha[mask])) * ujt
+                if beta.sum() <= 0.0 or not np.isfinite(beta).all():
+                    beta[:] = 1.0
+                candidate[d] = values[int(self._rng.choice(values.size, p=beta / beta.sum()))]
+            X[out_i] = self._project_position(candidate)
+        return X
+
+    # ------------------------------------------------------------------
+    # Surrogate models and local search
+    # ------------------------------------------------------------------
+
+    def _fit_rbf(self, X: np.ndarray, y: np.ndarray, continuous_idx: np.ndarray | None = None, categorical_idx: np.ndarray | None = None) -> _MixedRBFRegressor:
+        return _MixedRBFRegressor(
+            continuous_idx=self._continuous_idx if continuous_idx is None else np.asarray(continuous_idx, dtype=int),
+            categorical_idx=self._categorical_idx if categorical_idx is None else np.asarray(categorical_idx, dtype=int),
+            length_scale=self._params.get("rbf_length_scale", "median"),
+            regularization=float(self._params.get("rbf_regularization", 1.0e-8)),
+        ).fit(X, y)
+
+    def _fit_lsbt(self, X: np.ndarray, y: np.ndarray) -> SimpleGBRTRegressor:
+        model = SimpleGBRTRegressor(
+            n_estimators=int(self._params.get("lsbt_n_estimators", 50)),
+            learning_rate=float(self._params.get("lsbt_learning_rate", 0.10)),
+            max_depth=int(self._params.get("lsbt_max_depth", 3)),
+            min_samples_leaf=int(self._params.get("lsbt_min_samples_leaf", 1)),
+            random_state=int(self._rng.integers(0, np.iinfo(np.int32).max)),
+        )
+        return model.fit(X, y)
+
+    def _surrogate_best_index(self, predicted: np.ndarray) -> int:
+        return int(np.argmin(predicted) if self.problem.objective == "min" else np.argmax(predicted))
+
+    def _msa_selection(self, offspring: np.ndarray, database: np.ndarray) -> tuple[list[np.ndarray], list[str], dict[str, int]]:
+        selected: list[np.ndarray] = []
+        sources: list[str] = []
+        counts = {label: 0 for label in self._OPERATOR_LABELS}
+        pool = np.asarray(offspring, dtype=float).copy()
+        if pool.shape[0] == 0:
+            return selected, sources, counts
+
+        X_db, y_db = database[:, :-1], database[:, -1]
+        rbf = self._fit_rbf(X_db, y_db)
+        rbf_pred = rbf.predict(pool)
+        i1 = self._surrogate_best_index(rbf_pred)
+        selected.append(pool[i1].copy())
+        sources.append("rbf")
+        counts["misaco.rbf_fit_selection"] = int(pool.shape[0])
+        pool = np.delete(pool, i1, axis=0)
+
+        if pool.shape[0] > 0:
+            lsbt = self._fit_lsbt(X_db, y_db)
+            lsbt_pred = lsbt.predict(pool)
+            i2 = self._surrogate_best_index(lsbt_pred)
+            selected.append(pool[i2].copy())
+            sources.append("lsbt")
+            counts["misaco.lsbt_fit_selection"] = int(pool.shape[0])
+            pool = np.delete(pool, i2, axis=0)
+
+        if pool.shape[0] > 0:
+            i3 = int(self._rng.integers(0, pool.shape[0]))
+            selected.append(pool[i3].copy())
+            sources.append("random")
+            counts["misaco.random_selection"] = 1
+        return selected, sources, counts
+
+    def _resolve_local_threshold(self) -> int:
+        value = self._params.get("local_search_threshold", self._params.get("Nmin", "5*n1"))
+        if isinstance(value, str):
+            text = value.replace(" ", "").lower()
+            if text in {"5*n1", "5n1"}:
+                return 5 * max(1, self._n1)
+            if text in {"none", "off", "false"}:
+                return int(1e18)
+        return max(1, int(value))
+
+    def _surrogate_local_search(self, database: np.ndarray) -> np.ndarray | None:
+        if not bool(self._params.get("local_search", True)) or self._n1 <= 0:
+            return None
+        best_row = database[self._best_index(database[:, -1])]
+        if self._categorical_idx.size:
+            same_cat = np.all(database[:, self._categorical_idx] == best_row[self._categorical_idx], axis=1)
+        else:
+            same_cat = np.ones(database.shape[0], dtype=bool)
+        subset = database[same_cat]
+        if subset.shape[0] <= self._resolve_local_threshold():
+            return None
+
+        # RBF in the continuous subspace only; the best categorical vector is fixed.
+        X_sub = subset[:, self._continuous_idx]
+        y_sub = subset[:, -1]
+        local_rbf = _MixedRBFRegressor(
+            continuous_idx=np.arange(self._n1, dtype=int),
+            categorical_idx=np.empty(0, dtype=int),
+            length_scale=self._params.get("rbf_length_scale", "median"),
+            regularization=float(self._params.get("rbf_regularization", 1.0e-8)),
+        ).fit(X_sub, y_sub)
+
+        x0 = best_row[self._continuous_idx].copy()
+        lower = self._lo[self._continuous_idx]
+        upper = self._hi[self._continuous_idx]
+
+        def obj(x: np.ndarray) -> float:
+            pred = float(local_rbf.predict(np.asarray(x, dtype=float).reshape(1, -1))[0])
+            return pred if self.problem.objective == "min" else -pred
+
+        x_new = x0.copy()
+        try:
+            from scipy.optimize import minimize
+
+            res = minimize(
+                obj,
+                x0,
+                method="SLSQP",
+                bounds=list(zip(lower, upper)),
+                options={"maxiter": int(self._params.get("sqp_maxiter", 40)), "disp": False},
+            )
+            if getattr(res, "x", None) is not None and np.all(np.isfinite(res.x)):
+                x_new = np.asarray(res.x, dtype=float)
+        except Exception:
+            # Dependency-light fallback: a small surrogate-only coordinate/random search.
+            best_x, best_v = x_new.copy(), obj(x_new)
+            scale = 0.10 * (upper - lower)
+            for _ in range(max(10, 4 * self._n1)):
+                trial = np.clip(best_x + self._rng.normal(0.0, scale), lower, upper)
+                val = obj(trial)
+                if val < best_v:
+                    best_x, best_v = trial, val
+            x_new = best_x
+
+        candidate = best_row[:-1].copy()
+        candidate[self._continuous_idx] = np.clip(x_new, lower, upper)
+        return self._project_position(candidate)
+
+    # ------------------------------------------------------------------
+    # Engine protocol
+    # ------------------------------------------------------------------
+
+    def initialize(self) -> EngineState:
+        max_eval = self.config.max_evaluations
+        init_size = self._archive_size if max_eval is None else min(self._archive_size, max(1, int(max_eval)))
+        X = self._lhs_design(init_size)
+        y = self._evaluate_population(X)
+        database = np.hstack((X, y[:, None]))
+        archive = database[self._order(database[:, -1])[: min(self._archive_size, database.shape[0])]].copy()
+        bi = self._best_index(database[:, -1])
+        counts = {label: 0 for label in self._OPERATOR_LABELS}
+        counts["misaco.lhs_initialization"] = int(init_size)
+        self._last_operator_counts = counts
+        self._last_operator_contributions = {label: 0.0 for label in self._OPERATOR_LABELS}
+        return EngineState(
+            step=0,
+            evaluations=int(init_size),
+            best_position=database[bi, :-1].tolist(),
+            best_fitness=float(database[bi, -1]),
+            initialized=True,
+            payload={
+                "population": archive,
+                "database": database,
+                "operator_counts": counts,
+                "operator_contributions": dict(self._last_operator_contributions),
+                "n_continuous": self._n1,
+                "n_categorical": self._n2,
+            },
+        )
+
+    def _remaining_evaluations(self, state: EngineState) -> int | None:
+        if self.config.max_evaluations is None:
+            return None
+        return max(0, int(self.config.max_evaluations) - int(state.evaluations))
+
+    def _deduplicate_candidates(self, candidates: list[np.ndarray], sources: list[str], database: np.ndarray) -> tuple[list[np.ndarray], list[str]]:
+        out: list[np.ndarray] = []
+        out_sources: list[str] = []
+        existing = database[:, :-1]
+        for cand, src in zip(candidates, sources):
+            cand = self._project_position(cand)
+            duplicate = False
+            for prev in out:
+                if np.linalg.norm(cand - prev) <= self._duplicate_tol:
+                    duplicate = True
+                    break
+            if not duplicate and existing.size:
+                duplicate = bool(np.any(np.linalg.norm(existing - cand, axis=1) <= self._duplicate_tol))
+            if not duplicate:
+                out.append(cand)
+                out_sources.append(src)
+        return out, out_sources
+
+    def step(self, state: EngineState) -> EngineState:
+        archive = np.asarray(state.payload["population"], dtype=float)
+        database = np.asarray(state.payload["database"], dtype=float)
+        old_best = None if state.best_fitness is None else float(state.best_fitness)
+
+        counts = {label: 0 for label in self._OPERATOR_LABELS}
+        offspring = self._generate_offspring(archive, self._offspring_size)
+        counts["misaco.acomv_offspring_generation"] = int(offspring.shape[0])
+        selected, sources, sel_counts = self._msa_selection(offspring, database)
+        for key, value in sel_counts.items():
+            counts[key] = counts.get(key, 0) + int(value)
+
+        local = self._surrogate_local_search(database)
+        if local is not None:
+            selected.append(local)
+            sources.append("local_search")
+            counts["misaco.sqp_rbf_local_search"] = 1
+
+        selected, sources = self._deduplicate_candidates(selected, sources, database)
+        remaining = self._remaining_evaluations(state)
+        if remaining is not None:
+            selected = selected[:remaining]
+            sources = sources[:remaining]
+
+        if selected:
+            X_eval = np.vstack(selected)
+            y_eval = self._evaluate_population(X_eval)
+            counts["misaco.expensive_candidate_evaluation"] = int(X_eval.shape[0])
+            new_rows = np.hstack((X_eval, y_eval[:, None]))
+            database = np.vstack((database, new_rows))
+        else:
+            X_eval = np.empty((0, self.problem.dimension), dtype=float)
+            y_eval = np.empty(0, dtype=float)
+            new_rows = np.empty((0, self.problem.dimension + 1), dtype=float)
+
+        archive = database[self._order(database[:, -1])[: min(self._archive_size, database.shape[0])]].copy()
+        counts["misaco.archive_update"] = 1
+
+        bi = self._best_index(database[:, -1])
+        new_best = float(database[bi, -1])
+        new_position = database[bi, :-1].tolist()
+        positive_delta = 0.0
+        if old_best is not None:
+            positive_delta = max(0.0, old_best - new_best) if self.problem.objective == "min" else max(0.0, new_best - old_best)
+
+        contributions = {label: 0.0 for label in self._OPERATOR_LABELS}
+        if positive_delta > 0.0 and new_rows.size:
+            new_best_idx = self._best_index(new_rows[:, -1])
+            src = sources[new_best_idx] if new_best_idx < len(sources) else "unknown"
+            if src in {"rbf", "lsbt", "random"}:
+                contributions["misaco.acomv_offspring_generation"] += 0.25 * positive_delta
+            if src == "rbf":
+                contributions["misaco.rbf_fit_selection"] += 0.50 * positive_delta
+            elif src == "lsbt":
+                contributions["misaco.lsbt_fit_selection"] += 0.50 * positive_delta
+            elif src == "random":
+                contributions["misaco.random_selection"] += 0.50 * positive_delta
+            elif src == "local_search":
+                contributions["misaco.sqp_rbf_local_search"] += 0.50 * positive_delta
+            contributions["misaco.expensive_candidate_evaluation"] += 0.15 * positive_delta
+            contributions["misaco.archive_update"] += 0.10 * positive_delta
+
+        self._last_operator_counts = counts
+        self._last_operator_contributions = contributions
+        state.payload = {
+            "population": archive,
+            "database": database,
+            "last_offspring": offspring,
+            "last_evaluated": X_eval,
+            "last_sources": list(sources),
+            "operator_counts": counts,
+            "operator_contributions": contributions,
+            "n_continuous": self._n1,
+            "n_categorical": self._n2,
+        }
+        state.evaluations += int(counts["misaco.expensive_candidate_evaluation"])
+        state.step += 1
+        if state.best_fitness is None or self._is_better(new_best, float(state.best_fitness)):
+            state.best_fitness = new_best
+            state.best_position = new_position
+        return state
+
+    def observe(self, state: EngineState) -> dict[str, Any]:
+        archive = np.asarray(state.payload.get("population"), dtype=float)
+        database = np.asarray(state.payload.get("database"), dtype=float)
+        return {
+            "step": int(state.step),
+            "evaluations": int(state.evaluations),
+            "best_fitness": float(state.best_fitness),
+            "archive_size": int(archive.shape[0]),
+            "database_size": int(database.shape[0]),
+            "n_continuous": int(self._n1),
+            "n_categorical": int(self._n2),
+            "operator_counts": dict(state.payload.get("operator_counts", self._last_operator_counts)),
+            "operator_contributions": dict(state.payload.get("operator_contributions", self._last_operator_contributions)),
+            "evomapx_fidelity": "native_misaco_acomv_multisurrogate",
+        }
+
+    def get_best_candidate(self, state: EngineState) -> CandidateRecord:
+        return CandidateRecord(list(state.best_position), float(state.best_fitness), self.algorithm_id, state.step, "best")
+
+    def finalize(self, state: EngineState) -> OptimizationResult:
+        return OptimizationResult(
+            algorithm_id=self.algorithm_id,
+            best_position=list(state.best_position),
+            best_fitness=float(state.best_fitness),
+            steps=int(state.step),
+            evaluations=int(state.evaluations),
+            termination_reason=state.termination_reason,
+            capabilities=self.capabilities,
+            metadata={
+                "algorithm_name": self.algorithm_name,
+                "elapsed_time": state.elapsed_time,
+                "reference": dict(self._REFERENCE),
+                "paper_defaults": {"M": 100, "q": 0.05099, "xi": 0.6795, "K": 60, "MaxFEs": 600, "Nmin": "5*n1"},
+                "effective_parameters": {
+                    "archive_size": self._archive_size,
+                    "offspring_size": self._offspring_size,
+                    "q": self._q,
+                    "xi": self._xi,
+                    "local_search_threshold": self._resolve_local_threshold(),
+                    "continuous_variables": self._n1,
+                    "categorical_variables": self._n2,
+                },
+                "evomapx_operator_labels": list(self._OPERATOR_LABELS),
+                "operator_counts": dict(state.payload.get("operator_counts", self._last_operator_counts)),
+                "operator_contributions": dict(state.payload.get("operator_contributions", self._last_operator_contributions)),
+            },
+        )
+
+    def get_population(self, state: EngineState) -> list[CandidateRecord]:
+        archive = np.asarray(state.payload["population"], dtype=float)
+        return [
+            CandidateRecord(
+                archive[i, :-1].tolist(),
+                float(archive[i, -1]),
+                self.algorithm_id,
+                state.step,
+                "elite" if i == 0 else "current",
+            )
+            for i in range(archive.shape[0])
+        ]
+
+    def inject_candidates(self, state: EngineState, candidates: list[CandidateRecord], policy: str = "native") -> EngineState:
+        if not candidates:
+            return state
+        remaining = self._remaining_evaluations(state)
+        if remaining is not None and remaining <= 0:
+            return state
+        take = len(candidates) if remaining is None else min(len(candidates), remaining)
+        X = np.vstack([self._project_position(np.asarray(c.position, dtype=float)) for c in candidates[:take]])
+        y = self._evaluate_population(X)
+        database = np.asarray(state.payload["database"], dtype=float)
+        database = np.vstack((database, np.hstack((X, y[:, None]))))
+        archive = database[self._order(database[:, -1])[: min(self._archive_size, database.shape[0])]].copy()
+        bi = self._best_index(database[:, -1])
+        state.payload["database"] = database
+        state.payload["population"] = archive
+        state.evaluations += int(take)
+        state.best_position = database[bi, :-1].tolist()
+        state.best_fitness = float(database[bi, -1])
+        return state
+
+
 __all__ = ["MiSACOEngine"]
