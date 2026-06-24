@@ -407,7 +407,7 @@ _register_profiles(
     _profile('sapo', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
     _profile('adam', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
     _profile('bfgs', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
-    _profile('et_bo', 'math', ('surrogate fit', 'acquisition search', 'candidate evaluation', 'model/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate fit, acquisition search, candidate evaluation, and model/incumbent update without extra objective evaluations. Family synchronized with engine registry metadata.'),
+    _profile('et_bo', 'surrogate', ('extra_trees_surrogate_fit', 'random_cutpoint_screening', 'acquisition_search', 'candidate_evaluation', 'incumbent_update'), 'native', 'paper_faithful_et_surrogate', 'Native ET-BO telemetry exposes the paper-specific Extra-Trees surrogate fit and random cut-point screening plus BO acquisition, candidate evaluation, and incumbent update without extra objective evaluations.'),
     _profile('frcg', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
     _profile('gbrt_bo', 'math', ('surrogate fit', 'acquisition search', 'candidate evaluation', 'model/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate fit, acquisition search, candidate evaluation, and model/incumbent update without extra objective evaluations. Family synchronized with engine registry metadata.'),
     _profile('gp_bo', 'math', ('surrogate fit', 'acquisition search', 'candidate evaluation', 'model/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate fit, acquisition search, candidate evaluation, and model/incumbent update without extra objective evaluations. Family synchronized with engine registry metadata.'),
@@ -1319,7 +1319,11 @@ _README_OPERATOR_OVERRIDES: dict[str, tuple[str, ...]] = {
         'esoa.egret_sit_and_wait_update',
     ),
     'et_bo': (
-        'et_bo.update',
+        'et_bo.extra_trees_surrogate_fit',
+        'et_bo.random_cutpoint_screening',
+        'et_bo.acquisition_search',
+        'et_bo.candidate_evaluation',
+        'et_bo.incumbent_update',
     ),
     'eto': (
         'eto.exponential_orbit_update',

@@ -6503,3 +6503,52 @@ except Exception:
     pass
 
 __all__ = list(dict.fromkeys(list(__all__) + ["expand_compound_operator_label"]))
+
+# ---------------------------------------------------------------------------
+# ET-BO paper-faithful surrogate telemetry override
+# ---------------------------------------------------------------------------
+_ET_BO_PAPER_NATIVE_LABELS = [
+    "et_bo.extra_trees_surrogate_fit",
+    "et_bo.random_cutpoint_screening",
+    "et_bo.acquisition_search",
+    "et_bo.candidate_evaluation",
+    "et_bo.incumbent_update",
+]
+try:
+    ENGINE_OPERATOR_LABELS["et_bo"] = list(_ET_BO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["et_bo"] = list(_ET_BO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["et_bo"] = list(_ET_BO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _NATIVE_TELEMETRY_ENGINES.add("et_bo")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_et_bo_paper = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "et_bo":
+        return list(_ET_BO_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_et_bo_paper(algorithm_id)
+
+_previous_expand_compound_et_bo_paper = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "et_bo":
+        if raw in _ET_BO_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"et_bo.update", "et_bo.step", "et_bo_update"}:
+            return list(_ET_BO_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_et_bo_paper(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
