@@ -257,7 +257,7 @@ class ETBOEngine(SurrogateBOEngine):
 
     algorithm_id = "et_bo"
     algorithm_name = "Extra-Trees Bayesian Optimization"
-    family = "surrogate"
+    family = "math"
     capabilities = CapabilityProfile(
         has_population=False,
         supports_candidate_injection=False,
