@@ -1145,7 +1145,10 @@ _README_OPERATOR_OVERRIDES: dict[str, tuple[str, ...]] = {
         'ddao.dynamic_annealed_refinement_update',
     ),
     'de': (
-        'de.differential_mutation_crossover_selection',
+        'de.mutation',
+        'de.crossover',
+        'de.selection',
+        'de.bound_repair',
     ),
     'deo_dolphin': (
         'deo_dolphin.elite_reference_echo_guidance',
@@ -2756,4 +2759,15 @@ EVOMAPX_OPERATOR_PROFILES['sapo'] = EvoMapXProfile(
     fidelity='native',
     phase='paper_faithful_samso_l2smea_sapo',
     notes='Native SAPO telemetry: alternating partial objective/constraint selection, DE trial generation, reflection repair, cubic RBF screening, feasibility-rule selection, and archive update.',
+)
+
+
+# Addendum — native Differential Evolution telemetry refinement.
+EVOMAPX_OPERATOR_PROFILES["de"] = EvoMapXProfile(
+    algorithm_id="de",
+    family="evolutionary",
+    operators=("de.mutation", "de.crossover", "de.selection", "de.bound_repair"),
+    fidelity="native",
+    phase="supplied_de_audit_refinement",
+    notes="Native DE telemetry reports synchronous differential mutation, binomial crossover, greedy selection/replacement, and framework bound repair without EvoMapX-side objective evaluations.",
 )

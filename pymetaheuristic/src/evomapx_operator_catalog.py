@@ -4916,7 +4916,10 @@ _README_OPERATOR_LABEL_OVERRIDES: dict[str, list[str]] = {
         'ddao.dynamic_annealed_refinement_update',
     ],
     'de': [
-        'de.differential_mutation_crossover_selection',
+        'de.mutation',
+        'de.crossover',
+        'de.selection',
+        'de.bound_repair',
     ],
     'deo_dolphin': [
         'deo_dolphin.elite_reference_echo_guidance',
@@ -6684,3 +6687,18 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_samso_l2smea_sapo(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ['labels_for_algorithm', 'expand_compound_operator_label']))
+
+
+# Addendum — native Differential Evolution telemetry refinement.
+ENGINE_OPERATOR_LABELS["de"] = ["de.mutation", "de.crossover", "de.selection", "de.bound_repair"]
+
+try:
+    _SINGLE_EVAL_HONEST.pop("de", None)
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("de")
+    _NATIVE_TELEMETRY_ENGINES.add("de")
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["de"] = ["de.mutation", "de.crossover", "de.selection", "de.bound_repair"]
+except Exception:
+    pass
