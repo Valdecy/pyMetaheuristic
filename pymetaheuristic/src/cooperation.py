@@ -6,6 +6,7 @@ import copy
 import random
 
 from .api import create_optimizer
+from .budget import EvaluationBudgetExceeded, make_shared_budget
 from .execution import run_engine_chunks
 
 
@@ -182,6 +183,7 @@ class CooperativeRunner:
         equality_tolerance: float = 1e-6,
         resample_attempts: int = 25,
         max_steps: int = 50,
+        max_evaluations: int | None = None,
         migration_interval: int = 5,
         migration_size: int = 1,
         migration_mode: str = "elite",
@@ -215,6 +217,7 @@ class CooperativeRunner:
         self.equality_tolerance = equality_tolerance
         self.resample_attempts = resample_attempts
         self.max_steps = int(max_steps)
+        self.max_evaluations = None if max_evaluations is None else int(max_evaluations)
         self.migration_interval = int(max(1, migration_interval))
         self.migration_size = int(max(1, migration_size))
         self.migration_mode = migration_mode
@@ -382,6 +385,10 @@ class CooperativeRunner:
         return current_interval
 
     def run(self) -> CooperativeResult:
+        budget = make_shared_budget(self.target_function, self.max_evaluations)
+        target_function = budget if budget is not None else self.target_function
+        force_serial_budget = budget is not None and (self.execution_backend or "serial").lower() != "serial"
+        execution_backend = "serial" if force_serial_budget else self.execution_backend
         islands = []
         states = []
         histories = []
@@ -397,7 +404,7 @@ class CooperativeRunner:
             label = spec.label or f"{spec.algorithm}_{i+1}"
             engine = create_optimizer(
                 algorithm=spec.algorithm,
-                target_function=self.target_function,
+                target_function=target_function,
                 min_values=self.min_values,
                 max_values=self.max_values,
                 objective=self.objective,
@@ -414,7 +421,17 @@ class CooperativeRunner:
                 store_history=False,
                 config=spec.config,
             )
-            state = engine.initialize()
+            try:
+                if budget is not None:
+                    with budget.use_label(label):
+                        state = engine.initialize()
+                else:
+                    state = engine.initialize()
+            except EvaluationBudgetExceeded as exc:
+                raise ValueError(
+                    "max_evaluations is too small to initialize all configured islands "
+                    "under a strict shared FE budget."
+                ) from exc
             islands.append((label, engine))
             states.append(state)
             histories.append([])
@@ -436,13 +453,19 @@ class CooperativeRunner:
         current_interval = self.migration_interval
         rounds_since_migration = 0
         global_step = 0
-        actual_backend = (self.execution_backend or 'serial').lower()
+        actual_backend = (execution_backend or 'serial').lower()
         backend_warning = None
+        if force_serial_budget:
+            backend_warning = "Strict shared max_evaluations requires serial island execution; process backend was disabled to avoid FE overshoot."
 
         while True:
+            if budget is not None and budget.exhausted:
+                break
             chunk_items = []
             active_indices = []
             for idx, (label, engine) in enumerate(islands):
+                if budget is not None and budget.exhausted:
+                    break
                 state = states_map[label]
                 if engine.should_stop(state):
                     continue
@@ -453,7 +476,7 @@ class CooperativeRunner:
 
             results, actual_backend, warning = run_engine_chunks(
                 chunk_items,
-                execution_backend=self.execution_backend,
+                execution_backend=execution_backend,
                 n_jobs=self.n_jobs,
                 fallback_to_serial=self.parallel_fallback_to_serial,
             )
@@ -586,6 +609,8 @@ class CooperativeRunner:
         best_fitness = None
         for (label, engine), hist in zip(islands, histories):
             result = engine.finalize(states_map[label])
+            if budget is not None:
+                result.evaluations = int(budget.by_label.get(label, 0))
             if result.best_position is not None:
                 decoded_best = engine.problem.apply_variable_types(result.best_position).astype(float).tolist()
                 result.best_position = decoded_best
@@ -609,6 +634,7 @@ class CooperativeRunner:
             'max_values': list(self.max_values),
             'variable_types': list(self.variable_types) if self.variable_types is not None else None,
             'max_steps': self.max_steps,
+            'max_evaluations': self.max_evaluations,
             'seed': self.seed,
             'migration_interval': self.migration_interval,
             'migration_size': self.migration_size,
@@ -642,6 +668,9 @@ class CooperativeRunner:
             events=events,
             history=global_history,
             metadata={
+                'max_evaluations': self.max_evaluations,
+                'total_evaluations': int(budget.used) if budget is not None else sum(int(r.evaluations) for r in island_results.values()),
+                'evaluations_by_island': dict(budget.by_label) if budget is not None else {label: int(result.evaluations) for label, result in island_results.items()},
                 'topology': self.topology,
                 'topology_config': dict(self.topology_config),
                 'custom_topology': dict(self.custom_topology),
@@ -691,6 +720,7 @@ def replay_cooperative_result(result_or_manifest, target_function, objective: st
         objective=objective or manifest.get('objective', 'min'),
         variable_types=copy.deepcopy(manifest.get('variable_types')),
         max_steps=manifest['max_steps'],
+        max_evaluations=manifest.get('max_evaluations'),
         migration_interval=manifest['migration_interval'],
         migration_size=manifest['migration_size'],
         migration_mode=manifest['migration_mode'],

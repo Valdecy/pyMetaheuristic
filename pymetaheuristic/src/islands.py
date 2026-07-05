@@ -391,10 +391,10 @@ class IslandSystem:
 
     def cooperative_kwargs(self, target_function, min_values, max_values, **overrides) -> dict[str, Any]:
         kwargs = self._common_kwargs(target_function, min_values, max_values, **overrides)
+        if self.max_evaluations is not None:
+            kwargs["max_evaluations"] = self.max_evaluations
         kwargs.update(self.topology.to_cooperative_kwargs())
         kwargs.update(self.migration.to_cooperative_kwargs())
-        # CooperativeRunner currently uses max_steps, not max_evaluations.
-        kwargs.pop("max_evaluations", None)
         return kwargs
 
     def orchestrated_kwargs(self, target_function, min_values, max_values, mode: Literal["fixed", "rules", "bandit", "portfolio_adaptive"] | None = None, **overrides) -> dict[str, Any]:

@@ -4,6 +4,7 @@ from dataclasses import asdict, is_dataclass
 from typing import Any
 
 from .api import create_optimizer
+from .budget import EvaluationBudgetExceeded, make_shared_budget
 from .cooperation import CooperativeRunner, IslandSpec
 from .actions import execute_decision_plan, outcome_to_dict
 from .controllers import BanditController, FixedMigrationController, PortfolioAdaptiveController, RuleBasedController
@@ -211,6 +212,10 @@ class OrchestratedRunner:
         raise ValueError(f"Unsupported orchestration mode: {mode}")
 
     def run(self) -> OrchestratedCooperativeResult:
+        budget = make_shared_budget(self.target_function, self.max_evaluations)
+        target_function = budget if budget is not None else self.target_function
+        force_serial_budget = budget is not None and (self.execution_backend or "serial").lower() != "serial"
+        execution_backend = "serial" if force_serial_budget else self.execution_backend
         engines: dict[str, Any] = {}
         states: dict[str, Any] = {}
         histories: dict[str, list[dict[str, Any]]] = {}
@@ -227,7 +232,7 @@ class OrchestratedRunner:
             label = spec.label or f"{spec.algorithm}_{i + 1}"
             engine = create_optimizer(
                 algorithm=spec.algorithm,
-                target_function=self.target_function,
+                target_function=target_function,
                 min_values=self.min_values,
                 max_values=self.max_values,
                 objective=self.objective,
@@ -239,13 +244,23 @@ class OrchestratedRunner:
                 equality_tolerance=self.equality_tolerance,
                 resample_attempts=self.resample_attempts,
                 max_steps=self.max_steps,
-                max_evaluations=self.max_evaluations,
+                max_evaluations=None,
                 seed=(spec.seed if spec.seed is not None else (None if self.seed is None else self.seed + i)),
                 verbose=False,
                 store_history=False,
                 config=spec.config,
             )
-            state = engine.initialize()
+            try:
+                if budget is not None:
+                    with budget.use_label(label):
+                        state = engine.initialize()
+                else:
+                    state = engine.initialize()
+            except EvaluationBudgetExceeded as exc:
+                raise ValueError(
+                    "max_evaluations is too small to initialize all configured islands "
+                    "under a strict shared FE budget."
+                ) from exc
             engines[label] = engine
             states[label] = state
             histories[label] = []
@@ -276,14 +291,20 @@ class OrchestratedRunner:
 
         active = True
         global_history = []
-        actual_backend = (self.execution_backend or "serial").lower()
+        actual_backend = (execution_backend or "serial").lower()
         backend_warning = None
+        if force_serial_budget:
+            backend_warning = "Strict shared max_evaluations requires serial island execution; process backend was disabled to avoid FE overshoot."
         label_order = list(engines.keys())
 
         while active:
+            if budget is not None and budget.exhausted:
+                break
             chunk_items = []
             active_labels = []
             for label in label_order:
+                if budget is not None and budget.exhausted:
+                    break
                 engine = engines[label]
                 state = states[label]
                 if engine.should_stop(state):
@@ -296,7 +317,7 @@ class OrchestratedRunner:
 
             results, actual_backend, warning = run_engine_chunks(
                 chunk_items,
-                execution_backend=self.execution_backend,
+                execution_backend=execution_backend,
                 n_jobs=self.n_jobs,
                 fallback_to_serial=self.parallel_fallback_to_serial,
             )
@@ -357,6 +378,8 @@ class OrchestratedRunner:
         best_fitness = None
         for label, engine in engines.items():
             result = engine.finalize(states[label])
+            if budget is not None:
+                result.evaluations = int(budget.by_label.get(label, 0))
             if result.best_position is not None:
                 decoded_best = engine.problem.apply_variable_types(result.best_position).astype(float).tolist()
                 result.best_position = decoded_best
@@ -378,6 +401,9 @@ class OrchestratedRunner:
             decisions=decisions if self.config.orchestration.store_decisions else [],
             outcomes=outcomes_all,
             metadata={
+                "max_evaluations": self.max_evaluations,
+                "total_evaluations": int(budget.used) if budget is not None else sum(int(r.evaluations) for r in island_results.values()),
+                "evaluations_by_island": dict(budget.by_label) if budget is not None else {label: int(result.evaluations) for label, result in island_results.items()},
                 "checkpoint_interval": self.config.orchestration.checkpoint_interval,
                 "constraint_handler": self.constraint_handler or "none",
                 "variable_types": list(self.variable_types) if self.variable_types is not None else None,
@@ -423,6 +449,7 @@ def orchestrated_optimize(*args, **kwargs) -> OrchestratedCooperativeResult:
             equality_tolerance=kwargs.get("equality_tolerance", 1e-6),
             resample_attempts=kwargs.get("resample_attempts", 25),
             max_steps=kwargs.get("max_steps", 100),
+            max_evaluations=kwargs.get("max_evaluations"),
             migration_interval=cfg.orchestration.checkpoint_interval,
             migration_size=cfg.orchestration.migration_size,
             migration_mode=cfg.orchestration.migration_mode,

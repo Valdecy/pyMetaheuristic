@@ -5,6 +5,8 @@ from typing import Any
 import concurrent.futures as cf
 import multiprocessing as mp
 
+from .budget import EvaluationBudgetExceeded
+
 
 @dataclass
 class ChunkExecutionResult:
@@ -20,12 +22,25 @@ def _evolve_engine_chunk(label: str, engine, state, n_steps: int) -> ChunkExecut
     current_state = state
     steps_taken = 0
     target_steps = max(0, int(n_steps))
+    target = getattr(getattr(engine, "problem", None), "target_function", None)
+    label_context = getattr(target, "use_label", None)
+
     for _ in range(target_steps):
         if engine.should_stop(current_state):
             break
-        current_state = engine.step(current_state)
+        try:
+            if callable(label_context):
+                with label_context(label):
+                    current_state = engine.step(current_state)
+            else:
+                current_state = engine.step(current_state)
+        except EvaluationBudgetExceeded:
+            current_state.termination_reason = "max_evaluations"
+            current_state.terminated = True
+            break
         observations.append(dict(engine.observe(current_state)))
         steps_taken += 1
+
     return ChunkExecutionResult(
         label=label,
         state=current_state,
