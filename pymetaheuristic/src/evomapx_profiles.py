@@ -402,12 +402,12 @@ _register_profiles(
     _profile('l2smea', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
     _profile('nlapsmjso_eda', 'evolutionary', ('multivariate sampling', 'elite/parent selection', 'mean/covariance update', 'step-size/restart control'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs CMA-ES/EDA sampling, parent selection, distribution update, and restart/step-size control without extra objective evaluations.'),
     _profile('sacc_eam2', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
-    _profile('sade_amss', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
+    _profile('sade_amss', 'evolutionary', ('lhs_initialization', 'adaptive_strategy_switch', 'random_original_subspace_construction', 'pca_mapping_subspace_construction', 'cubic_rbf_fit_predict', 'de_best_1_binomial', 'bound_repair', 'exact_evaluation_archive_update'), 'native', 'paper_faithful_sade_amss', 'Native SADE-AMSS telemetry exposes Latin-hypercube archive initialization, adaptive original/PCA subspace scheduling, cubic RBF surrogate fitting, DE/best/1/bin subspace search, bound repair, and exact archive update without EvoMapX-side objective evaluations.'),
     _profile('sade_atdsc', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
     _profile('sapo', 'evolutionary', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
     _profile('adam', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
     _profile('bfgs', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
-    _profile('et_bo', 'surrogate', ('extra_trees_surrogate_fit', 'random_cutpoint_screening', 'acquisition_search', 'candidate_evaluation', 'incumbent_update'), 'native', 'paper_faithful_et_surrogate', 'Native ET-BO telemetry exposes the paper-specific Extra-Trees surrogate fit and random cut-point screening plus BO acquisition, candidate evaluation, and incumbent update without extra objective evaluations.'),
+    _profile('et_bo', 'math', ('extra_trees_surrogate_fit', 'random_cutpoint_screening', 'acquisition_search', 'candidate_evaluation', 'incumbent_update'), 'native', 'paper_faithful_et_surrogate', 'Native ET-BO telemetry exposes the paper-specific Extra-Trees surrogate fit and random cut-point screening plus BO acquisition, candidate evaluation, and incumbent update without extra objective evaluations.'),
     _profile('frcg', 'math', ('descent/gradient direction', 'scaling/curvature update', 'parameter step', 'acceptance/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs local mathematical descent/gradient direction, scaling or curvature update, parameter step, and incumbent update without extra objective evaluations.'),
     _profile('gbrt_bo', 'math', ('surrogate fit', 'acquisition search', 'candidate evaluation', 'model/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate fit, acquisition search, candidate evaluation, and model/incumbent update without extra objective evaluations. Family synchronized with engine registry metadata.'),
     _profile('gp_bo', 'math', ('surrogate fit', 'acquisition search', 'candidate evaluation', 'model/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate fit, acquisition search, candidate evaluation, and model/incumbent update without extra objective evaluations. Family synchronized with engine registry metadata.'),
@@ -2770,4 +2770,23 @@ EVOMAPX_OPERATOR_PROFILES["de"] = EvoMapXProfile(
     fidelity="native",
     phase="supplied_de_audit_refinement",
     notes="Native DE telemetry reports synchronous differential mutation, binomial crossover, greedy selection/replacement, and framework bound repair without EvoMapX-side objective evaluations.",
+)
+
+# Addendum — native SADE-AMSS profile synchronized with corrected engine telemetry.
+EVOMAPX_OPERATOR_PROFILES["sade_amss"] = EvoMapXProfile(
+    algorithm_id="sade_amss",
+    family="evolutionary",
+    operators=(
+        "sade_amss.lhs_initialization",
+        "sade_amss.adaptive_strategy_switch",
+        "sade_amss.random_original_subspace_construction",
+        "sade_amss.pca_mapping_subspace_construction",
+        "sade_amss.cubic_rbf_fit_predict",
+        "sade_amss.de_best_1_binomial",
+        "sade_amss.bound_repair",
+        "sade_amss.exact_evaluation_archive_update",
+    ),
+    fidelity="native",
+    phase="paper_faithful_sade_amss",
+    notes="Native SADE-AMSS telemetry synchronized with corrected engine labels.",
 )

@@ -6702,3 +6702,54 @@ try:
     _ENGINE_OPERATOR_LABEL_OVERRIDES["de"] = ["de.mutation", "de.crossover", "de.selection", "de.bound_repair"]
 except Exception:
     pass
+
+
+# Addendum — native SADE-AMSS telemetry refinement.
+_SADE_AMSS_PAPER_NATIVE_LABELS = [
+    "sade_amss.lhs_initialization",
+    "sade_amss.adaptive_strategy_switch",
+    "sade_amss.random_original_subspace_construction",
+    "sade_amss.pca_mapping_subspace_construction",
+    "sade_amss.cubic_rbf_fit_predict",
+    "sade_amss.de_best_1_binomial",
+    "sade_amss.bound_repair",
+    "sade_amss.exact_evaluation_archive_update",
+]
+try:
+    ENGINE_OPERATOR_LABELS["sade_amss"] = list(_SADE_AMSS_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["sade_amss"] = list(_SADE_AMSS_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["sade_amss"] = list(_SADE_AMSS_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _NATIVE_TELEMETRY_ENGINES.add("sade_amss")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_sade_amss_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "sade_amss":
+        return list(_SADE_AMSS_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_sade_amss_native(algorithm_id)
+
+_previous_expand_compound_sade_amss_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "sade_amss":
+        if raw in _SADE_AMSS_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"sade_amss.update", "sade_amss.step", "sade_amss.adaptive_multistrategy_subspace_de_update"}:
+            return list(_SADE_AMSS_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_sade_amss_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
