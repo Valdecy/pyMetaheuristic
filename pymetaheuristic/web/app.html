@@ -79,6 +79,10 @@ header{position:relative;z-index:100;height:var(--hdr);display:flex;align-items:
 .fld-sel{appearance:none;cursor:pointer}
 .fld-mono{font-family:var(--fm);font-size:.78rem}
 .fhint{margin-top:4px;font-size:.63rem;color:var(--t3);line-height:1.5}
+.fn-meta-box{margin-top:8px;padding:8px 10px;border:1px solid var(--bd);border-radius:9px;background:rgba(255,255,255,.025);font-size:.68rem;color:var(--t3);line-height:1.55}
+.fn-meta-box strong{color:var(--gold-lt);font-weight:700}
+.fn-meta-box code{color:var(--cyan);font-family:var(--fm);font-size:.66rem}
+.sp-global-min{margin-top:6px;padding:7px 9px;border-radius:8px;background:rgba(255,255,255,.025);border:1px solid var(--bd)}
 .fr{display:grid;gap:10px}.fr2{grid-template-columns:1fr 1fr}.fr3{grid-template-columns:1fr 1fr 1fr}.fr4{grid-template-columns:1fr 1fr 1fr 1fr}
 .code-ta{width:100%;background:var(--s1);border:1px solid var(--bd);border-radius:8px;color:var(--t2);padding:10px 13px;font-size:.72rem;font-family:var(--fm);outline:none;transition:border-color var(--fast);resize:vertical;min-height:90px;line-height:1.7}
 .code-ta:focus{border-color:rgba(232,150,30,.4)}
@@ -869,6 +873,34 @@ function readIntById(id,fallback=null){
   return n==null?fallback:Math.trunc(n);
 }
 function algInfo(id){return allAlgs.find(a=>a.id===id)||null;}
+function functionCategoryOrder(){return ['2-Dimensional Functions','D-Dimensional Functions','CEC 2022 Functions','BBOB Functions','Other Functions'];}
+function functionGroupLabel(f){return f?.category||'Other Functions';}
+function groupedFunctionOptions(selected='', includePlaceholder=true, includeCustom=false, placeholder='Choose built-in function…'){
+  const groups={};
+  testFns.forEach(f=>{const g=functionGroupLabel(f);(groups[g]||(groups[g]=[])).push(f);});
+  const parts=[];
+  if(includePlaceholder)parts.push(`<option value="" selected disabled>${esc(placeholder)}</option>`);
+  if(includeCustom)parts.push('<option value="custom">Custom Python code</option>');
+  functionCategoryOrder().filter(g=>groups[g]?.length).forEach(g=>{
+    const opts=groups[g].sort((a,b)=>String(a.label).localeCompare(String(b.label))).map(f=>`<option value="${esc(f.id)}" ${f.id===selected?'selected':''}>${esc(f.label)}${f.optimum_value!=null?` · f*=${esc(f.optimum_value)}`:''}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`).join('');
+    parts.push(`<optgroup label="${esc(g)}">${opts}</optgroup>`);
+  });
+  return parts.join('');
+}
+function globalMinHTML(meta){
+  if(!meta)return '<span>No catalogue metadata available.</span>';
+  const pieces=[];
+  if(meta.optimum_value!=null)pieces.push(`<strong>f*</strong> = <code>${esc(meta.optimum_value)}</code>`);
+  if(meta.optimum_x)pieces.push(`<strong>x*</strong> = <code>${esc(meta.optimum_x)}</code>`);
+  if(meta.global_minimum)pieces.push(esc(meta.global_minimum));
+  return pieces.length?pieces.join('<br>'):'Global minimum not encoded in the catalogue.';
+}
+function functionMetaBoxHTML(fnId){
+  if(!fnId||fnId==='custom')return '';
+  const meta=testFns.find(f=>f.id===fnId);
+  if(!meta)return '';
+  return `<div class="fn-meta-box"><strong>Global minimum</strong><br>${globalMinHTML(meta)}${meta.domain?`<br><strong>Domain</strong>: ${esc(meta.domain)}`:''}</div>`;
+}
 function paramValueToText(v){
   if (Array.isArray(v) || (v && typeof v === 'object')) {
     try { return JSON.stringify(v); }
@@ -1023,10 +1055,8 @@ function renderBenchmarkGlobalSettings(){
     </div>`;
   refreshBenchmarkSummaries();
 }
-function builtInProblemOptions(){
-  return ['<option value="" selected disabled>Choose built-in function…</option>']
-    .concat(testFns.map(f=>`<option value="${esc(f.id)}">${esc(f.label)}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`))
-    .join('');
+function builtInProblemOptions(selected=''){
+  return groupedFunctionOptions(selected, true, false, 'Choose built-in function…');
 }
 function sharedProblemRowHTML(id, kind='builtin', fnId=''){
   const meta=testFns.find(f=>f.id===fnId)||{};
@@ -1035,7 +1065,7 @@ function sharedProblemRowHTML(id, kind='builtin', fnId=''){
   const dims=isCustom?10:(meta.fixed_dims||10);
   const bmin=isCustom?-5.12:(meta.min??-5.12);
   const bmax=isCustom?5.12:(meta.max??5.12);
-  const fnOptions=testFns.map(f=>`<option value="${esc(f.id)}" ${f.id===fnId?'selected':''}>${esc(f.label)}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`).join('');
+  const fnOptions=groupedFunctionOptions(fnId, false, false);
   return `<div class="card shared-problem-row" data-pid="${id}" data-kind="${esc(kind)}" style="background:var(--s2);margin-bottom:10px;border-radius:12px">
     <div class="chdr" style="padding:10px 14px;justify-content:space-between">
       <div class="cttl">Problem ${id} · ${isCustom?'Custom Python':'Built-in'} </div>
@@ -1052,7 +1082,7 @@ import numpy as np
 result = np.sum(np.array(variables_values) ** 2)</textarea></div>
       `:`
         <div class="fr fr2">
-          <div class="f"><label class="flbl">Function</label><select class="fld fld-sel fld-mono sp-fn" onchange="syncSharedProblemMeta(this,${id})">${fnOptions}</select></div>
+          <div class="f"><label class="flbl">Function</label><select class="fld fld-sel fld-mono sp-fn" onchange="syncSharedProblemMeta(this,${id})">${fnOptions}</select><div class="fhint sp-global-min">${globalMinHTML(meta)}</div></div>
           <div class="f"><label class="flbl">Label</label><input class="fld fld-mono sp-label" value="${esc(label)}"/></div>
         </div>
       `}
@@ -1123,6 +1153,7 @@ function syncSharedProblemMeta(sel,id){
   row.querySelector('.sp-max').value=String(meta.max??5.12);
   row.querySelector('.sp-opt').value=meta.optimum??'';
   const note=row.querySelector('.sp-note');if(note)note.textContent=meta.fixed_dims?`Fixed default: ${meta.fixed_dims}D. You may override only if the function implementation supports it.`:'';
+  const gm=row.querySelector('.sp-global-min');if(gm)gm.innerHTML=globalMinHTML(meta);
   refreshBenchmarkSummaries();
 }
 function collectSharedProblemSpecs(){
@@ -1174,7 +1205,9 @@ function refreshBenchmarkSummaries(){
     const id=s.type==='custom'?(s.id||`custom_${i+1}`):(s.function||s.id);
     const dims=s.dimensions||'?';
     const lo=s.min;const hi=s.max;
-    return `<select class="fld fld-sel fld-mono" disabled><option>${esc(name)} · ${esc(id)} · ${esc(dims)}D [${esc(lo)}, ${esc(hi)}]</option></select>`;
+    const meta=s.type==='custom'?null:testFns.find(f=>f.id===id);
+    const gm=s.optimum!=null?`f*=${s.optimum}`:(meta?.global_minimum||'optimum not encoded');
+    return `<div class="fn-meta-box"><strong>${esc(name)}</strong> <code>${esc(id)}</code><br>${esc(dims)}D [${esc(lo)}, ${esc(hi)}]<br><strong>Global minimum</strong>: ${esc(gm)}</div>`;
   }).join('');
 }
 
@@ -1276,7 +1309,7 @@ function renderConfigure(anchor=null){
     </div>
   </div>`;
 
-  const fnOpts=testFns.map(f=>`<option value="${esc(f.id)}">${esc(f.label)}${f.optimum!=null?` (opt≈${esc(f.optimum)})`:''}${f.fixed_dims?` [${esc(f.fixed_dims)}D only]`:''}</option>`).join('');
+  const fnOpts=groupedFunctionOptions('', false, false);
   html+=`<div class="card cfg-rel cfg-anchor" id="cfg-problem-card">
     <div class="chdr"><div class="cico" style="background:rgba(232,150,30,.10);color:var(--gold)">⚙</div><div class="cttl">Problem Setup</div></div>
     <div class="cbdy">
@@ -1284,9 +1317,10 @@ function renderConfigure(anchor=null){
         <select class="fld fld-sel" id="cfg-fn">
           <option value="" selected disabled>Choose a benchmark function or custom objective…</option>
           <option value="custom">Custom Python code</option>
-          <optgroup label="Benchmark Functions">${fnOpts}</optgroup>
+          ${fnOpts}
         </select>
         <div class="fhint">No test function is selected by default. Choose one explicitly before running.</div>
+        <div id="cfg-fn-meta"></div>
       </div>
       <div id="cfg-custom-wrap" class="f hidden">
         <label class="flbl">Custom Objective (Python)</label>
@@ -1516,16 +1550,19 @@ function onFnChange(){
   const cw=document.getElementById('cfg-custom-wrap');
   const dims=document.getElementById('cfg-dims');
   const note=document.getElementById('cfg-dims-note');
+  const metaBox=document.getElementById('cfg-fn-meta');
   if(v==='custom'){
     cw?.classList.remove('hidden');
     if(dims)dims.disabled=false;
     if(note)note.textContent='';
+    if(metaBox)metaBox.innerHTML='';
     return;
   }
   cw?.classList.add('hidden');
   if(!v){
     if(dims)dims.disabled=false;
     if(note)note.textContent='';
+    if(metaBox)metaBox.innerHTML='';
     return;
   }
   const meta=testFns.find(f=>f.id===v);
@@ -1533,6 +1570,7 @@ function onFnChange(){
     const bmin=document.getElementById('cfg-bmin');const bmax=document.getElementById('cfg-bmax');
     if(bmin)bmin.value=String(meta.min);
     if(bmax)bmax.value=String(meta.max);
+    if(metaBox)metaBox.innerHTML=functionMetaBoxHTML(v);
     if(meta.fixed_dims){if(dims)dims.value=meta.fixed_dims;if(dims)dims.disabled=true;if(note)note.textContent=`Fixed at ${meta.fixed_dims}D`;}
     else{if(dims)dims.disabled=false;if(note)note.textContent='';}
   }

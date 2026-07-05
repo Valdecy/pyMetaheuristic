@@ -129,6 +129,70 @@ _KNOWN: dict[str, dict] = {
 _EXCLUDE = {"get_test_function", "list_test_functions"}
 
 
+_README_2D_IDS = {
+    "ackley", "beale", "bohachevsky_1", "bohachevsky_2", "bohachevsky_3",
+    "booth", "branin_rcos", "bukin_6", "cross_in_tray", "drop_wave", "easom",
+    "eggholder", "goldstein_price", "himmelblau", "holder_table", "levi_13",
+    "matyas", "mccormick", "schaffer_2", "schaffer_4", "schaffer_6",
+    "six_hump_camel_back", "three_hump_camel_back",
+}
+_README_D_IDS = {
+    "alpine_1", "alpine_2", "axis_parallel_hyper_ellipsoid", "bent_cigar",
+    "chung_reynolds", "cosine_mixture", "csendes", "de_jong_1", "discus",
+    "dixon_price", "elliptic", "expanded_griewank_plus_rosenbrock", "griewangk_8",
+    "happy_cat", "hgbat", "katsuura", "levy", "michalewicz", "modified_schwefel",
+    "perm", "pinter", "powell", "qing", "quintic", "rastrigin", "ridge",
+    "rosenbrocks_valley", "salomon", "schumer_steiglitz", "schwefel", "schwefel_221",
+    "schwefel_222", "sphere_2", "sphere_3", "step", "step_2", "step_3",
+    "stepint", "styblinski_tang", "trid", "weierstrass", "whitley", "zakharov",
+}
+_CATEGORY_ORDER = {
+    "2-Dimensional Functions": 10,
+    "D-Dimensional Functions": 20,
+    "CEC 2022 Functions": 30,
+    "BBOB Functions": 40,
+    "Other Functions": 90,
+}
+_CEC_2022_OPTIMUMS = {
+    "cec_2022_f01": 300.0, "cec_2022_f02": 400.0, "cec_2022_f03": 600.0,
+    "cec_2022_f04": 800.0, "cec_2022_f05": 900.0, "cec_2022_f06": 1800.0,
+    "cec_2022_f07": 2000.0, "cec_2022_f08": 2200.0, "cec_2022_f09": 2300.0,
+    "cec_2022_f10": 2400.0, "cec_2022_f11": 2600.0, "cec_2022_f12": 2700.0,
+}
+
+
+def _category_for_function(name: str) -> str:
+    if name.startswith("cec_2022_"):
+        return "CEC 2022 Functions"
+    if name.startswith("bbob_f"):
+        return "BBOB Functions"
+    if name in _README_2D_IDS:
+        return "2-Dimensional Functions"
+    if name in _README_D_IDS:
+        return "D-Dimensional Functions"
+    return "Other Functions"
+
+
+def _catalogue_info(name: str) -> dict:
+    info = getattr(_tf, "TEST_FUNCTIONS", {}).get(name, {}) or {}
+    if not info and name.startswith("bbob_f"):
+        info = getattr(_tf, "BBOB_METADATA", {}).get(name, {}) or {}
+    return info
+
+
+def _function_optimum_text(name: str, info: dict, meta: dict, optimum: Any) -> str:
+    text = info.get("optimum") or meta.get("optimum_text") or ""
+    if name.startswith("cec_2022_") and not text:
+        text = f"f*={_CEC_2022_OPTIMUMS.get(name)} at the official shifted optimum."
+    if name.startswith("bbob_f") and not text:
+        text = "Use get_bbob_optimum(function_id, dimension, instance) for the shifted optimizer x* and f*."
+    if text:
+        return str(text)
+    if optimum is not None:
+        return f"f*={optimum}; optimizer x* not encoded in the catalogue."
+    return "Global minimum not encoded in the catalogue."
+
+
 def _catalogue() -> list[dict]:
     names: list[str] = []
     if hasattr(_tf, "list_test_functions"):
@@ -154,10 +218,36 @@ def _catalogue() -> list[dict]:
         if not hasattr(_tf, n):
             continue
         m = _KNOWN.get(n, {})
-        out.append({"id": n, "label": m.get("label", n.replace("_", " ").title()),
-                    "min": m.get("min", -100.0), "max": m.get("max", 100.0),
-                    "optimum": m.get("optimum"), "fixed_dims": m.get("fixed_dims")})
-    return out
+        info = _catalogue_info(n)
+        category = _category_for_function(n)
+        optimum = m.get("optimum")
+        if optimum is None and n in _CEC_2022_OPTIMUMS:
+            optimum = _CEC_2022_OPTIMUMS[n]
+        min_bound = m.get("min")
+        max_bound = m.get("max")
+        if min_bound is None or max_bound is None:
+            if n.startswith("bbob_f"):
+                min_bound, max_bound = -5.0, 5.0
+            elif n.startswith("cec_2022_"):
+                min_bound, max_bound = -100.0, 100.0
+            else:
+                min_bound, max_bound = -100.0, 100.0
+        label = m.get("label") or info.get("name") or n.replace("_", " ").title()
+        out.append({
+            "id": n,
+            "label": label,
+            "category": category,
+            "category_order": _CATEGORY_ORDER.get(category, 90),
+            "min": min_bound,
+            "max": max_bound,
+            "domain": info.get("domain"),
+            "optimum": optimum,
+            "optimum_value": optimum,
+            "optimum_x": m.get("optimum_x"),
+            "global_minimum": _function_optimum_text(n, info, m, optimum),
+            "fixed_dims": m.get("fixed_dims"),
+        })
+    return sorted(out, key=lambda x: (x.get("category_order", 90), str(x.get("label", ""))))
 
 
 
