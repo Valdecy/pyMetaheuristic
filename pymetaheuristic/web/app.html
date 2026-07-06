@@ -872,18 +872,51 @@ function readIntById(id,fallback=null){
   const n=readNumValue(document.getElementById(id)?.value,fallback);
   return n==null?fallback:Math.trunc(n);
 }
+function readNumListValue(raw,fallback=null){
+  let s=String(raw??'').trim();
+  if(!s)return fallback;
+  const decimalComma=/^[+-]?\d+,\d+(e[+-]?\d+)?$/i;
+  if(decimalComma.test(s))return [Number(s.replace(',', '.'))];
+  s=s.replace(/[\[\]\(\)]/g,'').replace(/;/g, ',');
+  const vals=s.split(',').map(p=>p.trim()).filter(Boolean).map(p=>Number(p.replace(',', '.')));
+  return vals.length && vals.every(Number.isFinite)?vals:fallback;
+}
+function expandBoundValues(raw,dims,fallback){
+  const vals=Array.isArray(raw)?raw.map(Number):readNumListValue(raw,null);
+  const clean=(vals&&vals.length)?vals:[fallback];
+  if(clean.length===1)return Array.from({length:dims},()=>clean[0]);
+  if(clean.length!==dims)throw new Error(`Bounds must be either one number or exactly ${dims} comma-separated values.`);
+  return clean;
+}
+function boundInputText(v){return Array.isArray(v)?v.join(', '):String(v??'');}
+function boundsSummaryText(lo,hi){
+  const a=Array.isArray(lo)?lo:[lo];const b=Array.isArray(hi)?hi:[hi];
+  if(a.length===1&&b.length===1)return `[${a[0]}, ${b[0]}]`;
+  return `lower=[${a.join(', ')}]; upper=[${b.join(', ')}]`;
+}
 function algInfo(id){return allAlgs.find(a=>a.id===id)||null;}
-function functionCategoryOrder(){return ['2-Dimensional Functions','D-Dimensional Functions','CEC 2022 Functions','BBOB Functions','Other Functions'];}
+const ENGINEERING_CATEGORY='Engineering Design Benchmarks';
+function functionCategoryOrder(){return ['2-Dimensional Functions','D-Dimensional Functions','CEC 2022 Functions','BBOB Functions',ENGINEERING_CATEGORY,'Other Functions'];}
 function functionGroupLabel(f){return f?.category||'Other Functions';}
-function groupedFunctionOptions(selected='', includePlaceholder=true, includeCustom=false, placeholder='Choose built-in function…'){
+function isEngineeringMeta(f){return !!(f&&(f.is_engineering||f.category===ENGINEERING_CATEGORY));}
+function isEngineeringFunctionId(id){return isEngineeringMeta(testFns.find(f=>f.id===id));}
+function groupedFunctionOptions(selected='', includePlaceholder=true, includeCustom=false, placeholder='Choose built-in function…', opts={}){
+  const includeEngineering=!!opts.includeEngineering;
+  const onlyEngineering=!!opts.onlyEngineering;
   const groups={};
-  testFns.forEach(f=>{const g=functionGroupLabel(f);(groups[g]||(groups[g]=[])).push(f);});
+  testFns.filter(f=>{
+    const eng=isEngineeringMeta(f);
+    if(onlyEngineering)return eng;
+    if(eng&&!includeEngineering)return false;
+    return true;
+  }).forEach(f=>{const g=functionGroupLabel(f);(groups[g]||(groups[g]=[])).push(f);});
+  const hasSelected=selected&&Object.values(groups).some(arr=>arr.some(f=>f.id===selected));
   const parts=[];
-  if(includePlaceholder)parts.push(`<option value="" selected disabled>${esc(placeholder)}</option>`);
-  if(includeCustom)parts.push('<option value="custom">Custom Python code</option>');
+  if(includePlaceholder)parts.push(`<option value="" ${hasSelected?'':'selected'} disabled>${esc(placeholder)}</option>`);
+  if(includeCustom)parts.push(`<option value="custom" ${selected==='custom'?'selected':''}>Custom Python code</option>`);
   functionCategoryOrder().filter(g=>groups[g]?.length).forEach(g=>{
-    const opts=groups[g].sort((a,b)=>String(a.label).localeCompare(String(b.label))).map(f=>`<option value="${esc(f.id)}" ${f.id===selected?'selected':''}>${esc(f.label)}${f.optimum_value!=null?` · f*=${esc(f.optimum_value)}`:''}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}</option>`).join('');
-    parts.push(`<optgroup label="${esc(g)}">${opts}</optgroup>`);
+    const optsHtml=groups[g].sort((a,b)=>String(a.label).localeCompare(String(b.label))).map(f=>`<option value="${esc(f.id)}" ${f.id===selected?'selected':''}>${esc(f.label)}${f.optimum_value!=null?` · f*=${esc(f.optimum_value)}`:''}${f.fixed_dims?` [${esc(f.fixed_dims)}D]`:''}${isEngineeringMeta(f)?` · constrained`:''}</option>`).join('');
+    parts.push(`<optgroup label="${esc(g)}">${optsHtml}</optgroup>`);
   });
   return parts.join('');
 }
@@ -891,7 +924,7 @@ function globalMinHTML(meta){
   if(!meta)return '<span>No catalogue metadata available.</span>';
   const pieces=[];
   if(meta.optimum_value!=null)pieces.push(`<strong>f*</strong> = <code>${esc(meta.optimum_value)}</code>`);
-  if(meta.optimum_x)pieces.push(`<strong>x*</strong> = <code>${esc(meta.optimum_x)}</code>`);
+  if(meta.optimum_x)pieces.push(`<strong>x*</strong> = <code>${esc(Array.isArray(meta.optimum_x)?`(${meta.optimum_x.join(', ')})`:meta.optimum_x)}</code>`);
   if(meta.global_minimum)pieces.push(esc(meta.global_minimum));
   return pieces.length?pieces.join('<br>'):'Global minimum not encoded in the catalogue.';
 }
@@ -1055,18 +1088,25 @@ function renderBenchmarkGlobalSettings(){
     </div>`;
   refreshBenchmarkSummaries();
 }
-function builtInProblemOptions(selected=''){
-  return groupedFunctionOptions(selected, true, false, 'Choose built-in function…');
+function builtInProblemOptions(selected='', opts={}){
+  return groupedFunctionOptions(selected, true, false, opts.onlyEngineering?'Choose an engineering benchmark…':'Choose built-in function…', opts);
 }
-function sharedProblemRowHTML(id, kind='builtin', fnId=''){
+function constraintHandlerOptions(selected='deb'){
+  const opts=[['deb',"Deb's Rules (recommended)"],['penalty','Penalty (C × violation)'],['repair','Repair (clamp to bounds)'],['reject_resample','Reject & Resample']];
+  return opts.map(([v,l])=>`<option value="${esc(v)}" ${v===selected?'selected':''}>${esc(l)}</option>`).join('');
+}
+function sharedProblemRowHTML(id, kind='builtin', fnId='', opts={}){
   const meta=testFns.find(f=>f.id===fnId)||{};
   const isCustom=kind==='custom';
   const label=isCustom?`Custom Problem ${id}`:(meta.label||'Built-in Problem');
   const dims=isCustom?10:(meta.fixed_dims||10);
-  const bmin=isCustom?-5.12:(meta.min??-5.12);
-  const bmax=isCustom?5.12:(meta.max??5.12);
-  const fnOptions=groupedFunctionOptions(fnId, false, false);
-  return `<div class="card shared-problem-row" data-pid="${id}" data-kind="${esc(kind)}" style="background:var(--s2);margin-bottom:10px;border-radius:12px">
+  const bmin=isCustom?-5.12:(meta.min_values || (meta.min ?? -5.12));
+  const bmax=isCustom?5.12:(meta.max_values || (meta.max ?? 5.12));
+  const constrained=!isCustom&&isEngineeringMeta(meta);
+  const fnOptions=groupedFunctionOptions(fnId, false, false, 'Choose built-in function…', constrained?{includeEngineering:true,onlyEngineering:true}:{includeEngineering:false});
+  const handler=opts.constraint_handler||meta.constraint_handler||'deb';
+  const coeff=opts.penalty_coefficient||1000000;
+  return `<div class="card shared-problem-row" data-pid="${id}" data-kind="${esc(kind)}" data-constrained="${constrained?'1':'0'}" style="background:var(--s2);margin-bottom:10px;border-radius:12px">
     <div class="chdr" style="padding:10px 14px;justify-content:space-between">
       <div class="cttl">Problem ${id} · ${isCustom?'Custom Python':'Built-in'} </div>
       <button class="btn btn-danger btn-xs" onclick="removeSharedProblem(${id})">Remove</button>
@@ -1085,11 +1125,15 @@ result = np.sum(np.array(variables_values) ** 2)</textarea></div>
           <div class="f"><label class="flbl">Function</label><select class="fld fld-sel fld-mono sp-fn" onchange="syncSharedProblemMeta(this,${id})">${fnOptions}</select><div class="fhint sp-global-min">${globalMinHTML(meta)}</div></div>
           <div class="f"><label class="flbl">Label</label><input class="fld fld-mono sp-label" value="${esc(label)}"/></div>
         </div>
+        ${constrained?`<div class="fr fr2 sp-constraint-row" style="margin-top:10px">
+          <div class="f"><label class="flbl">Constraint Handler</label><select class="fld fld-sel fld-mono sp-constraint-handler">${constraintHandlerOptions(handler)}</select><div class="fhint">Framework constraints from the engineering benchmark will be passed to the optimizer.</div></div>
+          <div class="f"><label class="flbl">Penalty Coefficient</label><input class="fld fld-mono sp-penalty-coeff" type="text" inputmode="decimal" value="${esc(coeff)}"/><div class="fhint">Used by penalty-based paths and Benchmark Study fallback.</div></div>
+        </div>`:''}
       `}
       <div class="fr fr4">
         <div class="f"><label class="flbl">Dimensions</label><input class="fld fld-mono sp-dims" type="number" value="${esc(dims)}" min="1" max="200" ${meta.fixed_dims?'data-fixed="1"':''}/><div class="fhint sp-note">${meta.fixed_dims?`Fixed default: ${meta.fixed_dims}D. You may override only if the function implementation supports it.`:''}</div></div>
-        <div class="f"><label class="flbl">Min Bound</label><input class="fld fld-mono sp-min" type="text" inputmode="decimal" value="${esc(bmin)}"/></div>
-        <div class="f"><label class="flbl">Max Bound</label><input class="fld fld-mono sp-max" type="text" inputmode="decimal" value="${esc(bmax)}"/></div>
+        <div class="f"><label class="flbl">Min Bound</label><input class="fld fld-mono sp-min" type="text" inputmode="decimal" value="${esc(boundInputText(bmin))}"/></div>
+        <div class="f"><label class="flbl">Max Bound</label><input class="fld fld-mono sp-max" type="text" inputmode="decimal" value="${esc(boundInputText(bmax))}"/></div>
         <div class="f"><label class="flbl">Optimum</label><input class="fld fld-mono sp-opt" type="text" inputmode="decimal" value="${meta.optimum??''}" placeholder="Optional"/></div>
       </div>
     </div>
@@ -1100,11 +1144,16 @@ function renderSharedProblemCard(targetId='cfg-problem-card', title='Shared Prob
   const isBenchmark=targetId==='cfg-benchmark-card';
   card.innerHTML=`<div class="chdr"><div class="cico" style="background:rgba(232,150,30,.10);color:var(--gold)">⚙</div><div class="cttl">${esc(title)}</div></div>
     <div class="cbdy">
-      <div class="fhint" style="margin-bottom:12px">Add one problem at a time. Each built-in or custom function carries its own dimensions, bounds, and optional optimum. This avoids mixing incompatible parameter ranges.</div>
+      <div class="fhint" style="margin-bottom:12px">Add one problem at a time. Engineering design benchmarks are shown only when the constrained catalogue is selected, because they require an explicit constraint handler.</div>
       <div class="card" style="background:var(--s2);border-radius:11px;margin-bottom:12px">
         <div class="cbdy" style="padding:12px 14px">
           <div class="fr fr3">
-            <div class="f" style="grid-column:span 2"><label class="flbl">Add Built-in Function</label><select class="fld fld-sel fld-mono" id="shared-add-fn">${builtInProblemOptions()}</select></div>
+            <div class="f"><label class="flbl">Problem Catalogue</label><select class="fld fld-sel fld-mono" id="shared-problem-kind" onchange="syncSharedProblemCatalogueMode()"><option value="unconstrained">Unconstrained benchmark functions</option><option value="constrained">Constrained engineering benchmarks</option></select></div>
+            <div class="f shared-constraint-option hidden"><label class="flbl">Constraint Handler</label><select class="fld fld-sel fld-mono" id="shared-c-handler">${constraintHandlerOptions('deb')}</select></div>
+            <div class="f shared-constraint-option hidden"><label class="flbl">Penalty Coefficient</label><input class="fld fld-mono" type="text" inputmode="decimal" id="shared-c-coeff" value="1000000"/></div>
+          </div>
+          <div class="fr fr3" style="margin-top:10px">
+            <div class="f" style="grid-column:span 2"><label class="flbl">Add Built-in Function</label><select class="fld fld-sel fld-mono" id="shared-add-fn">${builtInProblemOptions('',{includeEngineering:false})}</select></div>
             <div class="f" style="display:flex;align-items:end"><button class="btn btn-ghost" style="width:100%" onclick="addBuiltInSharedProblem()">+ Add Built-in</button></div>
           </div>
           <button class="btn btn-ghost btn-sm" onclick="addCustomSharedProblem()">+ Add Custom Python Function</button>
@@ -1119,6 +1168,13 @@ function renderSharedProblemCard(targetId='cfg-problem-card', title='Shared Prob
       <div class="fhint">${isBenchmark?'For benchmark mode, each algorithm is run on each problem using that problem’s own dimensions and bounds.':'For multiple problems, the island system runs once per problem and produces a problem-result table. For one problem, full live telemetry remains available.'}</div>
     </div>`;
 }
+function syncSharedProblemCatalogueMode(){
+  const kind=document.getElementById('shared-problem-kind')?.value||'unconstrained';
+  const constrained=kind==='constrained';
+  document.querySelectorAll('.shared-constraint-option').forEach(el=>el.classList.toggle('hidden',!constrained));
+  const sel=document.getElementById('shared-add-fn');
+  if(sel)sel.innerHTML=builtInProblemOptions('',constrained?{includeEngineering:true,onlyEngineering:true}:{includeEngineering:false});
+}
 function ensureProblemList(){
   const list=document.getElementById('shared-problem-list');
   if(list?.querySelector('.no-prm'))list.innerHTML='';
@@ -1128,8 +1184,15 @@ function addBuiltInSharedProblem(){
   const sel=document.getElementById('shared-add-fn');
   const fnId=sel?.value||'';
   if(!fnId){alert('Choose a built-in function first.');return;}
+  const catalogueKind=document.getElementById('shared-problem-kind')?.value||'unconstrained';
+  const isEng=isEngineeringFunctionId(fnId);
+  if(isEng&&catalogueKind!=='constrained'){
+    alert('Engineering benchmarks are constrained problems. Select “Constrained engineering benchmarks” first.');
+    return;
+  }
   _sharedProblemCnt++;
-  ensureProblemList()?.insertAdjacentHTML('beforeend',sharedProblemRowHTML(_sharedProblemCnt,'builtin',fnId));
+  const opts=isEng?{constraint_handler:document.getElementById('shared-c-handler')?.value||'deb',penalty_coefficient:readNumValue(document.getElementById('shared-c-coeff')?.value,1000000)||1000000}:{};
+  ensureProblemList()?.insertAdjacentHTML('beforeend',sharedProblemRowHTML(_sharedProblemCnt,'builtin',fnId,opts));
   if(sel)sel.value='';
   refreshBenchmarkSummaries();
 }
@@ -1149,8 +1212,8 @@ function syncSharedProblemMeta(sel,id){
   const meta=testFns.find(f=>f.id===sel.value)||{};
   row.querySelector('.sp-label').value=meta.label||sel.value;
   row.querySelector('.sp-dims').value=meta.fixed_dims||10;
-  row.querySelector('.sp-min').value=String(meta.min??-5.12);
-  row.querySelector('.sp-max').value=String(meta.max??5.12);
+  row.querySelector('.sp-min').value=boundInputText(meta.min_values || (meta.min ?? -5.12));
+  row.querySelector('.sp-max').value=boundInputText(meta.max_values || (meta.max ?? 5.12));
   row.querySelector('.sp-opt').value=meta.optimum??'';
   const note=row.querySelector('.sp-note');if(note)note.textContent=meta.fixed_dims?`Fixed default: ${meta.fixed_dims}D. You may override only if the function implementation supports it.`:'';
   const gm=row.querySelector('.sp-global-min');if(gm)gm.innerHTML=globalMinHTML(meta);
@@ -1161,19 +1224,31 @@ function collectSharedProblemSpecs(){
   document.querySelectorAll('#shared-problem-list .shared-problem-row').forEach((row,i)=>{
     const kind=row.dataset.kind||'builtin';
     const dims=readIntByIdFromEl(row.querySelector('.sp-dims'),null);
-    const bmin=readNumValue(row.querySelector('.sp-min')?.value,null);
-    const bmax=readNumValue(row.querySelector('.sp-max')?.value,null);
-    if(!dims||bmin==null||bmax==null)throw new Error(`Problem ${i+1} has invalid dimensions or bounds.`);
+    let minValues,maxValues;
+    try{
+      minValues=expandBoundValues(row.querySelector('.sp-min')?.value,dims,null);
+      maxValues=expandBoundValues(row.querySelector('.sp-max')?.value,dims,null);
+    }catch(e){throw new Error(`Problem ${i+1}: ${e.message||String(e)}`);}
+    if(!dims||!minValues||!maxValues)throw new Error(`Problem ${i+1} has invalid dimensions or bounds.`);
+    const bmin=minValues[0];
+    const bmax=maxValues[0];
     const optimum=readNumValue(row.querySelector('.sp-opt')?.value,null);
     if(kind==='custom'){
       const id=(row.querySelector('.sp-id')?.value||`custom_${i+1}`).trim().replace(/[^A-Za-z0-9_\-]/g,'_');
       const code=row.querySelector('.sp-code')?.value||'';
       if(!code.trim())throw new Error(`Custom problem ${i+1} has empty Python code.`);
-      specs.push({type:'custom',id,label:row.querySelector('.sp-label')?.value||id,code,dimensions:dims,min:bmin,max:bmax,optimum});
+      specs.push({type:'custom',id,label:row.querySelector('.sp-label')?.value||id,code,dimensions:dims,min:bmin,max:bmax,min_values:minValues,max_values:maxValues,optimum});
     }else{
       const fn=row.querySelector('.sp-fn')?.value||'';
       if(!fn)throw new Error(`Built-in problem ${i+1} has no function selected.`);
-      specs.push({type:'builtin',id:fn,function:fn,label:row.querySelector('.sp-label')?.value||fn,dimensions:dims,min:bmin,max:bmax,optimum});
+      const meta=testFns.find(f=>f.id===fn)||{};
+      const spec={type:'builtin',id:fn,function:fn,label:row.querySelector('.sp-label')?.value||fn,dimensions:dims,min:bmin,max:bmax,min_values:minValues,max_values:maxValues,optimum};
+      if(isEngineeringMeta(meta)){
+        spec.constrained=true;
+        spec.constraint_handler=row.querySelector('.sp-constraint-handler')?.value||'deb';
+        spec.penalty_coefficient=readNumValue(row.querySelector('.sp-penalty-coeff')?.value,1000000)||1000000;
+      }
+      specs.push(spec);
     }
   });
   return specs;
@@ -1189,7 +1264,7 @@ function getSharedProblem(){
     functions:specs.filter(s=>s.type!=='custom').map(s=>s.function||s.id),
     custom_functions:specs.filter(s=>s.type==='custom').map(s=>({id:s.id,label:s.label,code:s.code,min:s.min,max:s.max,dimensions:s.dimensions,optimum:s.optimum})),
     problem_specs:specs,
-    min_values:Array.from({length:first.dimensions},()=>first.min),max_values:Array.from({length:first.dimensions},()=>first.max),dimensions:first.dimensions,
+    min_values:first.min_values||Array.from({length:first.dimensions},()=>first.min),max_values:first.max_values||Array.from({length:first.dimensions},()=>first.max),dimensions:first.dimensions,
     objective:currentObjective(),seed:seedRaw?parseInt(seedRaw):null};
 }
 
@@ -1204,10 +1279,12 @@ function refreshBenchmarkSummaries(){
     const name=s.label||s.id||s.function||`Problem ${i+1}`;
     const id=s.type==='custom'?(s.id||`custom_${i+1}`):(s.function||s.id);
     const dims=s.dimensions||'?';
-    const lo=s.min;const hi=s.max;
+    const lo=s.min_values||s.min;const hi=s.max_values||s.max;
     const meta=s.type==='custom'?null:testFns.find(f=>f.id===id);
     const gm=s.optimum!=null?`f*=${s.optimum}`:(meta?.global_minimum||'optimum not encoded');
-    return `<div class="fn-meta-box"><strong>${esc(name)}</strong> <code>${esc(id)}</code><br>${esc(dims)}D [${esc(lo)}, ${esc(hi)}]<br><strong>Global minimum</strong>: ${esc(gm)}</div>`;
+    const constrained=isEngineeringMeta(meta)||s.constrained;
+    const ch=constrained?`<br><strong>Constraints</strong>: ${esc(s.constraint_handler||meta?.constraint_handler||'deb')}`:'';
+    return `<div class="fn-meta-box"><strong>${esc(name)}</strong> <code>${esc(id)}</code><br>${esc(dims)}D ${esc(boundsSummaryText(lo,hi))}<br><strong>Global minimum</strong>: ${esc(gm)}${ch}</div>`;
   }).join('');
 }
 
@@ -1522,6 +1599,8 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
   if(mode==='benchmark'||mode==='benchmark_study'){renderSharedProblemCard('cfg-benchmark-card',mode==='benchmark_study'?'Benchmark Study Problem Suite':'Benchmark Problem Set',false);renderBenchmarkGlobalSettings();}
   if(mode==='collaborative'||mode==='orchestrated')renderSharedProblemCard('cfg-problem-card','Shared Problem Set',true);
   document.getElementById('cfg-fn')?.addEventListener('change',onFnChange);
+  refreshSingleFunctionDropdown();
+  syncSharedProblemCatalogueMode();
   document.querySelectorAll('.chk-item input').forEach(cb=>cb.addEventListener('change',e=>{
     e.target.closest('.chk-item').classList.toggle('checked',e.target.checked);
     refreshBenchmarkSummaries();
@@ -1535,6 +1614,22 @@ result = np.sum(np.array(variables_values) ** 2)</textarea>
   applyConfigStepVisibility(anchor||activeConfigAnchor||defaultConfigureAnchor());
 }
 
+function refreshSingleFunctionDropdown(){
+  const sel=document.getElementById('cfg-fn');
+  if(!sel)return;
+  const old=sel.value||'';
+  const includeEngineering=singleSubMode==='constrained';
+  const oldMeta=testFns.find(f=>f.id===old);
+  const canKeep=old==='custom'||(oldMeta&&(!isEngineeringMeta(oldMeta)||includeEngineering));
+  const keep=canKeep?old:'';
+  sel.innerHTML=`<option value="" ${keep?'':'selected'} disabled>Choose a benchmark function or custom objective…</option><option value="custom" ${keep==='custom'?'selected':''}>Custom Python code</option>${groupedFunctionOptions(keep, false, false, 'Choose built-in function…', {includeEngineering})}`;
+  if(old&&!canKeep&&isEngineeringMeta(oldMeta)){
+    const metaBox=document.getElementById('cfg-fn-meta');
+    if(metaBox)metaBox.innerHTML='<div class="fn-meta-box" style="color:var(--rose)">Engineering benchmarks are available only in Constrained mode.</div>';
+  }else{
+    onFnChange();
+  }
+}
 function setSubMode(m){
   singleSubMode=m;
   ['standard','constrained','binary'].forEach(s=>{
@@ -1542,6 +1637,8 @@ function setSubMode(m){
     const h=document.getElementById(`subhint-${s}`);
     if(h)h.classList.toggle('hidden',s!==m);
   });
+  refreshSingleFunctionDropdown();
+  updateRunBar();
 }
 function setObj(btn){document.querySelectorAll('.obj-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function toggleOutput(key,val){outputs[key]=val;document.getElementById(`out-${key}`)?.classList.toggle('selected',val);}
@@ -1568,8 +1665,8 @@ function onFnChange(){
   const meta=testFns.find(f=>f.id===v);
   if(meta){
     const bmin=document.getElementById('cfg-bmin');const bmax=document.getElementById('cfg-bmax');
-    if(bmin)bmin.value=String(meta.min);
-    if(bmax)bmax.value=String(meta.max);
+    if(bmin)bmin.value=boundInputText(meta.min_values||meta.min);
+    if(bmax)bmax.value=boundInputText(meta.max_values||meta.max);
     if(metaBox)metaBox.innerHTML=functionMetaBoxHTML(v);
     if(meta.fixed_dims){if(dims)dims.value=meta.fixed_dims;if(dims)dims.disabled=true;if(note)note.textContent=`Fixed at ${meta.fixed_dims}D`;}
     else{if(dims)dims.disabled=false;if(note)note.textContent='';}
@@ -1677,14 +1774,22 @@ function getProblem(){
   const code=document.getElementById('cfg-custom')?.value||'';
   if(!fn){alert('Select a target function or choose Custom Python code.');goPage('configure','cfg-problem-card');return null;}
   if(fn==='custom'&&!code.trim()){alert('Custom objective code is empty.');goPage('configure','cfg-problem-card');return null;}
+  if(isEngineeringFunctionId(fn)&&singleSubMode!=='constrained'){
+    alert('Engineering design benchmarks are constrained problems. Select the Constrained tab and choose a constraint handler first.');
+    goPage('configure','cfg-algorithm-card');
+    return null;
+  }
   const dims=readIntById('cfg-dims',10)||10;
-  const bmin=readFloatById('cfg-bmin',null);
-  const bmax=readFloatById('cfg-bmax',null);
-  if(bmin==null||bmax==null){alert('Search bounds must be valid numeric values. Use decimal point or comma.');goPage('configure','cfg-problem-card');return null;}
+  let minValues,maxValues;
+  try{
+    minValues=expandBoundValues(document.getElementById('cfg-bmin')?.value,dims,null);
+    maxValues=expandBoundValues(document.getElementById('cfg-bmax')?.value,dims,null);
+  }catch(e){alert(e.message||String(e));goPage('configure','cfg-problem-card');return null;}
+  if(!minValues||!maxValues){alert('Search bounds must be valid numeric values or comma-separated vectors.');goPage('configure','cfg-problem-card');return null;}
   const seedRaw=document.getElementById('cfg-seed')?.value;
   return{target_function:fn,custom_code:fn==='custom'?code:'',
-    min_values:Array.from({length:dims},()=>bmin),
-    max_values:Array.from({length:dims},()=>bmax),
+    min_values:minValues,
+    max_values:maxValues,
     objective:currentObjective(),seed:seedRaw?parseInt(seedRaw):null};
 }
 function goRunNow(){goPage('run');startJob();}

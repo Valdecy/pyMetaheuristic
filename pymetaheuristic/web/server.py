@@ -151,6 +151,7 @@ _CATEGORY_ORDER = {
     "D-Dimensional Functions": 20,
     "CEC 2022 Functions": 30,
     "BBOB Functions": 40,
+    "Engineering Design Benchmarks": 50,
     "Other Functions": 90,
 }
 _CEC_2022_OPTIMUMS = {
@@ -161,7 +162,85 @@ _CEC_2022_OPTIMUMS = {
 }
 
 
+try:
+    _ENGINEERING_IDS = set(_tf.list_engineering_benchmarks())
+except Exception:
+    _ENGINEERING_IDS = set()
+
+
+def _is_engineering_function(name: str) -> bool:
+    return str(name or "").strip().lower() in _ENGINEERING_IDS
+
+
+def _engineering_benchmark_info(name: str) -> dict | None:
+    key = str(name or "").strip().lower()
+    if not key or key not in _ENGINEERING_IDS:
+        return None
+    try:
+        return dict(_tf.get_engineering_benchmark(key))
+    except Exception:
+        return None
+
+
+def _bound_vector(value, dims: int, fallback) -> list[float]:
+    if value is None:
+        value = fallback
+    if isinstance(value, (list, tuple, np.ndarray)):
+        vals = [float(v) for v in list(value)]
+        if len(vals) == 1:
+            return vals * int(dims)
+        if len(vals) != int(dims):
+            raise ValueError(f"Expected {dims} bounds, received {len(vals)}.")
+        return vals
+    return [float(value)] * int(dims)
+
+
+def _spec_bounds(spec: dict) -> tuple[list[float], list[float]]:
+    dims = int(spec.get("dims") or len(spec.get("min_values") or []) or len(spec.get("max_values") or []) or 1)
+    lo = spec.get("min_values")
+    hi = spec.get("max_values")
+    if lo is None:
+        lo = spec.get("min")
+    if hi is None:
+        hi = spec.get("max")
+    return _bound_vector(lo, dims, -100.0), _bound_vector(hi, dims, 100.0)
+
+
+def _constraint_kwargs_from_spec(spec: dict) -> dict[str, Any]:
+    constraints = spec.get("constraints")
+    if not constraints:
+        return {}
+    return {
+        "constraints": constraints,
+        "constraint_handler": spec.get("constraint_handler") or "deb",
+        "penalty_coefficient": float(spec.get("penalty_coefficient", 1.0e6) or 1.0e6),
+    }
+
+
+def _penalized_engineering_objective(fn, constraints, objective: str = "min", penalty_coefficient: float = 1.0e6):
+    # BenchmarkStudy currently accepts BenchmarkProblem callables but does not
+    # forward framework constraints.  Engineering problems therefore use a
+    # conservative exterior-penalty wrapper in that specific study path.
+    sign = -1.0 if objective == "max" else 1.0
+    def wrapped(x):
+        raw = float(fn(x))
+        violation = 0.0
+        for c in constraints or []:
+            v = c(x)
+            if isinstance(v, dict):
+                if v.get("type") == "eq":
+                    violation += abs(float(v.get("value", 0.0)))
+                else:
+                    violation += max(0.0, float(v.get("value", 0.0)))
+            else:
+                violation += max(0.0, float(v))
+        return raw + sign * float(penalty_coefficient) * violation
+    return wrapped
+
+
 def _category_for_function(name: str) -> str:
+    if _is_engineering_function(name):
+        return "Engineering Design Benchmarks"
     if name.startswith("cec_2022_"):
         return "CEC 2022 Functions"
     if name.startswith("bbob_f"):
@@ -197,28 +276,62 @@ def _catalogue() -> list[dict]:
     names: list[str] = []
     if hasattr(_tf, "list_test_functions"):
         try:
-            names = list(_tf.list_test_functions(include_engineering=False))
+            names = list(_tf.list_test_functions(include_engineering=True))
         except TypeError:
             names = list(_tf.list_test_functions())
         except Exception:
             pass
     if not names and hasattr(_tf, "FUNCTIONS") and isinstance(_tf.FUNCTIONS, dict):
         names = list(_tf.FUNCTIONS.keys())
-    if hasattr(_tf, "list_engineering_benchmarks"):
-        try:
-            engineering_ids = set(_tf.list_engineering_benchmarks())
-            names = [name for name in names if name not in engineering_ids]
-        except Exception:
-            pass
     if not names:
         names = [n for n, o in inspect.getmembers(_tf, inspect.isfunction)
                  if not n.startswith("_") and n not in _EXCLUDE]
+    # Be explicit: engineering benchmarks are constrained Problem objects in the
+    # UI and must remain discoverable even when list_test_functions() omits them.
+    names = sorted(set(names) | set(_ENGINEERING_IDS))
     out = []
     for n in sorted(names):
-        if not hasattr(_tf, n):
+        if not hasattr(_tf, n) and not _is_engineering_function(n):
+            continue
+        info = _catalogue_info(n)
+        if _is_engineering_function(n):
+            eng = _engineering_benchmark_info(n) or {}
+            min_values = [float(v) for v in eng.get("min_values", [])]
+            max_values = [float(v) for v in eng.get("max_values", [])]
+            best_x = [float(v) for v in eng.get("best_known_position", [])]
+            best_f = eng.get("best_known_fitness")
+            try:
+                best_f = float(best_f) if best_f is not None else None
+            except Exception:
+                best_f = None
+            category = _category_for_function(n)
+            label = eng.get("name") or info.get("name") or n.replace("_", " ").title()
+            constraints_count = len(eng.get("constraints") or [])
+            gm = info.get("optimum") or ""
+            if not gm and best_f is not None:
+                gm = f"f*≈{best_f}; x*≈{tuple(best_x)}"
+            out.append({
+                "id": n,
+                "label": label,
+                "category": category,
+                "category_order": _CATEGORY_ORDER.get(category, 90),
+                "min": min_values[0] if len(set(min_values)) == 1 and min_values else min_values,
+                "max": max_values[0] if len(set(max_values)) == 1 and max_values else max_values,
+                "min_values": min_values,
+                "max_values": max_values,
+                "domain": info.get("domain") or eng.get("notes"),
+                "optimum": best_f,
+                "optimum_value": best_f,
+                "optimum_x": best_x,
+                "global_minimum": str(gm) if gm else "Best-known engineering optimum not encoded in the catalogue.",
+                "fixed_dims": len(min_values) if min_values else None,
+                "is_engineering": True,
+                "constraints_count": constraints_count,
+                "constraint_handler": "deb",
+                "notes": eng.get("notes"),
+            })
             continue
         m = _KNOWN.get(n, {})
-        info = _catalogue_info(n)
         category = _category_for_function(n)
         optimum = m.get("optimum")
         if optimum is None and n in _CEC_2022_OPTIMUMS:
@@ -240,6 +353,8 @@ def _catalogue() -> list[dict]:
             "category_order": _CATEGORY_ORDER.get(category, 90),
             "min": min_bound,
             "max": max_bound,
+            "min_values": None,
+            "max_values": None,
             "domain": info.get("domain"),
             "optimum": optimum,
             "optimum_value": optimum,
@@ -271,14 +386,23 @@ def _compact_scientific_summary(summary: dict) -> dict:
 
 def _benchmark_problem_from_spec(spec: dict, objective: str) -> BenchmarkProblem:
     dims = int(spec.get("dims", 10) or 10)
+    min_values, max_values = _spec_bounds(spec)
+    fn = spec["fn"]
+    if spec.get("constraints"):
+        fn = _penalized_engineering_objective(
+            fn,
+            spec.get("constraints") or [],
+            objective=objective,
+            penalty_coefficient=float(spec.get("penalty_coefficient", 1.0e6) or 1.0e6),
+        )
     return BenchmarkProblem(
-        function=spec["fn"],
-        min_values=[float(spec.get("min", -5.12))] * dims,
-        max_values=[float(spec.get("max", 5.12))] * dims,
+        function=fn,
+        min_values=min_values,
+        max_values=max_values,
         name=str(spec.get("label") or spec.get("id") or "problem"),
         objective=objective,
         optimum=spec.get("optimum"),
-        metadata={"id": spec.get("id"), "dimension": dims},
+        metadata={"id": spec.get("id"), "dimension": dims, "is_engineering": bool(spec.get("is_engineering"))},
     )
 
 # ── Progress callback ─────────────────────────────────────────────────────────
@@ -390,8 +514,10 @@ def _function_specs(req: dict, default_dims: int | None = None) -> list[dict]:
                     "id": cid,
                     "label": ps.get("label") or cid,
                     "fn": _compile_custom_function(ps.get("code", "")),
-                    "min": float(ps.get("min", (req.get("min_values") or [-5.12])[0])),
-                    "max": float(ps.get("max", (req.get("max_values") or [5.12])[0])),
+                    "min": _bound_vector(ps.get("min_values", ps.get("min")), dims, (req.get("min_values") or [-5.12])[0])[0],
+                    "max": _bound_vector(ps.get("max_values", ps.get("max")), dims, (req.get("max_values") or [5.12])[0])[0],
+                    "min_values": _bound_vector(ps.get("min_values", ps.get("min")), dims, (req.get("min_values") or [-5.12])[0]),
+                    "max_values": _bound_vector(ps.get("max_values", ps.get("max")), dims, (req.get("max_values") or [5.12])[0]),
                     "dims": dims,
                     "optimum": ps.get("optimum"),
                 })
@@ -400,15 +526,43 @@ def _function_specs(req: dict, default_dims: int | None = None) -> list[dict]:
             fn_id = str(ps.get("function") or ps.get("id") or "")
             if not fn_id:
                 raise ValueError(f"Problem spec {idx} has no built-in function id.")
+            if _is_engineering_function(fn_id):
+                eng = _engineering_benchmark_info(fn_id) or {}
+                fn = eng.get("objective") or _resolve_fn(fn_id)
+                min_values = [float(v) for v in eng.get("min_values", [])]
+                max_values = [float(v) for v in eng.get("max_values", [])]
+                dims = len(min_values) or int(ps.get("dimensions") or default_dims or req.get("dimensions", 10) or 10)
+                min_values = _bound_vector(ps.get("min_values", min_values), dims, min_values[0] if min_values else -100.0)
+                max_values = _bound_vector(ps.get("max_values", max_values), dims, max_values[0] if max_values else 100.0)
+                specs.append({
+                    "id": fn_id,
+                    "label": ps.get("label") or eng.get("name", fn_id),
+                    "fn": fn,
+                    "min": min_values[0],
+                    "max": max_values[0],
+                    "min_values": min_values,
+                    "max_values": max_values,
+                    "dims": dims,
+                    "optimum": ps.get("optimum", eng.get("best_known_fitness")),
+                    "constraints": eng.get("constraints") or [],
+                    "constraint_handler": ps.get("constraint_handler") or req.get("constraint_handler") or "deb",
+                    "penalty_coefficient": float(ps.get("penalty_coefficient", req.get("penalty_coeff", 1.0e6)) or 1.0e6),
+                    "is_engineering": True,
+                })
+                continue
             fn = _resolve_fn(fn_id)
             meta = _KNOWN.get(fn_id, {})
             dims = int(ps.get("dimensions") or meta.get("fixed_dims") or default_dims or req.get("dimensions", 10) or 10)
+            min_values = _bound_vector(ps.get("min_values", ps.get("min")), dims, meta.get("min", (req.get("min_values") or [-100.0])[0]))
+            max_values = _bound_vector(ps.get("max_values", ps.get("max")), dims, meta.get("max", (req.get("max_values") or [100.0])[0]))
             specs.append({
                 "id": fn_id,
                 "label": ps.get("label") or meta.get("label", fn_id),
                 "fn": fn,
-                "min": float(ps.get("min", meta.get("min", (req.get("min_values") or [-100.0])[0]))),
-                "max": float(ps.get("max", meta.get("max", (req.get("max_values") or [100.0])[0]))),
+                "min": min_values[0],
+                "max": max_values[0],
+                "min_values": min_values,
+                "max_values": max_values,
                 "dims": dims,
                 "optimum": ps.get("optimum", meta.get("optimum")),
             })
@@ -431,15 +585,40 @@ def _function_specs(req: dict, default_dims: int | None = None) -> list[dict]:
                 "dims": dims,
             })
             continue
+        if _is_engineering_function(fn_id):
+            eng = _engineering_benchmark_info(fn_id) or {}
+            min_values = [float(v) for v in eng.get("min_values", [])]
+            max_values = [float(v) for v in eng.get("max_values", [])]
+            dims = len(min_values) or int(default_dims or req.get("dimensions", 10) or 10)
+            specs.append({
+                "id": fn_id,
+                "label": eng.get("name", fn_id),
+                "fn": eng.get("objective") or _resolve_fn(fn_id),
+                "min": min_values[0] if min_values else -100.0,
+                "max": max_values[0] if max_values else 100.0,
+                "min_values": min_values,
+                "max_values": max_values,
+                "dims": dims,
+                "optimum": eng.get("best_known_fitness"),
+                "constraints": eng.get("constraints") or [],
+                "constraint_handler": req.get("constraint_handler") or "deb",
+                "penalty_coefficient": float(req.get("penalty_coeff", 1.0e6) or 1.0e6),
+                "is_engineering": True,
+            })
+            continue
         fn = _resolve_fn(fn_id)
         meta = _KNOWN.get(fn_id, {})
         dims = int(meta.get("fixed_dims") or default_dims or req.get("dimensions", 10) or len(req.get("min_values") or []) or 10)
+        min_values = _bound_vector(None, dims, meta.get("min", (req.get("min_values") or [-100.0])[0]))
+        max_values = _bound_vector(None, dims, meta.get("max", (req.get("max_values") or [100.0])[0]))
         specs.append({
             "id": fn_id,
             "label": meta.get("label", fn_id),
             "fn": fn,
-            "min": float(meta.get("min", (req.get("min_values") or [-100.0])[0])),
-            "max": float(meta.get("max", (req.get("max_values") or [100.0])[0])),
+            "min": min_values[0],
+            "max": max_values[0],
+            "min_values": min_values,
+            "max_values": max_values,
             "dims": dims,
         })
 
@@ -450,8 +629,10 @@ def _function_specs(req: dict, default_dims: int | None = None) -> list[dict]:
             "id": cid,
             "label": cf.get("label") or cid,
             "fn": _compile_custom_function(cf.get("code", "")),
-            "min": float(cf.get("min", (req.get("min_values") or [-5.12])[0])),
-            "max": float(cf.get("max", (req.get("max_values") or [5.12])[0])),
+            "min": _bound_vector(cf.get("min_values", cf.get("min")), dims, (req.get("min_values") or [-5.12])[0])[0],
+            "max": _bound_vector(cf.get("max_values", cf.get("max")), dims, (req.get("max_values") or [5.12])[0])[0],
+            "min_values": _bound_vector(cf.get("min_values", cf.get("min")), dims, (req.get("min_values") or [-5.12])[0]),
+            "max_values": _bound_vector(cf.get("max_values", cf.get("max")), dims, (req.get("max_values") or [5.12])[0]),
             "dims": dims,
             "optimum": cf.get("optimum"),
         })
@@ -642,7 +823,9 @@ def _evomapx_payload(result, level: str = "auto") -> dict:
 def _run_single(req: dict, state: dict) -> None:
     try:
         sub_mode = req.get("sub_mode", "standard")
-        fn       = _resolve_fn(req["target_function"], req.get("custom_code", ""))
+        eng_info = _engineering_benchmark_info(req.get("target_function"))
+        fn       = (eng_info.get("objective") if eng_info else None) or _resolve_fn(req["target_function"], req.get("custom_code", ""))
+        auto_constraints = list(eng_info.get("constraints") or []) if eng_info else []
         cb       = _make_cb(state)
         store_snaps = req.get("store_population_snapshots", False)
 
@@ -664,6 +847,12 @@ def _run_single(req: dict, state: dict) -> None:
         # merge algorithm-specific params
         common.update(req.get("params", {}))
 
+        if eng_info and sub_mode != "constrained":
+            state.update({"status": "error",
+                          "error": "Engineering design benchmarks are constrained problems. Select constrained mode and a constraint handler.",
+                          "elapsed": time.time() - state["start_time"]})
+            return
+
         # ── Standard ─────────────────────────────────────────────────
         if sub_mode == "standard":
             try:
@@ -676,7 +865,7 @@ def _run_single(req: dict, state: dict) -> None:
         elif sub_mode == "constrained":
             constraints_text = req.get("constraints_text", "")
             try:
-                constraints = _parse_constraints(constraints_text)
+                constraints = auto_constraints + _parse_constraints(constraints_text)
             except ValueError as e:
                 state.update({"status": "error", "error": str(e),
                               "elapsed": time.time() - state["start_time"]})
@@ -839,8 +1028,8 @@ def _run_collaborative(req: dict, state: dict) -> None:
                 result = cooperative_optimize(
                     islands            = islands,
                     target_function    = spec["fn"],
-                    min_values         = [float(spec["min"])] * int(spec["dims"]),
-                    max_values         = [float(spec["max"])] * int(spec["dims"]),
+                    min_values         = _spec_bounds(spec)[0],
+                    max_values         = _spec_bounds(spec)[1],
                     objective          = req.get("objective", "min"),
                     max_steps          = req.get("max_steps", 20),
                     migration_interval = req.get("migration_interval", 2),
@@ -848,6 +1037,7 @@ def _run_collaborative(req: dict, state: dict) -> None:
                     topology           = req.get("topology", "star"),
                     seed               = (int(base_seed) + i if base_seed is not None else None),
                     verbose            = False,
+                    **_constraint_kwargs_from_spec(spec),
                 )
                 last_result = result
                 rows.append({
@@ -924,13 +1114,14 @@ def _run_orchestrated(req: dict, state: dict) -> None:
                 result = orchestrated_optimize(
                     islands         = islands,
                     target_function = spec["fn"],
-                    min_values      = [float(spec["min"])] * int(spec["dims"]),
-                    max_values      = [float(spec["max"])] * int(spec["dims"]),
+                    min_values      = _spec_bounds(spec)[0],
+                    max_values      = _spec_bounds(spec)[1],
                     objective       = req.get("objective", "min"),
                     max_steps       = req.get("max_steps", 20),
                     seed            = (int(base_seed) + i if base_seed is not None else None),
                     config          = config,
                     verbose         = False,
+                    **_constraint_kwargs_from_spec(spec),
                 )
                 last_result = result
                 rows.append({
@@ -1141,8 +1332,7 @@ def _run_benchmark(req: dict, state: dict) -> None:
             fn_id = spec["id"]
             fn = spec["fn"]
             d = int(spec["dims"])
-            bmin = [float(spec["min"])] * d
-            bmax = [float(spec["max"])] * d
+            bmin, bmax = _spec_bounds(spec)
             label = spec.get("label", fn_id)
 
             for alg_id in algorithms:
@@ -1162,6 +1352,7 @@ def _run_benchmark(req: dict, state: dict) -> None:
                             max_steps       = max_steps,
                             seed            = base_seed + trial,
                             verbose         = False,
+                            **_constraint_kwargs_from_spec(spec),
                             **alg_params,
                         )
                         rows.append({
