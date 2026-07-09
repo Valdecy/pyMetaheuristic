@@ -2790,3 +2790,26 @@ EVOMAPX_OPERATOR_PROFILES["sade_amss"] = EvoMapXProfile(
     phase="paper_faithful_sade_amss",
     notes="Native SADE-AMSS telemetry synchronized with corrected engine labels.",
 )
+
+
+# Addendum - native THRO telemetry synchronized with corrected engine.
+EVOMAPX_OPERATOR_PROFILES["thro"] = EvoMapXProfile(
+    algorithm_id="thro",
+    family="human",
+    operators=(
+        "thro.initialization",
+        "thro.competition_scenario_1_slowest_vs_slowest",
+        "thro.competition_scenario_2_slowest_vs_fastest",
+        "thro.competition_scenario_3_fastest_vs_fastest",
+        "thro.competition_scenario_4_slowest_vs_fastest",
+        "thro.competition_scenario_5_tie_slowest_vs_fastest",
+        "thro.training_random_peer_difference",
+        "thro.training_fastest_guidance",
+        "thro.greedy_selection",
+        "thro.random_bound_repair",
+        "thro.candidate_injection",
+    ),
+    fidelity="native",
+    phase="paper_faithful_thro",
+    notes="Native THRO telemetry reports the five race-matching scenarios, the two training operators, greedy replacement, random bound repair, initialization, and candidate injection.",
+)

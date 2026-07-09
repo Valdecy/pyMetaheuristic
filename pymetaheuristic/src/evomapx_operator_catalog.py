@@ -6753,3 +6753,58 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_sade_amss_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+
+# Addendum - native THRO telemetry synchronized with corrected engine.
+_THRO_PAPER_NATIVE_LABELS = [
+    "thro.initialization",
+    "thro.competition_scenario_1_slowest_vs_slowest",
+    "thro.competition_scenario_2_slowest_vs_fastest",
+    "thro.competition_scenario_3_fastest_vs_fastest",
+    "thro.competition_scenario_4_slowest_vs_fastest",
+    "thro.competition_scenario_5_tie_slowest_vs_fastest",
+    "thro.training_random_peer_difference",
+    "thro.training_fastest_guidance",
+    "thro.greedy_selection",
+    "thro.random_bound_repair",
+    "thro.candidate_injection",
+]
+try:
+    ENGINE_OPERATOR_LABELS["thro"] = list(_THRO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["thro"] = list(_THRO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["thro"] = list(_THRO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("thro")
+    _NATIVE_TELEMETRY_ENGINES.add("thro")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_thro_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "thro":
+        return list(_THRO_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_thro_native(algorithm_id)
+
+_previous_expand_compound_thro_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "thro":
+        if raw in _THRO_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"thro.update", "thro.step", "thro.throwing_race_update", "thro.race"}:
+            return list(_THRO_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_thro_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
