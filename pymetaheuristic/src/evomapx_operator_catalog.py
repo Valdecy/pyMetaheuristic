@@ -6808,3 +6808,19 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_thro_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Native semantic labels emitted directly by the MadDE engine.
+ENGINE_OPERATOR_LABELS["madde"] = [
+    "madde.parameter_sampling",
+    "madde.current_to_pbest_archive_mutation",
+    "madde.current_to_rand_archive_mutation",
+    "madde.weighted_rand_to_qbest_mutation",
+    "madde.midpoint_bound_repair",
+    "madde.binomial_crossover",
+    "madde.qbest_binomial_crossover",
+    "madde.greedy_selection",
+    "madde.external_archive_update",
+    "madde.success_history_update",
+    "madde.mutation_probability_adaptation",
+    "madde.linear_population_size_reduction",
+]

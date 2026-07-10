@@ -2813,3 +2813,32 @@ EVOMAPX_OPERATOR_PROFILES["thro"] = EvoMapXProfile(
     phase="paper_faithful_thro",
     notes="Native THRO telemetry reports the five race-matching scenarios, the two training operators, greedy replacement, random bound repair, initialization, and candidate injection.",
 )
+
+# Addendum — native MadDE telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["madde"] = EvoMapXProfile(
+    algorithm_id="madde",
+    family="evolutionary",
+    operators=(
+        "madde.parameter_sampling",
+        "madde.current_to_pbest_archive_mutation",
+        "madde.current_to_rand_archive_mutation",
+        "madde.weighted_rand_to_qbest_mutation",
+        "madde.midpoint_bound_repair",
+        "madde.binomial_crossover",
+        "madde.qbest_binomial_crossover",
+        "madde.greedy_selection",
+        "madde.external_archive_update",
+        "madde.success_history_update",
+        "madde.mutation_probability_adaptation",
+        "madde.linear_population_size_reduction",
+    ),
+    fidelity="native",
+    phase="paper_faithful_madde",
+    notes=(
+        "Native MadDE telemetry reports the three mutation strategies, probabilistic "
+        "binomial/q-best crossover, greedy selection, midpoint repair, success-history "
+        "and mutation-probability adaptation, archive maintenance, and LPSR without "
+        "additional objective evaluations. Direct improvement is attributed to mutation, "
+        "crossover, and selection; adaptation/archive/reduction operators are diagnostic."
+    ),
+)
