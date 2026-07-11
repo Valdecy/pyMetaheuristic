@@ -2922,3 +2922,26 @@ EVOMAPX_OPERATOR_PROFILES["atk"] = EvoMapXProfile(
         "zero direct improvement."
     ),
 )
+
+# Addendum — native PySOA telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["pysoa"] = EvoMapXProfile(
+    algorithm_id="pysoa",
+    family="swarm",
+    operators=(
+        "pysoa.searching_for_prey",
+        "pysoa.attacking_prey",
+        "pysoa.random_agent_redirection",
+        "pysoa.sensory_scanning",
+        "pysoa.temperature_cooling",
+    ),
+    fidelity="native",
+    phase="paper_faithful_pysoa",
+    notes=(
+        "Native PySOA telemetry reports the low-density prey-search move, the "
+        "pheromone-guided attack, random-agent redirection when prey detects the "
+        "python, sensory scanning, and temperature cooling without additional "
+        "objective evaluations. The three movement operators receive direct "
+        "improvement attribution; sensory scanning and cooling are diagnostic "
+        "operators with zero direct improvement."
+    ),
+)

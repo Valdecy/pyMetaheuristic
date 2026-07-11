@@ -6968,3 +6968,48 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_atk_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum — native PySOA semantic labels synchronized with the paper-faithful engine.
+_PYSOA_PAPER_NATIVE_LABELS = [
+    "pysoa.searching_for_prey",
+    "pysoa.attacking_prey",
+    "pysoa.random_agent_redirection",
+    "pysoa.sensory_scanning",
+    "pysoa.temperature_cooling",
+]
+ENGINE_OPERATOR_LABELS["pysoa"] = list(_PYSOA_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["pysoa"] = list(_PYSOA_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["pysoa"] = list(_PYSOA_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("pysoa")
+    _NATIVE_TELEMETRY_ENGINES.add("pysoa")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_pysoa_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "pysoa":
+        return list(_PYSOA_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_pysoa_native(algorithm_id)
+
+_previous_expand_compound_pysoa_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "pysoa":
+        if raw in _PYSOA_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"pysoa.update", "pysoa.step", "pysoa.python_hunting_update"}:
+            return list(_PYSOA_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_pysoa_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))

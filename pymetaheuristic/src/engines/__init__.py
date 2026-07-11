@@ -314,6 +314,7 @@ from .pro                  import PROEngine
 from .pso                  import PSOEngine
 from .pss                  import PSSEngine
 from .puma_o               import PumaOEngine
+from .pysoa                import PySOAEngine
 from .qio                  import QIOEngine
 from .qle_sca              import QleSCAEngine
 from .qsa                  import QSAEngine
@@ -715,6 +716,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     ParrotOEngine, 
     PoliticalOEngine,
     PumaOEngine, 
+    PySOAEngine,
     QIOEngine, 
     QSAEngine, 
     QleSCAEngine, 
@@ -1136,6 +1138,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'pso', 
     'pss', 
     'puma_o', 
+    'pysoa',
     'qio', 
     'qle_sca', 
     'qsa', 
@@ -1526,6 +1529,7 @@ _POPULATION_BASED: set[str] = {
     'pso', 
     'pss',
     'puma_o', 
+    'pysoa',
     'qio', 
     'qle_sca', 
     'qsa', 
@@ -1848,6 +1852,7 @@ _INJECTION_ENABLED: set[str] = {
     'pso', 
     'pss', 
     'puma_o', 
+    'pysoa',
     'qio', 
     'qsa',
     'random_s', 
@@ -2233,6 +2238,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'pso', 
     'pss', 
     'puma_o', 
+    'pysoa',
     'qio', 
     'qle_sca',
     'qsa', 
@@ -2629,6 +2635,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'pso'                : 'Particle Swarm Optimization',
     'pss'                : 'Pareto Sequential Sampling',
     'puma_o'             : 'Puma Optimizer',
+    'pysoa'              : 'Python Snake Optimization Algorithm',
     'qio'                : 'Quadratic Interpolation Optimization',
     'qle_sca'            : 'QLE Sine Cosine Algorithm (QLE-SCA)',
     'qsa'                : 'Queuing Search Algorithm',
@@ -3031,6 +3038,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'pso'                : 'swarm',
     'pss'                : 'math',
     'puma_o'             : 'swarm',
+    'pysoa'              : 'swarm',
     'qio'                : 'math',
     'qle_sca'            : 'math',
     'qsa'                : 'human',
@@ -3433,6 +3441,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'pso'                : '10.1109/ICNN.1995.488968',
     'pss'                : '10.1007/s00500-021-05853-8',
     'puma_o'             : '10.1007/s10586-023-04221-5',
+    'pysoa'              : '10.1007/s10586-026-05958-5',
     'qio'                : '10.1016/j.cma.2023.116446',
     'qle_sca'            : '10.1016/j.eswa.2021.116417',
     'qsa'                : '10.1007/s12652-020-02849-4',
