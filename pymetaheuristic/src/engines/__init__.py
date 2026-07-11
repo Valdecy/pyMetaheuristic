@@ -2540,7 +2540,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'iwo'                : 'Invasive Weed Optimization',
     'jade'               : 'Differential Evolution (JADE)',
     'jde'                : 'Self-Adaptive Differential Evolution',
-    'j2020'              : 'Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization: Algorithm j2020',
+    'j2020'              : 'Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization',
     'jso'                : 'Jellyfish Search Optimizer',
     'jso_de'             : 'jSO Differential Evolution',
     'jy'                 : 'Jaya Algorithm',
