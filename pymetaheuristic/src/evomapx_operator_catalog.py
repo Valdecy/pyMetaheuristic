@@ -6824,3 +6824,50 @@ ENGINE_OPERATOR_LABELS["madde"] = [
     "madde.mutation_probability_adaptation",
     "madde.linear_population_size_reduction",
 ]
+
+# Native semantic labels emitted directly by the AGSK engine.
+_AGSK_PAPER_NATIVE_LABELS = [
+    "agsk.parameter_setting_sampling",
+    "agsk.junior_gaining_sharing",
+    "agsk.senior_gaining_sharing",
+    "agsk.midpoint_bound_repair",
+    "agsk.greedy_selection",
+    "agsk.parameter_adaptation",
+    "agsk.linear_population_size_reduction",
+]
+ENGINE_OPERATOR_LABELS["agsk"] = list(_AGSK_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["agsk"] = list(_AGSK_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["agsk"] = list(_AGSK_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("agsk")
+    _NATIVE_TELEMETRY_ENGINES.add("agsk")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_agsk_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "agsk":
+        return list(_AGSK_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_agsk_native(algorithm_id)
+
+_previous_expand_compound_agsk_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "agsk":
+        if raw in _AGSK_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"agsk.update", "agsk.step", "agsk.gaining_sharing_update"}:
+            return list(_AGSK_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_agsk_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))

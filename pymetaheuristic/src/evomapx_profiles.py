@@ -2842,3 +2842,28 @@ EVOMAPX_OPERATOR_PROFILES["madde"] = EvoMapXProfile(
         "crossover, and selection; adaptation/archive/reduction operators are diagnostic."
     ),
 )
+
+# Addendum - native AGSK telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["agsk"] = EvoMapXProfile(
+    algorithm_id="agsk",
+    family="human",
+    operators=(
+        "agsk.parameter_setting_sampling",
+        "agsk.junior_gaining_sharing",
+        "agsk.senior_gaining_sharing",
+        "agsk.midpoint_bound_repair",
+        "agsk.greedy_selection",
+        "agsk.parameter_adaptation",
+        "agsk.linear_population_size_reduction",
+    ),
+    fidelity="native",
+    phase="paper_faithful_agsk",
+    notes=(
+        "Native AGSK telemetry reports adaptive (KF, KR) setting sampling, junior and "
+        "senior gaining-sharing updates, midpoint bound repair, greedy selection, "
+        "probability adaptation, and linear population-size reduction without extra "
+        "objective evaluations. Junior/senior updates and greedy selection receive "
+        "direct improvement attribution; sampling, repair, adaptation, and reduction "
+        "are diagnostic operators with zero direct improvement."
+    ),
+)

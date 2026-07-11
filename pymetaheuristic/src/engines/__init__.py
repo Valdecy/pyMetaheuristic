@@ -29,6 +29,7 @@ from .aesspso              import AESSPSOEngine
 from .afsa                 import AFSAEngine
 from .aft                  import AFTEngine
 from .agdo                 import AGDOEngine
+from .agsk                 import AGSKEngine
 from .agto                 import AGTOEngine
 from .aha                  import AHAEngine
 from .aho                  import AHOEngine
@@ -425,6 +426,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     AFSAEngine, 
     AFTEngine, 
     AGDOEngine, 
+    AGSKEngine,
     AGTOEngine, 
     AHAEngine, 
     AHOEngine, 
@@ -845,6 +847,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'afsa', 
     'aft', 
     'agdo', 
+    'agsk',
     'agto', 
     'aha',
     'aho', 
@@ -1244,6 +1247,7 @@ _POPULATION_BASED: set[str] = {
     'afsa', 
     'aft', 
     'agdo', 
+    'agsk',
     'agto', 
     'aha', 
     'aho', 
@@ -1619,6 +1623,7 @@ _INJECTION_ENABLED: set[str] = {
     'aesspso', 
     'afsa', 
     'aft', 
+    'agsk',
     'agto', 
     'aha', 
     'aho', 
@@ -1946,6 +1951,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'afsa', 
     'aft', 
     'agdo', 
+    'agsk',
     'agto', 
     'aha', 
     'aho', 
@@ -2326,6 +2332,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'afsa'               : 'Artificial Fish Swarm Algorithm',
     'aft'                : 'Ali Baba and the Forty Thieves',
     'agdo'               : 'Adam Gradient Descent Optimizer',
+    'agsk'               : 'Adaptive Gaining-Sharing Knowledge Based Algorithm',
     'agto'               : 'Artificial Gorilla Troops Optimizer',
     'aha'                : 'Artificial Hummingbird Algorithm',
     'aho'                : 'Archerfish Hunting Optimizer',
@@ -2725,6 +2732,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'afsa'               : 'swarm',
     'aft'                : 'human',
     'agdo'               : 'math',
+    'agsk'               : 'human',
     'agto'               : 'swarm',
     'aha'                : 'swarm',
     'aho'                : 'swarm',
@@ -3124,6 +3132,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'afsa'               : '10.1007/s10462-012-9342-2',
     'aft'                : '10.1007/s00521-021-06392-x',
     'agdo'               : '10.1038/s41598-025-01678-9',
+    'agsk'               : '10.1109/CEC48606.2020.9185901',
     'agto'               : '10.1002/int.22535',
     'aha'                : '10.1016/j.cma.2021.114194',
     'aho'                : '10.1016/j.engappai.2024.108081',
