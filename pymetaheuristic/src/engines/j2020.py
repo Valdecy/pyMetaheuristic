@@ -25,7 +25,7 @@ class J2020Engine(PortedPopulationEngine):
     """Algorithm j2020 for single-objective box-constrained optimization."""
 
     algorithm_id = "j2020"
-    algorithm_name = "Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization: Algorithm j2020"
+    algorithm_name = "Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization"
     family = "evolutionary"
     _REFERENCE = {
         "doi": "10.1109/CEC48606.2020.9185551",
