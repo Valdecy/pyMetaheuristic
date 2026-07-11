@@ -2897,3 +2897,28 @@ EVOMAPX_OPERATOR_PROFILES["j2020"] = EvoMapXProfile(
         "and best migration are diagnostic operators with zero direct improvement."
     ),
 )
+
+# Addendum — native ATK telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["atk"] = EvoMapXProfile(
+    algorithm_id="atk",
+    family="math",
+    operators=(
+        "atk.aitken_acceleration_search",
+        "atk.random_weighted_exponential_search",
+        "atk.aitken_refinement",
+        "atk.greedy_selection",
+        "atk.reflective_bound_repair",
+        "atk.historical_best_update",
+    ),
+    fidelity="native",
+    phase="paper_faithful_atk",
+    notes=(
+        "Native ATK telemetry reports the Aitken acceleration search mechanism, "
+        "the random weighted exponential search, the additional Aitken refinement, "
+        "greedy selection, symmetric reflective bound repair, and historical-best "
+        "maintenance without additional objective evaluations. The three search "
+        "operators and greedy selection receive direct improvement attribution; "
+        "bound repair and historical-best maintenance are diagnostic operators with "
+        "zero direct improvement."
+    ),
+)

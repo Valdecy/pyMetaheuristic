@@ -6922,3 +6922,49 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_j2020_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum — native ATK semantic labels synchronized with the paper-faithful engine.
+_ATK_PAPER_NATIVE_LABELS = [
+    "atk.aitken_acceleration_search",
+    "atk.random_weighted_exponential_search",
+    "atk.aitken_refinement",
+    "atk.greedy_selection",
+    "atk.reflective_bound_repair",
+    "atk.historical_best_update",
+]
+ENGINE_OPERATOR_LABELS["atk"] = list(_ATK_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["atk"] = list(_ATK_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["atk"] = list(_ATK_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("atk")
+    _NATIVE_TELEMETRY_ENGINES.add("atk")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_atk_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "atk":
+        return list(_ATK_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_atk_native(algorithm_id)
+
+_previous_expand_compound_atk_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "atk":
+        if raw in _ATK_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"atk.update", "atk.step", "atk.aitken_optimizer_update"}:
+            return list(_ATK_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_atk_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))

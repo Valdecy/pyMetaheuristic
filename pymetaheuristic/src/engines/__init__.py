@@ -46,6 +46,7 @@ from .ars                  import ARSEngine
 from .artemisinin_o        import ArtemisininOEngine
 from .aso                  import ASOEngine
 from .aso_atom             import ASOAtomEngine
+from .atk                  import ATKEngine
 from .autov                import AutoVEngine
 from .avoa                 import AVOAEngine
 from .bacterial_colony_o   import BacterialColonyOEngine
@@ -442,6 +443,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     ARSEngine, 
     ASOAtomEngine, 
     ASOEngine, 
+    ATKEngine,
     AVOAEngine,
     AdamEngine, 
     AdaptiveEoEngine, 
@@ -866,6 +868,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'artemisinin_o', 
     'aso', 
     'aso_atom',
+    'atk',
     'autov', 
     'avoa', 
     'bacterial_colony_o', 
@@ -1267,6 +1270,7 @@ _POPULATION_BASED: set[str] = {
     'artemisinin_o', 
     'aso', 
     'aso_atom', 
+    'atk',
     'autov', 
     'avoa', 
     'bacterial_colony_o', 
@@ -1974,6 +1978,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'artemisinin_o', 
     'aso', 
     'aso_atom', 
+    'atk',
     'autov',
     'avoa', 
     'bacterial_colony_o', 
@@ -2356,6 +2361,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'artemisinin_o'      : 'Artemisinin Optimization',
     'aso'                : 'Anarchic Society Optimization',
     'aso_atom'           : 'Atom Search Optimization',
+    'atk'                : 'Aitken Optimizer',
     'autov'              : 'Automated Design of Variation Operators',
     'avoa'               : 'African Vultures Optimization Algorithm',
     'bacterial_colony_o' : 'Bacterial Colony Optimization',
@@ -2757,6 +2763,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'artemisinin_o'      : 'nature',
     'aso'                : 'swarm',
     'aso_atom'           : 'physics',
+    'atk'                : 'math',
     'autov'              : 'evolutionary',
     'avoa'               : 'swarm',
     'bacterial_colony_o' : 'nature',
@@ -3158,6 +3165,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'artemisinin_o'      : '10.1016/j.displa.2024.102740',
     'aso'                : '10.1109/CEC.2011.5949940',
     'aso_atom'           : '10.1016/j.knosys.2018.08.030',
+    'atk'                : '10.1007/s11227-024-06709-2',
     'autov'              : '10.1145/3712256.3726456',
     'avoa'               : '10.1016/j.cie.2021.107408',
     'bacterial_colony_o' : '10.1155/2012/698057',
