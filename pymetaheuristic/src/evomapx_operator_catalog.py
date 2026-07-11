@@ -6871,3 +6871,54 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_agsk_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum — native j2020 semantic labels synchronized with the paper-faithful engine.
+_J2020_PAPER_NATIVE_LABELS = [
+    "j2020.parameter_self_adaptation",
+    "j2020.big_population_mutation",
+    "j2020.small_population_mutation",
+    "j2020.binomial_crossover",
+    "j2020.bound_repair",
+    "j2020.crowding_replacement",
+    "j2020.greedy_selection",
+    "j2020.best_migration",
+    "j2020.big_population_restart",
+    "j2020.small_population_restart",
+    "j2020.candidate_injection",
+]
+ENGINE_OPERATOR_LABELS["j2020"] = list(_J2020_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["j2020"] = list(_J2020_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["j2020"] = list(_J2020_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("j2020")
+    _NATIVE_TELEMETRY_ENGINES.add("j2020")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_j2020_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "j2020":
+        return list(_J2020_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_j2020_native(algorithm_id)
+
+_previous_expand_compound_j2020_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "j2020":
+        if raw in _J2020_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"j2020.update", "j2020.step", "j2020.two_population_de_update"}:
+            return list(_J2020_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_j2020_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))

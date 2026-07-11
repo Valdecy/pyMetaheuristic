@@ -230,6 +230,7 @@ from .ivya                 import IVYAEngine
 from .iwo                  import IWOEngine
 from .jade                 import JadeEngine
 from .jde                  import JDEEngine
+from .j2020                import J2020Engine
 from .jso                  import JSOEngine
 from .jso_de               import JSODEEngine
 from .jy                   import JYEngine
@@ -628,6 +629,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     IncrementalGWOEngine, 
     IoblGWOEngine, 
     JDEEngine,
+    J2020Engine,
     JSODEEngine, 
     JSOEngine, 
     JYEngine, 
@@ -1048,6 +1050,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'iwo', 
     'jade', 
     'jde', 
+    'j2020',
     'jso', 
     'jso_de', 
     'jy', 
@@ -1438,6 +1441,7 @@ _POPULATION_BASED: set[str] = {
     'iwo', 
     'jade', 
     'jde', 
+    'j2020',
     'jso', 
     'jso_de', 
     'jy', 
@@ -1776,6 +1780,7 @@ _INJECTION_ENABLED: set[str] = {
     'ivya', 
     'iwo', 
     'jde', 
+    'j2020',
     'jso', 
     'jso_de', 
     'jy', 
@@ -1925,6 +1930,7 @@ _INJECTION_ENABLED: set[str] = {
 
 # Algorithms marked as supporting restart in the table.
 _RESTART_ENABLED: set[str] = {
+    'j2020',
     'basin_hopping', 
     'bipop_cmaes', 
     'grasp', 
@@ -2141,6 +2147,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'iwo', 
     'jade',
     'jde', 
+    'j2020',
     'jso', 
     'jso_de', 
     'jy', 
@@ -2533,6 +2540,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'iwo'                : 'Invasive Weed Optimization',
     'jade'               : 'Differential Evolution (JADE)',
     'jde'                : 'Self-Adaptive Differential Evolution',
+    'j2020'              : 'Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization: Algorithm j2020',
     'jso'                : 'Jellyfish Search Optimizer',
     'jso_de'             : 'jSO Differential Evolution',
     'jy'                 : 'Jaya Algorithm',
@@ -2933,6 +2941,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'iwo'                : 'nature',
     'jade'               : 'evolutionary',
     'jde'                : 'evolutionary',
+    'j2020'              : 'evolutionary',
     'jso'                : 'swarm',
     'jso_de'             : 'evolutionary',
     'jy'                 : 'math',
@@ -3333,6 +3342,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'iwo'                : '10.1016/j.ecoinf.2006.07.003',
     'jade'               : '10.1109/TEVC.2009.2014613',
     'jde'                : '10.1109/TEVC.2006.872133',
+    'j2020'              : '10.1109/CEC48606.2020.9185551',
     'jso'                : '10.1016/j.amc.2020.125535',
     'jso_de'             : '10.1109/CEC.2017.7969362',
     'jy'                 : '10.5267/j.ijiec.2015.8.004',

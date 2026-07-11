@@ -2867,3 +2867,33 @@ EVOMAPX_OPERATOR_PROFILES["agsk"] = EvoMapXProfile(
         "are diagnostic operators with zero direct improvement."
     ),
 )
+
+# Addendum — native j2020 telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["j2020"] = EvoMapXProfile(
+    algorithm_id="j2020",
+    family="evolutionary",
+    operators=(
+        "j2020.parameter_self_adaptation",
+        "j2020.big_population_mutation",
+        "j2020.small_population_mutation",
+        "j2020.binomial_crossover",
+        "j2020.bound_repair",
+        "j2020.crowding_replacement",
+        "j2020.greedy_selection",
+        "j2020.best_migration",
+        "j2020.big_population_restart",
+        "j2020.small_population_restart",
+        "j2020.candidate_injection",
+    ),
+    fidelity="native",
+    phase="paper_faithful_j2020",
+    notes=(
+        "Native j2020 telemetry reports individual F/CR self-adaptation, separate "
+        "big- and small-population DE/rand/1 mutation, binomial crossover, bound "
+        "repair, crowding replacement, greedy selection, one-way best migration, "
+        "independent population restarts, and framework candidate injection without "
+        "additional objective evaluations. Mutation, crossover, repair, replacement, "
+        "selection, restart, and injection are direct operators; parameter adaptation "
+        "and best migration are diagnostic operators with zero direct improvement."
+    ),
+)
