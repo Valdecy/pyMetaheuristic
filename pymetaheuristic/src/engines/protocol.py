@@ -357,8 +357,8 @@ class CapabilityProfile:
 
     has_population:                 bool = False
     has_archive:                    bool = False
-    supports_candidate_injection:   bool = False
-    supports_restart:               bool = False
+    supports_candidate_injection:   bool | None = None
+    supports_restart:               bool | None = None
     supports_checkpoint:            bool = True
     supports_native_constraints:    bool = False
     supports_framework_constraints: bool = True
@@ -368,7 +368,7 @@ class CapabilityProfile:
     supports_mixed:                 bool = False
     supports_async_messages:        bool = False
     supports_diversity_metrics:     bool = False
-    supports_snapshot_fit:          bool = False
+    supports_snapshot_fit:          bool | None = None
 
 
 # ---------------------------------------------------------------------------
