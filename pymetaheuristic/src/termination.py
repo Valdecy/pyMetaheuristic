@@ -5,14 +5,6 @@ pyMetaheuristic src — Composable Termination Criteria
 Supports four independent stopping conditions that can be combined freely.
 The first condition that triggers wins.
 
-Conditions
-----------
-* max_steps       : Maximum number of algorithm macro-steps / iterations.
-* max_evaluations : Maximum number of objective-function evaluations.
-* max_time        : Wall-clock time bound in seconds.
-* max_early_stop  : Early stopping — halt if global best has not improved
-                    by more than *epsilon* for this many consecutive steps.
-
 Usage
 -----
     from pymetaheuristic.src.termination import Termination
