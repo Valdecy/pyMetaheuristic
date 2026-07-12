@@ -15,11 +15,14 @@ Design principles
 from __future__ import annotations
 
 import time
+from collections import OrderedDict
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field, replace
 from typing import Any, Callable, Sequence
 from types import MethodType
 import numpy as np
+
+from ..budget import EvaluationBudgetExceeded, SharedEvaluationBudget
 
 
 # ---------------------------------------------------------------------------
@@ -252,6 +255,99 @@ class ProblemSpec:
             return float(raw_fitness) + coeff * violation
         return float(raw_fitness) - coeff * violation
 
+    def _evaluation_cache_key(self, position) -> tuple[tuple[int, ...], bytes]:
+        pos = self.apply_variable_types(position)
+        arr = np.ascontiguousarray(pos, dtype=np.float64)
+        return tuple(arr.shape), arr.tobytes()
+
+    def _cache_evaluation_details(self, details: dict[str, Any]) -> None:
+        """Cache already-computed details without evaluating the objective again.
+
+        BaseEngine uses this cache for history and final metadata. This removes
+        the former post-step/post-run objective reevaluations that were invisible
+        to engine-local counters and could exceed ``max_evaluations``.
+        """
+        try:
+            cache = self.metadata.get("_evaluation_details_cache")
+            if not isinstance(cache, OrderedDict):
+                cache = OrderedDict()
+                self.metadata["_evaluation_details_cache"] = cache
+            key = self._evaluation_cache_key(details["position"])
+            cached = {
+                "position": np.asarray(details["position"], dtype=float).copy(),
+                "raw_fitness": float(details["raw_fitness"]),
+                "fitness": float(details["fitness"]),
+                "violation": float(details["violation"]),
+                "is_feasible": bool(details["is_feasible"]),
+                "handler": details.get("handler"),
+            }
+            cache[key] = cached
+            cache.move_to_end(key)
+
+            # Keep a constant-memory ledger of successful evaluations.  This is
+            # the authoritative source for the default ``return_best`` policy
+            # when a strict budget interrupts initialization or a macro-step
+            # before the engine can return a complete native state.
+            self.metadata["_successful_evaluation_count"] = int(
+                self.metadata.get("_successful_evaluation_count", 0)
+            ) + 1
+            self.metadata["_last_successful_evaluation_details"] = dict(cached)
+            incumbent = self.metadata.get("_best_successful_evaluation_details")
+            if not isinstance(incumbent, dict) or self.is_better(
+                float(cached["fitness"]), float(incumbent["fitness"])
+            ):
+                self.metadata["_best_successful_evaluation_details"] = dict(cached)
+
+            limit = max(16, int(self.metadata.get("evaluation_cache_size", 8192)))
+            while len(cache) > limit:
+                cache.popitem(last=False)
+        except Exception:
+            # Caching is observational and must never affect optimization.
+            pass
+
+    def cached_evaluation_details(self, position) -> dict[str, Any] | None:
+        """Return cached details for an already-evaluated position, if present."""
+        try:
+            cache = self.metadata.get("_evaluation_details_cache")
+            if not isinstance(cache, OrderedDict):
+                return None
+            key = self._evaluation_cache_key(position)
+            details = cache.get(key)
+            if details is None:
+                return None
+            cache.move_to_end(key)
+            return {
+                "position": np.asarray(details["position"], dtype=float).copy(),
+                "raw_fitness": float(details["raw_fitness"]),
+                "fitness": float(details["fitness"]),
+                "violation": float(details["violation"]),
+                "is_feasible": bool(details["is_feasible"]),
+                "handler": details.get("handler"),
+            }
+        except Exception:
+            return None
+
+    def best_successful_evaluation_details(self) -> dict[str, Any] | None:
+        """Return the best genuinely evaluated, constraint-aware candidate."""
+        details = self.metadata.get("_best_successful_evaluation_details")
+        if not isinstance(details, dict):
+            return None
+        try:
+            return {
+                "position": np.asarray(details["position"], dtype=float).copy(),
+                "raw_fitness": float(details["raw_fitness"]),
+                "fitness": float(details["fitness"]),
+                "violation": float(details["violation"]),
+                "is_feasible": bool(details["is_feasible"]),
+                "handler": details.get("handler"),
+            }
+        except Exception:
+            return None
+
+    def successful_evaluation_count(self) -> int:
+        """Return successful evaluations observed through ``ProblemSpec``."""
+        return int(self.metadata.get("_successful_evaluation_count", 0))
+
     def evaluate_details(self, position, apply_handler: bool = True) -> dict[str, Any]:
         # Variable-domain projection is always active, not only for constrained
         # problems.  This ensures integer, binary, and stepped variables are
@@ -277,7 +373,7 @@ class ProblemSpec:
         raw_fitness = float(self.target_function(pos.tolist()))
         effective = self.score_from_raw(raw_fitness, violation)
         feasible = violation <= self._equality_tolerance()
-        return {
+        details = {
             "position": pos,
             "raw_fitness": raw_fitness,
             "fitness": effective,
@@ -285,6 +381,8 @@ class ProblemSpec:
             "is_feasible": bool(feasible),
             "handler": handler,
         }
+        self._cache_evaluation_details(details)
+        return details
 
     def evaluate(self, position) -> float:
         details = self.evaluate_details(position, apply_handler=True)
@@ -330,6 +428,7 @@ class EngineConfig:
     params:                  dict[str, Any] = field(default_factory=dict)
     callbacks:               Any = None
     init_function:           Callable | None = None
+    budget_exhaustion_policy: str = "return_best"
 
 
 # ---------------------------------------------------------------------------
@@ -583,6 +682,235 @@ class BaseEngine(ABC):
     def clear_stop_request(self) -> None:
         self._stop_requested_reason = None
 
+    def _strict_evaluation_budget(self) -> SharedEvaluationBudget | None:
+        target = getattr(self.problem, "target_function", None)
+        if isinstance(target, SharedEvaluationBudget):
+            return target
+        budget = (self.problem.metadata or {}).get("_evaluation_budget")
+        return budget if isinstance(budget, SharedEvaluationBudget) else None
+
+    def _strict_evaluation_budget_label(self) -> str | None:
+        label = (self.problem.metadata or {}).get("_evaluation_budget_label")
+        return None if label is None else str(label)
+
+    def _sync_evaluation_count(self, state: EngineState, label: str | None = None) -> int:
+        """Synchronize an engine state with the authoritative objective counter.
+
+        For ordinary runs, ``_evaluation_budget_label`` is the algorithm ID.
+        Collaborative runners pass the island label explicitly so local state
+        telemetry remains per-island while the wrapper also maintains a global
+        total.
+        """
+        budget = self._strict_evaluation_budget()
+        if budget is None:
+            return int(state.evaluations)
+        resolved_label = label if label is not None else self._strict_evaluation_budget_label()
+        if resolved_label is None:
+            # A shared collaborative budget has no engine-local label outside
+            # the runner's context. Do not replace a local counter by the global
+            # total accidentally.
+            return int(state.evaluations)
+        state.evaluations = budget.used_for(resolved_label)
+        return int(state.evaluations)
+
+    def _remember_best_evaluation_details(self, state: EngineState) -> dict[str, Any] | None:
+        if state.best_position is None or state.best_fitness is None:
+            return None
+        details = self.problem.cached_evaluation_details(state.best_position)
+        if details is None and not self.problem.has_constraints:
+            details = {
+                "position": np.asarray(state.best_position, dtype=float).copy(),
+                "raw_fitness": float(state.best_fitness),
+                "fitness": float(state.best_fitness),
+                "violation": 0.0,
+                "is_feasible": True,
+                "handler": self.problem.constraint_handler or "none",
+            }
+        if details is not None:
+            state.payload["_best_evaluation_details"] = details
+        return details
+
+    def _best_evaluation_details(self, state: EngineState) -> dict[str, Any] | None:
+        details = state.payload.get("_best_evaluation_details")
+        if isinstance(details, dict):
+            return details
+        return self._remember_best_evaluation_details(state)
+
+    def _budget_exhaustion_policy(self) -> str:
+        policy = str(
+            getattr(self.config, "budget_exhaustion_policy", "return_best")
+            or "return_best"
+        ).strip().lower()
+        aliases = {
+            "return": "return_best",
+            "best": "return_best",
+            "graceful": "return_best",
+            "error": "raise",
+        }
+        policy = aliases.get(policy, policy)
+        if policy not in {"return_best", "raise"}:
+            raise ValueError(
+                "budget_exhaustion_policy must be 'return_best' or 'raise'."
+            )
+        return policy
+
+    def _best_available_evaluation_details(
+        self,
+        state: EngineState | None = None,
+        label: str | None = None,
+    ) -> dict[str, Any] | None:
+        """Return the best candidate that was genuinely evaluated.
+
+        Preference order is constraint-aware ProblemSpec telemetry, the last
+        complete engine state, then the strict wrapper's raw-objective fallback.
+        No objective function is called here.
+        """
+        candidates: list[dict[str, Any]] = []
+
+        details = self.problem.best_successful_evaluation_details()
+        if isinstance(details, dict):
+            candidates.append(details)
+
+        if state is not None and state.best_position is not None and state.best_fitness is not None:
+            state_details = self.problem.cached_evaluation_details(state.best_position)
+            if state_details is None:
+                state_details = {
+                    "position": np.asarray(state.best_position, dtype=float).copy(),
+                    "raw_fitness": float(state.best_fitness),
+                    "fitness": float(state.best_fitness),
+                    "violation": 0.0,
+                    "is_feasible": True,
+                    "handler": self.problem.constraint_handler or "none",
+                }
+            candidates.append(state_details)
+
+        budget = self._strict_evaluation_budget()
+        if budget is not None and (not self.problem.has_constraints or not candidates):
+            raw = budget.best_raw_for(label if label is not None else self._strict_evaluation_budget_label())
+            if isinstance(raw, dict):
+                try:
+                    raw["position"] = self.problem.apply_variable_types(raw["position"])
+                    candidates.append(raw)
+                except Exception:
+                    pass
+
+        if not candidates:
+            return None
+        best = candidates[0]
+        for candidate in candidates[1:]:
+            if self.problem.is_better(float(candidate["fitness"]), float(best["fitness"])):
+                best = candidate
+        return {
+            "position": np.asarray(best["position"], dtype=float).copy(),
+            "raw_fitness": float(best.get("raw_fitness", best["fitness"])),
+            "fitness": float(best["fitness"]),
+            "violation": float(best.get("violation", 0.0)),
+            "is_feasible": bool(best.get("is_feasible", True)),
+            "handler": best.get("handler", self.problem.constraint_handler or "none"),
+        }
+
+    def _prepare_budget_exhausted_state(
+        self,
+        state: EngineState | None,
+        *,
+        label: str | None,
+        completed_steps: int,
+        phase: str,
+        phase_evaluations: int | None = None,
+    ) -> EngineState:
+        """Create a safe terminal state from successful evaluations only."""
+        if state is None:
+            state = EngineState()
+        budget = self._strict_evaluation_budget()
+        if budget is not None:
+            state.evaluations = int(budget.used_for(label))
+        state.step = max(0, int(completed_steps))
+        state.terminated = True
+        state.termination_reason = "max_evaluations"
+        state.initialized = phase != "initialization"
+        details = self._best_available_evaluation_details(state, label)
+        if details is None:
+            raise RuntimeError(
+                "The evaluation budget was exhausted before any successful "
+                "objective value was available for return_best finalization."
+            )
+        state.best_position = np.asarray(details["position"], dtype=float).tolist()
+        state.best_fitness = float(details["fitness"])
+        state.payload["_best_evaluation_details"] = details
+        state.payload["_budget_exhausted_phase"] = str(phase)
+        state.payload["_budget_exhausted_partial_state"] = True
+        if phase_evaluations is not None:
+            state.payload["_budget_exhausted_phase_evaluations"] = max(0, int(phase_evaluations))
+        return state
+
+    def _make_budget_exhausted_result(
+        self,
+        state: EngineState,
+        *,
+        label: str | None,
+        phase: str,
+        history: list[dict[str, Any]] | None = None,
+        snapshots: list[dict[str, Any]] | None = None,
+        improvement_history: list[dict[str, Any]] | None = None,
+    ) -> OptimizationResult:
+        """Build a normal result without touching incomplete native payloads."""
+        details = self._best_available_evaluation_details(state, label)
+        if details is None:
+            raise RuntimeError("No successful evaluation is available to return.")
+
+        position = self.problem.apply_variable_types(details["position"]).astype(float).tolist()
+        budget = self._strict_evaluation_budget()
+        evaluations = int(state.evaluations)
+        successful = self.problem.successful_evaluation_count()
+        if budget is not None:
+            evaluations = int(budget.used_for(label))
+            successful = max(successful, int(budget.successful_for(label)))
+
+        metadata: dict[str, Any] = {
+            "algorithm_name": self.algorithm_name,
+            "family": self.family,
+            "constraint_handler": self.problem.constraint_handler or "none",
+            "best_raw_fitness": float(details["raw_fitness"]),
+            "best_violation": float(details["violation"]),
+            "best_is_feasible": bool(details["is_feasible"]),
+            "actual_evaluations": evaluations,
+            "successful_evaluations": int(successful),
+            "evaluation_budget_enforcement": "hard",
+            "budget_exhaustion_policy": "return_best",
+            "budget_exhaustion_phase": str(phase),
+            "partial_initialization": phase == "initialization",
+            "partial_step": phase == "step",
+            "partial_native_state_committed": False,
+            "best_partial_candidate_retained": True,
+            "improvement_history": list(improvement_history or []),
+            "n_improvements": len(improvement_history or []),
+        }
+        if budget is not None and budget.max_evaluations is not None:
+            metadata["max_evaluations"] = int(budget.max_evaluations)
+        phase_evaluations = state.payload.get("_budget_exhausted_phase_evaluations")
+        if phase_evaluations is not None:
+            metadata["partial_phase_evaluations"] = int(phase_evaluations)
+
+        if phase == "initialization" and self.capabilities.has_population:
+            requested = int(self._infer_population_size())
+            metadata["requested_population_size"] = requested
+            metadata["evaluated_population_size"] = int(successful)
+            if 0 <= successful <= requested:
+                metadata["unevaluated_candidates_discarded"] = int(requested - successful)
+
+        return OptimizationResult(
+            algorithm_id=self.algorithm_id,
+            best_position=position,
+            best_fitness=float(details["fitness"]),
+            steps=int(state.step),
+            evaluations=evaluations,
+            termination_reason="max_evaluations",
+            history=list(history or []),
+            population_snapshots=list(snapshots or []),
+            capabilities=replace(self.capabilities),
+            metadata=metadata,
+        )
+
     # ------------------------------------------------------------------
     # Mandatory interface
     # ------------------------------------------------------------------
@@ -739,6 +1067,7 @@ class BaseEngine(ABC):
     # ------------------------------------------------------------------
 
     def should_stop(self, state: EngineState) -> bool:
+        self._sync_evaluation_count(state)
         if self._stop_requested_reason is not None:
             state.termination_reason = self._stop_requested_reason
             state.terminated = True
@@ -775,7 +1104,59 @@ class BaseEngine(ABC):
         self.clear_stop_request()
         self._callbacks.before_run(engine=self)
         self._evomapx_probe.begin_run()
-        state = self.initialize()
+
+        budget = self._strict_evaluation_budget()
+        budget_label = self._strict_evaluation_budget_label() or self.algorithm_id
+        budget_policy = self._budget_exhaustion_policy()
+        run_started = time.perf_counter()
+        try:
+            if budget is not None:
+                with budget.use_label(budget_label):
+                    state = self.initialize()
+            else:
+                state = self.initialize()
+        except EvaluationBudgetExceeded as exc:
+            if budget_policy == "raise":
+                raise ValueError(
+                    f"max_evaluations={self.config.max_evaluations} is too small to "
+                    f"complete initialization of '{self.algorithm_id}' under a strict "
+                    "function-evaluation budget."
+                ) from exc
+
+            used = 0 if budget is None else int(budget.used_for(budget_label))
+            state = self._prepare_budget_exhausted_state(
+                None,
+                label=budget_label,
+                completed_steps=0,
+                phase="initialization",
+                phase_evaluations=used,
+            )
+            state.start_time = run_started
+            state.elapsed_time = time.perf_counter() - run_started
+            result = self._make_budget_exhausted_result(
+                state,
+                label=budget_label,
+                phase="initialization",
+                history=[],
+                snapshots=[],
+                improvement_history=[{
+                    "step": 0,
+                    "evaluations": int(state.evaluations),
+                    "best_fitness": float(state.best_fitness),
+                }],
+            )
+            result.metadata["elapsed_time"] = float(state.elapsed_time)
+            self._evomapx_probe.finalize_result(result)
+            try:
+                self._callbacks.after_run(state=state, engine=self, result=result)
+            finally:
+                self._sync_evaluation_count(state, budget_label if budget is not None else None)
+                result.evaluations = int(state.evaluations)
+                result.metadata["actual_evaluations"] = int(state.evaluations)
+            return result
+
+        self._sync_evaluation_count(state, budget_label if budget is not None else None)
+        self._remember_best_evaluation_details(state)
         self._evomapx_probe.after_initialize(state)
         state.start_time = time.perf_counter()
         history: list[dict[str, Any]] = []
@@ -790,6 +1171,7 @@ class BaseEngine(ABC):
             })
 
         _prev_best: float | None = state.best_fitness
+        budget_exhausted_phase: str | None = None
 
         while not self.should_stop(state):
             if _termination is not None:
@@ -808,9 +1190,44 @@ class BaseEngine(ABC):
                 break
 
             self._evomapx_probe.before_step(state)
-            state = self.step(state)
+            completed_steps_before = int(state.step)
+            evaluations_before = int(state.evaluations)
+            try:
+                if budget is not None:
+                    with budget.use_label(budget_label):
+                        state = self.step(state)
+                else:
+                    state = self.step(state)
+            except EvaluationBudgetExceeded:
+                if budget_policy == "raise":
+                    raise
+                # The native step is incomplete.  Keep every genuinely
+                # evaluated candidate in the best-evaluation ledger, but do not
+                # commit or finalize the partially mutated native payload.
+                self._sync_evaluation_count(state, budget_label)
+                phase_evaluations = max(0, int(state.evaluations) - evaluations_before)
+                state = self._prepare_budget_exhausted_state(
+                    state,
+                    label=budget_label,
+                    completed_steps=completed_steps_before,
+                    phase="step",
+                    phase_evaluations=phase_evaluations,
+                )
+                state.elapsed_time = time.perf_counter() - state.start_time
+                budget_exhausted_phase = "step"
+                try:
+                    self._evomapx_probe.cancel_step()
+                except Exception:
+                    pass
+                break
+
+            self._sync_evaluation_count(state, budget_label if budget is not None else None)
+            self._remember_best_evaluation_details(state)
             state.elapsed_time = time.perf_counter() - state.start_time
             obs = dict(self.observe(state))
+            # Engine-local observations may contain a manually maintained count;
+            # overwrite it with the authoritative actual-call counter.
+            obs["evaluations"] = int(state.evaluations)
             obs = self._evomapx_probe.after_step(state, obs)
 
             if "diversity" not in obs and self.capabilities.has_population:
@@ -838,10 +1255,11 @@ class BaseEngine(ABC):
                 _prev_best = state.best_fitness
 
             if self.problem.has_constraints and state.best_position is not None:
-                best_details = self.problem.evaluate_details(state.best_position, apply_handler=False)
-                obs["best_raw_fitness"] = best_details["raw_fitness"]
-                obs["best_violation"] = best_details["violation"]
-                obs["best_is_feasible"] = best_details["is_feasible"]
+                best_details = self._best_evaluation_details(state)
+                if best_details is not None:
+                    obs["best_raw_fitness"] = best_details["raw_fitness"]
+                    obs["best_violation"] = best_details["violation"]
+                    obs["best_is_feasible"] = best_details["is_feasible"]
 
             obs["elapsed_time"] = state.elapsed_time
             if self.config.store_history:
@@ -870,23 +1288,42 @@ class BaseEngine(ABC):
                     f"[{self.algorithm_id}] step={obs['step']:5d}  evals={obs['evaluations']:7d}  best={obs['best_fitness']:.6g}"
                 )
 
-        result = self.finalize(state)
+        self._sync_evaluation_count(state, budget_label if budget is not None else None)
+        self._remember_best_evaluation_details(state)
+        if budget_exhausted_phase is not None:
+            result = self._make_budget_exhausted_result(
+                state,
+                label=budget_label,
+                phase=budget_exhausted_phase,
+                history=history,
+                snapshots=snapshots,
+                improvement_history=improvement_history,
+            )
+        elif budget is not None:
+            with budget.use_label(budget_label):
+                result = self.finalize(state)
+        else:
+            result = self.finalize(state)
+
         # Ensure reported best positions obey declared variable domains even
-        # for engines that internally use continuous latent vectors.  The
-        # stored best_fitness is left unchanged because it already came from
-        # evaluating the projected candidate through ProblemSpec.evaluate().
+        # for engines that internally use continuous latent vectors. The stored
+        # best_fitness is unchanged because it came from an evaluated candidate.
         if result.best_position is not None:
             decoded_best = self.problem.apply_variable_types(result.best_position).astype(float).tolist()
             result.best_position = decoded_best
             state.best_position = decoded_best
         result.history = history
         result.population_snapshots = snapshots
-        if state.best_position is not None:
-            best_details = self.problem.evaluate_details(state.best_position, apply_handler=False)
+        result.evaluations = int(state.evaluations)
+        result.termination_reason = state.termination_reason or result.termination_reason
+
+        best_details = self._best_evaluation_details(state)
+        if best_details is not None:
             result.metadata.setdefault("constraint_handler", self.problem.constraint_handler or "none")
             result.metadata.setdefault("best_raw_fitness", best_details["raw_fitness"])
             result.metadata.setdefault("best_violation", best_details["violation"])
             result.metadata.setdefault("best_is_feasible", best_details["is_feasible"])
+
         if history:
             divs = [h["diversity"] for h in history if "diversity" in h and h["diversity"] is not None]
             result.metadata["mean_diversity"] = float(np.mean(divs)) if divs else None
@@ -897,8 +1334,22 @@ class BaseEngine(ABC):
                 result.metadata["exploration_ratio"] = 1.0 - result.metadata["exploitation_ratio"]
         result.metadata["improvement_history"] = improvement_history
         result.metadata["n_improvements"] = len(improvement_history)
+        if budget is not None:
+            result.metadata["max_evaluations"] = int(budget.max_evaluations)
+            result.metadata["actual_evaluations"] = int(budget.used_for(budget_label))
+            result.metadata["evaluation_budget_enforcement"] = "hard"
+
         self._evomapx_probe.finalize_result(result)
-        self._callbacks.after_run(state=state, engine=self, result=result)
+        try:
+            self._callbacks.after_run(state=state, engine=self, result=result)
+        finally:
+            # A callback is allowed to inspect the engine, but if it calls the
+            # objective the strict wrapper remains authoritative and the result
+            # is synchronized to the actual number of calls.
+            self._sync_evaluation_count(state, budget_label if budget is not None else None)
+            result.evaluations = int(state.evaluations)
+            if budget is not None:
+                result.metadata["actual_evaluations"] = int(state.evaluations)
         return result
 
     # ------------------------------------------------------------------

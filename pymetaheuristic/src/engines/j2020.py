@@ -30,10 +30,7 @@ class J2020Engine(PortedPopulationEngine):
     _REFERENCE = {
         "doi": "10.1109/CEC48606.2020.9185551",
         "authors": "Janez Brest, Mirjam Sepesy Maucec, and Borko Boskovic",
-        "title": (
-            "Differential Evolution Algorithm for Single Objective "
-            "Bound-Constrained Optimization: Algorithm j2020"
-        ),
+        "title": "Differential Evolution Algorithm for Single Objective Bound-Constrained Optimization: Algorithm j2020",
         "year": 2020,
     }
     capabilities = CapabilityProfile(
@@ -141,10 +138,14 @@ class J2020Engine(PortedPopulationEngine):
         self._params["small_population_size"] = self._snp
         self._validate_parameters()
 
-        if self.config.max_evaluations is not None and self.config.max_evaluations < self._n:
+        if (
+            self.config.max_evaluations is not None
+            and self.config.max_evaluations < self._n
+            and self._budget_exhaustion_policy() == "raise"
+        ):
             raise ValueError(
                 "j2020 max_evaluations must be at least the combined initial "
-                f"population size ({self._n})."
+                f"population size ({self._n}) when budget_exhaustion_policy='raise'."
             )
 
         self._last_operator_counts = self._blank_counts()

@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from typing import Any
+from dataclasses import replace
 
+from .budget import make_shared_budget
 from .engines import REGISTRY, EngineConfig, ProblemSpec
 from .utils import Problem, get_init_function, get_repair_function
 
@@ -111,6 +113,7 @@ def create_optimizer(
     resample_attempts: int = 25,
     max_steps: int | None = None,
     max_evaluations: int | None = None,
+    budget_exhaustion_policy: str = "return_best",
     target_fitness: float | None = None,
     seed: int | None = None,
     verbose: bool = False,
@@ -170,6 +173,34 @@ def create_optimizer(
         problem=problem,
     )
 
+    # Work with an engine-local ProblemSpec. This prevents a strict budget
+    # wrapper and its consumed counter from leaking into a later optimizer when
+    # the caller reuses the same ProblemSpec object.
+    problem_spec = replace(
+        problem_spec,
+        min_values=list(problem_spec.min_values),
+        max_values=list(problem_spec.max_values),
+        constraints=None if problem_spec.constraints is None else list(problem_spec.constraints),
+        variable_types=None if problem_spec.variable_types is None else list(problem_spec.variable_types),
+        metadata=dict(problem_spec.metadata or {}),
+    )
+
+    # Ordinary single-optimizer runs now use the same authoritative objective
+    # wrapper already used by cooperative/orchestrated execution. Engines may
+    # maintain local counters for algorithmic telemetry, but the wrapper is the
+    # source of truth for the hard FE limit and final reported count.
+    evaluation_budget = make_shared_budget(
+        problem_spec.target_function,
+        max_evaluations,
+        objective_name=f"{algorithm} objective",
+        objective=problem_spec.objective,
+    )
+    if evaluation_budget is not None:
+        evaluation_budget.active_label = algorithm
+        problem_spec.target_function = evaluation_budget
+        problem_spec.metadata["_evaluation_budget"] = evaluation_budget
+        problem_spec.metadata["_evaluation_budget_label"] = algorithm
+
     engine_config = EngineConfig(
         max_steps=max_steps,
         max_evaluations=max_evaluations,
@@ -183,6 +214,7 @@ def create_optimizer(
         params=merged_params,
         callbacks=callbacks,
         init_function=init_function,
+        budget_exhaustion_policy=budget_exhaustion_policy,
     )
     if _termination_obj is not None:
         engine_config._termination_obj = _termination_obj  # type: ignore[attr-defined]

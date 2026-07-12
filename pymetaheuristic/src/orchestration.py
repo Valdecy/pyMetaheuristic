@@ -212,7 +212,7 @@ class OrchestratedRunner:
         raise ValueError(f"Unsupported orchestration mode: {mode}")
 
     def run(self) -> OrchestratedCooperativeResult:
-        budget = make_shared_budget(self.target_function, self.max_evaluations)
+        budget = make_shared_budget(self.target_function, self.max_evaluations, objective=self.objective)
         target_function = budget if budget is not None else self.target_function
         force_serial_budget = budget is not None and (self.execution_backend or "serial").lower() != "serial"
         execution_backend = "serial" if force_serial_budget else self.execution_backend
@@ -227,6 +227,8 @@ class OrchestratedRunner:
         outcomes_all = []
         events = []
         memory: list[str] = []
+        partial_budget_labels: set[str] = set()
+        initialization_budget_exhausted = False
 
         for i, spec in enumerate(self.island_specs):
             label = spec.label or f"{spec.algorithm}_{i + 1}"
@@ -256,17 +258,32 @@ class OrchestratedRunner:
                         state = engine.initialize()
                 else:
                     state = engine.initialize()
-            except EvaluationBudgetExceeded as exc:
-                raise ValueError(
-                    "max_evaluations is too small to initialize all configured islands "
-                    "under a strict shared FE budget."
-                ) from exc
+            except EvaluationBudgetExceeded:
+                details = engine._best_available_evaluation_details(None, label)
+                if details is None:
+                    initialization_budget_exhausted = True
+                    break
+                used = 0 if budget is None else int(budget.used_for(label))
+                state = engine._prepare_budget_exhausted_state(
+                    None,
+                    label=label,
+                    completed_steps=0,
+                    phase="initialization",
+                    phase_evaluations=used,
+                )
+                partial_budget_labels.add(label)
+                initialization_budget_exhausted = True
+            if budget is not None:
+                engine._sync_evaluation_count(state, label)
+                engine._remember_best_evaluation_details(state)
             engines[label] = engine
             states[label] = state
             histories[label] = []
             previous_best[label] = state.best_fitness
             stagnation_counter[label] = 0
             recent_history[label] = []
+            if initialization_budget_exhausted:
+                break
 
         controller = self._build_controller()
         checkpoint_interval = max(1, int(self.config.orchestration.checkpoint_interval))
@@ -362,6 +379,10 @@ class OrchestratedRunner:
                 objective=self.objective,
                 seed=None if self.seed is None else self.seed + checkpoint_id,
             )
+            if budget is not None:
+                for _label, _engine in engines.items():
+                    _engine._sync_evaluation_count(states[_label], _label)
+                    _engine._remember_best_evaluation_details(states[_label])
             outcomes_all.append(outcomes)
             recent_action_dicts = [outcome_to_dict(o) for o in outcomes]
             events.extend(recent_action_dicts)
@@ -377,7 +398,19 @@ class OrchestratedRunner:
         best_position = None
         best_fitness = None
         for label, engine in engines.items():
-            result = engine.finalize(states[label])
+            state = states[label]
+            partial_phase = state.payload.get("_budget_exhausted_phase")
+            if label in partial_budget_labels or partial_phase is not None:
+                result = engine._make_budget_exhausted_result(
+                    state,
+                    label=label,
+                    phase=str(partial_phase or "initialization"),
+                    history=histories[label],
+                    snapshots=[],
+                    improvement_history=[],
+                )
+            else:
+                result = engine.finalize(state)
             if budget is not None:
                 result.evaluations = int(budget.by_label.get(label, 0))
             if result.best_position is not None:
@@ -412,6 +445,8 @@ class OrchestratedRunner:
                 "execution_backend_used": actual_backend,
                 "n_jobs": self.n_jobs,
                 "parallel_warning": backend_warning,
+                "initialization_budget_exhausted": bool(initialization_budget_exhausted),
+                "partial_budget_islands": sorted(partial_budget_labels),
             },
         )
 

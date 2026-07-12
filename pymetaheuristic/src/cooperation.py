@@ -385,7 +385,7 @@ class CooperativeRunner:
         return current_interval
 
     def run(self) -> CooperativeResult:
-        budget = make_shared_budget(self.target_function, self.max_evaluations)
+        budget = make_shared_budget(self.target_function, self.max_evaluations, objective=self.objective)
         target_function = budget if budget is not None else self.target_function
         force_serial_budget = budget is not None and (self.execution_backend or "serial").lower() != "serial"
         execution_backend = "serial" if force_serial_budget else self.execution_backend
@@ -399,6 +399,8 @@ class CooperativeRunner:
         previous_best: dict[str, float | None] = {}
         stagnation_counter: dict[str, int] = {}
         global_best_trace: list[float | None] = []
+        partial_budget_labels: set[str] = set()
+        initialization_budget_exhausted = False
 
         for i, spec in enumerate(self.island_specs):
             label = spec.label or f"{spec.algorithm}_{i+1}"
@@ -427,11 +429,27 @@ class CooperativeRunner:
                         state = engine.initialize()
                 else:
                     state = engine.initialize()
-            except EvaluationBudgetExceeded as exc:
-                raise ValueError(
-                    "max_evaluations is too small to initialize all configured islands "
-                    "under a strict shared FE budget."
-                ) from exc
+            except EvaluationBudgetExceeded:
+                # Default return_best policy: keep the best candidate genuinely
+                # evaluated by this island, discard its incomplete native
+                # initialization payload, and stop creating further islands.
+                details = engine._best_available_evaluation_details(None, label)
+                if details is None:
+                    initialization_budget_exhausted = True
+                    break
+                used = 0 if budget is None else int(budget.used_for(label))
+                state = engine._prepare_budget_exhausted_state(
+                    None,
+                    label=label,
+                    completed_steps=0,
+                    phase="initialization",
+                    phase_evaluations=used,
+                )
+                partial_budget_labels.add(label)
+                initialization_budget_exhausted = True
+            if budget is not None:
+                engine._sync_evaluation_count(state, label)
+                engine._remember_best_evaluation_details(state)
             islands.append((label, engine))
             states.append(state)
             histories.append([])
@@ -444,6 +462,8 @@ class CooperativeRunner:
                 'fitness': state.best_fitness,
                 'position': list(state.best_position),
             })
+            if initialization_budget_exhausted:
+                break
 
         n = len(islands)
         labels = [label for label, _ in islands]
@@ -565,7 +585,22 @@ class CooperativeRunner:
                     return
                 target_fitness_before = target_state.best_fitness
                 source_fitness = source_state.best_fitness
-                states_map[receiver_label] = target_engine.inject_candidates(target_state, migrants, policy='native')
+                try:
+                    if budget is not None:
+                        with budget.use_label(receiver_label):
+                            updated_state = target_engine.inject_candidates(target_state, migrants, policy='native')
+                    else:
+                        updated_state = target_engine.inject_candidates(target_state, migrants, policy='native')
+                except EvaluationBudgetExceeded:
+                    target_engine._sync_evaluation_count(target_state, receiver_label)
+                    target_state.termination_reason = "max_evaluations"
+                    target_state.terminated = True
+                    states_map[receiver_label] = target_state
+                    return
+                states_map[receiver_label] = updated_state
+                if budget is not None:
+                    target_engine._sync_evaluation_count(states_map[receiver_label], receiver_label)
+                    target_engine._remember_best_evaluation_details(states_map[receiver_label])
                 target_fitness_after = states_map[receiver_label].best_fitness
                 applied_pairs.add((donor_label, receiver_label))
                 events.append(CooperationEvent(
@@ -608,7 +643,19 @@ class CooperativeRunner:
         best_position = None
         best_fitness = None
         for (label, engine), hist in zip(islands, histories):
-            result = engine.finalize(states_map[label])
+            state = states_map[label]
+            partial_phase = state.payload.get("_budget_exhausted_phase")
+            if label in partial_budget_labels or partial_phase is not None:
+                result = engine._make_budget_exhausted_result(
+                    state,
+                    label=label,
+                    phase=str(partial_phase or "initialization"),
+                    history=hist,
+                    snapshots=[],
+                    improvement_history=[],
+                )
+            else:
+                result = engine.finalize(state)
             if budget is not None:
                 result.evaluations = int(budget.by_label.get(label, 0))
             if result.best_position is not None:
@@ -693,6 +740,8 @@ class CooperativeRunner:
                 'execution_backend_used': actual_backend,
                 'n_jobs': self.n_jobs,
                 'parallel_warning': backend_warning,
+                'initialization_budget_exhausted': bool(initialization_budget_exhausted),
+                'partial_budget_islands': sorted(partial_budget_labels),
                 'replay_manifest': replay_manifest,
             },
             island_telemetry=telemetry_by_island,

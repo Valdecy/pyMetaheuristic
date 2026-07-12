@@ -275,6 +275,17 @@ class EvoMapXProbe:
         self._active_step = int(getattr(state, "step", 0) or 0) + 1
         self._step_evals = []
 
+    def cancel_step(self) -> None:
+        """Discard telemetry from an incomplete native step.
+
+        A strict evaluation budget can stop an engine in the middle of a macro
+        step before objective call B+1. Those partial evaluations must not be
+        attributed as a completed EvoMapX transition.
+        """
+        self._active_step = None
+        self._step_evals = []
+        self._before = None
+
     def record_evaluation(self, position: Any, fitness: float, raw_fitness: float | None = None, details: dict[str, Any] | None = None) -> None:
         if not self.enabled or self.level < 2 or self._active_step is None:
             return

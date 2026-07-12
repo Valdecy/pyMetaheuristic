@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import nullcontext
 from dataclasses import asdict
 from typing import Any
 import math
@@ -7,6 +8,7 @@ import random
 
 import numpy as np
 
+from .budget import EvaluationBudgetExceeded
 from .engines import CandidateRecord
 from .schemas import ActionSpec, ActionOutcome, DecisionPlan
 
@@ -52,6 +54,14 @@ def _random_candidate(problem, rng: random.Random) -> CandidateRecord:
     return CandidateRecord(position=pos, fitness=fit, role="restart")
 
 
+def _evaluation_label_context(engine, label: str | None):
+    target = getattr(getattr(engine, "problem", None), "target_function", None)
+    use_label = getattr(target, "use_label", None)
+    if callable(use_label):
+        return use_label(label)
+    return nullcontext()
+
+
 
 def execute_decision_plan(
     plan: DecisionPlan,
@@ -64,6 +74,8 @@ def execute_decision_plan(
     rng = random.Random(seed)
 
     for action in plan.actions:
+        target_engine = None
+        target_state = None
         try:
             if action.type == "wait":
                 outcomes.append(ActionOutcome(action=action, executed=True, status="applied", message="No action taken."))
@@ -97,7 +109,10 @@ def execute_decision_plan(
                 if not target_engine.capabilities.supports_candidate_injection:
                     outcomes.append(ActionOutcome(action=action, executed=False, status="skipped", message="Target engine does not support candidate injection.", source_fitness=source_fit, target_fitness_before=before, target_fitness_after=before))
                     continue
-                states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
+                with _evaluation_label_context(target_engine, action.target_label):
+                    states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
+                target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
+                target_engine._remember_best_evaluation_details(states[action.target_label])
                 after = states[action.target_label].best_fitness
                 outcomes.append(ActionOutcome(action=action, executed=True, status="applied", message="Candidates injected.", source_fitness=source_fit, target_fitness_before=before, target_fitness_after=after))
                 continue
@@ -113,8 +128,11 @@ def execute_decision_plan(
                     n = max(1, int(math.ceil(len(pop) * fraction)))
                 except Exception:
                     n = max(1, int(action.k or 1))
-                migrants = [_random_candidate(target_engine.problem, rng) for _ in range(n)]
-                states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
+                with _evaluation_label_context(target_engine, action.target_label):
+                    migrants = [_random_candidate(target_engine.problem, rng) for _ in range(n)]
+                    states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
+                target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
+                target_engine._remember_best_evaluation_details(states[action.target_label])
                 after = states[action.target_label].best_fitness
                 outcomes.append(ActionOutcome(action=action, executed=True, status="applied", message=f"Population rebalanced with {n} random candidates.", target_fitness_before=before, target_fitness_after=after))
                 continue
@@ -130,24 +148,52 @@ def execute_decision_plan(
                 before = target_state.best_fitness
                 seeds = []
                 if action.params.get("random_seed_receiver"):
-                    seeds = [_random_candidate(target_engine.problem, rng)]
+                    with _evaluation_label_context(target_engine, action.target_label):
+                        seeds = [_random_candidate(target_engine.problem, rng)]
                 else:
                     seeds = select_candidates(source_engine, source_state, mode=action.source_mode or "best", k=int(action.k or 1))
                 if not target_engine.capabilities.supports_restart:
                     msg = "Target engine does not support restart; downgraded to injection." if target_engine.capabilities.supports_candidate_injection else "Target engine does not support restart."
                     if target_engine.capabilities.supports_candidate_injection:
-                        states[action.target_label] = target_engine.inject_candidates(target_state, seeds, policy=action.replace_policy or "native")
+                        with _evaluation_label_context(target_engine, action.target_label):
+                            states[action.target_label] = target_engine.inject_candidates(target_state, seeds, policy=action.replace_policy or "native")
+                        target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
+                        target_engine._remember_best_evaluation_details(states[action.target_label])
                         after = states[action.target_label].best_fitness
                         outcomes.append(ActionOutcome(action=action, executed=True, status="downgraded", message=msg, target_fitness_before=before, target_fitness_after=after))
                     else:
                         outcomes.append(ActionOutcome(action=action, executed=False, status="skipped", message=msg, target_fitness_before=before, target_fitness_after=before))
                     continue
-                states[action.target_label] = target_engine.restart(target_state, seeds=seeds, preserve_best=bool(action.params.get("preserve_best", True)))
+                with _evaluation_label_context(target_engine, action.target_label):
+                    states[action.target_label] = target_engine.restart(target_state, seeds=seeds, preserve_best=bool(action.params.get("preserve_best", True)))
+                target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
+                target_engine._remember_best_evaluation_details(states[action.target_label])
                 after = states[action.target_label].best_fitness
                 outcomes.append(ActionOutcome(action=action, executed=True, status="applied", message="Engine restarted.", target_fitness_before=before, target_fitness_after=after))
                 continue
 
             outcomes.append(ActionOutcome(action=action, executed=False, status="skipped", message=f"Unsupported action: {action.type}"))
+        except EvaluationBudgetExceeded:
+            if target_engine is not None and target_state is not None and action.target_label:
+                target_engine._sync_evaluation_count(target_state, action.target_label)
+                prepare = getattr(target_engine, "_prepare_budget_exhausted_state", None)
+                if callable(prepare):
+                    target_state = prepare(
+                        target_state,
+                        label=action.target_label,
+                        completed_steps=int(target_state.step),
+                        phase="action",
+                    )
+                else:
+                    target_state.termination_reason = "max_evaluations"
+                    target_state.terminated = True
+                states[action.target_label] = target_state
+            outcomes.append(ActionOutcome(
+                action=action,
+                executed=False,
+                status="budget_exhausted",
+                message="Strict max_evaluations budget exhausted before the action could complete.",
+            ))
         except Exception as exc:
             outcomes.append(ActionOutcome(action=action, executed=False, status="failed", message=str(exc)))
     return states, outcomes

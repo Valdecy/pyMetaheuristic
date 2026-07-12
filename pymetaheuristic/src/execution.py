@@ -25,9 +25,15 @@ def _evolve_engine_chunk(label: str, engine, state, n_steps: int) -> ChunkExecut
     target = getattr(getattr(engine, "problem", None), "target_function", None)
     label_context = getattr(target, "use_label", None)
 
+    sync_evaluations = getattr(engine, "_sync_evaluation_count", None)
+    if callable(sync_evaluations):
+        sync_evaluations(current_state, label if callable(label_context) else None)
+
     for _ in range(target_steps):
         if engine.should_stop(current_state):
             break
+        completed_steps_before = int(current_state.step)
+        evaluations_before = int(current_state.evaluations)
         try:
             if callable(label_context):
                 with label_context(label):
@@ -35,10 +41,32 @@ def _evolve_engine_chunk(label: str, engine, state, n_steps: int) -> ChunkExecut
             else:
                 current_state = engine.step(current_state)
         except EvaluationBudgetExceeded:
-            current_state.termination_reason = "max_evaluations"
-            current_state.terminated = True
+            if callable(sync_evaluations):
+                sync_evaluations(current_state, label if callable(label_context) else None)
+            phase_evaluations = max(0, int(current_state.evaluations) - evaluations_before)
+            prepare = getattr(engine, "_prepare_budget_exhausted_state", None)
+            if callable(prepare):
+                current_state = prepare(
+                    current_state,
+                    label=label if callable(label_context) else None,
+                    completed_steps=completed_steps_before,
+                    phase="step",
+                    phase_evaluations=phase_evaluations,
+                )
+            else:
+                current_state.step = completed_steps_before
+                current_state.termination_reason = "max_evaluations"
+                current_state.terminated = True
+            try:
+                engine._evomapx_probe.cancel_step()
+            except Exception:
+                pass
             break
-        observations.append(dict(engine.observe(current_state)))
+        if callable(sync_evaluations):
+            sync_evaluations(current_state, label if callable(label_context) else None)
+        observation = dict(engine.observe(current_state))
+        observation["evaluations"] = int(current_state.evaluations)
+        observations.append(observation)
         steps_taken += 1
 
     return ChunkExecutionResult(
