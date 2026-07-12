@@ -1652,6 +1652,7 @@ _INJECTION_ENABLED: set[str] = {
     'aso_atom', 
     'autov',
     'avoa', 
+    'basin_hopping',
     'bat_a', 
     'bbo', 
     'bboa', 
@@ -1673,6 +1674,7 @@ _INJECTION_ENABLED: set[str] = {
     'camel', 
     'capsa', 
     'cat_so', 
+    'cco', 
     'cddo',
     'cddo_child', 
     'cdo', 
@@ -1690,6 +1692,7 @@ _INJECTION_ENABLED: set[str] = {
     'coati_oa', 
     'cockroach_so', 
     'coot', 
+    'crayfish_oa', 
     'cro', 
     'csa', 
     'csbo',
@@ -1712,7 +1715,7 @@ _INJECTION_ENABLED: set[str] = {
     'ecpo', 
     'edo', 
     'efo', 
-    'ego', 
+    #'ego', 
     'eho', 
     'elk_ho',
     'eo', 
@@ -1756,7 +1759,9 @@ _INJECTION_ENABLED: set[str] = {
     'gndo',
     'go_growth', 
     'goa', 
+    'gpoo',
     'gpso', 
+    'grasp',
     'gsa', 
     'gska', 
     'gso', 
@@ -1780,6 +1785,7 @@ _INJECTION_ENABLED: set[str] = {
     'i_woa', 
     'ica', 
     'ikoa', 
+    'ils',
     'ilshade', 
     'ilshade_rsp', 
     'imode', 
@@ -1787,8 +1793,8 @@ _INJECTION_ENABLED: set[str] = {
     'ipop_cmaes', 
     'ivya', 
     'iwo', 
-    'jde', 
     'j2020',
+    'jde', 
     'jso', 
     'jso_de', 
     'jy', 
@@ -1822,6 +1828,7 @@ _INJECTION_ENABLED: set[str] = {
     'mrfo', 
     'msa_e', 
     'mshoa', 
+    'msls',
     'mso', 
     'mts', 
     'mvo', 
@@ -1842,6 +1849,7 @@ _INJECTION_ENABLED: set[str] = {
     'parrot_o', 
     'pcx', 
     'pdo', 
+    'petio',
     'pfa',
     'pko', 
     'plba', 
@@ -1860,6 +1868,7 @@ _INJECTION_ENABLED: set[str] = {
     'rde', 
     'rdex_sop',
     'rfo', 
+    'rhso',
     'rime', 
     'roa', 
     'rsa', 
@@ -1923,6 +1932,7 @@ _INJECTION_ENABLED: set[str] = {
     'ttao', 
     'two',
     'vcs', 
+    'vns',
     'waoa', 
     'warso', 
     'wca', 
@@ -1954,6 +1964,7 @@ _RESTART_ENABLED: set[str] = {
 
 # Algorithms marked as snapshot-fit compatible in the table.
 _SNAPSHOT_FIT_ENABLED: set[str] = {
+    'aaa',
     'aao',
     'abco', 
     'acgwo', 
@@ -2034,6 +2045,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'cockroach_so', 
     'coot', 
     'cpo', 
+    'crayfish_oa',
     'cro',
     'csa', 
     'csbo', 
@@ -3567,6 +3579,7 @@ for _registry_id, _engine_cls in REGISTRY.items():
     _set_capability(_engine_cls, "supports_candidate_injection", _table_id in _INJECTION_ENABLED,)
     _set_capability(_engine_cls, "supports_restart",             _table_id in _RESTART_ENABLED)
     _set_capability(_engine_cls, "supports_snapshot_fit",        _table_id in _SNAPSHOT_FIT_ENABLED)
-    _set_capability(_engine_cls, "is_population_based",          _table_id in _POPULATION_BASED)
+    _set_capability(_engine_cls, "has_population",               _table_id in _POPULATION_BASED)
+    #_set_capability(_engine_cls, "is_population_based",          _table_id in _POPULATION_BASED)
     if _table_id in _ALGORITHM_DOIS:
         _set_reference_doi(_engine_cls, _ALGORITHM_DOIS[_table_id])
