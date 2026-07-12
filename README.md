@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **395 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **400 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -71,7 +71,7 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
 ---
 ## 1. **Introduction** 
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 **pymetaheuristic** is a Python optimization library built around metaheuristics, benchmark functions, stepwise execution, telemetry, cooperation, rule-based orchestration, constraint-aware evaluation, composable termination criteria, typed variable spaces, chaotic initialization, transfer functions, hyperparameter tuning, and benchmark sweeps. The package provides:
 
@@ -79,13 +79,13 @@ _This Google Colab Demo is intended for quick demos only. For the best experienc
 - benchmark functions for testing and visualization
 - a stepwise engine API for controlled execution
 - telemetry, export helpers, evaluation-indexed convergence data, and save/load for experiments
-- EvoMapX explainability with Levels 1--4, explicit internal probe labels, OAM/PEG/CDS diagnostics, population snapshots, lineage metadata, and non-intrusive operator 
+- EvoMapX explainability with Levels 1--4, explicit internal probe labels, OAM/PEG/CDS diagnostics, population snapshots, lineage metadata, and non-intrusive operator attribution
 - cooperative multi-island optimization through `cooperative_optimize`
 - clean object-based island systems through `IslandSystem`, `Island`, `TopologyConfig`, and `MigrationConfig`
 - adaptive orchestration through fixed, rule-based, bandit, and portfolio-adaptive controllers
 - island diagnostics, including migration matrices, contribution tables, island roles, action effectiveness, and topology summaries
 - built-in constrained optimization support plus named repair strategies (`clip`, `wang`, `reflect`, `rand`, `limit_inverse`)
-- composable `Termination` object with four independent stopping conditions
+- composable `Termination` object with five independent stopping conditions
 - automatic per-step diversity and exploration/exploitation tracking in history
 - plotly-based diversity, convergence, runtime, and explore/exploit charts, including evaluation-indexed convergence plots
 - typed variable space (`FloatVar`, `IntegerVar`, `CategoricalVar`, `PermutationVar`, `BinaryVar`)
@@ -113,7 +113,7 @@ pip install pymetaheuristic
 ---
 ### 2.2 **Package Overview**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 | Area | Main objects / functions | What it covers |
 |---|---|---|
@@ -153,7 +153,7 @@ pymetaheuristic.print_reference("optimize")
 ---
 ### 2.3 **Optimization, Telemetry, Export, and Plotting Example**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `optimize` is the main high-level entry point for running a single metaheuristic on a user-defined objective function. The user specifies the algorithm, search bounds, and computational budget, while optional keyword arguments configure the selected optimizer and control diagnostics, such as history storage and population snapshots. The function returns a structured result object containing the best solution found, its objective value, and optional run traces that can later be summarized, exported, or plotted. In the example below, `optimize` applies Particle Swarm Optimization (PSO) to the Easom function over a bounded two-dimensional domain, stores the optimization trajectory, and then summarizes the run with `summarize_result`.
 
@@ -198,15 +198,16 @@ fig = pymetaheuristic.plot_convergence(result)
 ---
 ### 2.4 **Termination Criteria**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
-`Termination` is a composable stopping-criteria object that replaces (or extends) the individual `max_steps`, `max_evaluations`, `target_fitness`, and `timeout_seconds` keyword arguments. The first condition that triggers ends the run.
+`Termination` is a composable stopping-criteria object that replaces (or extends) the individual `max_steps`, `max_evaluations`, `max_time`, `max_early_stop`, and `target_fitness` keyword arguments. The first condition that triggers, ends the run.
 
-Four independent condition types are supported:
+Five independent condition types are supported:
 - **MG** (`max_steps`): maximum number of macro-steps / iterations.
 - **FE** (`max_evaluations`): maximum number of objective-function evaluations.
 - **TB** (`max_time`): wall-clock time bound in seconds.
 - **ES** (`max_early_stop`): early stopping — halt if the global best has not improved by more than `epsilon` for this many consecutive steps.
+- **TF** (`target_fitness`): stop when the direction-aware target fitness is reache
 
 * [Click Here for the Full Google Colab Example](https://colab.research.google.com/drive/1GVIsdruPnozKHE0Rd972pk8tgXAKGKFs?usp=sharing)
 
@@ -246,7 +247,7 @@ print(f"Termination reason:  {result.termination_reason}")
 ---
 ### 2.5 **Constraint Handling Example**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 This example illustrates how `optimize` can be applied to constrained optimization problems. The user provides one or more constraint functions alongside the objective, and the solver evaluates candidate solutions by combining objective quality with constraint satisfaction according to the selected handling strategy. In this case, the `"deb"` constraint handler applies feasibility-based comparison rules, so feasible solutions are preferred over infeasible ones, and among infeasible candidates, those with smaller violations are favored. The returned result, therefore, includes not only the best position and penalized search outcome but also metadata describing the raw objective value, the magnitude of constraint violation, and whether the final solution is feasible.
 
@@ -292,8 +293,10 @@ print(result.metadata["best_is_feasible"])
 Other constraints examples:
 
 ```python
+import numpy as np
+
 # Example 1
-constraint  = [lambda x: x[0] + x[1] - 1.0]                    # x0 + x1 <= 1
+constraints = [lambda x: x[0] + x[1] - 1.0]                    # x0 + x1 <= 1
 
 # Example 2
 constraints = [
@@ -325,7 +328,7 @@ constraints = [c1, c2, c3]
 ---
 ### 2.6 **Cooperative Multi-island Example**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `cooperative_optimize` extends the framework from single-optimizer execution to a collaborative multi-island setting, where several heterogeneous metaheuristics explore the same search space in parallel and periodically exchange information. This interface is useful when the user wants to combine complementary search behaviors—for example, swarm-based, evolutionary, and trajectory-based methods—within a single optimization run. The migration mechanism controls when candidate solutions are shared, how many are transferred, and how communication is structured through a topology such as a ring. In the example below, PSO, GA, SA, and ABCO are executed as cooperating islands on the Easom function, with periodic migration events that allow promising solutions discovered by one method to influence the others.
 
@@ -362,7 +365,7 @@ print(len(result.events))
 ---
 ### 2.7 **Orchestrated Cooperation Example**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `orchestrated_optimize` adds an adaptive decision layer atop cooperative multi-island optimization. Instead of relying only on fixed migration schedules, the run is periodically inspected at predefined checkpoints, and an orchestration policy decides whether corrective actions such as rebalancing, perturbation, restarting, or waiting should be applied. This interface is useful when the user wants cooperation to become state-aware and responsive to signals such as stagnation, loss of diversity, or uneven progress across islands. In the example below, PSO, GA, and SA cooperate on the Easom function under a rule-based orchestration policy, and the resulting object records not only the best solution found but also the sequence of checkpoints and the decisions taken during the run.
 
@@ -413,7 +416,7 @@ print(len(result.decisions))
 ---
 ### 2.8 **Island System Unified Interface**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `IslandSystem` is the object-based interface for defining collaborative optimization systems. It wraps the direct APIs `cooperative_optimize` and `orchestrated_optimize` into a cleaner architecture where islands, topology, migration, orchestration, and execution settings are declared as reusable configuration objects. This interface is recommended when the same island portfolio must be reused across cooperative, rule-based, bandit, portfolio-adaptive, or benchmarked runs.
 
@@ -525,7 +528,7 @@ result.plot_island_fitness(show = True, renderer = "colab")
 ---
 ### 2.9 **Adaptive Orchestration Policies**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 The orchestration layer supports multiple coordination policies. The `"cooperative"` mode uses fixed migration, `"rules"` applies checkpoint-based rules, `"bandit"` uses a multi-armed bandit controller to select actions based on previous rewards, and `"portfolio_adaptive"` changes behavior according to the optimization phase and island-state indicators.
 
@@ -611,7 +614,7 @@ print(result.action_effectiveness())
 ---
 ### 2.10 **Chaotic Maps, Initialisation Presets, and Transfer Functions**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 **Chaotic maps** are initializations based on deterministic chaotic sequences that improve early population diversity and help avoid premature convergence. Ten maps are available: `logistic`, `tent`, `bernoulli`, `chebyshev`, `circle`, `cubic`, `icmic`, `piecewise`, `sine`, `gauss`. The default for population initialization is random. **Transfer functions** map continuous positions to bit-flip probabilities, enabling any continuous metaheuristic to solve binary or Boolean problems. Four V-shaped (`v1`–`v4`) and four S-shaped (`s1`–`s4`) functions are available. `BinaryAdapter` wraps any algorithm and automatically applies the transfer function.
 
@@ -700,7 +703,7 @@ print(result.best_position)
 ---
 ### 2.11 **Hyperparameter Tuner**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `HyperparameterTuner` performs grid or random search over an algorithm's hyperparameters. It runs each configuration for `n_trials` independent trials, aggregates results, and returns a DataFrame (if pandas is available) or a list of dicts. The `best_params` and `best_fitness` attributes summarise the optimal configuration found.
 
@@ -745,7 +748,7 @@ print(summary.head())
 ---
 ### 2.12 **Save, Load, and Checkpoint**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 The IO module provides a set of functions for persisting results and resuming interrupted runs.
 
@@ -777,20 +780,20 @@ result = pymetaheuristic.optimize(
                                 )
 
 # Save & Load a Completed Result
-pymetaheuristic.save_result(result, "easom_ga.pkl")
-r2 = pymetaheuristic.load_result("easom_ga.pkl")
+pymetaheuristic.save_result(result, "easom_pso.pkl")
+r2 = pymetaheuristic.load_result("easom_pso.pkl")
 print(f"Reloaded best fitness:  {r2.best_fitness:.6f}")
 print(f"Reloaded best position: {r2.best_position}")
 
 # Export and Read a JSON Summary
-pymetaheuristic.result_to_json(result, "easom_ga.json")
-summary = pymetaheuristic.result_from_json("easom_ga.json")
+pymetaheuristic.result_to_json(result, "easom_pso.json")
+summary = pymetaheuristic.result_from_json("easom_pso.json")
 print(f"JSON best_fitness:  {summary['best_fitness']}")
 print(f"JSON best_position: {summary['best_position']}")
 
 # Checkpoint and Resume
 engine = pymetaheuristic.create_optimizer(
-                                            algorithm                  = algorithm_id,
+                                            algorithm                  = 'pso',
                                             target_function            = easom,
                                             min_values                 = (-5, -5),
                                             max_values                 = ( 5,  5),
@@ -802,8 +805,8 @@ engine = pymetaheuristic.create_optimizer(
 
 state = engine.initialize()
 
-# Run
-for _ in range(0, 100):
+# Run the first 25 iterations, then save a resumable checkpoint.
+for _ in range(0, 25):
     state = engine.step(state)
 
 pymetaheuristic.save_checkpoint(engine, state, "easom_checkpoint.pkl")
@@ -823,7 +826,7 @@ print(f"Resumed best position: {result_resumed.best_position}")
 ---
 ### 2.13 **Benchmark Runner**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `BenchmarkRunner` is the lightweight benchmark interface for multi-algorithm × multi-problem comparative sweeps. It executes every algorithm on every problem for a configurable number of independent trials, records the best fitness and wall-clock time for each run, and captures failed trials without interrupting the sweep. The raw results are returned as a tidy DataFrame that can be aggregated into summary statistics, rank tables, and publication-quality compact tables. For a more complete scientific benchmarking workflow involving algorithms, island systems, orchestration controllers, statistical tests, convergence plots, ECDFs, performance profiles, and persistence, use `BenchmarkStudy`.
 
@@ -884,7 +887,7 @@ rank_table                 = rank_table.sort_values("average_rank")
 ---
 ### 2.14 **Benchmark Study**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 `BenchmarkStudy` is the scientific benchmarking interface. Unlike `BenchmarkRunner`, which focuses on lightweight algorithm sweeps, `BenchmarkStudy` can compare ordinary algorithms, island systems, and orchestration controllers under the same experimental protocol. It stores long-format experiment records, supports repeated trials, computes rank tables and statistical tests, and provides benchmark plots such as convergence curves, ECDFs, performance profiles, and rank heatmaps.
 
@@ -1016,7 +1019,7 @@ Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem swe
 ---
 ### 2.15 **EvoMapX Explainability**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 **pymetaheuristic** includes a package-wide **EvoMapX Explainability** layer for ordinary optimizers, cooperative island systems, and orchestrated island systems. It helps answer a question that convergence curves alone cannot answer: **which algorithm, island, migration event, or operator mechanism drove the improvement?** The current implementation uses a **probe architecture**. The probes observe optimizer execution but do not replace the original engine logic. They do not call the objective function independently, consume random numbers, reorder candidates, alter stopping criteria, change the evaluation budget, or modify the optimization trajectory. EvoMapX currently provides three complementary diagnostics:
 
@@ -1024,11 +1027,11 @@ Use `BenchmarkRunner` when you want a quick multi-algorithm × multi-problem swe
 - **Convergence Driver Score (CDS):** An aggregate score derived from the attribution matrix. It ranks the units that contributed most to convergence.
 - **Population Evolution Graph (PEG):** A graph representation of population continuity, parent-child relationships when available, inferred lineage, and migration links.
 
-Per-operator attribution is computed from population lineage: the signed parent->child fitness change of each candidate is grouped by the operator that produced it, which requires no extra evaluations. The fidelity building blocks are:
+Per-operator attribution is computed from population lineage: the signed parent->child fitness change of each candidate is grouped by the operator that produced it, which requires no extra evaluations. Diagnostic or model-update operators may be recorded through counts and metadata while receiving zero direct fitness attribution. The fidelity building blocks are::
 
 | Support level | Meaning |
 | --- | --- |
-| Lineage Δf telemetry | Signed, operator-level Δf computed passively from parent->child fitness changes. |
+| Lineage Δf telemetry | Signed, operator-level Δf computed passively from parent-to-child fitness changes. |
 | Operator counts | Per-step counts showing how many times each operator was applied. |
 | Population lineage | Parent -> child metadata used to build PEG ancestry edges instead of nearest-neighbour fallback edges. |
 | Profile metadata | Declared operator taxonomy used for documentation, web-app summaries, and support tables. |
@@ -1135,7 +1138,7 @@ result.plot_evomapx_peg(filepath = "population_evolution_graph.html")
 ---
 ## 3. **Algorithm Details**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 You can inspect the default parameters of any metaheuristic in the library using `get_algorithm_info()`.
 
@@ -1165,7 +1168,7 @@ Default Parameters:
 {'c1': 2.0, 'c2': 2.0, 'decay': 0, 'swarm_size': 30, 'w': 0.9}
 ```
 
-The table below summarizes the optimization engines currently available in the library. Click the algorithm name to open its primary reference or original source, and all algorithms support checkpointing through the library framework, and all constraint handling is available through the framework-level constraint machinery.
+The table below summarizes the optimization engines currently available in the library. Click an algorithm name to open its primary reference or original source. All algorithms support checkpointing through the library framework, while constraint handling is provided by the framework-level constraint machinery.
 
 - **Algorithm** reports the conventional algorithm name, 
 - **ID** gives the identifier used in the codebase, 
@@ -1173,7 +1176,7 @@ The table below summarizes the optimization engines currently available in the l
 - **Population** indicates whether the algorithm maintains an explicit candidate population and can also show population snapshots, 
 - **Candidate Injection** indicates whether the algorithm is currently marked as able to absorb external candidates during cooperative or orchestrated workflows,
 - **Restart** shows whether native restart support is declared,
-- **EvoMapX** lists the semantic operator labels used by the passive EvoMapX resolver. Each label names an interpretable operator region of the algorithm (for example, `gwo.alpha_guidance`, `woa.spiral_bubble_net`, or `wca.evaporation_raining`), and the per-operator Convergence Driver Score is computed from the signed parent->child fitness change of the candidates that operator actually produced. The engines evaluate each operator output separately and therefore expose a multi-operator decomposition whose attribution responds to the seed and the objective. 
+- **EvoMapX** lists the semantic operator labels used by the passive EvoMapX resolver. Each label names an interpretable operator region of the algorithm (for example, `gwo.alpha_guidance`, `woa.spiral_bubble_net`, or `wca.evaporation_raining`). Direct operators are attributed from already-evaluated parent-to-child fitness changes, while diagnostic operators may report activity with zero direct fitness attribution. No additional objective evaluations are introduced.
 
 ---
 
@@ -1194,8 +1197,10 @@ The table below summarizes the optimization engines currently available in the l
 | [Adaptive Equilibrium Optimization](https://doi.org/10.1016/j.engappai.2020.103836) | `adaptive_eo` | physics | Yes | No | No | `adaptive_eo.selection`<br>`adaptive_eo.adaptive_local_refinement`<br>`adaptive_eo.equilibrium_pool_guided_update` |
 | [Adaptive Exploration State-Space Particle Swarm Optimization](https://doi.org/10.1016/j.swevo.2025.101868) | `aesspso` | swarm | Yes | Yes | No | `aesspso.adaptive_velocity_position_update` |
 | [Adaptive Inertia Weight Particle Swarm Optimization](https://doi.org/10.1007/11785231_48) | `aiw_pso` | swarm | Yes | No | No | `aiw_pso.position_update`<br>`aiw_pso.selection`<br>`aiw_pso.velocity_update`<br>`aiw_pso.elite_local_refinement` |
+| [Adaptive Gaining-Sharing Knowledge Based Algorithm](https://doi.org/10.1109/CEC48606.2020.9185901) | `agsk` | human | Yes | Yes | No | `agsk.parameter_setting_sampling`<br>`agsk.junior_gaining_sharing`<br>`agsk.senior_gaining_sharing`<br>`agsk.midpoint_bound_repair`<br>`agsk.greedy_selection`<br>`agsk.parameter_adaptation`<br>`agsk.linear_population_size_reduction` |
 | [Adaptive Random Search](https://doi.org/10.1002/nav.20422) | `ars` | trajectory | Yes | Yes | No | `ars.small_step`<br>`ars.large_step` |
 | [African Vultures Optimization Algorithm](https://doi.org/10.1016/j.cie.2021.107408) | `avoa` | swarm | Yes | Yes | No | `avoa.exploration_vulture_soaring`<br>`avoa.random_roost_exploration`<br>`avoa.convergent_competition_exploitation`<br>`avoa.levy_food_exploitation`<br>`avoa.aggressive_siege_exploitation`<br>`avoa.spiral_siege_exploitation` |
+| [Aitken Optimizer](https://doi.org/10.1007/s11227-024-06709-2) | `atk` | math | Yes | No | No | `atk.aitken_acceleration_search`<br>`atk.random_weighted_exponential_search`<br>`atk.aitken_refinement`<br>`atk.greedy_selection`<br>`atk.reflective_bound_repair`<br>`atk.historical_best_update` |
 | [Ali Baba and the Forty Thieves](https://doi.org/10.1007/s00521-021-06392-x) | `aft` | human | Yes | Yes | No | `aft.best_guided_tracking`<br>`aft.random_treasure_search`<br>`aft.opposition_tracking` |
 | [Anarchic Society Optimization](https://doi.org/10.1109/CEC.2011.5949940) | `aso` | swarm | Yes | Yes | No | `aso.anarchic_social_position_update` |
 | [Animated Oat Optimization Algorithm](https://doi.org/10.1016/j.knosys.2025.113589) | `aoo` | swarm | Yes | No | No | `aoo.mean_wind_animation_update`<br>`aoo.best_wind_animation_update`<br>`aoo.self_wind_animation_update`<br>`aoo.rolling_levy_animation_update`<br>`aoo.projectile_jump_animation_update` |
@@ -1207,7 +1212,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Archimedes Optimization Algorithm](https://doi.org/10.1007/s10489-020-01893-z) | `arch_oa` | physics | Yes | Yes | No | `arch_oa.archimedes_density_volume_acceleration_update` |
 | [Arithmetic Optimization Algorithm](https://doi.org/10.1016/j.cma.2020.113609) | `aoa` | swarm | Yes | Yes | No | `aoa.arithmetic_operator_position_update` |
 | [Artemisinin Optimization](https://doi.org/10.1016/j.displa.2024.102740) | `artemisinin_o` | nature | Yes | Yes | No | `artemisinin_o.self_growth_update`<br>`artemisinin_o.best_growth_update`<br>`artemisinin_o.differential_mutation_update`<br>`artemisinin_o.self_reset_mutation`<br>`artemisinin_o.best_reset_mutation`<br>`artemisinin_o.boundary_best_repair` |
-| [Artificial Algae Algorithm](https://doi.org/10.1016/j.asoc.2015.03.003) | `aaa` | swarm | Yes | No | Yes | `aaa.recombination`<br>`aaa.selection`<br>`aaa.adaptation_most_starving_colony_moves_toward`<br>`aaa.is_replaced_by_corresponding_cell_biggest` |
+| [Artificial Algae Algorithm](https://doi.org/10.1016/j.asoc.2015.03.003) | `aaa` | swarm | Yes | No | No | `aaa.recombination`<br>`aaa.selection`<br>`aaa.adaptation_most_starving_colony_moves_toward`<br>`aaa.is_replaced_by_corresponding_cell_biggest` |
 | [Artificial Bee Colony Optimization](https://doi.org/10.1007/s10898-007-9149-x) | `abco` | swarm | Yes | Yes | No | `abco.employed`<br>`abco.onlooker`<br>`abco.scout` |
 | [Artificial Ecosystem Optimization](https://doi.org/10.1007/s00521-019-04452-x) | `aeo` | nature | Yes | Yes | No | `aeo.selection`<br>`aeo.consumer_decomposer_update`<br>`aeo.production_worst_agent` |
 | [Artificial Electric Field Algorithm](https://doi.org/10.1016/j.swevo.2019.03.013) | `aefa` | physics | Yes | Yes | No | `aefa.electric_field_force_update` |
@@ -1224,7 +1229,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Bacterial Foraging Optimization](https://doi.org/10.1109/MCS.2002.1004010) | `bfo` | swarm | Yes | Yes | No | `bfo.chemotaxis_tumble_update`<br>`bfo.selection` |
 | [Bald Eagle Search](https://doi.org/10.1007/s10462-019-09732-5) | `bes` | swarm | Yes | Yes | No | `bes.candidate_generation`<br>`bes.selection`<br>`bes.candidate_search` |
 | [Barnacles Mating Optimizer](https://doi.org/10.1016/j.engappai.2019.103330) | `bmo` | swarm | Yes | Yes | No | `bmo.barnacle_recombination`<br>`bmo.random_barnacle_drift` |
-| [Basin Hopping](https://doi.org/10.1021/jp970984n) | `basin_hopping` | trajectory | No | No | Yes | `basin_hopping.update` |
+| [Basin Hopping](https://doi.org/10.1021/jp970984n) | `basin_hopping` | trajectory | No | Yes | Yes | `basin_hopping.update` |
 | [Basketball Team Optimization Algorithm](https://doi.org/10.1038/s41598-025-05477-0) | `btoa` | human | Yes | No | No | `btoa.position_update`<br>`btoa.selection`<br>`btoa.defensive_play_refinement`<br>`btoa.dynamic_position_candidate`<br>`btoa.offensive_play_update` |
 | [Bat Algorithm](https://doi.org/10.1007/978-3-642-12538-6_6) | `bat_a` | swarm | Yes | Yes | No | `bat_a.candidate_generation`<br>`bat_a.selection`<br>`bat_a.force_or_velocity_update`<br>`bat_a.position_update`<br>`bat_a.acceptance`<br>`bat_a.state_update`<br>`bat_a.initialization` |
 | [Battle Royale Optimization](https://doi.org/10.1007/s00521-020-05004-4) | `bro` | human | Yes | Yes | No | `bro.find_nearest_neighbour`<br>`bro.battle_damage_relocation_update`<br>`bro.selection` |
@@ -1284,7 +1289,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Differential Evolution JADE](https://doi.org/10.1109/TEVC.2009.2014613) | `jade` | evolutionary | Yes | No | No | `jade.candidate_generation`<br>`jade.selection`<br>`jade.mutation`<br>`jade.crossover`<br>`jade.initialization` |
 | [Differential Evolution MTS](https://doi.org/10.1109/CEC.2009.4983179) | `hde` | evolutionary | Yes | Yes | No | `hde.candidate_search`<br>`hde.selection`<br>`hde.differential_evolution_update` |
 | [Differential Evolution with Self-Adaptive Populations](https://doi.org/10.1007/s00500-005-0537-1) | `sap_de` | evolutionary | Yes | No | No | `sap_de.selection`<br>`sap_de.elite_local_refinement`<br>`sap_de.self_adaptive_parameter_de_update` |
-| [Differential Evolution](https://doi.org/10.1023/A:1008202821328) | `de` | evolutionary | Yes | Yes | No | `de.differential_mutation_crossover_selection` |
+| [Differential Evolution](https://doi.org/10.1023/A:1008202821328) | `de` | evolutionary | Yes | Yes | No | `de.mutation`<br>`de.crossover`<br>`de.selection`<br>`de.bound_repair` |
 | [Dispersive Fly Optimization](https://doi.org/10.15439/2014F142) | `dfo` | swarm | Yes | Yes | No | `dfo.dispersive_fly_neighbour_update`<br>`dfo.elite_disturbance_update`<br>`dfo.selection` |
 | [Diversity enhanced Strategy based Grey Wolf Optimizer](https://doi.org/10.1016/j.knosys.2022.109100) | `ds_gwo` | swarm | Yes | No | No | `ds_gwo.selection`<br>`ds_gwo.elite_local_refinement`<br>`ds_gwo.leader_guided_population_update` |
 | [Divine Religions Algorithm](https://doi.org/10.1007/s10586-024-04954-x) | `dra` | human | Yes | No | No | `dra.selection`<br>`dra.dialectic_interaction_update` |
@@ -1342,7 +1347,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Fruit-Fly Algorithm](https://doi.org/10.1016/j.knosys.2011.07.001) | `ffa` | swarm | Yes | Yes | No | `ffa.fruitfly_smell_search_update` |
 | [Fuzzy Hierarchical Operator - Grey Wolf Optimizer](https://doi.org/10.1016/j.asoc.2017.03.048) | `fuzzy_gwo` | swarm | Yes | No | No | `fuzzy_gwo.selection`<br>`fuzzy_gwo.elite_local_refinement`<br>`fuzzy_gwo.leader_guided_population_update` |
 | [Gaining-Sharing Knowledge Algorithm](https://doi.org/10.1007/s13042-019-01053-x) | `gska` | human | Yes | Yes | No | `gska.gaining_sharing_knowledge_update` |
-| [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | surrogate | No | No | No | `gp_bo.update` |
+| [Gaussian Process Bayesian Optimization](https://doi.org/10.1023/A:1008306431147) | `gp_bo` | math | No | No | No | `gp_bo.update` |
 | [Gazelle Optimization Algorithm](https://doi.org/10.1007/s00521-022-07854-6) | `gazelle_oa` | swarm | Yes | Yes | No | `gazelle_oa.brownian_foraging_update`<br>`gazelle_oa.levy_elite_transition_update`<br>`gazelle_oa.levy_foraging_update`<br>`gazelle_oa.random_patch_avoidance_update`<br>`gazelle_oa.peer_difference_escape_update` |
 | [Gekko Japonicus Algorithm](https://doi.org/10.1016/j.eswa.2025.127982) | `gja` | swarm | Yes | Yes | No | `gja.levy_wall_search`<br>`gja.gaussian_wall_search` |
 | [Generalized Normal Distribution Optimizer](https://doi.org/10.1016/j.enconman.2020.113301) | `gndo` | math | Yes | Yes | No | `gndo.generalized_normal_local_update`<br>`gndo.difference_vector_global_update` |
@@ -1351,17 +1356,17 @@ The table below summarizes the optimization engines currently available in the l
 | [Geometric Mean Optimizer](https://doi.org/10.1007/s00500-023-08202-z) | `gmo` | math | Yes | Yes | No | `gmo.marketing_guidance_update` |
 | [Germinal Center Optimization](https://doi.org/10.1016/j.ifacol.2018.07.300) | `gco` | human | Yes | Yes | No | `gco.dark_zone_mutation_update` |
 | [Geyser Inspired Algorithm](https://doi.org/10.1007/s42235-023-00437-8) | `gea` | physics | Yes | Yes | No | `gea.neighbour_geyser_eruption_update`<br>`gea.pressure_random_eruption_update` |
-| [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo` | swarm | Yes | No | No | `gpoo.octopus_tentacle_prey_position_update` |
+| [Giant Pacific Octopus Optimizer](https://doi.org/10.1007/s12065-024-00945-4) | `gpoo` | swarm | Yes | Yes | No | `gpoo.octopus_tentacle_prey_position_update` |
 | [Giant Trevally Optimizer](https://doi.org/10.1109/ACCESS.2022.3223388) | `gto` | swarm | Yes | Yes | No | `gto.candidate_search`<br>`gto.selection`<br>`gto.candidate_generation`<br>`gto.behavioral_move` |
 | [Glider Snake Optimization](https://doi.org/10.1007/s10462-026-11504-x) | `gso_glider_snake` | swarm | Yes | No | No | `gso_glider_snake.glider_snake_position_update` |
 | [Glowworm Swarm Optimization](https://doi.org/10.1007/978-3-319-51595-3) | `gso` | swarm | Yes | Yes | No | `gso.glowworm_luciferin_movement_update` |
 | [Golden Jackal Optimizer](https://doi.org/10.1016/j.eswa.2022.116924) | `gjo` | swarm | Yes | Yes | No | `gjo.male_female_exploitation`<br>`gjo.male_female_exploration` |
 | [Gradient-Based Optimizer](https://doi.org/10.1007/s11831-022-09872-y) | `gbo` | math | Yes | Yes | No | `gbo.gradient_search_rule_update`<br>`gbo.local_escaping_operator_update` |
 | [Gradient-Based Particle Swarm Optimization](https://doi.org/10.48550/arXiv.2312.09703) | `gpso` | swarm | Yes | Yes | No | `gpso.velocity_position_update` |
-| [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | surrogate | No | No | No | `gbrt_bo.update` |
+| [Gradient-Boosted Regression Trees Bayesian Optimization](https://doi.org/10.1214/aos/1013203451) | `gbrt_bo` | math | No | No | No | `gbrt_bo.update` |
 | [Grasshopper Optimization Algorithm](https://doi.org/10.1016/j.advengsoft.2017.01.004) | `goa` | swarm | Yes | Yes | No | `goa.grasshopper_social_force_update` |
 | [Gravitational Search Algorithm](https://doi.org/10.1016/j.ins.2009.03.004) | `gsa` | physics | Yes | Yes | No | `gsa.gravitational_force_acceleration_update` |
-| [Greedy Randomized Adaptive Search Procedure](https://doi.org/10.1007/BF01096763) | `grasp` | trajectory | No | No | Yes | `grasp.update` |
+| [Greedy Randomized Adaptive Search Procedure](https://doi.org/10.1007/BF01096763) | `grasp` | trajectory | No | Yes | Yes | `grasp.update` |
 | [Grey Wolf Optimizer](https://doi.org/10.1016/j.advengsoft.2013.12.007) | `gwo` | swarm | Yes | Yes | No | `gwo.alpha_guidance`<br>`gwo.beta_guidance`<br>`gwo.delta_guidance`<br>`gwo.position_update` |
 | [Greylag Goose Optimization](https://doi.org/10.1016/j.eswa.2023.122147) | `ggo` | swarm | Yes | Yes | No | `ggo.initialization`<br>`ggo.dynamic_group_update`<br>`ggo.exploration_leader_move_eq1`<br>`ggo.exploration_paddling_mutation_eq2`<br>`ggo.exploration_spiral_move_eq4`<br>`ggo.flock_local_search_eq7`<br>`ggo.exploitation_sentry_guidance_eq5_6`<br>`ggo.elitist_selection`<br>`ggo.boundary_repair`<br>`ggo.role_shuffle`<br>`ggo.stagnation_group_boost`<br>`ggo.candidate_injection` |
 | [Growth Optimizer](https://doi.org/10.1016/j.knosys.2022.110206) | `go_growth` | swarm | Yes | Yes | No | `go_growth.growth_phase_update`<br>`go_growth.maturity_phase_update`<br>`go_growth.selection` |
@@ -1380,7 +1385,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Hunting Search Algorithm](https://doi.org/10.1109/ICSCCW.2009.5379451) | `hus` | swarm | Yes | Yes | No | `hus.update` |
 | [Hybrid Bat Algorithm](https://doi.org/10.48550/arXiv.1303.6310) | `hba` | swarm | Yes | Yes | No | `hba.bat_frequency_movement`<br>`hba.de_local_search` |
 | [Hybrid Grey Wolf - Whale Optimization Algorithm](https://doi.org/10.1177/10775463211003402) | `gwo_woa` | swarm | Yes | No | No | `gwo_woa.selection`<br>`gwo_woa.elite_local_refinement`<br>`gwo_woa.leader_guided_population_update` |
-| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICACCS.2019.8728514) | `hi_woa` | swarm | Yes | No | No | `hi_woa.selection`<br>`hi_woa.elite_local_refinement`<br>`hi_woa.whale_position_update` |
+| [Hybrid Improved Whale Optimization Algorithm](https://doi.org/10.1109/ICCA.2019.8900003) | `hi_woa` | swarm | Yes | No | No | `hi_woa.selection`<br>`hi_woa.elite_local_refinement`<br>`hi_woa.whale_position_update` |
 | [Hybrid Self-Adaptive Bat Algorithm](https://doi.org/10.1155/2014/709738) | `hsaba` | swarm | Yes | Yes | No | `hsaba.local_bat_random_walk`<br>`hsaba.velocity_bat_update`<br>`hsaba.differential_evolution_refinement` |
 | [iLSHADE-RSP](https://doi.org/10.48550/arXiv.2006.02591) | `ilshade_rsp` | evolutionary | Yes | Yes | No | `ilshade_rsp.mutation`<br>`ilshade_rsp.crossover`<br>`ilshade_rsp.selection`<br>`ilshade_rsp.archive_update`<br>`ilshade_rsp.success_history_update`<br>`ilshade_rsp.population_reduction`<br>`ilshade_rsp.rank_selective_pressure`<br>`ilshade_rsp.weighted_pbest_scaling`<br>`ilshade_rsp.cauchy_target_perturbation` |
 | [Imperialist Competitive Algorithm](https://doi.org/10.1109/CEC.2007.4425083) | `ica` | human | Yes | Yes | No | `ica.assimilation`<br>`ica.imperialist_revolution`<br>`ica.colony_revolution`<br>`ica.intra_empire_competition` |
@@ -1398,8 +1403,9 @@ The table below summarizes the optimization engines currently available in the l
 | [Incremental model-based Grey Wolf Optimizer](https://doi.org/10.1007/s00366-019-00837-7) | `incremental_gwo` | swarm | Yes | No | No | `incremental_gwo.selection`<br>`incremental_gwo.elite_local_refinement`<br>`incremental_gwo.leader_guided_population_update` |
 | [Invasive Weed Optimization](https://doi.org/10.1016/j.ecoinf.2006.07.003) | `iwo` | nature | Yes | Yes | No | `iwo.seed_dispersal_colonization_update` |
 | [IPOP-CMA-ES](https://doi.org/10.1109/CEC.2005.1554902) | `ipop_cmaes` | evolutionary | Yes | Yes | Yes | `ipop_cmaes.initialization`<br>`ipop_cmaes.cmaes_sampling`<br>`ipop_cmaes.elite_recombination`<br>`ipop_cmaes.distribution_update`<br>`ipop_cmaes.population_restart`<br>`ipop_cmaes.boundary_penalty`<br>`ipop_cmaes.candidate_injection` |
-| [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | No | Yes | `ils.update` |
+| [Iterated Local Search](https://doi.org/10.1007/0-306-48056-5_11) | `ils` | trajectory | No | Yes | Yes | `ils.update` |
 | [Ivy Algorithm](https://doi.org/10.1016/j.knosys.2024.111850) | `ivya` | nature | Yes | Yes | No | `ivya.neighbor_growth_update`<br>`ivya.best_growth_update` |
+| [j2020](https://doi.org/10.1109/CEC48606.2020.9185551) | `j2020` | evolutionary | Yes | Yes | Yes | `j2020.parameter_self_adaptation`<br>`j2020.big_population_mutation`<br>`j2020.small_population_mutation`<br>`j2020.binomial_crossover`<br>`j2020.bound_repair`<br>`j2020.crowding_replacement`<br>`j2020.greedy_selection`<br>`j2020.best_migration`<br>`j2020.big_population_restart`<br>`j2020.small_population_restart`<br>`j2020.candidate_injection` |
 | [Jaya Algorithm](https://doi.org/10.5267/j.ijiec.2015.8.004) | `jy` | math | Yes | Yes | No | `jy.best_away_from_worst_update` |
 | [Jellyfish Search Optimizer](https://doi.org/10.1016/j.amc.2020.125535) | `jso` | swarm | Yes | Yes | No | `jso.ocean_current_swarm_motion_update` |
 | [jSO Differential Evolution](https://doi.org/10.1109/CEC.2017.7969362) | `jso_de` | evolutionary | Yes | Yes | No | `jso_de.mutation`<br>`jso_de.weighted_pbest_scaling`<br>`jso_de.crossover`<br>`jso_de.selection`<br>`jso_de.archive_update`<br>`jso_de.success_history_update`<br>`jso_de.population_reduction`<br>`jso_de.bound_resampling` |
@@ -1441,11 +1447,12 @@ The table below summarizes the optimization engines currently available in the l
 | [Moth Search Algorithm](https://doi.org/10.1007/s12293-016-0212-3) | `msa_e` | swarm | Yes | Yes | No | `msa_e.golden_ratio_exploitation_update` |
 | [Mountain Gazelle Optimizer](https://doi.org/10.1016/j.advengsoft.2022.103282) | `mgo` | swarm | Yes | Yes | No | `mgo.territory_mountain_herding_update` |
 | [Mountaineering Team-Based Optimization](https://doi.org/10.3390/math11051273) | `mtbo` | human | Yes | No | No | `mtbo.team_leader_coordinated_movement`<br>`mtbo.avalanche_worst_avoidance`<br>`mtbo.team_mean_movement`<br>`mtbo.random_relocation_phase`<br>`mtbo.candidate_generation`<br>`mtbo.selection` |
-| [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | No | Yes | `msls.update` |
+| [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | Yes | Yes | `msls.update` |
 | [Multisurrogate-Assisted Ant Colony Optimization](https://doi.org/10.1109/TCYB.2021.3064676) | `misaco` | swarm | Yes | Yes | No | `misaco.lhs_initialization`<br>`misaco.acomv_offspring_generation`<br>`misaco.rbf_fit_selection`<br>`misaco.lsbt_fit_selection`<br>`misaco.random_selection`<br>`misaco.sqp_rbf_local_search`<br>`misaco.expensive_candidate_evaluation`<br>`misaco.archive_update` |
 | [Multi-Verse Optimizer](https://doi.org/10.1007/s00521-015-1870-7) | `mvo` | swarm | Yes | Yes | No | `mvo.candidate_generation`<br>`mvo.selection`<br>`mvo.exploitation_move`<br>`mvo.replacement` |
 | [Multifactorial Evolutionary Algorithm I](https://doi.org/10.1109/TEVC.2015.2458037) | `mfea` | evolutionary | Yes | Yes | No | `mfea.unified_initialization`<br>`mfea.factorial_evaluation`<br>`mfea.factorial_rank_update`<br>`mfea.skill_factor_assignment`<br>`mfea.assortative_mating`<br>`mfea.intratask_sbx_crossover`<br>`mfea.intertask_sbx_transfer`<br>`mfea.parent_centric_gaussian_mutation`<br>`mfea.vertical_cultural_transmission`<br>`mfea.scalar_fitness_selection`<br>`mfea.elitist_replacement`<br>`mfea.boundary_repair`<br>`mfea.candidate_injection` |
 | [Multifactorial Evolutionary Algorithm II](https://doi.org/10.1109/TEVC.2019.2906927) | `mfea2` | evolutionary | Yes | Yes | No | `mfea2.unified_initialization`<br>`mfea2.skill_factor_assignment`<br>`mfea2.scalar_fitness_selection`<br>`mfea2.univariate_model_building`<br>`mfea2.online_rmp_matrix_learning`<br>`mfea2.intratask_sbx_crossover`<br>`mfea2.intertask_sbx_transfer`<br>`mfea2.parent_centric_polynomial_mutation`<br>`mfea2.elitist_scalar_replacement`<br>`mfea2.boundary_repair`<br>`mfea2.candidate_injection` |
+| [Multiple Adaptation Differential Evolution (MadDE)](https://doi.org/10.1109/CEC45853.2021.9504725) | `madde` | evolutionary | Yes | Yes | No | `madde.parameter_sampling`<br>`madde.current_to_pbest_archive_mutation`<br>`madde.current_to_rand_archive_mutation`<br>`madde.weighted_rand_to_qbest_mutation`<br>`madde.midpoint_bound_repair`<br>`madde.binomial_crossover`<br>`madde.qbest_binomial_crossover`<br>`madde.greedy_selection`<br>`madde.external_archive_update`<br>`madde.success_history_update`<br>`madde.mutation_probability_adaptation`<br>`madde.linear_population_size_reduction` |
 | [Multiple Trajectory Search](https://doi.org/10.1109/CEC.2008.4631210) | `mts` | trajectory | Yes | Yes | No | `mts.multiple_trajectory_local_search_update` |
 | [Naked Mole-Rat Algorithm](https://doi.org/10.1007/s00521-019-04464-7) | `nmra` | swarm | Yes | Yes | No | `nmra.breeder_exploitation_update`<br>`nmra.worker_exploration_update` |
 | [Narwhal Optimizer](https://doi.org/10.1038/s41598-024-61278-8) | `nwoa` | swarm | Yes | Yes | No | `nwoa.exploration_move`<br>`nwoa.exploitation_move`<br>`nwoa.replacement` |
@@ -1472,7 +1479,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Pathfinder Algorithm](https://doi.org/10.1016/j.asoc.2019.03.012) | `pfa` | swarm | Yes | Yes | No | `pfa.pathfinder_position_update` |
 | [Pelican Optimization Algorithm](https://doi.org/10.3390/s22030855) | `poa` | swarm | Yes | Yes | No | `poa.prey_pursuit_update`<br>`poa.water_surface_winging_update` |
 | [Philoponella prominens Optimizer](https://doi.org/10.1007/s10586-024-04761-4) | `ppo` | swarm | Yes | No | No | `ppo.escape_sexual_cannibalism_juvenile_generation`<br>`ppo.escape_predation_local_search` |
-| [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245) | `petio` | human | Yes | No | No | `petio.performance_evaluation_teaching_update` |
+| [Physical Education Teacher Inspired Optimization](https://doi.org/10.13140/RG.2.2.12097.06245) | `petio` | human | Yes | Yes | No | `petio.performance_evaluation_teaching_update` |
 | [Pied Kingfisher Optimizer](https://doi.org/10.1007/s00521-024-09879-5) | `pko` | swarm | Yes | Yes | No | `pko.diving_beating_rate_update`<br>`pko.crest_angle_foraging_update`<br>`pko.hovering_attack_update`<br>`pko.population_escape_update` |
 | [Polar Fox Optimization](https://doi.org/10.1007/s00521-024-10346-4) | `pfa_polar_fox` | swarm | Yes | No | No | `pfa_polar_fox.exploitation`<br>`pfa_polar_fox.selection`<br>`pfa_polar_fox.state_update`<br>`pfa_polar_fox.experience_phase`<br>`pfa_polar_fox.leader_guided_refinement_update`<br>`pfa_polar_fox.leader_phase` |
 | [Polar Lights Optimizer](https://doi.org/10.1016/j.neucom.2024.128427) | `plo` | physics | Yes | Yes | No | `plo.aurora_global_local_update`<br>`plo.polar_light_collision_update` |
@@ -1481,11 +1488,12 @@ The table below summarizes the optimization engines currently available in the l
 | [Population-Based Incremental Learning](https://doi.org/10.1109/SSE62657.2024.00022) | `pbil` | distribution | No | No | No | `pbil.update` |
 | [Prairie Dog Optimization Algorithm](https://doi.org/10.1007/s00521-022-07530-9) | `pdo` | swarm | Yes | Yes | No | `pdo.prairie_dog_burrow_alarm_update` |
 | [Puma Optimizer](https://doi.org/10.1007/s10586-023-04221-5) | `puma_o` | swarm | Yes | Yes | No | `puma_o.update` |
+| [Python Snake Optimization Algorithm (PySOA)](https://doi.org/10.1007/s10586-026-05958-5) | `pysoa` | swarm | Yes | Yes | No | `pysoa.searching_for_prey`<br>`pysoa.attacking_prey`<br>`pysoa.random_agent_redirection`<br>`pysoa.sensory_scanning`<br>`pysoa.temperature_cooling` |
 | [QLE Sine Cosine Algorithm](https://doi.org/10.1016/j.eswa.2021.116417) | `qle_sca` | math | Yes | No | No | `qle_sca.candidate_generation`<br>`qle_sca.selection`<br>`qle_sca.learning`<br>`qle_sca.state_update`<br>`qle_sca.initialization` |
 | [Quadratic Interpolation Optimization](https://doi.org/10.1016/j.cma.2023.116446) | `qio` | math | Yes | Yes | No | `qio.three_point_quadratic_interpolation`<br>`qio.two_point_reflection_interpolation` |
 | [Queuing Search Algorithm](https://doi.org/10.1007/s12652-020-02849-4) | `qsa` | human | Yes | Yes | No | `qsa.business1`<br>`qsa.business2`<br>`qsa.business3` |
 | [Rain-Cloud Condensation Optimizer](https://doi.org/10.3390/eng6100281) | `rcco` | physics | Yes | No | No | `rcco.rain_cloud_convection_update`<br>`rcco.cloud_collision_local_update`<br>`rcco.selection` |
-| [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | surrogate | No | No | No | `rf_bo.update` |
+| [Random Forest Bayesian Optimization](https://doi.org/10.1023/A:1010933404324) | `rf_bo` | math | No | No | No | `rf_bo.update` |
 | [Random Search](https://doi.org/10.1016/j.advengsoft.2022.103141) | `random_s` | trajectory | Yes | Yes | No | `random_s.random_sampling_update` |
 | [Rat Swarm Optimizer](https://doi.org/10.1007/s12652-020-02580-0) | `rso` | swarm | Yes | Yes | No | `rso.long_chasing_update`<br>`rso.short_chasing_update` |
 | [RDEx-SOP](https://doi.org/10.48550/arXiv.2603.27089) | `rdex_sop` | evolutionary | Yes | Yes | No | `rdex_sop.standard_branch_mutation`<br>`rdex_sop.exploitation_biased_mutation`<br>`rdex_sop.binomial_crossover`<br>`rdex_sop.cauchy_local_perturbation`<br>`rdex_sop.greedy_selection`<br>`rdex_sop.dynamic_pbest_selection`<br>`rdex_sop.hybrid_rate_update`<br>`rdex_sop.success_history_update`<br>`rdex_sop.linear_population_reduction`<br>`rdex_sop.bound_resampling` |
@@ -1495,7 +1503,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Reptile Search Algorithm](https://doi.org/10.1016/j.eswa.2021.116158) | `rsa` | swarm | Yes | Yes | No | `rsa.reptile_hunting_encircling_update` |
 | [RIME-ice Algorithm](https://doi.org/10.1016/j.neucom.2023.02.010) | `rime` | physics | Yes | Yes | No | `rime.hard_rime_puncture_update` |
 | [RMSProp](https://www.youtube.com/watch?v=defQQqkXEfE) | `rmsprop` | math | No | No | No | `rmsprop.candidate_generation`<br>`rmsprop.selection`<br>`rmsprop.search_direction`<br>`rmsprop.step_acceptance`<br>`rmsprop.initialization` |
-| [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648) | `rhso` | swarm | Yes | No | No | `rhso.rhinoceros_herd_position_update` |
+| [Rock Hyraxes Swarm Optimization](https://doi.org/10.32604/cmc.2021.013648) | `rhso` | swarm | Yes | Yes | No | `rhso.rhinoceros_herd_position_update` |
 | [RRT-based Optimizer](https://doi.org/10.1109/ACCESS.2025.3547537) | `rrto` | swarm | Yes | No | No | `rrto.adaptive_step_size_wandering`<br>`rrto.absolute_difference_step`<br>`rrto.boundary_based_step` |
 | [RUNge Kutta Optimizer](https://doi.org/10.1016/j.eswa.2021.115079) | `run` | math | Yes | Yes | No | `run.selection`<br>`run.enhanced_solution_quality_update`<br>`run.runge_kutta_position_update` |
 | [Rüppell's Fox Optimizer](https://doi.org/10.1007/s10586-024-04950-1) | `rfo` | swarm | Yes | Yes | No | `rfo.red_fox_smell_search_update` |
@@ -1544,7 +1552,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Supply-Demand-Based Optimization](https://doi.org/10.1109/ACCESS.2019.2919408) | `supply_do` | human | Yes | Yes | No | `supply_do.quantity_equilibrium_update`<br>`supply_do.price_equilibrium_update` |
 | [Surrogate-Assisted Cooperative Co-Evolutionary Algorithm of Minamo II](https://doi.org/10.1007/978-3-319-97773-7_4) | `sacc_eam2` | evolutionary | Yes | Yes | No | `sacc_eam2.even_subcomponent_de_update`<br>`sacc_eam2.odd_subcomponent_de_update` |
 | [Surrogate-Assisted Cooperative Swarm Optimization](https://doi.org/10.1109/TEVC.2017.2675628) | `sacoso` | swarm | Yes | Yes | No | `sacoso.cognitive_swarm_update`<br>`sacoso.social_swarm_update` |
-| [Surrogate-Assisted DE with Adaptive Multi-Subspace Search](https://doi.org/10.1109/TEVC.2022.3226837) | `sade_amss` | evolutionary | Yes | Yes | No | `sade_amss.adaptive_multistrategy_subspace_de_update` |
+| [Surrogate-Assisted DE with Adaptive Multi-Subspace Search](https://doi.org/10.1109/TEVC.2022.3226837) | `sade_amss` | evolutionary | Yes | Yes | No | `sade_amss.lhs_initialization`<br>`sade_amss.adaptive_strategy_switch`<br>`sade_amss.random_original_subspace_construction`<br>`sade_amss.pca_mapping_subspace_construction`<br>`sade_amss.cubic_rbf_fit_predict`<br>`sade_amss.de_best_1_binomial`<br>`sade_amss.bound_repair`<br>`sade_amss.exact_evaluation_archive_update` |
 | [Surrogate-Assisted DE with Adaptive Training Data Selection Criterion](https://doi.org/10.1109/SSCI51031.2022.10022105) | `sade_atdsc` | evolutionary | Yes | Yes | No | `sade_atdsc.adaptive_trial_distribution_selection_update` |
 | [Surrogate-Assisted Multiswarm Optimization](https://doi.org/10.1109/TCYB.2020.2967553) | `samso` | swarm | Yes | Yes | No | `samso.lhs_initialization`<br>`samso.rbf_model_fit`<br>`samso.rbf_optimum_infill`<br>`samso.s_swarm_pso_update`<br>`samso.l_swarm_tlbo_learner_update`<br>`samso.prescreen_exact_evaluation`<br>`samso.archive_update` |
 | [Surrogate-Assisted Partial Optimization](https://doi.org/10.1007/978-3-031-70068-2_24) | `sapo` | evolutionary | Yes | Yes | No | `sapo.lhs_initialization`<br>`sapo.partial_selection_f_g_to_g`<br>`sapo.partial_selection_g_to_f`<br>`sapo.de_rand_1_binomial`<br>`sapo.de_best_1_binomial`<br>`sapo.reflection_bound_repair`<br>`sapo.cubic_rbf_fit_predict`<br>`sapo.feasibility_rule_selection`<br>`sapo.expensive_evaluation_archive_update` |
@@ -1555,7 +1563,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Teaching Learning Based Optimization](https://doi.org/10.1016/j.cad.2010.12.015) | `tlbo` | human | Yes | Yes | No | `tlbo.teacher_phase`<br>`tlbo.learner_phase` |
 | [Teamwork Optimization Algorithm](https://doi.org/10.3390/s21134567) | `toa` | human | Yes | Yes | No | `toa.stage_1_supervisor_guidance`<br>`toa.learning`<br>`toa.state_update`<br>`toa.candidate_generation`<br>`toa.selection` |
 | [Termite Life Cycle Optimizer](https://doi.org/10.1016/j.eswa.2022.119211) | `tlco` | swarm | Yes | Yes | No | `tlco.teacher_phase_update`<br>`tlco.learner_phase_update`<br>`tlco.selection` |
-| [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | `thro.throwing_race_update` |
+| [Tianji Horse Racing Optimizer](https://doi.org/10.1007/s10462-025-11269-9) | `thro` | human | Yes | Yes | No | `thro.initialization`<br>`thro.competition_scenario_1_slowest_vs_slowest`<br>`thro.competition_scenario_2_slowest_vs_fastest`<br>`thro.competition_scenario_3_fastest_vs_fastest`<br>`thro.competition_scenario_4_slowest_vs_fastest`<br>`thro.competition_scenario_5_tie_slowest_vs_fastest`<br>`thro.training_random_peer_difference`<br>`thro.training_fastest_guidance`<br>`thro.greedy_selection`<br>`thro.random_bound_repair`<br>`thro.candidate_injection` |
 | [Tornado Optimizer with Coriolis Force](https://doi.org/10.1007/s10462-025-11118-9) | `toc` | physics | Yes | Yes | No | `toc.fitness_proportional_assignment`<br>`toc.coriolis_velocity_update`<br>`toc.windstorm_to_tornado_evolution`<br>`toc.windstorm_to_thunderstorm_evolution`<br>`toc.thunderstorm_to_tornado_evolution`<br>`toc.random_windstorm_formation`<br>`toc.role_exchange_replacement` |
 | [Tree Physiology Optimization](https://doi.org/10.1515/jisys-2017-0156) | `tpo` | nature | Yes | Yes | No | `tpo.carbon_nutrient_leaf_update` |
 | [Tree-Seed Algorithm](https://doi.org/10.1016/j.eswa.2015.04.055) | `tree_seed_a` | nature | Yes | No | No | `tree_seed_a.toward_best_seed`<br>`tree_seed_a.away_random_seed` |
@@ -1564,7 +1572,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Tuna Swarm Optimization](https://doi.org/10.1155/2021/9210050) | `tso` | swarm | Yes | Yes | No | `tso.leader_spiral_update`<br>`tso.random_migration_update`<br>`tso.spiral_following_update`<br>`tso.parabolic_foraging_update` |
 | [Tunicate Swarm Algorithm](https://doi.org/10.1016/j.engappai.2020.103541) | `tsa` | swarm | Yes | Yes | No | `tsa.toward_best_tunicate_update`<br>`tsa.away_best_tunicate_update`<br>`tsa.swarm_chain_averaging_update` |
 | [Turbulent Flow of Water-based Optimization](https://doi.org/10.1016/j.engappai.2020.103666) | `tfwo` | physics | Yes | No | No | `tfwo.effect_of_objects`<br>`tfwo.random_object_relocation`<br>`tfwo.effect_of_whirlpools`<br>`tfwo.best_whirlpool_preservation`<br>`tfwo.object_whirlpool_exchange`<br>`tfwo.state_structure_update` |
-| [Variable Neighborhood Search](https://doi.org/10.1016/S0305-0548(97)00031-2) | `vns` | trajectory | No | No | Yes | `vns.update` |
+| [Variable Neighborhood Search](https://doi.org/10.1016/S0305-0548(97)00031-2) | `vns` | trajectory | No | Yes | Yes | `vns.update` |
 | [Virus Colony Search](https://doi.org/10.1016/j.advengsoft.2015.11.004) | `vcs` | swarm | Yes | Yes | No | `vcs.virus_diffusion`<br>`vcs.host_cell_infection`<br>`vcs.immune_response` |
 | [Walrus Optimization Algorithm](https://doi.org/10.1038/s41598-023-35863-5) | `waoa` | swarm | Yes | Yes | No | `waoa.feeding_exploration_update`<br>`waoa.range_narrowing_exploitation` |
 | [War Strategy Optimization](https://doi.org/10.1109/ACCESS.2022.3153493) | `warso` | human | Yes | Yes | No | `warso.attack_strategy_update`<br>`warso.defense_strategy_update` |
@@ -1591,7 +1599,7 @@ The table below summarizes the optimization engines currently available in the l
 ---
 ## 4. **Test Functions**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 The graph module can be used with the built-in benchmark functions or with any user-defined scalar objective function that follows the same interface `f(x) -> float`. The unified plotting function automatically adapts the visualization to the number of variables:
 
@@ -1873,7 +1881,7 @@ Engineering benchmarks expose an objective function, along with bounds and const
 ---
 ## 5. **Other Libraries**
 
-[Back to Summary](#b-summary)
+[Back to Summary](#c-summary)
 
 * For Multiobjective Optimization or Many Objectives Optimization, try [pyMultiobjective](https://github.com/Valdecy/pyMultiobjective)
 * For Traveling Salesman Problems (TSP), try [pyCombinatorial](https://github.com/Valdecy/pyCombinatorial)
