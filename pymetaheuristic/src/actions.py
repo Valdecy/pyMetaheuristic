@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from contextlib import nullcontext
+from contextlib import ExitStack, contextmanager, nullcontext
 from dataclasses import asdict
 from typing import Any
 import math
@@ -62,6 +62,20 @@ def _evaluation_label_context(engine, label: str | None):
     return nullcontext()
 
 
+@contextmanager
+def _evaluation_context(engine, label: str | None, category: str = "orchestration"):
+    """Attribute controller-triggered objective calls without touching engines."""
+    target = getattr(getattr(engine, "problem", None), "target_function", None)
+    use_label = getattr(target, "use_label", None)
+    use_category = getattr(target, "use_category", None)
+    with ExitStack() as stack:
+        if callable(use_label):
+            stack.enter_context(use_label(label))
+        if callable(use_category):
+            stack.enter_context(use_category(category))
+        yield
+
+
 
 def execute_decision_plan(
     plan: DecisionPlan,
@@ -109,7 +123,7 @@ def execute_decision_plan(
                 if not target_engine.capabilities.supports_candidate_injection:
                     outcomes.append(ActionOutcome(action=action, executed=False, status="skipped", message="Target engine does not support candidate injection.", source_fitness=source_fit, target_fitness_before=before, target_fitness_after=before))
                     continue
-                with _evaluation_label_context(target_engine, action.target_label):
+                with _evaluation_context(target_engine, action.target_label):
                     states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
                 target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
                 target_engine._remember_best_evaluation_details(states[action.target_label])
@@ -128,7 +142,7 @@ def execute_decision_plan(
                     n = max(1, int(math.ceil(len(pop) * fraction)))
                 except Exception:
                     n = max(1, int(action.k or 1))
-                with _evaluation_label_context(target_engine, action.target_label):
+                with _evaluation_context(target_engine, action.target_label):
                     migrants = [_random_candidate(target_engine.problem, rng) for _ in range(n)]
                     states[action.target_label] = target_engine.inject_candidates(target_state, migrants, policy=action.replace_policy or "native")
                 target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
@@ -148,14 +162,14 @@ def execute_decision_plan(
                 before = target_state.best_fitness
                 seeds = []
                 if action.params.get("random_seed_receiver"):
-                    with _evaluation_label_context(target_engine, action.target_label):
+                    with _evaluation_context(target_engine, action.target_label):
                         seeds = [_random_candidate(target_engine.problem, rng)]
                 else:
                     seeds = select_candidates(source_engine, source_state, mode=action.source_mode or "best", k=int(action.k or 1))
                 if not target_engine.capabilities.supports_restart:
                     msg = "Target engine does not support restart; downgraded to injection." if target_engine.capabilities.supports_candidate_injection else "Target engine does not support restart."
                     if target_engine.capabilities.supports_candidate_injection:
-                        with _evaluation_label_context(target_engine, action.target_label):
+                        with _evaluation_context(target_engine, action.target_label):
                             states[action.target_label] = target_engine.inject_candidates(target_state, seeds, policy=action.replace_policy or "native")
                         target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
                         target_engine._remember_best_evaluation_details(states[action.target_label])
@@ -164,7 +178,7 @@ def execute_decision_plan(
                     else:
                         outcomes.append(ActionOutcome(action=action, executed=False, status="skipped", message=msg, target_fitness_before=before, target_fitness_after=before))
                     continue
-                with _evaluation_label_context(target_engine, action.target_label):
+                with _evaluation_context(target_engine, action.target_label):
                     states[action.target_label] = target_engine.restart(target_state, seeds=seeds, preserve_best=bool(action.params.get("preserve_best", True)))
                 target_engine._sync_evaluation_count(states[action.target_label], action.target_label)
                 target_engine._remember_best_evaluation_details(states[action.target_label])

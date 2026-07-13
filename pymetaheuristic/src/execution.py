@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from contextlib import ExitStack
 from dataclasses import dataclass
 from typing import Any
 import concurrent.futures as cf
@@ -24,6 +25,7 @@ def _evolve_engine_chunk(label: str, engine, state, n_steps: int) -> ChunkExecut
     target_steps = max(0, int(n_steps))
     target = getattr(getattr(engine, "problem", None), "target_function", None)
     label_context = getattr(target, "use_label", None)
+    category_context = getattr(target, "use_category", None)
 
     sync_evaluations = getattr(engine, "_sync_evaluation_count", None)
     if callable(sync_evaluations):
@@ -35,8 +37,12 @@ def _evolve_engine_chunk(label: str, engine, state, n_steps: int) -> ChunkExecut
         completed_steps_before = int(current_state.step)
         evaluations_before = int(current_state.evaluations)
         try:
-            if callable(label_context):
-                with label_context(label):
+            if callable(label_context) or callable(category_context):
+                with ExitStack() as stack:
+                    if callable(label_context):
+                        stack.enter_context(label_context(label))
+                    if callable(category_context):
+                        stack.enter_context(category_context("evolution"))
                     current_state = engine.step(current_state)
             else:
                 current_state = engine.step(current_state)

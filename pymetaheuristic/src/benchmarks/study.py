@@ -247,13 +247,13 @@ class BenchmarkStudy:
         for item in history:
             if not isinstance(item, dict):
                 continue
-            fit = item.get("best_fitness", item.get("global_best_fitness"))
+            fit = item.get("global_best_fitness", item.get("best_fitness"))
             if fit is None:
                 continue
             fit = float(fit)
             points.append({
                 "step": item.get("step"),
-                "evaluations": item.get("evaluations"),
+                "evaluations": item.get("global_evaluations", item.get("evaluations")),
                 "best_fitness": fit,
                 "error_to_optimum": problem.error(fit),
             })
@@ -275,7 +275,7 @@ class BenchmarkStudy:
                     best_fit = float(best_fit)
                     points.append({
                         "step": item.get("step", idx),
-                        "evaluations": item.get("evaluations"),
+                        "evaluations": item.get("global_evaluations", item.get("evaluations")),
                         "best_fitness": best_fit,
                         "error_to_optimum": problem.error(best_fit),
                     })
@@ -313,7 +313,17 @@ class BenchmarkStudy:
         success = None if problem.optimum is None else bool(problem.reached_target(best_fitness, tolerance=self.target_tolerance))
         metadata = dict(candidate.get("metadata") or {})
         if hasattr(result, "metadata") and isinstance(result.metadata, dict):
-            for key in ("n_improvements", "mean_diversity", "final_diversity"):
+            for key in (
+                "n_improvements",
+                "mean_diversity",
+                "final_diversity",
+                "budget_utilization",
+                "budget_scheduler_policy",
+                "scheduler_selection_counts",
+                "final_island_evaluation_gap",
+                "evaluations_by_category",
+                "evaluations_by_island",
+            ):
                 if key in result.metadata:
                     metadata[key] = result.metadata.get(key)
         return ExperimentRecord(

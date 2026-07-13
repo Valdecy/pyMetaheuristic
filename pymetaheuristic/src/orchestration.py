@@ -1,10 +1,16 @@
 from __future__ import annotations
 
+import copy
 from dataclasses import asdict, is_dataclass
 from typing import Any
 
 from .api import create_optimizer
-from .budget import EvaluationBudgetExceeded, make_shared_budget
+from .budget import (
+    EvaluationBudgetExceeded,
+    FairEvaluationScheduler,
+    format_budget_report,
+    make_shared_budget,
+)
 from .cooperation import CooperativeRunner, IslandSpec
 from .actions import execute_decision_plan, outcome_to_dict
 from .controllers import BanditController, FixedMigrationController, PortfolioAdaptiveController, RuleBasedController
@@ -64,6 +70,7 @@ def build_snapshot(
     budget_total: int | None,
     recent_actions: list[dict[str, Any]] | None = None,
     memory: list[str] | None = None,
+    budget_used_override: int | None = None,
 ) -> OrchestratorSnapshot:
     agents: list[AgentSnapshot] = []
     budget_used = 0
@@ -132,6 +139,8 @@ def build_snapshot(
         ):
             best_label, best_fit, best_pos = label, state.best_fitness, list(state.best_position)
 
+    if budget_used_override is not None:
+        budget_used = int(budget_used_override)
     budget_remaining = None if budget_total is None else max(0, int(budget_total - budget_used))
     budget_used_ratio = None if budget_total is None or budget_total <= 0 else float(budget_used / budget_total)
     return OrchestratorSnapshot(
@@ -254,7 +263,7 @@ class OrchestratedRunner:
             )
             try:
                 if budget is not None:
-                    with budget.use_label(label):
+                    with budget.use_label(label), budget.use_category("initialization"):
                         state = engine.initialize()
                 else:
                     state = engine.initialize()
@@ -302,35 +311,44 @@ class OrchestratedRunner:
             budget_total=self.max_evaluations,
             recent_actions=recent_action_dicts,
             memory=memory,
+            budget_used_override=(int(budget.used) if budget is not None else None),
         )
         controller.initialize(init_snapshot)
         checkpoints.append(init_snapshot)
 
-        active = True
         global_history = []
         actual_backend = (execution_backend or "serial").lower()
         backend_warning = None
         if force_serial_budget:
             backend_warning = "Strict shared max_evaluations requires serial island execution; process backend was disabled to avoid FE overshoot."
         label_order = list(engines.keys())
+        scheduler = FairEvaluationScheduler(label_order) if budget is not None and label_order else None
+        scheduler_turns = 0
+        scheduler_turns_since_checkpoint = 0
 
-        while active:
+        while True:
             if budget is not None and budget.exhausted:
                 break
-            chunk_items = []
-            active_labels = []
-            for label in label_order:
-                if budget is not None and budget.exhausted:
-                    break
-                engine = engines[label]
-                state = states[label]
-                if engine.should_stop(state):
-                    continue
-                active_labels.append(label)
-                chunk_items.append((label, engine, state, 1))
-            active = bool(chunk_items)
-            if not active:
+
+            active_labels = [
+                label
+                for label in label_order
+                if not engines[label].should_stop(states[label])
+            ]
+            if not active_labels:
                 break
+
+            evaluations_before_by_label: dict[str, int] = {}
+            if budget is not None and scheduler is not None:
+                selected_label = scheduler.select(active_labels, budget.by_label)
+                chunk_labels = [selected_label]
+                evaluations_before_by_label[selected_label] = int(budget.used_for(selected_label))
+            else:
+                chunk_labels = list(active_labels)
+            chunk_items = [
+                (label, engines[label], states[label], 1)
+                for label in chunk_labels
+            ]
 
             results, actual_backend, warning = run_engine_chunks(
                 chunk_items,
@@ -343,18 +361,63 @@ class OrchestratedRunner:
                 if self.verbose:
                     print(f"[orchestrated] {warning}")
 
-            for label, result in zip(active_labels, results):
+            for label, result in zip(chunk_labels, results):
                 engine = engines[label]
                 states[label] = result.state
-                for obs in result.observations:
-                    histories[label].append(obs)
-                    global_history.append({"label": label, "algorithm": engine.algorithm_id, **obs})
-            rounds_since_checkpoint += 1
-            if rounds_since_checkpoint < checkpoint_interval:
-                continue
+                if budget is not None:
+                    local_after = int(budget.used_for(label))
+                    local_before = int(evaluations_before_by_label.get(label, local_after))
+                    consumed = max(0, local_after - local_before)
+                    global_evaluations = int(budget.used)
+                    island_evaluations = local_after
+                else:
+                    consumed = 0
+                    global_evaluations = sum(int(states[l].evaluations) for l in label_order)
+                    island_evaluations = int(states[label].evaluations)
+
+                global_best_fitness = None
+                for other_label in label_order:
+                    fit = states[other_label].best_fitness
+                    if fit is None:
+                        continue
+                    if global_best_fitness is None or (
+                        fit > global_best_fitness if self.objective == "max" else fit < global_best_fitness
+                    ):
+                        global_best_fitness = fit
+
+                observations = list(result.observations)
+                if not observations and consumed > 0:
+                    fallback_obs = dict(engine.observe(states[label]))
+                    fallback_obs["event"] = "budget_cutoff"
+                    observations = [fallback_obs]
+                for obs in observations:
+                    history_item = {
+                        **dict(obs),
+                        "label": label,
+                        "algorithm": engine.algorithm_id,
+                        "global_evaluations": global_evaluations,
+                        "island_evaluations": island_evaluations,
+                        "evaluations_consumed": consumed,
+                        "global_best_fitness": global_best_fitness,
+                    }
+                    histories[label].append(history_item)
+                    global_history.append(history_item)
+
+            if budget is not None:
+                scheduler_turns += 1
+                scheduler_turns_since_checkpoint += 1
+                active_count = max(1, len(active_labels))
+                checkpoint_due = scheduler_turns_since_checkpoint >= checkpoint_interval * active_count
+                if not checkpoint_due:
+                    continue
+                scheduler_turns_since_checkpoint = 0
+            else:
+                rounds_since_checkpoint += 1
+                if rounds_since_checkpoint < checkpoint_interval:
+                    continue
+                rounds_since_checkpoint = 0
 
             checkpoint_id += 1
-            rounds_since_checkpoint = 0
             snapshot = build_snapshot(
                 engines=engines,
                 states=states,
@@ -367,11 +430,13 @@ class OrchestratedRunner:
                 budget_total=self.max_evaluations,
                 recent_actions=recent_action_dicts,
                 memory=memory,
+                budget_used_override=(int(budget.used) if budget is not None else None),
             )
             checkpoints.append(snapshot)
 
             plan: DecisionPlan = controller.decide(snapshot)
             decisions.append(plan)
+            evaluations_before_actions = int(budget.used) if budget is not None else None
             states, outcomes = execute_decision_plan(
                 plan,
                 engines,
@@ -383,6 +448,28 @@ class OrchestratedRunner:
                 for _label, _engine in engines.items():
                     _engine._sync_evaluation_count(states[_label], _label)
                     _engine._remember_best_evaluation_details(states[_label])
+                action_evaluations = int(budget.used) - int(evaluations_before_actions or 0)
+                if action_evaluations > 0:
+                    best_after_actions = None
+                    for _label in label_order:
+                        fit = states[_label].best_fitness
+                        if fit is None:
+                            continue
+                        if best_after_actions is None or (
+                            fit > best_after_actions if self.objective == "max" else fit < best_after_actions
+                        ):
+                            best_after_actions = fit
+                    global_history.append({
+                        "event": "orchestration_actions",
+                        "label": "__orchestrator__",
+                        "algorithm": self.config.orchestration.mode,
+                        "step": checkpoint_id,
+                        "global_evaluations": int(budget.used),
+                        "island_evaluations": None,
+                        "evaluations_consumed": action_evaluations,
+                        "global_best_fitness": best_after_actions,
+                        "best_fitness": best_after_actions,
+                    })
             outcomes_all.append(outcomes)
             recent_action_dicts = [outcome_to_dict(o) for o in outcomes]
             events.extend(recent_action_dicts)
@@ -423,6 +510,36 @@ class OrchestratedRunner:
                 best_fitness = result.best_fitness
                 best_position = list(result.best_position)
 
+        total_evaluations = (
+            int(budget.used)
+            if budget is not None
+            else sum(int(r.evaluations) for r in island_results.values())
+        )
+        total_island_steps = sum(int(getattr(result, "steps", 0) or 0) for result in island_results.values())
+        if budget is not None and budget.exhausted:
+            termination_reason = "max_evaluations"
+        elif all(engine.should_stop(states[label]) for label, engine in engines.items()):
+            termination_reason = "islands_stopped"
+        else:
+            termination_reason = "completed"
+        budget_report = format_budget_report(
+            budget,
+            labels=label_order,
+            scheduler=scheduler,
+            requested_budget=self.max_evaluations,
+            prefix="orchestrated-budget",
+        )
+        if self.verbose and budget is not None:
+            print(budget_report)
+
+        named_counts = [int(budget.by_label.get(label, 0)) for label in label_order] if budget is not None else []
+        final_evaluation_gap = (max(named_counts) - min(named_counts)) if named_counts else 0
+        budget_utilization = (
+            None
+            if self.max_evaluations in (None, 0)
+            else float(total_evaluations / int(self.max_evaluations))
+        )
+
         return OrchestratedCooperativeResult(
             best_position=best_position,
             best_fitness=best_fitness,
@@ -435,8 +552,19 @@ class OrchestratedRunner:
             outcomes=outcomes_all,
             metadata={
                 "max_evaluations": self.max_evaluations,
-                "total_evaluations": int(budget.used) if budget is not None else sum(int(r.evaluations) for r in island_results.values()),
+                "total_evaluations": total_evaluations,
+                "total_island_steps": total_island_steps,
+                "termination_reason": termination_reason,
                 "evaluations_by_island": dict(budget.by_label) if budget is not None else {label: int(result.evaluations) for label, result in island_results.items()},
+                "evaluations_by_category": dict(budget.by_category) if budget is not None else {},
+                "evaluations_by_island_and_category": copy.deepcopy(budget.by_label_category) if budget is not None else {},
+                "budget_utilization": budget_utilization,
+                "budget_scheduler_policy": scheduler.policy_name if scheduler is not None else None,
+                "budget_scheduler_explanation": scheduler.explanation if scheduler is not None else None,
+                "scheduler_selection_counts": dict(scheduler.selection_counts) if scheduler is not None else {},
+                "scheduler_turns": scheduler_turns,
+                "final_island_evaluation_gap": final_evaluation_gap,
+                "budget_report": budget_report,
                 "checkpoint_interval": self.config.orchestration.checkpoint_interval,
                 "constraint_handler": self.constraint_handler or "none",
                 "variable_types": list(self.variable_types) if self.variable_types is not None else None,

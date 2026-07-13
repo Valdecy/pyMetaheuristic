@@ -200,6 +200,26 @@ class OrchestratedCooperativeResult:
     outcomes: list[list[ActionOutcome]]
     metadata: dict[str, Any] = field(default_factory=dict)
 
+    @property
+    def evaluations(self) -> int | None:
+        value = self.metadata.get("total_evaluations")
+        return None if value is None else int(value)
+
+    @property
+    def steps(self) -> int | None:
+        value = self.metadata.get("total_island_steps")
+        return None if value is None else int(value)
+
+    @property
+    def termination_reason(self) -> str | None:
+        return self.metadata.get("termination_reason")
+
+    def budget_summary(self, *, print_report: bool = False) -> str:
+        report = str(self.metadata.get("budget_report") or "No budget report is available.")
+        if print_report:
+            print(report)
+        return report
+
     def migration_matrix(self, value: str = "migrants", include_zero: bool = True, objective: str | None = None) -> dict[str, dict[str, float]]:
         from .diagnostics import migration_matrix
         return migration_matrix(self, value=value, include_zero=include_zero, objective=objective)

@@ -6,7 +6,12 @@ import copy
 import random
 
 from .api import create_optimizer
-from .budget import EvaluationBudgetExceeded, make_shared_budget
+from .budget import (
+    EvaluationBudgetExceeded,
+    FairEvaluationScheduler,
+    format_budget_report,
+    make_shared_budget,
+)
 from .execution import run_engine_chunks
 
 
@@ -68,6 +73,26 @@ class CooperativeResult:
     metadata: dict[str, Any] = field(default_factory=dict)
     island_telemetry: dict[str, list[IslandTelemetryRecord]] = field(default_factory=dict)
     replay_manifest: dict[str, Any] = field(default_factory=dict)
+
+    @property
+    def evaluations(self) -> int | None:
+        value = self.metadata.get("total_evaluations")
+        return None if value is None else int(value)
+
+    @property
+    def steps(self) -> int | None:
+        value = self.metadata.get("total_island_steps")
+        return None if value is None else int(value)
+
+    @property
+    def termination_reason(self) -> str | None:
+        return self.metadata.get("termination_reason")
+
+    def budget_summary(self, *, print_report: bool = False) -> str:
+        report = str(self.metadata.get("budget_report") or "No budget report is available.")
+        if print_report:
+            print(report)
+        return report
 
     def migration_matrix(self, value: str = "migrants", include_zero: bool = True, objective: str | None = None) -> dict[str, dict[str, float]]:
         from .diagnostics import migration_matrix
@@ -425,7 +450,7 @@ class CooperativeRunner:
             )
             try:
                 if budget is not None:
-                    with budget.use_label(label):
+                    with budget.use_label(label), budget.use_category("initialization"):
                         state = engine.initialize()
                 else:
                     state = engine.initialize()
@@ -472,27 +497,43 @@ class CooperativeRunner:
         engines_map = {label: engine for label, engine in islands}
         current_interval = self.migration_interval
         rounds_since_migration = 0
+        scheduler_turns_since_migration = 0
+        scheduler_turns = 0
         global_step = 0
         actual_backend = (execution_backend or 'serial').lower()
         backend_warning = None
+        scheduler = FairEvaluationScheduler(labels) if budget is not None and labels else None
         if force_serial_budget:
             backend_warning = "Strict shared max_evaluations requires serial island execution; process backend was disabled to avoid FE overshoot."
 
         while True:
             if budget is not None and budget.exhausted:
                 break
-            chunk_items = []
-            active_indices = []
-            for idx, (label, engine) in enumerate(islands):
-                if budget is not None and budget.exhausted:
-                    break
-                state = states_map[label]
-                if engine.should_stop(state):
-                    continue
-                active_indices.append(idx)
-                chunk_items.append((label, engine, state, 1))
-            if not chunk_items:
+
+            active_indices = [
+                idx
+                for idx, (label, engine) in enumerate(islands)
+                if not engine.should_stop(states_map[label])
+            ]
+            if not active_indices:
                 break
+
+            evaluations_before_by_label: dict[str, int] = {}
+            if budget is not None and scheduler is not None:
+                active_labels = [islands[idx][0] for idx in active_indices]
+                selected_label = scheduler.select(active_labels, budget.by_label)
+                selected_idx = next(idx for idx in active_indices if islands[idx][0] == selected_label)
+                selected_engine = islands[selected_idx][1]
+                chunk_items = [(selected_label, selected_engine, states_map[selected_label], 1)]
+                selected_indices = [selected_idx]
+                evaluations_before_by_label[selected_label] = int(budget.used_for(selected_label))
+            else:
+                chunk_items = []
+                selected_indices = []
+                for idx in active_indices:
+                    label, engine = islands[idx]
+                    selected_indices.append(idx)
+                    chunk_items.append((label, engine, states_map[label], 1))
 
             results, actual_backend, warning = run_engine_chunks(
                 chunk_items,
@@ -505,18 +546,52 @@ class CooperativeRunner:
                 if self.verbose:
                     print(f"[cooperation] {warning}")
 
-            for idx, result in zip(active_indices, results):
+            for idx, result in zip(selected_indices, results):
                 label, engine = islands[idx]
                 state = result.state
                 states_map[label] = state
+                if budget is not None:
+                    local_after = int(budget.used_for(label))
+                    local_before = int(evaluations_before_by_label.get(label, local_after))
+                    consumed = max(0, local_after - local_before)
+                    global_evaluations = int(budget.used)
+                    island_evaluations = local_after
+                else:
+                    consumed = 0
+                    global_evaluations = sum(int(states_map[l].evaluations) for l in labels)
+                    island_evaluations = int(state.evaluations)
+
+                best_global = None
+                for other_label in labels:
+                    fit = states_map[other_label].best_fitness
+                    if best_global is None or _is_better(fit, best_global, self.objective):
+                        best_global = fit
+
+                observations = list(result.observations)
+                if not observations and consumed > 0:
+                    fallback_obs = dict(engine.observe(state))
+                    fallback_obs["event"] = "budget_cutoff"
+                    observations = [fallback_obs]
+
                 obs_payload = None
-                for obs in result.observations:
-                    obs_payload = obs
-                    histories[idx].append(obs)
-                    global_history.append({'global_step': global_step, 'label': label, 'algorithm': engine.algorithm_id, **obs})
+                for obs in observations:
+                    obs_payload = dict(obs)
+                    history_item = {
+                        **obs_payload,
+                        'global_step': global_step,
+                        'label': label,
+                        'algorithm': engine.algorithm_id,
+                        'global_evaluations': global_evaluations,
+                        'island_evaluations': island_evaluations,
+                        'evaluations_consumed': consumed,
+                        'global_best_fitness': best_global,
+                    }
+                    histories[idx].append(history_item)
+                    global_history.append(history_item)
                     global_step += 1
                 if obs_payload is None:
                     obs_payload = dict(engine.observe(state))
+
                 best_fit = obs_payload.get('best_fitness', state.best_fitness)
                 prev_fit = previous_best.get(label)
                 delta = None if prev_fit is None or best_fit is None else float(best_fit - prev_fit)
@@ -528,7 +603,7 @@ class CooperativeRunner:
                     label=label,
                     algorithm=engine.algorithm_id,
                     step=state.step,
-                    evaluations=state.evaluations,
+                    evaluations=island_evaluations,
                     best_fitness=best_fit,
                     delta_best=delta,
                     stagnation_steps=stagnation_counter[label],
@@ -562,10 +637,19 @@ class CooperativeRunner:
                     best_now = fit
             global_best_trace.append(best_now)
 
-            rounds_since_migration += 1
-            if rounds_since_migration < current_interval:
-                continue
-            rounds_since_migration = 0
+            if budget is not None:
+                scheduler_turns += 1
+                scheduler_turns_since_migration += 1
+                active_count = max(1, len(active_indices))
+                migration_due = scheduler_turns_since_migration >= current_interval * active_count
+                if not migration_due:
+                    continue
+                scheduler_turns_since_migration = 0
+            else:
+                rounds_since_migration += 1
+                if rounds_since_migration < current_interval:
+                    continue
+                rounds_since_migration = 0
 
             effective_policy = self._effective_policy(states_map, telemetry_by_island)
             donors = self._select_donors(labels, states_map, engines_map, telemetry_by_island, adjacency)
@@ -587,7 +671,7 @@ class CooperativeRunner:
                 source_fitness = source_state.best_fitness
                 try:
                     if budget is not None:
-                        with budget.use_label(receiver_label):
+                        with budget.use_label(receiver_label), budget.use_category("migration"):
                             updated_state = target_engine.inject_candidates(target_state, migrants, policy='native')
                     else:
                         updated_state = target_engine.inject_candidates(target_state, migrants, policy='native')
@@ -707,6 +791,36 @@ class CooperativeRunner:
             'events': [event.__dict__ for event in events],
         }
 
+        total_evaluations = (
+            int(budget.used)
+            if budget is not None
+            else sum(int(r.evaluations) for r in island_results.values())
+        )
+        total_island_steps = sum(int(getattr(result, "steps", 0) or 0) for result in island_results.values())
+        if budget is not None and budget.exhausted:
+            termination_reason = "max_evaluations"
+        elif all(engine.should_stop(states_map[label]) for label, engine in islands):
+            termination_reason = "islands_stopped"
+        else:
+            termination_reason = "completed"
+        budget_report = format_budget_report(
+            budget,
+            labels=labels,
+            scheduler=scheduler,
+            requested_budget=self.max_evaluations,
+            prefix="cooperation-budget",
+        )
+        if self.verbose and budget is not None:
+            print(budget_report)
+
+        named_counts = [int(budget.by_label.get(label, 0)) for label in labels] if budget is not None else []
+        final_evaluation_gap = (max(named_counts) - min(named_counts)) if named_counts else 0
+        budget_utilization = (
+            None
+            if self.max_evaluations in (None, 0)
+            else float(total_evaluations / int(self.max_evaluations))
+        )
+
         return CooperativeResult(
             best_position=best_position,
             best_fitness=best_fitness,
@@ -716,8 +830,19 @@ class CooperativeRunner:
             history=global_history,
             metadata={
                 'max_evaluations': self.max_evaluations,
-                'total_evaluations': int(budget.used) if budget is not None else sum(int(r.evaluations) for r in island_results.values()),
+                'total_evaluations': total_evaluations,
+                'total_island_steps': total_island_steps,
+                'termination_reason': termination_reason,
                 'evaluations_by_island': dict(budget.by_label) if budget is not None else {label: int(result.evaluations) for label, result in island_results.items()},
+                'evaluations_by_category': dict(budget.by_category) if budget is not None else {},
+                'evaluations_by_island_and_category': copy.deepcopy(budget.by_label_category) if budget is not None else {},
+                'budget_utilization': budget_utilization,
+                'budget_scheduler_policy': scheduler.policy_name if scheduler is not None else None,
+                'budget_scheduler_explanation': scheduler.explanation if scheduler is not None else None,
+                'scheduler_selection_counts': dict(scheduler.selection_counts) if scheduler is not None else {},
+                'scheduler_turns': scheduler_turns,
+                'final_island_evaluation_gap': final_evaluation_gap,
+                'budget_report': budget_report,
                 'topology': self.topology,
                 'topology_config': dict(self.topology_config),
                 'custom_topology': dict(self.custom_topology),
