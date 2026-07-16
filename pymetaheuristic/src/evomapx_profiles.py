@@ -2968,3 +2968,28 @@ EVOMAPX_OPERATOR_PROFILES["eto"] = EvoMapXProfile(
         "native update operators; schedule and mode-selection operators are diagnostic."
     ),
 )
+
+# Addendum - native BSPGA telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["bspga"] = EvoMapXProfile(
+    algorithm_id="bspga",
+    family="evolutionary",
+    operators=(
+        "bspga.uniform_crossover",
+        "bspga.bit_flip_mutation",
+        "bspga.tree_learning",
+        "bspga.tree_collision_fine_tuning",
+        "bspga.tree_insertion",
+        "bspga.environmental_selection",
+        "bspga.candidate_injection",
+    ),
+    fidelity="native",
+    phase="paper_faithful_bspga",
+    notes=(
+        "Native BSPGA telemetry reports paper-defined uniform crossover, bit-flip "
+        "mutation, BSP-tree learning, collision fine-tuning, tree insertion, and "
+        "elitist environmental selection. Candidate injection is a package-level "
+        "extension that inserts incoming points into the same non-revisiting tree. "
+        "Telemetry is computed from already evaluated candidates and adds no objective "
+        "function calls."
+    ),
+)

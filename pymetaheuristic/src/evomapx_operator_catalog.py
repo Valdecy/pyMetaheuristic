@@ -7059,3 +7059,54 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_eto_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum - native BSPGA semantic labels synchronized with the paper-faithful engine.
+_BSPGA_PAPER_NATIVE_LABELS = [
+    "bspga.uniform_crossover",
+    "bspga.bit_flip_mutation",
+    "bspga.tree_learning",
+    "bspga.tree_collision_fine_tuning",
+    "bspga.tree_insertion",
+    "bspga.environmental_selection",
+    "bspga.candidate_injection",
+]
+ENGINE_OPERATOR_LABELS["bspga"] = list(_BSPGA_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["bspga"] = list(_BSPGA_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["bspga"] = list(_BSPGA_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("bspga")
+    _NATIVE_TELEMETRY_ENGINES.add("bspga")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_bspga_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "bspga":
+        return list(_BSPGA_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_bspga_native(algorithm_id)
+
+_previous_expand_compound_bspga_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "bspga":
+        if raw in _BSPGA_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {
+            "bspga.update",
+            "bspga.step",
+            "bspga.binary_partition_tree_variation_update",
+        }:
+            return list(_BSPGA_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_bspga_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
