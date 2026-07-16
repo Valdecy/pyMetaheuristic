@@ -2945,3 +2945,26 @@ EVOMAPX_OPERATOR_PROFILES["pysoa"] = EvoMapXProfile(
         "operators with zero direct improvement."
     ),
 )
+
+# Addendum — native ETO telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["eto"] = EvoMapXProfile(
+    algorithm_id="eto",
+    family="math",
+    operators=(
+        "eto.constrained_search_domain_update",
+        "eto.changeover_mode_selection",
+        "eto.first_exploration_best_guided_update",
+        "eto.first_exploitation_best_neighborhood_update",
+        "eto.second_exploration_self_position_update",
+        "eto.second_exploitation_intensification_update",
+    ),
+    fidelity="native",
+    phase="paper_faithful_eto",
+    notes=(
+        "Native ETO telemetry reports the constrained search-domain update, the "
+        "changeover mode decision, and all four paper-defined exploration/exploitation "
+        "position-update operators without additional objective evaluations. Positive "
+        "objective improvement is attributed proportionally to the coordinate-level "
+        "native update operators; schedule and mode-selection operators are diagnostic."
+    ),
+)

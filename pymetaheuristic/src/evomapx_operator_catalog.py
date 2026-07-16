@@ -7013,3 +7013,49 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_pysoa_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum — native ETO semantic labels synchronized with the paper-faithful engine.
+_ETO_PAPER_NATIVE_LABELS = [
+    "eto.constrained_search_domain_update",
+    "eto.changeover_mode_selection",
+    "eto.first_exploration_best_guided_update",
+    "eto.first_exploitation_best_neighborhood_update",
+    "eto.second_exploration_self_position_update",
+    "eto.second_exploitation_intensification_update",
+]
+ENGINE_OPERATOR_LABELS["eto"] = list(_ETO_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["eto"] = list(_ETO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["eto"] = list(_ETO_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("eto")
+    _NATIVE_TELEMETRY_ENGINES.add("eto")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_eto_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "eto":
+        return list(_ETO_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_eto_native(algorithm_id)
+
+_previous_expand_compound_eto_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "eto":
+        if raw in _ETO_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"eto.update", "eto.step", "eto.exponential_trigonometric_update"}:
+            return list(_ETO_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_eto_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
