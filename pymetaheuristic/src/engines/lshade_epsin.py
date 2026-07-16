@@ -75,7 +75,7 @@ class LSHADEEpSinEngine(PortedPopulationEngine):
         supports_snapshot_fit=True,
     )
     _REFERENCE = {
-        "doi": "10.1109/CEC.2016.7744313",
+        "doi": "10.1109/CEC.2016.7744163",
         "title": "An Ensemble Sinusoidal Parameter Adaptation incorporated with L-SHADE for Solving CEC2014 Benchmark Problems",
         "authors": "Noor H. Awad, Mostafa Z. Ali, Ponnuthurai N. Suganthan, Robert G. Reynolds",
         "year": 2016,
