@@ -2993,3 +2993,27 @@ EVOMAPX_OPERATOR_PROFILES["bspga"] = EvoMapXProfile(
         "function calls."
     ),
 )
+
+# Addendum — paper-faithful native LSHADE-cnEpSin telemetry.
+EVOMAPX_OPERATOR_PROFILES['lshade_cnepsin'] = EvoMapXProfile(
+    algorithm_id='lshade_cnepsin',
+    family='evolutionary',
+    operators=(
+        'lshade_cnepsin.sinusoidal_performance_adaptation',
+        'lshade_cnepsin.sinusoidal_decreasing_f',
+        'lshade_cnepsin.sinusoidal_increasing_f',
+        'lshade_cnepsin.adaptive_frequency_update',
+        'lshade_cnepsin.lshade_second_phase_adaptation',
+        'lshade_cnepsin.current_to_pbest_mutation',
+        'lshade_cnepsin.covariance_eigen_crossover',
+        'lshade_cnepsin.binomial_crossover',
+        'lshade_cnepsin.midpoint_bound_repair',
+        'lshade_cnepsin.greedy_selection',
+        'lshade_cnepsin.external_archive_update',
+        'lshade_cnepsin.success_history_update',
+        'lshade_cnepsin.linear_population_size_reduction',
+    ),
+    fidelity='native',
+    phase='paper_faithful_lshade_cnepsin',
+    notes='Native telemetry for performance-adapted sinusoidal F control, SHADE memory, current-to-pbest mutation, Euclidean-neighbourhood covariance crossover, archive maintenance, greedy selection, midpoint repair, and linear population reduction.',
+)

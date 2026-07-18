@@ -7110,3 +7110,61 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_bspga_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Addendum — native LSHADE-cnEpSin labels synchronized with the corrected engine.
+_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS = [
+    "lshade_cnepsin.sinusoidal_performance_adaptation",
+    "lshade_cnepsin.sinusoidal_decreasing_f",
+    "lshade_cnepsin.sinusoidal_increasing_f",
+    "lshade_cnepsin.adaptive_frequency_update",
+    "lshade_cnepsin.lshade_second_phase_adaptation",
+    "lshade_cnepsin.current_to_pbest_mutation",
+    "lshade_cnepsin.covariance_eigen_crossover",
+    "lshade_cnepsin.binomial_crossover",
+    "lshade_cnepsin.midpoint_bound_repair",
+    "lshade_cnepsin.greedy_selection",
+    "lshade_cnepsin.external_archive_update",
+    "lshade_cnepsin.success_history_update",
+    "lshade_cnepsin.linear_population_size_reduction",
+]
+ENGINE_OPERATOR_LABELS["lshade_cnepsin"] = list(_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["lshade_cnepsin"] = list(_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["lshade_cnepsin"] = list(_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("lshade_cnepsin")
+    _NATIVE_TELEMETRY_ENGINES.add("lshade_cnepsin")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_lshade_cnepsin_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "lshade_cnepsin":
+        return list(_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_lshade_cnepsin_native(algorithm_id)
+
+_previous_expand_compound_lshade_cnepsin_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "lshade_cnepsin":
+        if raw in _LSHADE_CNEPSIN_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {
+            "lshade_cnepsin.update",
+            "lshade_cnepsin.step",
+            "lshade_cnepsin.cn_epsin_mutation_crossover_selection",
+            "lshade_cnepsin.step_impl_evaluation_l425",
+        }:
+            return list(_LSHADE_CNEPSIN_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_lshade_cnepsin_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
