@@ -49,10 +49,7 @@ class BSPGAEngine(BaseEngine):
     """Non-revisiting GA based on the novel binary space partition tree."""
 
     algorithm_id = "bspga"
-    algorithm_name = (
-        "Non-Revisiting Genetic Algorithm Based on a Novel Binary Space "
-        "Partition Tree"
-    )
+    algorithm_name = "Binary Space Partition Tree Genetic Algorithm"
     family = "evolutionary"
     _REFERENCE = {
         "doi": "10.1016/j.ins.2019.10.016",
