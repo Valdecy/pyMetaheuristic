@@ -1208,7 +1208,7 @@ for _aid in (
 # optimizers.  These labels replace source-location probes in OAM/CDS reports
 # without touching objective calls, RNG use, or optimizer dynamics.
 _B18_EXACT_SEMANTIC_REWRITE = {
-    "cem.step_evaluation_l49": "cem.model_sampling_elite_distribution_update",
+    "cem.step_evaluation_l49": "cem.model_sampling",
     "compact_ga.evaluate_bits": "compact_ga.probability_model_sampling_update",
     "compact_ga.step_evaluation_l211": "compact_ga.local_refinement_update",
     "ego.candidate_generation": "ego.expected_improvement_candidate_generation",
@@ -1399,7 +1399,7 @@ _EXACT_COMPOUND_OPERATOR_SPLITS = {
     "aesspso.adaptive_velocity_position_update": ("aesspso.velocity_update", "aesspso.position_update"),
     "basin_hopping.perturb_local_search_acceptance_update": ("basin_hopping.perturbation", "basin_hopping.local_search", "basin_hopping.acceptance"),
     "bipop_cmaes.restart_cmaes_sampling_update": ("bipop_cmaes.restart", "bipop_cmaes.cmaes_sampling", "bipop_cmaes.distribution_update"),
-    "cem.model_sampling_elite_distribution_update": ("cem.model_sampling", "cem.elite_selection", "cem.distribution_update"),
+    "cem.model_sampling_elite_distribution_update": ("cem.model_sampling", "cem.elite_quantile_selection", "cem.mean_update", "cem.standard_deviation_update"),
     "cuckoo_s.levy_flight_replacement": ("cuckoo_s.levy_flight", "cuckoo_s.replacement"),
     "firefly_a.brightness_attraction_randomization_update": ("firefly_a.attraction", "firefly_a.randomization"),
     "gpso.velocity_position_update": ("gpso.velocity_update", "gpso.position_update"),
@@ -1845,7 +1845,7 @@ _BATCH2_RUNTIME_CATALOG_OVERRIDES = {
     'alo': ['alo.random_walk', 'alo.state_update', 'alo.candidate_generation', 'alo.selection', 'alo.combine'],
     'basin_hopping': ['basin_hopping.candidate_search', 'basin_hopping.selection', 'basin_hopping.candidate_update', 'basin_hopping.local_search', 'basin_hopping.state_update', 'basin_hopping.perturbation', 'basin_hopping.acceptance'],
     'cco': ['cco.candidate_search', 'cco.selection', 'cco.candidate_generation'],
-    'cem': ['cem.model_sampling', 'cem.elite_selection', 'cem.distribution_update', 'cem.candidate_generation', 'cem.selection', 'cem.sampling', 'cem.model_update'],
+    'cem': ['cem.model_sampling', 'cem.elite_quantile_selection', 'cem.mean_update', 'cem.standard_deviation_update', 'cem.boundary_handling', 'cem.candidate_injection'],
     'cuckoo_s': ['cuckoo_s.levy_flight', 'cuckoo_s.replacement', 'cuckoo_s.candidate_generation', 'cuckoo_s.selection'],
     'dvba': ['dvba.force_or_velocity_update', 'dvba.position_update', 'dvba.random_walk', 'dvba.state_update', 'dvba.candidate_generation', 'dvba.selection'],
     'et_bo': ['et_bo.position_generation', 'et_bo.selection', 'et_bo.step', 'et_bo.candidate_generation', 'et_bo.state_update'],
@@ -3654,7 +3654,7 @@ _SINGLE_EVAL_HONEST = {
 "ca": "ca.cultural_belief_guided_update",
 "cddo": "cddo.cheetah_chase_position_update",
 "cddo_child": "cddo_child.child_drawing_development_update",
-"cem": "cem.model_sampling_elite_distribution_update",
+"cem": "cem.model_sampling",
 "choa": "choa.chimp_hunting_position_update",
 "circle_sa": "circle_sa.circle_position_update",
 "cmaes": "cmaes.covariance_sampling_recombination_update",
@@ -4776,7 +4776,12 @@ _README_OPERATOR_LABEL_OVERRIDES: dict[str, list[str]] = {
         'cdo_chernobyl.selection',
     ],
     'cem': [
-        'cem.model_sampling_elite_distribution_update',
+        'cem.model_sampling',
+        'cem.elite_quantile_selection',
+        'cem.mean_update',
+        'cem.standard_deviation_update',
+        'cem.boundary_handling',
+        'cem.candidate_injection',
     ],
     'ceo_cosmic': [
         'ceo_cosmic.exploration_attraction_alignment',

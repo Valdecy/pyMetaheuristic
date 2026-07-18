@@ -391,7 +391,7 @@ _register_profiles(
 
 # Phase 7 — distribution/model, surrogate, trajectory, and local-search profiles
 _register_profiles(
-    _profile('cem', 'distribution', ('model sampling', 'elite/model selection', 'model update', 'replacement/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs model sampling, elite/model selection, model update, and incumbent replacement without extra objective evaluations.'),
+    _profile('cem', 'distribution', ('cem.model_sampling', 'cem.elite_quantile_selection', 'cem.mean_update', 'cem.standard_deviation_update', 'cem.boundary_handling', 'cem.candidate_injection'), 'native', 'phase_7_distribution_surrogate_trajectory', 'Native continuous CE telemetry records bounded normal sampling, objective-aware elite-quantile selection, separately smoothed mean and standard-deviation updates, boundary handling, and candidate injection without extra objective evaluations.'),
     _profile('compact_ga', 'distribution', ('model sampling', 'elite/model selection', 'model update', 'replacement/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs model sampling, elite/model selection, model update, and incumbent replacement without extra objective evaluations.'),
     _profile('ego', 'distribution', ('model sampling', 'elite/model selection', 'model update', 'replacement/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs model sampling, elite/model selection, model update, and incumbent replacement without extra objective evaluations.'),
     _profile('pbil', 'distribution', ('model sampling', 'elite/model selection', 'model update', 'replacement/incumbent update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs model sampling, elite/model selection, model update, and incumbent replacement without extra objective evaluations.'),
@@ -1005,7 +1005,12 @@ _README_OPERATOR_OVERRIDES: dict[str, tuple[str, ...]] = {
         'cdo_chernobyl.selection',
     ),
     'cem': (
-        'cem.model_sampling_elite_distribution_update',
+        'cem.model_sampling',
+        'cem.elite_quantile_selection',
+        'cem.mean_update',
+        'cem.standard_deviation_update',
+        'cem.boundary_handling',
+        'cem.candidate_injection',
     ),
     'ceo_cosmic': (
         'ceo_cosmic.exploration_attraction_alignment',
