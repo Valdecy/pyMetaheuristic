@@ -1158,6 +1158,14 @@ def _family_schema_for(algorithm_id: str) -> tuple[list[str], str, str]:
             labels.extend(["de_mutation", "de_crossover", "de_selection", "de_parameter_adaptation"])
             return labels, "de_selection", "Surrogate-assisted DE signed native composite"
         return labels, "surr_acquisition", "Surrogate-assisted signed native composite"
+    if aid == "grasp":
+        labels = [
+            "grasp.construction",
+            "grasp.rcl_selection",
+            "grasp.local_search",
+            "grasp.incumbent_update",
+        ]
+        return labels, "grasp.incumbent_update", "GRASP signed native construction/local-search composite"
     if aid in TRAJECTORY_LOCAL_VARIANTS:
         labels = [f"{aid}_proposal", f"{aid}_acceptance", f"{aid}_step_or_temperature_update", f"{aid}_restart"]
         return labels, f"{aid}_acceptance", "Trajectory/local-search signed native composite"

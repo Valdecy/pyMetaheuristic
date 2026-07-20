@@ -2518,7 +2518,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'gp_bo'              : 'Gaussian Process Bayesian Optimization',
     'gpoo'               : 'Giant Pacific Octopus Optimizer',
     'gpso'               : 'Gradient-Based Particle Swarm Optimization',
-    'grasp'              : 'Greedy Randomized Adaptive Search Procedure',
+    'grasp'              : 'Greedy Randomized Adaptive Search Procedures',
     'gsa'                : 'Gravitational Search Algorithm',
     'gska'               : 'Gaining-Sharing Knowledge Algorithm',
     'gso'                : 'Glowworm Swarm Optimization',

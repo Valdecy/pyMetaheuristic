@@ -1852,7 +1852,7 @@ _BATCH2_RUNTIME_CATALOG_OVERRIDES = {
     'fep': ['fep.fast_mutation', 'fep.tournament_selection', 'fep.candidate_generation', 'fep.selection', 'fep.mutation'],
     'gbrt_bo': ['gbrt_bo.position_generation', 'gbrt_bo.selection', 'gbrt_bo.step', 'gbrt_bo.candidate_generation', 'gbrt_bo.state_update'],
     'gp_bo': ['gp_bo.position_generation', 'gp_bo.selection', 'gp_bo.step', 'gp_bo.candidate_generation', 'gp_bo.state_update'],
-    'grasp': ['grasp.candidate_search', 'grasp.selection', 'grasp.construct', 'grasp.local_search', 'grasp.state_update'],
+    'grasp': ['grasp.construction', 'grasp.rcl_selection', 'grasp.local_search', 'grasp.incumbent_update'],
     'hc': ['hc.candidate_generation', 'hc.selection', 'hc.step', 'hc.search', 'hc.state_update'],
     'ils': ['ils.candidate_search', 'ils.selection', 'ils.step', 'ils.local_search', 'ils.state_update', 'ils.perturbation', 'ils.acceptance'],
     'l2smea': ['l2smea.candidate_generation', 'l2smea.selection', 'l2smea.step', 'l2smea.candidate_update'],
@@ -3678,7 +3678,6 @@ _SINGLE_EVAL_HONEST = {
 "gp_bo": "gp_bo.update",
 "gpoo": "gpoo.octopus_tentacle_prey_position_update",
 "gpso": "gpso.velocity_position_update",
-"grasp": "grasp.update",
 "gsa": "gsa.gravitational_force_acceleration_update",
 "gska": "gska.gaining_sharing_knowledge_update",
 "gso": "gso.glowworm_luciferin_movement_update",
@@ -3801,7 +3800,7 @@ _SINGLE_OPERATOR_SEMANTIC_OK.update({"flo","kma","puma_o","rbmo","sboa"})
 # expose paper-native operator_counts/operator_contributions, and the web UI
 # should attribute convergence to those README/EvoMapX labels rather than to
 # coarse labels such as ``mfea2.update`` or ``cmaes.update``.
-_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "lshade", "ilshade"}
+_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "grasp", "lshade", "ilshade"}
 for _aid in _NATIVE_TELEMETRY_ENGINES:
     try:
         _SINGLE_EVAL_HONEST.pop(_aid, None)
@@ -5281,7 +5280,10 @@ _README_OPERATOR_LABEL_OVERRIDES: dict[str, list[str]] = {
         'gpso.velocity_position_update',
     ],
     'grasp': [
-        'grasp.update',
+        'grasp.construction',
+        'grasp.rcl_selection',
+        'grasp.local_search',
+        'grasp.incumbent_update',
     ],
     'gsa': [
         'gsa.gravitational_force_acceleration_update',
@@ -6483,7 +6485,7 @@ def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[overri
 # observations.  Their labels already match the README table and should not be
 # decomposed by the generic compound-splitting fallback into abstract labels
 # such as ``mfea2.selection`` or ``mfea2.candidate_generation``.
-_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "lshade", "ilshade"}
+_NATIVE_TELEMETRY_ENGINES = {"mfea", "mfea2", "cmaes", "ggo", "grasp", "lshade", "ilshade"}
 _PREVIOUS_EXPAND_COMPOUND_NATIVE_TELEMETRY = expand_compound_operator_label
 
 def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]

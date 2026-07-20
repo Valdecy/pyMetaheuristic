@@ -419,7 +419,7 @@ _register_profiles(
     _profile('sacoso', 'swarm', ('surrogate screening/modeling', 'evolutionary/swarm variation', 'candidate evaluation', 'selection/model update'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs surrogate-assisted modeling/screening, variation, candidate evaluation, and selection/model update without extra objective evaluations.'),
     _profile('ars', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
     _profile('basin_hopping', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
-    _profile('grasp', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
+    _profile('grasp', 'trajectory', ('grasp.construction', 'grasp.rcl_selection', 'grasp.local_search', 'grasp.incumbent_update'), 'native', 'paper_structural_grasp_continuous_bridge', 'Native GRASP telemetry records adaptive coordinate-wise construction, restricted-candidate-list selection, sampled-neighborhood local search, and best-incumbent update without extra objective evaluations. The numerical neighborhood and variable-assignment bridge are package-specific because the 1995 paper is a problem-specific combinatorial framework.'),
     _profile('hc', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
     _profile('hsa', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
     _profile('ils', 'trajectory', ('proposal/neighborhood move', 'move acceptance', 'step-size/adaptation', 'incumbent update/restart'), 'native-family', 'phase_7_distribution_surrogate_trajectory', 'Phase 7 native-family EvoMapX hook logs proposal/neighborhood move, acceptance, adaptation, and incumbent/restart updates without extra objective evaluations.'),
@@ -1514,7 +1514,10 @@ _README_OPERATOR_OVERRIDES: dict[str, tuple[str, ...]] = {
         'gpso.velocity_position_update',
     ),
     'grasp': (
-        'grasp.update',
+        'grasp.construction',
+        'grasp.rcl_selection',
+        'grasp.local_search',
+        'grasp.incumbent_update',
     ),
     'gsa': (
         'gsa.gravitational_force_acceleration_update',
