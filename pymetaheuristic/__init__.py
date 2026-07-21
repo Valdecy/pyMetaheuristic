@@ -199,7 +199,7 @@ from .src.islands import (
     TopologyConfig,
 )
 
-__version__ = "7.4.3"
+__version__ = "7.4.4"
 
 __all__ = [
     "FUNCTIONS",
