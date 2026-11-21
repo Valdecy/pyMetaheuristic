@@ -7,7 +7,7 @@
 
 # pymetaheuristic
 
-A Python library for metaheuristic optimization and collaborative search, bringing together **400 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
+A Python library for metaheuristic optimization and collaborative search, bringing together **401 optimization algorithms** across swarm, evolutionary, trajectory, physics-inspired, nature-inspired, human-inspired, and mathematical families. **pymetaheuristic** makes metaheuristics observable, comparable, cooperative, and benchmarkable through single optimizers, island systems, adaptive orchestration, diagnostics, and scientific benchmark studies.
 
 ## A. **Version Note**
 
@@ -1447,6 +1447,7 @@ The table below summarizes the optimization engines currently available in the l
 | [Moth Search Algorithm](https://doi.org/10.1007/s12293-016-0212-3) | `msa_e` | swarm | Yes | Yes | No | `msa_e.golden_ratio_exploitation_update` |
 | [Mountain Gazelle Optimizer](https://doi.org/10.1016/j.advengsoft.2022.103282) | `mgo` | swarm | Yes | Yes | No | `mgo.territory_mountain_herding_update` |
 | [Mountaineering Team-Based Optimization](https://doi.org/10.3390/math11051273) | `mtbo` | human | Yes | No | No | `mtbo.team_leader_coordinated_movement`<br>`mtbo.avalanche_worst_avoidance`<br>`mtbo.team_mean_movement`<br>`mtbo.random_relocation_phase`<br>`mtbo.candidate_generation`<br>`mtbo.selection` |
+| [Multi-population based Differential Evolution (MDE)](https://doi.org/10.1007/s00521-022-07969-w) | `mde` | evolutionary | Yes | Yes | No | `mde.subpopulation_sampling`<br>`mde.random_scale_differential_mutation`<br>`mde.parameter_free_crossover`<br>`mde.noise_perturbation`<br>`mde.random_bound_repair`<br>`mde.greedy_selection`<br>`mde.subpopulation_write_back` |
 | [Multi-Start Local Search](https://doi.org/10.1007/0-306-48056-5_12) | `msls` | trajectory | No | Yes | Yes | `msls.update` |
 | [Multisurrogate-Assisted Ant Colony Optimization](https://doi.org/10.1109/TCYB.2021.3064676) | `misaco` | swarm | Yes | Yes | No | `misaco.lhs_initialization`<br>`misaco.acomv_offspring_generation`<br>`misaco.rbf_fit_selection`<br>`misaco.lsbt_fit_selection`<br>`misaco.random_selection`<br>`misaco.sqp_rbf_local_search`<br>`misaco.expensive_candidate_evaluation`<br>`misaco.archive_update` |
 | [Multi-Verse Optimizer](https://doi.org/10.1007/s00521-015-1870-7) | `mvo` | swarm | Yes | Yes | No | `mvo.candidate_generation`<br>`mvo.selection`<br>`mvo.exploitation_move`<br>`mvo.replacement` |

@@ -257,6 +257,7 @@ from .l_srtde              import LSRTDEEngine
 from .madde                import MadDEEngine
 from .lso_spectrum         import LSOSpectrumEngine
 from .mbo                  import MBOEngine
+from .mde                  import MDEEngine
 from .memetic_a            import MEMETIC_AEngine
 from .mfa                  import MFAEngine
 from .mfea                 import MFEAEngine
@@ -659,6 +660,7 @@ _ENGINE_CLASSES: tuple[type[BaseEngine], ...] = (
     LevyJaEngine, 
     LiWOEngine, 
     MBOEngine, 
+    MDEEngine, 
     MEMETIC_AEngine,
     MFAEngine, 
     MFEA2Engine, 
@@ -1081,6 +1083,7 @@ _TABLE_ALGORITHM_IDS: set[str] = {
     'lso_spectrum', 
     'madde', 
     'mbo', 
+    'mde', 
     'memetic_a',
     'mfa', 
     'mfea', 
@@ -1474,6 +1477,7 @@ _POPULATION_BASED: set[str] = {
     'lso_spectrum', 
     'madde', 
     'mbo',
+    'mde',
     'memetic_a', 
     'mfa', 
     'mfea', 
@@ -1815,6 +1819,7 @@ _INJECTION_ENABLED: set[str] = {
     'lso_spectrum', 
     'madde', 
     'mbo', 
+    'mde', 
     'memetic_a', 
     'mfa', 'mfea', 
     'mfea2', 
@@ -2195,6 +2200,7 @@ _SNAPSHOT_FIT_ENABLED: set[str] = {
     'lso_spectrum', 
     'madde', 
     'mbo',
+    'mde',
     'memetic_a', 
     'mfa', 
     'mfea', 
@@ -2590,6 +2596,7 @@ _ALGORITHM_NAMES: dict[str, str] = {
     'lso_spectrum'       : 'Light Spectrum Optimizer',
     'madde'             : 'Multiple Adaptation Differential Evolution',
     'mbo'                : 'Monarch Butterfly Optimization',
+    'mde'                : 'Multi-population based Differential Evolution',
     'memetic_a'          : 'Memetic Algorithm',
     'mfa'                : 'Moth Flame Algorithm',
     'mfea'               : 'Multifactorial Evolutionary Algorithm',
@@ -2993,6 +3000,7 @@ _ALGORITHM_FAMILIES: dict[str, str] = {
     'lso_spectrum'       : 'physics',
     'madde'             : 'evolutionary',
     'mbo'                : 'swarm',
+    'mde'                : 'evolutionary',
     'memetic_a'          : 'evolutionary',
     'mfa'                : 'swarm',
     'mfea'               : 'evolutionary',
@@ -3396,6 +3404,7 @@ _ALGORITHM_DOIS: dict[str, str] = {
     'lso_spectrum'       : '10.1016/j.asoc.2024.112318',
     'madde'             : '10.1109/CEC45853.2021.9504725',
     'mbo'                : '10.1007/s00521-015-1923-y',
+    'mde'                : '10.1007/s00521-022-07969-w',
     'memetic_a'          : '10.1007/978-3-540-92910-9_29',
     'mfa'                : '10.1016/j.knosys.2015.07.006',
     'mfea'               : '10.1109/TEVC.2015.2458037',
