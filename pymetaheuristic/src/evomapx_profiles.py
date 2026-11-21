@@ -3025,3 +3025,27 @@ EVOMAPX_OPERATOR_PROFILES['lshade_cnepsin'] = EvoMapXProfile(
     phase='paper_faithful_lshade_cnepsin',
     notes='Native telemetry for performance-adapted sinusoidal F control, SHADE memory, current-to-pbest mutation, Euclidean-neighbourhood covariance crossover, archive maintenance, greedy selection, midpoint repair, and linear population reduction.',
 )
+
+# Addendum — native MDE telemetry synchronized with the paper-faithful engine.
+EVOMAPX_OPERATOR_PROFILES["mde"] = EvoMapXProfile(
+    algorithm_id="mde",
+    family="evolutionary",
+    operators=(
+        "mde.subpopulation_sampling",
+        "mde.random_scale_differential_mutation",
+        "mde.parameter_free_crossover",
+        "mde.noise_perturbation",
+        "mde.random_bound_repair",
+        "mde.greedy_selection",
+        "mde.subpopulation_write_back",
+    ),
+    fidelity="native",
+    phase="paper_faithful_mde",
+    notes=(
+        "Native MDE telemetry reports random sub-population sampling from the 3N "
+        "full population, random-scale dx/dy differential mutation, the parameter-free "
+        "crossover map with carried-over noise, Eq. 15 uniform bound re-sampling, greedy "
+        "selection, and write-back, without additional objective evaluations. Direct "
+        "improvement is attributed to mutation, crossover, and selection."
+    ),
+)

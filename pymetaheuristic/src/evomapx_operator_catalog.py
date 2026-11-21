@@ -7175,3 +7175,50 @@ def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list
     return _previous_expand_compound_lshade_cnepsin_native(algorithm_id, label)
 
 __all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
+
+# Native semantic labels emitted directly by the MDE engine.
+_MDE_PAPER_NATIVE_LABELS = [
+    "mde.subpopulation_sampling",
+    "mde.random_scale_differential_mutation",
+    "mde.parameter_free_crossover",
+    "mde.noise_perturbation",
+    "mde.random_bound_repair",
+    "mde.greedy_selection",
+    "mde.subpopulation_write_back",
+]
+ENGINE_OPERATOR_LABELS["mde"] = list(_MDE_PAPER_NATIVE_LABELS)
+try:
+    _ENGINE_OPERATOR_LABEL_OVERRIDES["mde"] = list(_MDE_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _README_OPERATOR_LABEL_OVERRIDES["mde"] = list(_MDE_PAPER_NATIVE_LABELS)
+except Exception:
+    pass
+try:
+    _SINGLE_OPERATOR_SEMANTIC_OK.discard("mde")
+    _NATIVE_TELEMETRY_ENGINES.add("mde")
+except Exception:
+    pass
+
+_previous_labels_for_algorithm_mde_native = labels_for_algorithm
+def labels_for_algorithm(algorithm_id: str) -> list[str]:  # type: ignore[override]
+    aid = str(algorithm_id).lower().replace("-", "_")
+    if aid == "mde":
+        return list(_MDE_PAPER_NATIVE_LABELS)
+    return _previous_labels_for_algorithm_mde_native(algorithm_id)
+
+_previous_expand_compound_mde_native = expand_compound_operator_label
+def expand_compound_operator_label(algorithm_id: str, label: str | None) -> list[str]:  # type: ignore[override]
+    if label in {None, ""}:
+        return []
+    aid = str(algorithm_id or "").lower().replace("-", "_")
+    raw = str(label)
+    if aid == "mde":
+        if raw in _MDE_PAPER_NATIVE_LABELS:
+            return [raw]
+        if raw in {"mde.update", "mde.step", "mde.subpopulation_evolution"}:
+            return list(_MDE_PAPER_NATIVE_LABELS)
+    return _previous_expand_compound_mde_native(algorithm_id, label)
+
+__all__ = list(dict.fromkeys(list(__all__) + ["labels_for_algorithm", "expand_compound_operator_label"]))
